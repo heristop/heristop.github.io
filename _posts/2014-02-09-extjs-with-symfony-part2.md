@@ -4,7 +4,7 @@ title:  "Use Sencha ExtJS with Symfony 2, The Proxy"
 categories: symfony
 ---
 
-<div class="toc"><span>Jump to...</span></div>
+<div class="toc"></div>
 
 In the previous article we explored how to include an ExtJS application inside of Symfony 2.
 We started with the model and the view. Now we're going to see the controller and how to retrieve messages.
@@ -29,7 +29,7 @@ AjaxProxy uses ajax requests to load data from the server. As a reminder, here's
 ...
 {% endhighlight %}
 
-Now we create the controller on the server side. The annotation routing must match with the url called by the proxy:
+Now we create the controller on the server side. The routing must match with the url called by the proxy.
 
 {% highlight php %}
 <?php
@@ -47,7 +47,7 @@ use Sencha\TicketBundle\Model\MessageQuery;
 class MessageController extends Controller
 {
     /**
-     * @Route("/message/list", name="_message_list")
+     * @Route("/message/list", name="_message_list", defaults={"_format": "json"})
      */
     public function listAction()
     {
@@ -70,24 +70,19 @@ class MessageController extends Controller
             $error = $e->getMessage();
         }
         
-        $response = new Response(json_encode(array(
+        return new Response(json_encode(array(
             'success'    => (bool) $success,
             'totalCount' => (int) $total,
             'results'    => $listMessages,
             'error'      => $error
         )));
-        
-        $response->setStatusCode(200);
-        $response->headers->set('Content-Type', 'application/json');
-        
-        return $response;
     }
 
 }
 {% endhighlight %}
 
 Thanks to the Propel behavior [Senchagridable](https://github.com/heristop/SenchagridableBehavior/), there is nothing more to add.
-You can filter, sort and paginate the messages only with the query method _paginateGrid_. Then you should return the response in JSON:
+You can filter, sort and paginate the messages only with the query method _paginateGrid_. Then you should return the results in JSON:
 
 {% highlight json %}
 {
