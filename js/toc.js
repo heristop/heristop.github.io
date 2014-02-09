@@ -3,7 +3,7 @@
 (function($){
 $.fn.JekyllToc = function(options) {
   var defaults = {
-    text: 'Jump to...',
+    text: '<i>Jump to...<i>',
     list_type: 'ol',
     no_back_to_top_links: false
   },
@@ -18,7 +18,7 @@ $.fn.JekyllToc = function(options) {
   var highest_level = headers.map(function(_, ele) { return get_level(ele) }).get().sort()[0]
   var return_to_top = '<i class="icon-arrow-up back-to-top"> </i>'
 
-  var jump_text = "" !== $('.toc').html() ? $('.toc').html() : '<i>'+settings.text+'</i>';
+  var jump_text = "" !== $('.toc').html() ? $('.toc').html() : settings.text;
   var level = get_level(headers[0]), this_level, html = jump_text + " <"+settings.list_type+">";
   headers.on('click', function() {
     if (!settings.no_back_to_top_links) window.location.hash = this.id
@@ -47,5 +47,5 @@ $.fn.JekyllToc = function(options) {
 })(jQuery);
 
 $(document).ready(function() {
-  $().JekyllToc({ list_type: 'ul' });
+  $().JekyllToc({ list_type: 'ul', text: '<span>Jump to...</span>' });
 });

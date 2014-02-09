@@ -1,11 +1,10 @@
 ---
 layout: post
 title:  "Use Sencha ExtJS with Symfony 2, The Viewport"
-date:   2014-02-04 23:30:12
 categories: symfony
 ---
 
-<div class="toc"><span>Jump to...</span></div>
+<div class="toc"></div>
 
 Sencha ExtJS is a javascript framework which allows to create some RIA (Rich Internet Application). 
 In this tutorial, I propose to develop a mini ticket manager in which we could list, create, edit and delete some tickets.
