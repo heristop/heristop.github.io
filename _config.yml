@@ -9,6 +9,8 @@ redcarpet:
 asset:
     version: a
 
+url: http://www.zazencode.com
+
 author:   Alexandre Mogère
 github:   heristop
 twitter:  heristop

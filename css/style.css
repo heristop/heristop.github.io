@@ -52,7 +52,7 @@ hr {
 /*
 /*****************************************************************************/
 .content {
-  min-height: 200px;
+  min-height: 250px;
 }
 
 .posts {
@@ -63,6 +63,7 @@ hr {
 .posts li, .related_posts li {
   line-height: 1.75em;
   list-style-type: none;
+  margin: 0 8px 0 8px;
 }
 
 .posts span {
