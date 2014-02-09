@@ -45,7 +45,3 @@ $.fn.JekyllToc = function(options) {
   output.html(html);
 };
 })(jQuery);
-
-$(document).ready(function() {
-  $().JekyllToc({ list_type: 'ul', text: '<span>Jump to...</span>' });
-});
