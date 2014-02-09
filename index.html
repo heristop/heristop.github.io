@@ -1,0 +1,45 @@
+---
+layout: default
+title: Zazen Code
+---
+
+<div id="home">
+
+  <ul class="posts">
+      {% for post in site.posts %}
+      {% if post.next %}
+          {% capture year %}{{ post.date | date: '%Y' }}{% endcapture %}
+          {% capture nyear %}{{ post.next.date | date: '%Y' }}{% endcapture %}
+      {% endif %}
+  
+      {% if forloop.first %}
+      <li>
+          <h2 class="title" style="">
+              <img border="0" src="/images/layout_content.png" alt="" />
+              {{ post.date | date: '%Y' }}
+          </h2>
+          <hr />
+          
+          <ul class="posts-by-year {{ post.date | date: '%Y' }}">
+      {% else %}
+      {% if year != nyear %}
+          </ul>
+      </li>
+      <li>
+          <h1 class="title">{{ post.date | date: '%Y' }}</h1>
+          <ul class="posts-by-year {{ post.date | date: '%Y' }}">
+      {% endif %}
+      {% endif %}
+      <li>
+          <span>{{ post.date | date: '%d %b' }}</span>
+          <img src="/images/rightarrow.png" alt="" /> <a href="{{ post.url }}">{{ post.title }}</a>
+      </li>
+  
+      {% if forloop.last %}
+          </ul>
+      </li>
+      {% endif %}
+      {% endfor %}
+  </ul>
+  
+</div>
