@@ -1,0 +1,15 @@
+name: Zazen Code
+markdown: redcarpet
+pygments: true
+exclude:  [ README.md ]
+
+redcarpet:
+    extensions: [with_toc_data]
+
+asset:
+    version: a
+
+author:   Alexandre Mogère
+github:   heristop
+twitter:  heristop
+linkedin: heristop
