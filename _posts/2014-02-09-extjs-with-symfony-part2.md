@@ -4,7 +4,7 @@ title:  "Use Sencha ExtJS with Symfony 2, The Proxy"
 categories: symfony
 ---
 
-<div class="toc"></div>
+<div id="toc"></div>
 
 In the previous article we explored how to include an ExtJS application inside of Symfony 2.
 We started with the model and the view. Now we're going to see the controller and how to retrieve messages.
@@ -82,7 +82,7 @@ class MessageController extends Controller
 {% endhighlight %}
 
 Thanks to the Propel behavior [Senchagridable](https://github.com/heristop/SenchagridableBehavior/), there is nothing more to add.
-You can filter, sort and paginate the messages only with the query method _paginateGrid_. Then you should return the results in JSON:
+You can filter, sort and paginate the messages only with the query method `paginateGrid`. Then you should return the results in JSON:
 
 {% highlight json %}
 {
@@ -101,6 +101,9 @@ You can filter, sort and paginate the messages only with the query method _pagin
    "error":""
 }
 {% endhighlight %}
+
+The routing paramater `_format` allows to send the right Content-Type of the Response.
+
 
 ## JsonP proxy
 

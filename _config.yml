@@ -7,7 +7,7 @@ redcarpet:
     extensions: [with_toc_data]
 
 asset:
-    version: a
+    version: b
 
 url: http://zazencode.com
 
@@ -15,3 +15,5 @@ author:   Alexandre Mogère
 github:   heristop
 twitter:  heristop
 linkedin: heristop
+
+keywords: php,symfony,extjs,talend,blog,heristop

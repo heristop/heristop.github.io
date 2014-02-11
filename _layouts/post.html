@@ -23,8 +23,8 @@ layout: default
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
-<div class="related_posts" style="margin-top: 10px">
-    <h3>Related Posts</h3>
+<div class="related-posts">
+    <h3>Related meditations</h3>
     <p>
         <ul>
             {% for post in site.related_posts limit:5 %}
@@ -39,6 +39,10 @@ $(document).ready(function() {
     $(document.links).filter(function() {
         return this.hostname != window.location.hostname;
     }).attr('target', '_blank');
-    $().JekyllToc({ list_type: 'ul', text: '<span>Meditate on...</span>' });
+    $('#toc').toc({
+        listType: 'ul',
+        title: '<span>Meditate on...</span>',
+        showSpeed: 0
+    });
 });
 </script>
