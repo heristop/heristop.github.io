@@ -60,7 +60,7 @@ hr {
   margin-bottom: 0;
 }
 
-.posts li, .related_posts li {
+.posts li, .related-posts li {
   line-height: 1.75em;
   list-style-type: none;
   margin: 0 8px 0 8px;
@@ -239,9 +239,13 @@ img[alt=screenshot] {
   font-weight: bold;
 }
 
-/* Toc */
+/* related posts */
+.related-posts {
+  margin-top: 10px;
+}
 
-.toc {
+/* toc */
+#toc {
   float: right;
   width: 180px;
   padding: 10px;
@@ -258,10 +262,10 @@ img[alt=screenshot] {
   font-size: 80%;
 }
 
-.toc span {
+#toc span {
   font-weight: bold;
 }
 
-.toc li {
+#toc li {
   color: #CCC;
 }

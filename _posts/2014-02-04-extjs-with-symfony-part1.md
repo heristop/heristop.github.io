@@ -4,7 +4,7 @@ title:  "Use Sencha ExtJS with Symfony 2, The Viewport"
 categories: symfony
 ---
 
-<div class="toc"></div>
+<div id="toc"></div>
 
 Sencha ExtJS is a javascript framework which allows to create some RIA (Rich Internet Application). 
 In this tutorial, I propose to develop a mini ticket manager in which we could list, create, edit and delete some tickets.
@@ -44,7 +44,7 @@ Therefore, we use symblink in the extra section:
 {% endhighlight %}
 
 Then, let's take a look on the Propel configuration. We choose to use the ExtJS date formatter instead of Propel formatter.
-To deactivate it, add this lines in _config.yml_:
+To deactivate it, add this lines in `config.yml`:
 
 {% highlight yaml %}
 # Propel Configuration
@@ -53,7 +53,7 @@ propel:
         propel.useDateTimeClass: false
 {% endhighlight %}
 
-Finally, create a bundle. In our example, the name of the bundle is _SenchaTicketBundle_.
+Finally, create a bundle. In our example, the name of the bundle is `SenchaTicketBundle`.
 
 {% highlight sh %}
 app/console generate:bundle --namespace=Sencha/TicketBundle
@@ -141,8 +141,8 @@ app/console propel:fixtures:load
 
 ## View
 
-For the client side, we need to download the ExtJS 4.2 and copy it in _Resources/public/ext_.
-Then we are going to create the MVC structure for the application in _Resources/public/js_:
+For the client side, we need to download the ExtJS 4.2 and copy it in `Resources/public/ext`.
+Then we are going to create the MVC structure for the application in `Resources/public/js`:
 
 {% highlight sh %}
 public
@@ -171,7 +171,7 @@ app/console assets:install --symlink
 ### Assetic
 
 The Assetic library will allow us to combine and include all files of the application, matching with the tree structure.
-Activate it for the bundle in _config.yml_:
+Activate it for the bundle in `config.yml`:
 
 {% highlight yaml %}
 assetic:
@@ -182,7 +182,8 @@ assetic:
 
 ### Template
 
-On the template we will use the combining option of Assetic to include the javascripts. Don't forget to include extjs too, otherwise you are going to have a blank page!
+On the template we will use the combining option of Assetic to include the javascripts.
+Don't forget to include ExtJS too, otherwise you are going to have a blank page! In the example, I picked the Neptune theme:
 
 {% highlight html %}
 <!DOCTYPE html>
@@ -223,7 +224,7 @@ You can also use the YUI compressor to optimize and minify your code. See how to
 Our viewport contains a main panel and a grid where we will display the tickets list.
 This tutorial remains simple, but feel free to design the viewport as you like, adding a menu or a header for instance.
 
-Here's the main entrance of our application: _app.js_.
+Here's the main entrance of our application: `app.js`.
 
 {% highlight js %}
 // Resources/public/js/app/app.js
@@ -386,7 +387,7 @@ Ext.define('Ticket.store.Messages', {
 ### View
 
 The view is a grid where we are going to define the columns we want to display or sort.
-It extends the widget _Ext.grid.Panel_:
+It extends the widget `Ext.grid.Panel`:
 
 {% highlight js %}
 // Resources/public/js/app/view/Message/List.js
@@ -506,7 +507,8 @@ Ext.require([
 {% endhighlight %}
 
 But using the ExtJS loader function make loose the benefit of asset combining on the production environment.
-Indeed ExtJS will make many HTTP requests to get all required files. So prefer to include what you need on the template, and be careful to respect the order of inclusion:
+Indeed ExtJS will make many HTTP requests to get all required files.
+So prefer to include what you need on the template, and be careful to respect the order of inclusion:
 
 {% highlight html %}
 { % stylesheets
