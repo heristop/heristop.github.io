@@ -66,7 +66,7 @@ hr {
   margin: 0 8px 0 8px;
 }
 
-.posts span {
+.posts span, .eof {
   color: #aaa;
   font-family: Monaco, "Courier New", monospace;
   font-size: 80%;
@@ -228,8 +228,7 @@ hr {
 }
 
 /* img */
-img[alt=screenshot] {
-  width: 100%;
+img[alt=screenshot], .screenshot {
   padding: 1px;
   border-width: 1px;
   border-style: solid;
@@ -237,6 +236,15 @@ img[alt=screenshot] {
   text-align: center;
   background-color: #ECECEC;
   font-weight: bold;
+  width: 100%;
+}
+
+.screenshot {
+  margin: 10px 0 10px 0;
+}
+
+.screenshot img {
+  padding: 10px;
 }
 
 /* related posts */

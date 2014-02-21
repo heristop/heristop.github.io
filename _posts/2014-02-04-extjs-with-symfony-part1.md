@@ -156,7 +156,7 @@ public
          └─ store
              └─ Messages.js
          └─ view
-             └─ Message
+             └─ message
                  └─ List.js
                  └─ Show.js
          └─ app.js
@@ -174,6 +174,7 @@ The Assetic library will allow us to combine and include all files of the applic
 Activate it for the bundle in `config.yml`:
 
 {% highlight yaml %}
+# app/config/config.yml
 assetic:
     debug:          "%kernel.debug%"
     use_controller: false
@@ -390,7 +391,7 @@ The view is a grid where we are going to define the columns we want to display o
 It extends the widget `Ext.grid.Panel`:
 
 {% highlight js %}
-// Resources/public/js/app/view/Message/List.js
+// Resources/public/js/app/view/message/List.js
 Ext.define('Ticket.view.message.List', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.messagelist',
@@ -490,7 +491,7 @@ Ext.define('Ticket.view.message.List', {
 });
 {% endhighlight %}
 
-**Note:** To take advantage of the filter feature, we could have included it like that:
+**Protip:** To take advantage of the filter feature, we could have included it like that:
 
 {% highlight js %}
 // Resources/public/js/app/app.js
@@ -526,12 +527,14 @@ So prefer to include what you need on the template, and be careful to respect th
     ...
 % }
     <script src="{ { asset_url } }"></script>
-{ % endjavascripts  % }
+{ % endjavascripts % }
 {% endhighlight %}
 
 Now we have a great filters feature on our grid!
 
-![screenshot]({{ site.url }}/images/posts/screen_filter.png)
+<p class="screenshot">
+<img style="width: 50%" src="/images/posts/screen_filter.png" />
+</p>
 
 ### Controller
 
