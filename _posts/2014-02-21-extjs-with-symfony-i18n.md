@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Expose Symfony i18n to ExtJS"
+title:  "Expose Symfony i18n messages to ExtJS"
 categories: symfony
 ---
 
