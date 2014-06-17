@@ -109,7 +109,7 @@ The routing paramater `_format` allows to send the right Content-Type of the Res
 
 AjaxProxy cannot be used to retrieve data from other domains, because cross-domain ajax requests are prohibited by the browser.
 JsonP proxy allows this cross domain. It formats the url, adding the callback parameter automatically.
-Ergo, it looks like you loaded it through a normal AjaxProxy. Here's an example of set up:
+Ergo, it looks like you loaded it through a normal AjaxProxy. Here is an example of set up:
 
 {% highlight json %}
 ...

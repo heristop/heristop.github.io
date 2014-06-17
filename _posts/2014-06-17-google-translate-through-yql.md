@@ -21,7 +21,7 @@ Thus to translate from french to english, we use this query:
 select * from google.translate where q="bonjour" and source="fr" and target="en"
 {% endhighlight %}
 
-And to call the Yahoo API, we use the following url:
+And to call the Yahoo API, we use this url:
 
 {% highlight text %}
 http://query.yahooapis.com/v1/public/yql?
@@ -40,7 +40,7 @@ callback = [ function name ]
 
 # PHP sample
 
-Lastly, I share the code I used to run an automatic translation:
+Lastly, here is the code I used to run an automatic translation:
 
 {% highlight php %}
 <?php
