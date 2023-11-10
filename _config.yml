@@ -9,11 +9,11 @@ redcarpet:
 asset:
     version: c
 
-url: http://zazencode.com
+url: https://heristop.github.io
 
 author:   Alexandre Mogère
 github:   heristop
 twitter:  heristop
 linkedin: heristop
 
-keywords: blog,php,symfony,symfony2,javascript,sencha,extjs,talend,heristop,mogère
+keywords: blog,frontend,vue,react,php,symfony,javascript,sencha,extjs,talend,heristop,zazencode
