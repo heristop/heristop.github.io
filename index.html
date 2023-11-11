@@ -15,14 +15,18 @@ title: Zazen Code
           </ul>
       </li>
       {% endunless %}
+
       <li>
           <h2 class="year-title">
               <img class="year-icon" src="/images/layout.png" alt="Year Icon" />
               {{ post.date | date: '%Y' }}
           </h2>
+
           <hr />
+
           <ul class="posts-by-year">
       {% endif %}
+
       <li>
           <span class="post-date">{{ post.date | date: '%d %b' }}</span>
           <img class="arrow-icon" src="/images/rightarrow.png" alt="Right Arrow" /> 
