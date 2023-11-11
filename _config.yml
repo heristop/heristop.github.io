@@ -1,19 +1,19 @@
 name: Zazen Code
 markdown: redcarpet
 pygments: true
-exclude:  [ README.md ]
+exclude: [README.md]
 
 redcarpet:
-    extensions: [with_toc_data]
+  extensions: [with_toc_data]
 
 asset:
-    version: d
+  version: d
 
 url: https://heristop.github.io
 
-author:   Alexandre Mogère
-github:   heristop
-twitter:  heristop
+author: Alexandre Mogère
+github: heristop
+twitter: heristop
 linkedin: heristop
 
-description: Zazen Code: Zazen Code: Sharing practical tips and the latest trends in JavaScript, TypeScript and PHP
+description: Sharing practical tips and the latest trends in JavaScript, TypeScript and PHP
