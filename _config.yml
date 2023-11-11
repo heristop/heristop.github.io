@@ -7,7 +7,7 @@ redcarpet:
     extensions: [with_toc_data]
 
 asset:
-    version: c
+    version: d
 
 url: https://heristop.github.io
 
@@ -16,4 +16,4 @@ github:   heristop
 twitter:  heristop
 linkedin: heristop
 
-keywords: blog,frontend,vue,react,php,symfony,javascript,sencha,extjs,talend,heristop,zazencode
+description: Zazen Code: Zazen Code: Sharing practical tips and the latest trends in JavaScript, TypeScript and PHP
