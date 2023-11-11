@@ -29,7 +29,7 @@ body {
     background-color: #FFF;
     font: 11px 'Josefin Sans', Helvetica, Arial, sans-serif;
     text-align: center;
-    background-image: url(./images/background.gif);
+    background-image: url(/images/background.gif);
 }
 
 h1 {
@@ -82,7 +82,7 @@ hr {
 .related-posts li {
     line-height: 1.75em;
     list-style-type: none;
-    margin: 0 8px 0 8px;
+    margin: 0 8px 10px 8px;
 }
 
 .posts span,
@@ -124,7 +124,7 @@ hr {
 }
 
 .header .banner .img {
-    background: transparent url(./images/duel.jpg) no-repeat center;
+    background: transparent url(/images/duel.jpg) no-repeat center;
     width: 600px;
     height: 120px;
     margin: auto;
@@ -178,7 +178,7 @@ hr {
 }
 
 .footer .profile {
-    background: transparent url(./images/visage_fleur.png) no-repeat;
+    background: transparent url(/images/visage_fleur.png) no-repeat;
     width: 200px;
     height: 140px;
 }
