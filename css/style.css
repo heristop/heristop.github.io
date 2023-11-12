@@ -124,10 +124,10 @@ hr {
 }
 
 .header .banner .img {
-    background: transparent url(/images/duel.jpg) no-repeat center;
-    width: 600px;
+    background: transparent url(/images/zazen.webp) no-repeat center left;
     height: 120px;
     margin: auto;
+    background-size: cover;
 }
 
 .header a {
