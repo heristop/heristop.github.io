@@ -12,8 +12,10 @@ layout: default
   <h3>Related meditations</h3>
   <p>
     <ul>
-      {% for post in site.related_posts limit:5 %}
-      <li><img src="/images/rightarrow.png" alt="" /> <a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></li>
+      {% for post in site.related_posts limit:3 %}
+      <li>
+        <img src="/images/rightarrow.png" alt="" /> <a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a>
+      </li>
       {% endfor %}
     </ul>
   </p>
