@@ -1,25 +1,25 @@
 ---
 layout: post
-title: "Frontend Development Weekly Digest 📰 - Week 47"
+title: "Frontend Development Weekly Digest 🌸 - Week 47"
 categories: frontend
 ---
 
 ### 🌐 News & Updates
 
 - 🌐 **[Trends in Front-End Development 2023](https://www.fronttribe.com/stories/front-end-development-trends-2023-guide)**
-  - Discover cutting-edge trends like mobile-first design, responsive web design, dark mode, and more
+  - Discover cutting-edge trends like mobile-first design, responsive web design, dark mode, and more.
 
 - 🚀 **[Frontend Developer Roadmap 2024](https://learnerbits.com/frontend-developer-roadmap-2024/)**
-  - Comprehensive guide on essential frontend development skills and technologies for 2024
+  - Comprehensive guide on essential frontend development skills and technologies for 2024.
 
 - ⚡ **[Vite 5.0 Update](https://vitejs.dev/blog/announcing-vite5)**
   - Introduction of Rollup 4, API cleanup, new Node.js requirements, and performance enhancements.
 
 - 💻 **[PHP 8.3 Release](https://devclass.com/2023/11/23/php-8-3-is-released-with-new-features-as-8-0-heads-for-end-of-life/)**
-  - New features like the Override attribute, JSON validation, and more
+  - New features like the Override attribute, JSON validation, and more.
 
 - 🌟 **[Playwright's Latest Updates](https://playwright.dev/docs/release-notes)**
-  - Playwright Test Generator enhancements, new APIs, and browser version updates
+  - Playwright Test Generator enhancements, new APIs, and browser version updates.
 
 ### 🪐 Explore More
 
