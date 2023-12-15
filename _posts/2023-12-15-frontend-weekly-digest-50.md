@@ -1,4 +1,8 @@
-# Weekly Frontend Development Digest 📰 - Week 50
+---
+layout: post
+title: "Frontend Development Weekly Digest 🌸 - Week 50"
+categories: frontend
+---
 
 ### 🌟 News & Trends
 - 📊 **[Netlify's 2023 State of Web Development Report](https://www.netlify.com/blog/unveiling-the-state-of-web-development-and-predictions-for-2024-and-beyond/)**
