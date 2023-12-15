@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Frontend Development Weekly Digest 🌸 - Week 47"
+title: "Frontend Development Weekly Digest 🍵 - Week 47"
 categories: frontend
 ---
 
