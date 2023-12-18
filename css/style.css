@@ -100,6 +100,7 @@ h2.year-title {
 .posts span,
 .eof {
     color: #aaa;
+    margin-top: 20px;
 }
 
 .site {
