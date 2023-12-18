@@ -136,7 +136,7 @@ h2.year-title {
 }
 
 .header .banner .img {
-    background: transparent url(/images/zazen.webp) no-repeat center left;
+    background: transparent url(/images/zazen.webp) no-repeat center center;
     height: 120px;
     margin: auto;
     background-size: cover;
@@ -186,12 +186,13 @@ h2.year-title {
 
 .footer .contact {
     float: left;
-    margin-right: 3em;
+    margin-right: 4em;
 }
 
 .footer .profile {
     background: transparent url(/images/visage_fleur.png) no-repeat;
-    width: 200px;
+    background-size: contain;
+    width: 160px;
     height: 140px;
 }
 
