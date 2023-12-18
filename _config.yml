@@ -7,7 +7,7 @@ redcarpet:
   extensions: [with_toc_data]
 
 asset:
-  version: e
+  version: f
 
 url: https://heristop.github.io
 
