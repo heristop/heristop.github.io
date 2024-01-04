@@ -10,6 +10,10 @@ categories: frontend
 
     - Updates from Angular, Next.js, React, and Solid about their plans for 2024.
 
+- 🆕 **[Vue 3.4 Released](https://blog.vuejs.org/posts/vue-3-4)**
+
+  - Explore the new features and improvements in Vue 3.4.
+
 ### 📝 Articles & Guides
 
 - 🏅 **[Top Ten Frontend Focus Articles of 2023](https://frontendfoc.us/issues/624)**
