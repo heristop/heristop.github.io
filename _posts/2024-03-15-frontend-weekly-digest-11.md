@@ -10,7 +10,7 @@ categories: frontend
 
 - 🌐 **[New ESM JavaScript Registry Runtime Agnostic](https://jsr.io/)**: Introduces a runtime-agnostic ESM JavaScript registry, aimed at enhancing module compatibility and flexibility across different environments.
 
-- 💨 **[Vue Vapor (No Virtual DOM) Experimental Repo](https://github.com/vuejs/core-vapor)**: An experimental exploration by Vue.js into a potential future without a virtual DOM, focusing on direct DOM manipulation for performance gains.
+- 💨 **[Vue Vapor Mode (No Virtual DOM)](https://icarusgk.hashnode.dev/vue-3-vapor-mode)**: An experimental exploration by Vue.js into a potential future without a virtual DOM, focusing on direct DOM manipulation for performance gains.
 
 - ⚡ **[Speed Comparison Dart/JS/Rust](https://medium.com/@tommyyy/the-dart-speed-035272e9d46d)**: A comparative analysis of execution speeds between Dart, JavaScript, and Rust, highlighting their performance in various computing scenarios.
 
