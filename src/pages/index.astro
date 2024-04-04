@@ -1,0 +1,100 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+
+import { getCollection } from "astro:content";
+import FormattedDate from "../components/FormattedDate.astro";
+
+export type Post = {
+  data: {
+    pubDate: Date;
+    title: string;
+    slug: string;
+  };
+};
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+function groupPostsByYear(posts: any) {
+  return posts.reduce(
+    (
+      acc: { [x: string]: any[] },
+      post: { data: { pubDate: { getFullYear: () => any } } }
+    ) => {
+      const year = post.data.pubDate.getFullYear();
+      if (!acc[year]) {
+        acc[year] = [] as Post[];
+      }
+      acc[year].push(post);
+      return acc;
+    },
+    {}
+  );
+}
+
+const postsByYear = groupPostsByYear(posts);
+const sortedYears = Object.keys(postsByYear).sort(
+  (a, b) => Number(b) - Number(a)
+);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body>
+    <main class="site">
+      <Header title={SITE_TITLE} />
+
+      <div class="content">
+        <ul class="posts">
+          {
+            sortedYears.map((year) => (
+              <li>
+                <h2 class="year-title">
+                  <img
+                    class="year-icon"
+                    src="/images/layout.png"
+                    alt="Year Icon"
+                  />
+                  {year}
+                </h2>
+                <hr />
+                <ul class="posts-by-year">
+                  {postsByYear[year].map(
+                    (post: {
+                      url: any;
+                      data: { pubDate: Date; title: unknown };
+                      slug: any;
+                    }) => (
+                      <li>
+                        <span class="post-date">
+                          <FormattedDate date={post.data.pubDate} />
+                        </span>
+                        <img
+                          class="arrow-icon"
+                          src="/images/rightarrow.png"
+                          alt="Right Arrow"
+                        />
+                        <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
+                      </li>
+                    )
+                  )}
+                </ul>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="eof">--EOF--</div>
+
+      <Footer />
+    </main>
+  </body>
+</html>
