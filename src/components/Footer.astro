@@ -1,0 +1,33 @@
+---
+import {
+  SITE_AUTHOR,
+  AUTHOR_ROLE,
+  AUTHOR_GITHUB,
+  AUTHOR_TWITTER,
+  AUTHOR_LINKEDIN,
+} from "../consts";
+---
+
+<footer class="footer">
+  <div class="contact profile"></div>
+  <div class="contact">
+    <p>
+      {SITE_AUTHOR}
+      <br />
+      {AUTHOR_ROLE}
+    </p>
+  </div>
+  <div class="contact">
+    <p>
+      <a href="https://github.com/{AUTHOR_GITHUB}" target="_blank"
+        >github.com/{AUTHOR_GITHUB}</a
+      ><br />
+      <a href="https://twitter.com/{AUTHOR_TWITTER}" target="_blank"
+        >twitter.com/{AUTHOR_TWITTER}</a
+      ><br />
+      <a href="https://www.linkedin.com/in/{AUTHOR_LINKEDIN}" target="_blank"
+        >linkedin.com/in/{AUTHOR_LINKEDIN}</a
+      ><br />
+    </p>
+  </div>
+</footer>
