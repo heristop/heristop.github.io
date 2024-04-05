@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      BEAM_TOKEN: ${{ secrets.BEAM_TOKEN }}
+      BEAM_TOKEN: 96d134f3-4fcc-41ea-a458-08b4a8debd78
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
