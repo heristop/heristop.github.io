@@ -68,9 +68,9 @@ const sortedYears = Object.keys(postsByYear).sort(
                 <ul class="posts-by-year">
                   {postsByYear[year].map(
                     (post: {
-                      url: any;
-                      data: { pubDate: Date; title: unknown };
-                      slug: any;
+                      url: string;
+                      data: { pubDate: Date; title: string };
+                      slug: string;
                     }) => (
                       <li>
                         <span class="post-date">

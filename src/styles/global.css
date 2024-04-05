@@ -53,7 +53,7 @@ a {
 }
 
 a:hover {
-    color: #AA1D1D;
+    color: #9d4261;
     text-decoration: none;
 }
 
@@ -153,11 +153,7 @@ h2.year-title {
 }
 
 .title a {
-    color: #a00;
-}
-
-.title a:hover {
-    color: #000;
+    color: #9d4261;
 }
 
 .header a.extra {
