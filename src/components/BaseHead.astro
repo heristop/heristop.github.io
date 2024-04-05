@@ -52,6 +52,7 @@ const { title, description, image = "/images/og-zazen.webp" } = Astro.props;
 <meta property="twitter:image" content={new URL(image, Astro.url)} />
 
 <script
+  is:inline
   src="https://beamanalytics.b-cdn.net/beam.min.js"
-  data-token={process.env.BEAM_TOKEN}
+  data-token={import.meta.env.BEAM_TOKEN}
   async></script>
