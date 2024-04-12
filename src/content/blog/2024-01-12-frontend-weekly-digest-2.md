@@ -39,6 +39,4 @@ pubDate: "2024-01-12"
 - 🌐 [**vue0: Vue Version Open Source Alternative for v0.dev**](https://github.com/zernonia/vue0)
   - vue0 is an open-source project that serves as an alternative to v0.dev, developed using Vue and TypeScript. It showcases modern web development practices and community engagement.
 
----
-
-Stay updated with the latest in frontend development. Follow the links for more detailed insights.
+> Stay updated with the latest in frontend development. Follow the links for more detailed insights.

@@ -50,6 +50,4 @@ pubDate: "2024-01-04"
 
   - The latest in web development trends including PWA, AMP, Voice Search, and more.
 
----
-
-Stay updated with the latest in frontend development. Follow the links for more detailed insights.
+> Stay updated with the latest in frontend development. Follow the links for more detailed insights.
