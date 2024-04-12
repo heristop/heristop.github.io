@@ -48,4 +48,6 @@ pubDate: "2024-03-04"
 - 📚 **[Introducing neetoUI v6](https://www.bigbinary.com/blog/introducing-neeto-ui-v6)**
   - Details the features and improvements of neetoUI v6 for streamlined development processes.
 
+---
+
 Stay updated with the latest in frontend development. Follow the links for more detailed insights.
