@@ -1,7 +1,7 @@
 ---
-layout: post
-title: "Frontend Development Weekly Digest 🗻 - Week 12-13"
-categories: frontend
+title: "Frontend Development Weekly Digest 🗻 - Week 14-15"
+description: Sharing practical tips and the latest trends in JavaScript
+pubDate: "2024-04-12"
 ---
 
 ### 📢 News & Trends
