@@ -1,20 +1,30 @@
 {
   "name": "zazencode",
   "type": "module",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "scripts": {
-  "dev": "astro dev",
-  "start": "astro dev",
-  "build": "astro check && astro build",
-  "preview": "astro preview",
-  "astro": "astro"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "prepare": "husky",
+    "lint": "markdownlint src/content/**/*.md --ignore node_modules --disable=MD013",
+    "check": "markdown-link-check src/content/**/*.md --ignore node_modules -c .markdown-link-check.json",
+    "format": "prettier --write 'src/content/**/*.md'"
   },
   "dependencies": {
-  "@astrojs/check": "^0.5.10",
-  "@astrojs/mdx": "^2.2.4",
-  "@astrojs/rss": "^4.0.5",
-  "@astrojs/sitemap": "^3.1.2",
-  "astro": "^4.5.16",
-  "typescript": "^5.4.4"
+    "@astrojs/check": "^0.5.10",
+    "@astrojs/mdx": "^2.3.0",
+    "@astrojs/rss": "^4.0.5",
+    "@astrojs/sitemap": "^3.1.2",
+    "astro": "^4.6.1",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "husky": "^9.0.11",
+    "markdown-link-check": "^3.12.1",
+    "markdownlint-cli": "^0.39.0",
+    "prettier": "^3.2.5"
   }
 }

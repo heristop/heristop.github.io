@@ -25,4 +25,4 @@ pubDate: "2023-11-17"
 - 🤖 **[Dev News: GPT-4 Turbo, Chrome Talks Pretty, and Worlds Merge](https://thenewstack.io/dev-news-gpt-4-turbo-chrome-talks-pretty-and-worlds-merge/)**
   - Updates on GPT-4 Turbo, Chrome's new features, and more
 
-> Stay updated with the latest in frontend development. Follow the links for more detailed insights.
+> 💡 **Stay updated with the latest in frontend development. Follow the links for more detailed insights.**
