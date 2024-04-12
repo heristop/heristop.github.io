@@ -9,9 +9,9 @@ import FormattedDate from "../components/FormattedDate.astro";
 
 export type Post = {
   data: {
-  pubDate: Date;
-  title: string;
-  slug: string;
+    pubDate: Date;
+    title: string;
+    slug: string;
   };
 };
 
@@ -21,18 +21,18 @@ const posts = (await getCollection("blog")).sort(
 
 function groupPostsByYear(posts: any) {
   return posts.reduce(
-  (
-    acc: { [x: string]: any[] },
-    post: { data: { pubDate: { getFullYear: () => any } } }
-  ) => {
-    const year = post.data.pubDate.getFullYear();
-    if (!acc[year]) {
-    acc[year] = [] as Post[];
-    }
-    acc[year].push(post);
-    return acc;
-  },
-  {}
+    (
+      acc: { [x: string]: any[] },
+      post: { data: { pubDate: { getFullYear: () => any } } }
+    ) => {
+      const year = post.data.pubDate.getFullYear();
+      if (!acc[year]) {
+        acc[year] = [] as Post[];
+      }
+      acc[year].push(post);
+      return acc;
+    },
+    {}
   );
 }
 
@@ -45,56 +45,56 @@ const sortedYears = Object.keys(postsByYear).sort(
 <!doctype html>
 <html lang="en">
   <head>
-  <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
   <body>
-  <main class="site">
-    <Header title={SITE_TITLE} />
+    <main class="site">
+      <Header title={SITE_TITLE} />
 
-    <div class="content">
-    <ul class="posts">
-      {
-      sortedYears.map((year) => (
-        <li>
-        <h2 class="year-title">
-          <img
-          class="year-icon"
-          src="/images/layout.png"
-          alt="Year Icon"
-          />
-          {year}
-        </h2>
-        <hr />
-        <ul class="posts-by-year">
-          {postsByYear[year].map(
-          (post: {
-            url: string;
-            data: { pubDate: Date; title: string };
-            slug: string;
-          }) => (
-            <li>
-            <span class="post-date">
-              <FormattedDate date={post.data.pubDate} />
-            </span>
-            <img
-              class="arrow-icon"
-              src="/images/rightarrow.png"
-              alt="Right Arrow"
-            />
-            <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
-            </li>
-          )
-          )}
+      <div class="content">
+        <ul class="posts">
+          {
+            sortedYears.map((year) => (
+              <li>
+                <h2 class="year-title">
+                  <img
+                    class="year-icon"
+                    src="/images/layout.png"
+                    alt="Year Icon"
+                  />
+                  {year}
+                </h2>
+                <hr />
+                <ul class="posts-by-year">
+                  {postsByYear[year].map(
+                    (post: {
+                      url: string;
+                      data: { pubDate: Date; title: string };
+                      slug: string;
+                    }) => (
+                      <li>
+                        <span class="post-date">
+                          <FormattedDate date={post.data.pubDate} />
+                        </span>
+                        <img
+                          class="arrow-icon"
+                          src="/images/rightarrow.png"
+                          alt="Right Arrow"
+                        />
+                        <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
+                      </li>
+                    )
+                  )}
+                </ul>
+              </li>
+            ))
+          }
         </ul>
-        </li>
-      ))
-      }
-    </ul>
-    </div>
+      </div>
 
-    <div class="eof">--EOF--</div>
+      <div class="eof">--EOF--</div>
 
-    <Footer />
-  </main>
+      <Footer />
+    </main>
   </body>
 </html>

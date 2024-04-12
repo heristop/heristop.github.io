@@ -33,4 +33,4 @@ pubDate: "2023-11-24"
 
 - _"This is unacceptable, should not be possible"_ [See Tweet](https://twitter.com/LinusEkenstam/status/1727357730833530954)
 
-> Stay updated with the latest in frontend development. Follow the links for more detailed insights.
+> 💡 **Stay updated with the latest in frontend development. Follow the links for more detailed insights.**
