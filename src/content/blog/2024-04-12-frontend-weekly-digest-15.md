@@ -44,6 +44,4 @@ pubDate: "2024-04-12"
 
   - A detailed course that covers NestJS, a progressive Node.js framework for building efficient and scalable server-side applications.
 
----
-
-Stay updated with the latest in frontend development. Follow the links for more detailed insights.
+> Stay updated with the latest in frontend development. Follow the links for more detailed insights.
