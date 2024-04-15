@@ -1,5 +1,5 @@
 ---
-title: "Frontend Development Weekly Digest 💮 - Week 10-11"
+title: "Frontend Development Weekly Digest 💮 - Weeks 10-11"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-03-15"
 ---
