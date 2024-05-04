@@ -20,16 +20,16 @@ const { title, description, pubDate, updatedDate, image } = Astro.props;
     <main class="site">
       <Header title={SITE_TITLE} />
 
-      <article class="content">
-        <h1>{title}</h1>
+      <div class="content">
+        {title && <h1>{title}</h1>}
 
-        <p class="meta">
-          <FormattedDate date={pubDate} />
+        <p class="meta text-sm">
+          {pubDate && <FormattedDate date={pubDate} showYear />}
           {
             updatedDate && (
-              <div class="last-updated-on">
-                Last updated on <FormattedDate date={updatedDate} />
-              </div>
+              <span class="last-updated-on">
+                (Last updated on <FormattedDate date={updatedDate} showYear />)
+              </span>
             )
           }
         </p>
@@ -37,7 +37,7 @@ const { title, description, pubDate, updatedDate, image } = Astro.props;
         <div class="post">
           <slot />
         </div>
-      </article>
+      </div>
 
       <Footer />
     </main>

@@ -9,6 +9,4 @@ for file in $modified_files; do
   git add $file
 done
 
-# Run lint and check
-pnpm lint
-pnpm check
+pnpm lint-staged

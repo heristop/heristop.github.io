@@ -9,23 +9,23 @@ import FormattedDate from "../components/FormattedDate.astro";
 
 export type Post = {
   data: {
-    pubDate: Date;
+    pubDate?: Date;
     title: string;
     slug: string;
   };
 };
 
 const posts = (await getCollection("blog")).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0)
 );
 
 function groupPostsByYear(posts: any) {
   return posts.reduce(
     (
       acc: { [x: string]: any[] },
-      post: { data: { pubDate: { getFullYear: () => any } } }
+      post: { data: { pubDate?: { getFullYear: () => any } } }
     ) => {
-      const year = post.data.pubDate.getFullYear();
+      const year = post.data.pubDate?.getFullYear();
       if (!acc[year]) {
         acc[year] = [] as Post[];
       }
@@ -56,7 +56,7 @@ const sortedYears = Object.keys(postsByYear).sort(
           {
             sortedYears.map((year) => (
               <li>
-                <h2 class="year-title">
+                <h2 class="flex items-center gap-x-2 align-middle year-title">
                   <img
                     class="year-icon"
                     src="/images/layout.png"
@@ -64,23 +64,23 @@ const sortedYears = Object.keys(postsByYear).sort(
                   />
                   {year}
                 </h2>
+
                 <hr />
+
                 <ul class="posts-by-year">
                   {postsByYear[year].map(
                     (post: {
                       url: string;
-                      data: { pubDate: Date; title: string };
+                      data: { pubDate?: Date; title: string };
                       slug: string;
                     }) => (
-                      <li>
-                        <span class="post-date">
-                          <FormattedDate date={post.data.pubDate} />
-                        </span>
-                        <img
-                          class="arrow-icon"
-                          src="/images/rightarrow.png"
-                          alt="Right Arrow"
-                        />
+                      <li class="flex items-center space-x-2 align-middle">
+                        {post.data.pubDate && (
+                          <span class="meta post-date text-sm w-12">
+                            <FormattedDate date={post.data.pubDate} />
+                          </span>
+                        )}
+
                         <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
                       </li>
                     )
@@ -92,7 +92,7 @@ const sortedYears = Object.keys(postsByYear).sort(
         </ul>
       </div>
 
-      <div class="eof">--EOF--</div>
+      <div class="eof text-sm">--EOF--</div>
 
       <Footer />
     </main>
