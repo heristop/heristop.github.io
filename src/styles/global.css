@@ -273,7 +273,7 @@ code {
   border-radius: 0.25em;
   padding: .2em .4em;
   background-color: rgb(255 255 255 / 40%);
-  font-size: var(--font-size-normal);
+  font-size: var(--font-size-small);
 }
 
 pre {
@@ -346,14 +346,6 @@ pre {
 @media screen and (width <=768px) {
   body {
     margin: var(--space-md);
-  }
-
-  body,
-  h1,
-  h2,
-  h3,
-  p {
-    font-size: var(--font-size-small);
   }
 
   .site {
