@@ -135,7 +135,7 @@ h2.year-title {
 }
 
 .post li {
-  padding: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
 }
 
 .eof {
@@ -274,6 +274,7 @@ code {
   padding: .2em .4em;
   background-color: rgb(255 255 255 / 40%);
   font-size: var(--font-size-small);
+  text-align: left;
 }
 
 pre {

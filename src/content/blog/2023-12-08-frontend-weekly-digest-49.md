@@ -39,4 +39,4 @@ pubDate: "2023-12-08"
 - 🌿 **[Elysium: A Tranquil 3D Nature World](https://elysium.thebenezer.com)**
   - A captivating and immersive 3D world built using Three.js and WebGL, offering a tranquil web experience.
 
-> 💡 **Stay updated with the latest in frontend development. Follow the links for more detailed insights.**
+> 💡 **Stay updated with the latest in frontend development. Follow the links for more insights.**
