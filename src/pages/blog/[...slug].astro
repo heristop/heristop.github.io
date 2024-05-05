@@ -1,7 +1,9 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
-import LatestPosts from "../../components/LatestPosts.astro";
+import RecommendedPosts from "../../components/RecommendedPosts.astro";
+
+const currentPostSlug = Astro.props.slug;
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -19,5 +21,5 @@ const { Content } = await post.render();
 <Layout {...post.data}>
   <Content />
 
-  <LatestPosts />
+  <RecommendedPosts {currentPostSlug} />
 </Layout>

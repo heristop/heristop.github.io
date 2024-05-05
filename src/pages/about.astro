@@ -24,14 +24,16 @@ type NetworkType = {
 ---
 
 <Layout title="👋 About" description="About page">
-  <main class="flex flex-wrap gap-y-4 gap-x-20 justify-center">
-    <blockquote class="font-weight-bold">
-      Hello, I'm Alexandre! I work across both front-end and back-end
-        systems. I enjoy finding ways to make software development processes
-        more efficient and straightforward. I'm always looking for new ways to
-        improve my skills and learn new technologies.
-    </blockquote>
+  <blockquote class="font-weight-bold">
+    Hello, I'm Alexandre! I work across both front-end and back-end
+      systems. I enjoy finding ways to make software development processes
+      more efficient and straightforward. I'm always looking for new ways to
+      improve my skills and learn new technologies.
+  </blockquote>
 
+  <h1>🔗 LinkFolio</h1>
+
+  <main class="flex flex-wrap gap-y-4 gap-x-20 justify-center">
     {
       userConfig.socialNetworks.map((network: NetworkType, index: number) => (
         <div
