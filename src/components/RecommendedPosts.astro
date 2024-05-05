@@ -1,8 +1,8 @@
 ---
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 const currentPostSlug = Astro.props.currentPostSlug;
 
-export async function getRecommendedPosts(currentPostSlug) {
+export async function getRecommendedPosts(currentPostSlug: string) {
     const posts = await getCollection("blog");
     const currentIndex = posts.findIndex(post => post.slug === currentPostSlug);
     const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
