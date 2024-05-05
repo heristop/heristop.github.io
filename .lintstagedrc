@@ -3,12 +3,13 @@
         "pnpm md:lint",
         "pnpm md:check"
     ],
-    "*.astro": [
-        "astro format",
-        "pnpm lint"
-    ],
     "*.css": [
         "astro format",
         "pnpm stylelint src/**/*.css"
+    ],
+    "*.astro": [
+        "astro format",
+        "pnpm lint",
+        "pnpm build"
     ]
 }
