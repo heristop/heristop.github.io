@@ -61,4 +61,4 @@ image: /images/posts/2024-04-12-frontend-weekly-digest.png
 
   - Details a new project that extends Web Components to backend languages using WebAssembly, allowing for more versatile and powerful web development practices.
 
-> 💡 **Stay updated with the latest in frontend development. Follow the links for more detailed insights.**
+> 💡 **Stay updated with the latest in frontend development. Follow the links for more insights.**

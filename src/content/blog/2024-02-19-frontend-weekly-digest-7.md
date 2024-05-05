@@ -36,4 +36,4 @@ pubDate: "2024-02-19"
 - 🌌 **[CSS Blurry Shimmer Effect](https://www.smashingmagazine.com/2024/01/css-blurry-shimmer-effect/)**
   - A guide to creating a captivating blur effect for web elements, leveraging CSS properties for a modern, aesthetic touch.
 
-> 💡 **Stay updated with the latest in frontend development. Follow the links for more detailed insights.**
+> 💡 **Stay updated with the latest in frontend development. Follow the links for more insights.**
