@@ -12,11 +12,11 @@ export async function getRecommendedPosts(currentPostSlug: string) {
   recommendedPosts = recommendedPosts.slice(-3);
 
   if (previousPost) {
-    recommendedPosts = [previousPost, ...recommendedPosts];
+    //recommendedPosts = [previousPost, ...recommendedPosts];
   }
 
   if (nextPost) {
-    recommendedPosts = [nextPost, ...recommendedPosts];
+    //recommendedPosts = [nextPost, ...recommendedPosts];
   }
 
   // Remove duplicates and limit to 5 posts
