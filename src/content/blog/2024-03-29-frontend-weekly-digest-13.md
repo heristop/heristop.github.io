@@ -2,6 +2,7 @@
 title: "Frontend Development Weekly Digest 🌸 - Weeks 12-13"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-03-29"
+image: /images/posts/2024-04-12-frontend-weekly-digest.png
 ---
 
 ### 🌟 News & Trends
@@ -54,5 +55,3 @@ pubDate: "2024-03-29"
 
 - 📚 **[Must-Know React Libraries](https://dev.to/copilotkit/libraries-you-should-know-if-you-build-with-react-1807)**
   - A curated list of React libraries that are essential for modern web development projects.
-
-> 💡 **Stay updated with the latest in frontend development. Follow the links for more insights.**

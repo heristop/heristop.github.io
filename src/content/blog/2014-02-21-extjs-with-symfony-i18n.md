@@ -2,6 +2,7 @@
 title: "Expose Symfony i18n messages to ExtJS"
 description: "How to expose Symfony i18n messages to ExtJS"
 pubDate: "2014-02-21"
+image: "/images/posts/screen_msgalertfr.png"
 ---
 
 In previous articles, I explained how to implement ExtJS in a Symfony 2 project, focusing on the [Viewport](../2014-02-04-extjs-with-symfony-part1) and the [Proxy](../2014-02-09-extjs-with-symfony-part2).
@@ -84,17 +85,17 @@ It generates the file below in `js/translations`:
 Then, include this file and the `Translator` with Assetic:
 
 ```html
-{ % javascripts 'bundles/bazingajstranslation/js/translator.min.js'
-'js/translations/config.js' 'js/translations/messages/*.js' ... % }
-<script src="{ { asset_url } }"></script>
-{ % endjavascripts % }
+{% javascripts 'bundles/bazingajstranslation/js/translator.min.js'
+'js/translations/config.js' 'js/translations/messages/*.js' ... %}
+<script src="{{ asset_url }}"></script>
+{% endjavascripts %}
 ```
 
 By default, the locale is set to the value defined in the lang attribute of the html tag:
 
 ```html
 <!doctype html>
-<html lang="{ { app.request.locale } }">
+<html lang="{{ app.request.locale }}">
   ...
 </html>
 ```
@@ -134,9 +135,9 @@ assetic:
 Then, include the locale file with the variable instead of the lang:
 
 ```html
-{ % javascripts "/bundle/acmefoo/ext/locale/ext-lang-{locale}.js" vars=["locale"] % }
-<script language="javascript" type="text/javascript" src={ { asset_url } }"></script>
-{ % endjavascripts % }
+{% javascripts "/bundle/acmefoo/ext/locale/ext-lang-{locale}.js" vars=["locale"] %}
+<script language="javascript" type="text/javascript" src={{ asset_url }}"></script>
+{% endjavascripts %}
 ```
 
 Thus, you can take advantage of standard translations for widgets, like the calendar for instance:

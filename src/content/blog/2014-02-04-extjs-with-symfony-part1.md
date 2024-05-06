@@ -2,6 +2,7 @@
 title: "Use Sencha ExtJS with Symfony 2, The Viewport"
 description: "How to use Sencha ExtJS with Symfony 2, The Viewport"
 pubDate: "2014-02-04"
+image: "/images/posts/screen_filter.png"
 ---
 
 Sencha ExtJS is a javascript framework which allows to create some RIA (Rich Internet Application).
@@ -193,24 +194,24 @@ Don't forget to include ExtJS too, otherwise you are going to have a blank page!
     <link
       rel="stylesheet"
       type="text/css"
-      href="{ { asset('bundles/senchaticket/ext/resources/ext-theme-neptune/ext-theme-neptune-all.css') } }"
+      href="{{ asset('bundles/senchaticket/ext/resources/ext-theme-neptune/ext-theme-neptune-all.css') }}"
     />
     <script
       type="text/javascript"
-      src="{ { asset('bundles/senchaticket/ext/ext-all.js') } } "
+      src="{{ asset('bundles/senchaticket/ext/ext-all.js') }} "
     ></script>
     <script
       type="text/javascript"
-      src="{ { asset('bundles/senchaticket/ext/ext-theme-neptune.js') } } "
+      src="{{ asset('bundles/senchaticket/ext/ext-theme-neptune.js') }} "
     ></script>
-    { % javascripts '@SenchaTicketBundle/Resources/public/js/app/model/*'
+    {% javascripts '@SenchaTicketBundle/Resources/public/js/app/model/*'
     '@SenchaTicketBundle/Resources/public/js/app/store/*'
     '@SenchaTicketBundle/Resources/public/js/app/view/*'
     '@SenchaTicketBundle/Resources/public/js/app/view/*/*'
     '@SenchaTicketBundle/Resources/public/js/app/controller/*'
-    '@SenchaTicketBundle/Resources/public/js/app/*' % }
-    <script src="{ { asset_url } }"></script>
-    { % endjavascripts % }
+    '@SenchaTicketBundle/Resources/public/js/app/*' %}
+    <script src="{{ asset_url }}"></script>
+    {% endjavascripts %}
   </head>
   <body>
     <!-- No html body. No layout. Welcome in ExtJS world! -->
@@ -521,22 +522,17 @@ Indeed ExtJS will make many HTTP requests to get all required files.
 So prefer to include what you need on the template, and be careful to respect the order of inclusion:
 
 ```html
-{ % stylesheets '@HeriTicketBundle/Resources/public/ext/examples/ux/grid/css/*'
-'@HeriTicketBundle/Resources/public/css/*' % }
-<link
-  rel="stylesheet"
-  type="text/css"
-  media="screen"
-  href="{ { asset_url } }"
-/>
-{ % endstylesheets % } { % javascripts
+{% stylesheets '@HeriTicketBundle/Resources/public/ext/examples/ux/grid/css/*'
+'@HeriTicketBundle/Resources/public/css/*' %}
+<link rel="stylesheet" type="text/css" media="screen" href="{{ asset_url }}" />
+{% endstylesheets %} {% javascripts
 '@SenchaTicketBundle/Resources/public/ext/examples/ux/grid/menu/*'
 '@SenchaTicketBundle/Resources/public/ext/examples/ux/grid/filter/Filter.js'
 '@SenchaTicketBundle/Resources/public/ext/examples/ux/grid/filter/*'
 '@SenchaTicketBundle/Resources/public/ext/examples/ux/grid/FiltersFeature.js'
-... % }
-<script src="{ { asset_url } }"></script>
-{ % endjavascripts % }
+... %}
+<script src="{{ asset_url }}"></script>
+{% endjavascripts %}
 ```
 
 Now we have a great filters feature on our grid!

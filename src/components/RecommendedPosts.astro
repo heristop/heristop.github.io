@@ -1,43 +1,47 @@
 ---
 import { getCollection } from "astro:content";
-const currentPostSlug = Astro.props.currentPostSlug;
+const { currentPostSlug, conclusion } = Astro.props;
 
 export async function getRecommendedPosts(currentPostSlug: string) {
-    const posts = await getCollection("blog");
-    const currentIndex = posts.findIndex(post => post.slug === currentPostSlug);
-    const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
-    const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
+  const posts = await getCollection("blog");
+  const currentIndex = posts.findIndex(post => post.slug === currentPostSlug);
+  const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
+  const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
 
-    let recommendedPosts = posts.filter(post => post.slug !== currentPostSlug);
-    recommendedPosts = recommendedPosts.slice(-3).reverse();
+  let recommendedPosts = posts.filter(post => post.slug !== currentPostSlug);
+  recommendedPosts = recommendedPosts.slice(-3).reverse();
 
-    if (nextPost) {
-        recommendedPosts = [nextPost, ...recommendedPosts];
-    }
+  if (previousPost) {
+    recommendedPosts = [previousPost, ...recommendedPosts];
+  }
 
-    if (previousPost) {
-        recommendedPosts = [previousPost, ...recommendedPosts];
-    }
+  if (nextPost) {
+    recommendedPosts = [nextPost, ...recommendedPosts];
+  }
 
-    // Remove duplicates and limit to 5 posts
-    recommendedPosts = [...new Set(recommendedPosts)].slice(0, 5);
+  // Remove duplicates and limit to 5 posts
+  recommendedPosts = [...new Set(recommendedPosts)].slice(0, 3);
 
-    return recommendedPosts;
+  return recommendedPosts;
 }
 
 const recommendedPosts = await getRecommendedPosts(currentPostSlug);
 ---
 
 <section class="my-4">
-  <blockquote>
-    <h2>✨ Recommended Posts</h2>
+  {conclusion && (
+    <p>
+      <b>{ conclusion }</b>
+    </p>
+  )}
 
-    <ul>
-      {recommendedPosts.map((post) => (
-        <li>
-          <a href={`/blog/${post.slug}`}>{post.data.title}</a>
-        </li>
-      ))}
-    </ul>
-  </blockquote>
+  <h2>✨ Explore More</h2>
+
+  <ul>
+    {recommendedPosts.map((post) => (
+      <li>
+        <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+      </li>
+    ))}
+  </ul>
 </section>
