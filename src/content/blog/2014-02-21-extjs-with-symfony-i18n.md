@@ -3,6 +3,7 @@ title: "Expose Symfony i18n messages to ExtJS"
 description: "How to expose Symfony i18n messages to ExtJS"
 pubDate: "2014-02-21"
 image: "/images/posts/screen_msgalertfr.png"
+conclusion: "💃 Happy Coding!"
 ---
 
 In previous articles, I explained how to implement ExtJS in a Symfony 2 project, focusing on the [Viewport](../2014-02-04-extjs-with-symfony-part1) and the [Proxy](../2014-02-09-extjs-with-symfony-part2).

@@ -2,6 +2,7 @@
 title: "Use Google Translate API through YQL"
 description: "How to use Google Translate API through YQL"
 pubDate: "2014-06-17"
+conclusion: "💃 Happy Coding!"
 ---
 
 As part of the internationalization of our ecommerce websites, I needed a quick translation script to create some fixtures for tests.
