@@ -2,7 +2,6 @@
 title: "Frontend Development Weekly Digest 🍵 - Weeks 16-17"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-04-26"
-image: /images/posts/2024-04-12-frontend-weekly-digest.png
 ---
 
 ### 📢 News & Trends
@@ -60,5 +59,3 @@ image: /images/posts/2024-04-12-frontend-weekly-digest.png
 - **[🛠 New Wasm Project Brings Web Components to Backend Languages](https://thenewstack.io/reversing-web-assembly-project-extends-web-components/)**
 
   - Details a new project that extends Web Components to backend languages using WebAssembly, allowing for more versatile and powerful web development practices.
-
-> 💡 **Stay updated with the latest in frontend development. Follow the links for more insights.**

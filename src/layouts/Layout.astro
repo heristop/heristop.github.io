@@ -18,7 +18,7 @@ const { title, description, pubDate, updatedDate, image } = Astro.props;
 
   <body>
     <main class="site">
-      <Header title={SITE_TITLE} />
+      <Header title={SITE_TITLE} {image} />
 
       <div class="content">
         {title && <h1>{title}</h1>}

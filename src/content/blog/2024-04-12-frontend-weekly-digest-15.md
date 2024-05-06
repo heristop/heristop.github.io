@@ -2,7 +2,6 @@
 title: "Frontend Development Weekly Digest 🗻 - Weeks 14-15"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-04-12"
-image: /images/posts/2024-04-12-frontend-weekly-digest.png
 ---
 
 ### 📢 News & Trends
@@ -44,5 +43,3 @@ image: /images/posts/2024-04-12-frontend-weekly-digest.png
 - 📖 **[Comprehensive NestJS Course](https://www.freecodecamp.org/news/comprehensive-nestjs-course/)**
 
   - A detailed course that covers NestJS, a progressive Node.js framework for building efficient and scalable server-side applications.
-
-> 💡 **Stay updated with the latest in frontend development. Follow the links for more insights.**

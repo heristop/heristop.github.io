@@ -16,10 +16,13 @@ type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
 const { Content } = await post.render();
+const conclusion = post.data.conclusion;
 ---
 
 <Layout {...post.data}>
   <Content />
 
-  <RecommendedPosts {currentPostSlug} />
+  <blockquote>
+    <RecommendedPosts {currentPostSlug} {conclusion} />
+  </blockquote>
 </Layout>

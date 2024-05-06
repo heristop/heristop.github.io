@@ -2,6 +2,7 @@
 title: "Frontend Development Weekly Digest 🍵 - Weeks 3-5"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-02-05"
+conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
 ---
 
 ### 🌟 News & Trends
@@ -38,5 +39,3 @@ pubDate: "2024-02-05"
 
 - 🛠 **[Design System Checklist](https://www.designsystemchecklist.com/)**
   - Explore this handy checklist to ensure your design system is comprehensive and well-implemented for your frontend projects.
-
-> 💡 **Stay updated with the latest in frontend development. Follow the links for more insights.**
