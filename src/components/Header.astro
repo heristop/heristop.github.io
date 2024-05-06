@@ -2,12 +2,16 @@
 import HeaderLink from "./HeaderLink.astro";
 const { image = "/images/zazen.webp" } = Astro.props;
 import { SITE_TITLE } from "../consts";
+
+const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 ---
 
 <header>
   <nav class="header">
-    <div>
-      <h1 class="title"><a href="/">{SITE_TITLE}</a></h1>
+    <div class="menu">
+      <h1 class="title"><a href="/">{title}</a></h1>
+
+      <HeaderLink class="extra" href="/blog">blog</HeaderLink>
 
       <HeaderLink class="extra" href="/about">about</HeaderLink>
     </div>

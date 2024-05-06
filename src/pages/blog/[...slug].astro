@@ -20,9 +20,11 @@ const conclusion = post.data.conclusion;
 ---
 
 <Layout {...post.data}>
-  <Content />
+  <div class="post">
+    <Content />
 
-  <blockquote>
-    <RecommendedPosts {currentPostSlug} {conclusion} />
-  </blockquote>
+    <blockquote>
+      <RecommendedPosts {currentPostSlug} {conclusion} />
+    </blockquote>
+  </div>
 </Layout>

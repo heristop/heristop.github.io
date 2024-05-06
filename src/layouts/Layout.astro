@@ -20,21 +20,22 @@ const { title, description, pubDate, updatedDate, image } = Astro.props;
     <main class="site">
       <Header title={SITE_TITLE} {image} />
 
-      <div class="content">
-        {title && <h1>{title}</h1>}
+      <div class="pre-content">
+        <div class="flex flex-col sm:flex-row justify-between w-full">
+          <div class="w-full sm:w-3/4">{title && <h1>{title}</h1>}</div>
+          <div class="w-full sm:w-1/4 meta text-sm align-right">
+            {pubDate && <FormattedDate date={pubDate} showYear />}
+            {
+              updatedDate && (
+                <span class="last-updated-on">
+                  (Last updated on <FormattedDate date={updatedDate} showYear />)
+                </span>
+              )
+            }
+          </div>
+        </div>
 
-        <p class="meta text-sm">
-          {pubDate && <FormattedDate date={pubDate} showYear />}
-          {
-            updatedDate && (
-              <span class="last-updated-on">
-                (Last updated on <FormattedDate date={updatedDate} showYear />)
-              </span>
-            )
-          }
-        </p>
-
-        <div class="post">
+        <div class="content">
           <slot />
         </div>
       </div>

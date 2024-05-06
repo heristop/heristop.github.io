@@ -30,7 +30,8 @@ export const externalLink: RehypePlugin = (options?: Options) => {
   };
 };
 
-const isAnchor = (element: Element) => element.tagName == "a" && element.properties && "href" in element.properties;
+const isAnchor = (element: Element) =>
+  element.tagName == "a" && element.properties && "href" in element.properties;
 
 const getUrl = (element: Element) => {
   if (!element.properties) {

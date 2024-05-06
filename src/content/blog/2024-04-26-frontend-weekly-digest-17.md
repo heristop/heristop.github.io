@@ -2,6 +2,7 @@
 title: "Frontend Development Weekly Digest 🍵 - Weeks 16-17"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-04-26"
+conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
 ---
 
 ### 📢 News & Trends
@@ -32,7 +33,7 @@ pubDate: "2024-04-26"
 
 - **[📜 5 Essential JavaScript Methods to Simplify Your Coding Life](https://medium.com/javarevisited/5-essential-javascript-methods-to-simplify-your-coding-life-a673abfc6ae2)**
 
-  - Highlights methods like `Array.prototype.map()`, `filter()`, `reduce()`, `Promise.all()`, and `String.prototype.includes()` which simplify coding and increase efficiency in handling arrays and asynchronous operations in JavaScript.
+  - Highlights methods like `Array.prototype.map()`, `filter()`, `reduce()`, `Promise.all()` or `String.prototype.includes()` which simplify coding and increase efficiency in handling arrays and asynchronous operations in JavaScript.
 
 - **[🎨 Using Rarer HTML Tags For Styling](https://blog.openreplay.com/using-rarer-html-tags-for-styling/)**
 
