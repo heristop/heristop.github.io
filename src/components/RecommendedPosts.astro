@@ -9,20 +9,20 @@ export async function getRecommendedPosts(currentPostSlug: string) {
   const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
 
   let recommendedPosts = posts.filter(post => post.slug !== currentPostSlug);
-  recommendedPosts = recommendedPosts.slice(-3).reverse();
+  recommendedPosts = recommendedPosts.slice(-3);
 
   if (previousPost) {
-    //recommendedPosts = [previousPost, ...recommendedPosts];
+    recommendedPosts = [previousPost, ...recommendedPosts];
   }
 
   if (nextPost) {
-    //recommendedPosts = [nextPost, ...recommendedPosts];
+    recommendedPosts = [nextPost, ...recommendedPosts];
   }
 
   // Remove duplicates and limit to 5 posts
   recommendedPosts = [...new Set(recommendedPosts)].slice(0, 3);
 
-  return recommendedPosts;
+  return recommendedPosts.reverse();
 }
 
 const recommendedPosts = await getRecommendedPosts(currentPostSlug);
