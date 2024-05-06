@@ -31,10 +31,10 @@ type NetworkType = {
     for new ways to improve my skills and learn new technologies.
   </blockquote>
 
-  <section class="text-center my-6">
-    <ul class="flex justify-center gap-x-4 font-bold">
+  <section class="text-center my-8">
+    <ul class="flex justify-center gap-x-4 font-bold text-sm">
       <li>💼 Chapter Lead</li>
-      <li>🎂 November 4th</li>
+      <li>🎂 4 November</li>
       <li>🔗 <a href="https://heristop.github.io/about">Permalink</a></li>
     </ul>
   </section>
@@ -45,7 +45,7 @@ type NetworkType = {
     {
       userConfig.socialNetworks.map((network: NetworkType, index: number) => (
         <div
-          class="network flex items-start justify-center p-2 w-full md:w-1/3 rounded hover:bg-[#d6cebe] group transition duration-300 ease-in-out fade-in-up-bounce"
+          class="network flex items-start justify-center p-2 w-full md:w-1/3 rounded-md hover:bg-[#F5EEE6] group transition duration-300 ease-in-out fade-in-up-bounce"
           style={`animation-delay: ${delay * index}ms`}
         >
           <a href={network.url} target="blank" class="group-hover:text-gray-800">
@@ -58,7 +58,7 @@ type NetworkType = {
               alt={network.description}
               width={300}
               height={100}
-              class="object-cover w-[300px] h-[100px] rounded-lg overflow-hidden shadow-md opacity-80 group-hover:opacity-100"
+              class="object-cover w-[300px] h-[100px] rounded-md overflow-hidden shadow-md opacity-90 group-hover:opacity-100"
             />
 
             <div class="px-2 py-0">
@@ -72,6 +72,4 @@ type NetworkType = {
       ))
     }
   </main>
-
-  <div class="eof text-sm">--EOF--</div>
 </Layout>

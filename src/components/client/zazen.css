@@ -1,0 +1,22 @@
+.tile {
+    position: absolute;
+    top: 18vh;
+    left: 30vw;
+    width: 64px;
+    height: 90px;
+    text-align: center;
+    background-position: bottom;
+    background-repeat: no-repeat;
+}
+
+@media screen and (width <=1024px) {
+    .tile {
+        left: 20vw;
+    }
+}
+
+@media screen and (width <=768px) {
+    .tile {
+        left: 0;
+    }
+}

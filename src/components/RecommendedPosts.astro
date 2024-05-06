@@ -35,12 +35,12 @@ const recommendedPosts = await getRecommendedPosts(currentPostSlug);
     </p>
   )}
 
-  <h2>✨ Explore More</h2>
+  <h2>✨ Explore More:</h2>
 
-  <ul>
+  <ul class="text-sm">
     {recommendedPosts.map((post) => (
       <li>
-        <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+        - <a href={`/blog/${post.slug}`}>{post.data.title}</a>
       </li>
     ))}
   </ul>
