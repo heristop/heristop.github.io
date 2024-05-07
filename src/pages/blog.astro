@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
+import { Image } from 'astro:assets';
 import FormattedDate from "../components/FormattedDate.astro";
 
 export type Post = {
@@ -46,12 +47,12 @@ const sortedYears = Object.keys(postsByYear).sort(
     sortedYears.map((year) => (
       <li>
         <h2 class="flex items-center gap-x-2 align-middle year-title">
-          <img
-          class="year-icon"
-          src="/images/layout_content.png"
-          alt="Year Icon"
-          width="16px"
-          height="16px"
+          <Image
+            class="year-icon"
+            src="/images/layout_content.png"
+            alt="Year Icon"
+            width="16"
+            height="16"
           />
           {year}
         </h2>
