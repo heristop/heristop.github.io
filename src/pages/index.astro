@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import { Image } from 'astro:assets';
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
@@ -36,13 +37,15 @@ const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/asset
       <div class="content">
         <ul>
           <li>
-            <h2 class="flex items-center gap-x-2 align-middle"><img
-              class="year-icon"
-              src="/images/layout.png"
-              alt="Year Icon"
-              width="16px"
-              height="16px"
-            /> Latest Posts</h2>
+            <h2 class="flex items-center gap-x-2 align-middle">
+              <Image
+                class="year-icon"
+                src="/images/layout.png"
+                alt="Year Icon"
+                width="16"
+                height="16"
+              /> Latest Posts
+            </h2>
 
             <hr class="mt-1 mb-4" />
 
@@ -69,18 +72,22 @@ const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/asset
         </ul>
 
         <div class="haiku mt-6">
-          <h2 class="flex items-center gap-x-2 align-middle"><img
-            class="year-icon"
-            src="/images/layout.png"
-            alt="Year Icon"
-            width="16px"
-            height="16px"
-          /> Daily Haiku Card</h2>
+          <h2 class="flex items-center gap-x-2 align-middle">
+            <Image
+              class="year-icon"
+              src="/images/layout.png"
+              alt="Year Icon"
+              width="16"
+              height="16"
+            /> Daily Haiku Card
+          </h2>
 
           <hr class="mt-1 mb-4" />
   
           <div class="haiku-card">
-            <img width="250px" height="250px" loading="lazy" class="haiku-img w-60 shadow-md align-middle text-center" src={haikuCard} alt="Haiku Image" />
+            <div class="transition duration-300 ease-in-out fade-in-up-bounce">
+              <Image width="250" height="250" class="haiku-img w-60 shadow-md align-middle text-center" src={haikuCard} alt="Haiku Image" />
+            </div>
 
             <blockquote class="text-sm mt-2">
               Image generated with <a href="https://gutenku.xyz" target="_blank">GutenKu</a>

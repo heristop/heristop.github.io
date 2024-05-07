@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Image } from 'astro:assets';
 
 const linkfolioUrl = "https://heristop.vercel.app";
 
@@ -24,8 +25,8 @@ type NetworkType = {
 ---
 
 <Layout title="👋 About" description="About page">
-  <blockquote class="font-weight-bold">
-    Hello, I'm Alexandre! I'm a Tech Lead with a passion for building web applications. I
+  <blockquote>
+    Hello, I'm <b>heristop</b>! I'm a Tech Lead with a passion for building web applications. I
     have experience working with a variety of technologies, including
     JavaScript, TypeScript, Vue, React, Node.js, PHP and Symfony. I'm always looking
     for new ways to improve my skills and learn new technologies.
@@ -49,7 +50,7 @@ type NetworkType = {
           style={`animation-delay: ${delay * index}ms`}
         >
           <a href={network.url} target="blank" class="group-hover:text-gray-800">
-            <img
+            <Image
               src={
                 network.iconSrc.src
                   ? `${linkfolioUrl}/${network.iconSrc.src}`

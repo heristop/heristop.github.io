@@ -250,16 +250,15 @@ h2.year-title::after {
 }
 
 .footer {
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-normal);
   color: var(--footer-text-color);
   border-top: 2px solid var(--footer-border-color);
   margin-top: var(--font-size-normal);
-  overflow: hidden;
 }
 
 .footer .contact {
   float: left;
-  margin-right: 4em;
+  margin-right: 3em;
 }
 
 .footer .profile {
