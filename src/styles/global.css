@@ -14,9 +14,9 @@
   --highlight-bg-color: #000;
 
   /* Font sizing */
-  --font-size-small: 0.9em;
-  --font-size-normal: 1em;
-  --font-size-large: 1.1em;
+  --font-size-small: 0.8em;
+  --font-size-normal: 0.9em;
+  --font-size-large: 1em;
 
   /* Spacing */
   --space-xs: 1px;
@@ -70,17 +70,10 @@ img {
   border-radius: var(--radius-md);
 }
 
-body,
-h1,
-h2,
-h3,
-p {
-  font-size: var(--font-size-normal);
-}
-
 h1,
 h2,
 h3 {
+  font-size: var(--font-size-large);
   font-weight: 700;
 }
 
@@ -257,7 +250,7 @@ h2.year-title::after {
 }
 
 .footer {
-  font-size: 80%;
+  font-size: var(--font-size-small);
   color: var(--footer-text-color);
   border-top: 2px solid var(--footer-border-color);
   margin-top: var(--font-size-normal);

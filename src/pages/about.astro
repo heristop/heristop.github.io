@@ -56,13 +56,14 @@ type NetworkType = {
                   : `${linkfolioUrl}/${network.iconSrc}`
               }
               alt={network.description}
+              loading="eager"
               width={300}
               height={100}
               class="object-cover w-[300px] h-[100px] rounded-md overflow-hidden shadow-md opacity-90 group-hover:opacity-100"
             />
 
             <div class="px-2 py-0">
-              <h2 class="text-xl font-bold mb-2">{network.title}</h2>
+              <h2 class="text-lg mt-2 font-bold mb-2">{network.title}</h2>
               <p class=" text-gray-600 group-hover:text-gray-800 text-sm">
                 {network.description}
               </p>
