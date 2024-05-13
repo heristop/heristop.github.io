@@ -321,24 +321,23 @@ blockquote {
   animation: fade-in-up-bounce 0.8s forwards;
 }
 
-@keyframes soft-bounce {
+@keyframes slide-down {
   0% {
-    transform: translateY(0);
-  }
-
-  40% {
-    transform: translateY(-1px);
+    transform: translateY(-100%);
+    opacity: 0;
   }
 
   100% {
     transform: translateY(0);
+    opacity: 1;
   }
 }
 
-.animate-bounce {
-  animation: soft-bounce 0.7s forwards;
+.slide-down {
+  opacity: 0;
+  transform: translateY(-100%);
+  animation: slide-down 0.5s forwards;
 }
-
 
 @media screen and (width <=768px) {
   body {

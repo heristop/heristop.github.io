@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import { Image } from 'astro:assets';
+import { Image } from "astro:assets";
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
@@ -16,7 +16,7 @@ export type Post = {
 };
 
 const posts = (await getCollection("blog")).sort(
-  (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0)
+  (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0),
 );
 
 const latestPosts = posts.slice(0, 5);
@@ -44,6 +44,7 @@ const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/asset
                 alt="Year Icon"
                 width="16"
                 height="16"
+                aria-label="Year Icon"
               /> Latest Posts
             </h2>
 
@@ -79,18 +80,34 @@ const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/asset
               alt="Year Icon"
               width="16"
               height="16"
+              aria-label="Year Icon"
             /> Daily Haiku Card
           </h2>
 
           <hr class="mt-1 mb-4" />
-  
+
           <div class="haiku-card">
-            <div class="transition duration-300 ease-in-out fade-in-up-bounce">
-              <Image width="250" height="250" class="haiku-img w-60 shadow-md align-middle text-center" src={haikuCard} alt="Haiku Image" />
+            <div>
+              <div
+                class="absolute animate-spin rounded-full h-40 w-40 m-10 border-b-2 border-[#B47B84] opacity-50"
+              >
+              </div>
+              <div class="relative">
+                <Image
+                  width="250"
+                  height="250"
+                  class="haiku-img w-60 shadow-md align-middle text-center"
+                  src={haikuCard}
+                  alt="Haiku Image"
+                  aria-label="Haiku Image"
+                />
+              </div>
             </div>
 
             <blockquote class="text-sm mt-2">
-              Image generated with <a href="https://gutenku.xyz" target="_blank">GutenKu</a>
+              Image generated with <a href="https://gutenku.xyz" target="_blank"
+                >GutenKu</a
+              >
             </blockquote>
           </div>
         </div>

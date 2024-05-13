@@ -3,6 +3,7 @@ title: "Frontend Development Weekly Digest 🎍 - Weeks 8-9"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-03-04"
 conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
+image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 ---
 
 ### 📝 Articles & Guides
