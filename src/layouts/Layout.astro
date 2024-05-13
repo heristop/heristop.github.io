@@ -28,7 +28,8 @@ const { title, description, pubDate, updatedDate, image } = Astro.props;
             {
               updatedDate && (
                 <span class="last-updated-on">
-                  (Last updated on <FormattedDate date={updatedDate} showYear />)
+                  (Last updated on <FormattedDate date={updatedDate} showYear />
+                  )
                 </span>
               )
             }

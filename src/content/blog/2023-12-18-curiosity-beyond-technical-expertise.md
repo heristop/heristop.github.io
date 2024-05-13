@@ -3,6 +3,7 @@ title: "Valuing Curiosity Beyond Technical Expertise in Developers"
 description: ""
 pubDate: "2023-12-01"
 conclusion: "☝ Recruiting an expert based on current competencies is like programming the obsolescence of tomorrow; preferring a curious mind, on the other hand, is preparing for the future by reducing this risk and embracing innovation."
+image: "/images/posts/headway-5QgIuuBxKwM-unsplash.jpg"
 ---
 
 The rapid evolution of technologies in the development world poses a significant challenge in the recruitment process: should we seek an expert in a specific technology or value versatility and learning ability? From my experience as a full-stack developer and Chapter Lead, a conclusion emerges: curiosity and flexibility seem more valuable than narrow expertise in a given technology. The question then arises: where do we find the balance between these two approaches? 🤔
