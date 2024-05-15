@@ -13,14 +13,14 @@ export type Post = {
 };
 
 const posts = (await getCollection("blog")).sort(
-  (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0),
+  (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0)
 );
 
 function groupPostsByYear(posts: any) {
   return posts.reduce(
     (
       acc: { [x: string]: any[] },
-      post: { data: { pubDate?: { getFullYear: () => any } } },
+      post: { data: { pubDate?: { getFullYear: () => any } } }
     ) => {
       const year = post.data.pubDate?.getFullYear();
 
@@ -31,19 +31,19 @@ function groupPostsByYear(posts: any) {
       acc[year].push(post);
       return acc;
     },
-    {},
+    {}
   );
 }
 
 const postsByYear = groupPostsByYear(posts);
 const sortedYears = Object.keys(postsByYear).sort(
-  (a, b) => Number(b) - Number(a),
+  (a, b) => Number(b) - Number(a)
 );
 
 const delay = 10;
 ---
 
-<Layout title="All Posts" description="Blog">
+<Layout title="📰 All Posts" description="Blog">
   <ul>
     {
       sortedYears.map((year) => (
@@ -68,7 +68,7 @@ const delay = 10;
                   data: { pubDate?: Date; title: string };
                   slug: string;
                 },
-                index: number,
+                index: number
               ) => (
                 <li
                   class="flex items-center space-x-2 align-middle slide-down"
@@ -82,7 +82,7 @@ const delay = 10;
 
                   <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
                 </li>
-              ),
+              )
             )}
           </ul>
         </li>
