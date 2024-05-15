@@ -3,7 +3,7 @@ title: "Frontend Development Weekly Digest 🌸 - Weeks 12-13"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-03-29"
 conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
-image: /images/posts/2024-04-12-frontend-weekly-digest.png
+image: /images/posts/fili-santillan-qp51FQhBnS0-unsplash.jpg
 ---
 
 ### 🌟 News & Trends
@@ -34,7 +34,11 @@ image: /images/posts/2024-04-12-frontend-weekly-digest.png
   - A perspective on moving away from Sass to embrace the capabilities of native CSS for styling.
 
 - 🚀 **[Next.js 14 Breakdown](https://focusreactive.com/breaking-down-next-js-14)**
+
   - Insights into the new features and improvements in Next.js 14, emphasizing its impact on development workflows.
+
+- **[🆕 What's new in TresJS - March 2024](https://tresjs.org/blog/whats-new-march-2024/)**
+  - Latest updates in TresJS.
 
 ### 🛠 Tools & Resources
 
