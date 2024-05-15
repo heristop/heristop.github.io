@@ -11,9 +11,8 @@ In this tutorial, I propose to develop a mini ticket manager in which we could l
 
 On customer side, the project will introduce :
 
-> The viewport build
->
-> The use of proxy for AJAX or cross domain requests
+> - The viewport build
+> - The use of proxy for AJAX or cross domain requests
 
 The server side will use Symfony 2 and Propel.
 
