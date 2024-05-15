@@ -3,7 +3,7 @@ import HeaderLink from "./HeaderLink.astro";
 const { image = "/images/zazen.webp" } = Astro.props;
 import { SITE_TITLE } from "../consts";
 
-const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
+const title = `{ ${SITE_TITLE.replace(" ", "_")} }`;
 ---
 
 <header>
@@ -13,11 +13,17 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 
       <HeaderLink class="extra" href="/blog">blog</HeaderLink>
 
+      <HeaderLink class="extra" href="/projects">projects</HeaderLink>
+
       <HeaderLink class="extra" href="/about">about</HeaderLink>
     </div>
 
     <div class="banner">
-      <div class="img" style={`background: transparent url(${image}) no-repeat center center / cover`} />
+      <div
+        class="img"
+        style={`background: transparent url(${image}) no-repeat center center / cover`}
+      >
+      </div>
     </div>
   </nav>
 </header>
