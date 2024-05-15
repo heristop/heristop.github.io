@@ -1,28 +1,6 @@
 ---
+import SocialNetworks from "../components/SocialNetworks.astro";
 import Layout from "../layouts/Layout.astro";
-import { Image } from "astro:assets";
-
-const linkfolioUrl = "https://heristop.vercel.app";
-
-async function fetchUserConfig() {
-  const response = await fetch(`${linkfolioUrl}/api/config`);
-  const userConfig = await response.json();
-  return userConfig;
-}
-
-const userConfig = await fetchUserConfig();
-
-const delay = 100;
-
-type NetworkType = {
-  title: string;
-  description: string;
-  url: string;
-  group: string;
-  iconSrc: {
-    src: string;
-  };
-};
 ---
 
 <Layout title="👋 About" description="About page">
@@ -43,41 +21,5 @@ type NetworkType = {
 
   <h2 class="my-4">🔗 Social Networks</h2>
 
-  <main class="flex flex-wrap gap-y-4 justify-center">
-    {
-      userConfig.socialNetworks
-        .filter((network: NetworkType) => network.group === "socialnetwork")
-        .map((network: NetworkType, index: number) => (
-          <div
-            class="network flex items-start justify-center p-2 w-full md:w-1/3 rounded-md hover:bg-[#F5EEE6] group transition duration-300 ease-in-out fade-in-up-bounce backdrop-filter backdrop-opacity-60 opacity-0"
-            style={`animation-delay: ${delay * index}ms`}
-          >
-            <a
-              href={network.url}
-              target="_blank"
-              class="group-hover:text-gray-800"
-            >
-              <Image
-                src={
-                  network.iconSrc.src
-                    ? `${linkfolioUrl}/${network.iconSrc.src}`
-                    : `${linkfolioUrl}/${network.iconSrc}`
-                }
-                alt={network.description}
-                width={300}
-                height={100}
-                class="object-cover w-[300px] h-[100px] rounded-md overflow-hidden shadow-md opacity-90 group-hover:opacity-100"
-              />
-
-              <div class="px-2 py-0">
-                <h3 class="text-base mt-2 font-bold mb-2">{network.title}</h3>
-                <p class=" text-gray-600 group-hover:text-gray-800 text-sm">
-                  {network.description}
-                </p>
-              </div>
-            </a>
-          </div>
-        ))
-    }
-  </main>
+  <SocialNetworks filter="socialnetwork" />
 </Layout>

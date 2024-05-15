@@ -1,3 +1,5 @@
+@import url('katex/dist/katex.min.css');
+
 :root {
   /* Color palette */
   --primary-color: #9d4261;
@@ -7,9 +9,9 @@
   --link-color-secondary: #B47B84;
   --link-color-secondary-hover: #B47B84;
   --hr-color: #B47B84;
-  --text-secondary: #666;
+  --text-secondary: #777;
   --banner-bg-color: #ECECEC;
-  --footer-text-color: #666;
+  --footer-text-color: #777;
   --footer-border-color: #CCC;
   --highlight-bg-color: #000;
 
@@ -106,11 +108,6 @@ hr {
   margin-bottom: var(--space-md);
 }
 
-ul,
-ol {
-  list-style-type: none;
-}
-
 .pre-content {
   min-height: 300px;
 }
@@ -130,7 +127,6 @@ h2.year-title::after {
 }
 
 .posts {
-  list-style-type: none;
   margin-bottom: 0;
 }
 
@@ -141,7 +137,17 @@ h2.year-title::after {
 }
 
 .post li {
-  padding: var(--space-sm) var(--space-lg);
+  padding: var(--space-xs) var(--space-lg);
+}
+
+.post blockquote li {
+  padding: var(--space-md) var(--space-lg);
+}
+
+.post blockquote li::before {
+  content: "- ";
+  color: var(--primary-color);
+  font-weight: bold;
 }
 
 .eof {
@@ -176,7 +182,7 @@ h2.year-title::after {
   font-weight: bold;
   box-shadow: 0 0 var(--space-sm) rgb(0 0 0 / 20%);
   border-radius: var(--radius-md);
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .header .banner .img {
@@ -220,7 +226,7 @@ h2.year-title::after {
   left: 0;
   background-color: var(--link-color-secondary);
   transform-origin: bottom right;
-  transition: transform 0.25s ease-out;
+  transition: transform 0.25s ease-in-out;
 }
 
 .header .extra:hover::after {
@@ -250,15 +256,9 @@ h2.year-title::after {
 }
 
 .footer {
-  font-size: var(--font-size-normal);
   color: var(--footer-text-color);
   border-top: 2px solid var(--footer-border-color);
   margin-top: var(--font-size-normal);
-}
-
-.footer .contact {
-  float: left;
-  margin-right: 3em;
 }
 
 .footer .profile {
@@ -266,16 +266,6 @@ h2.year-title::after {
   background-size: contain;
   width: 160px;
   height: 140px;
-}
-
-.footer .rss {
-  margin-top: var(--font-size-large);
-  margin-right: -.2em;
-  float: right;
-}
-
-.footer .rss img {
-  border: 0;
 }
 
 code {
