@@ -16,7 +16,7 @@ export type Post = {
 };
 
 const posts = (await getCollection("blog")).sort(
-  (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0),
+  (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0)
 );
 
 const latestPosts = posts.slice(0, 5);
@@ -66,8 +66,8 @@ const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/asset
               ))
             }
 
-            <blockquote class="mt-4 mb-2 text-sm">
-              More posts can be found on the <a href="/blog/">Blog</a> page
+            <blockquote class="mt-4 mb-2 text-xs">
+              See <a href="/blog/">Archives</a>
             </blockquote>
           </li>
         </ul>
@@ -104,10 +104,8 @@ const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/asset
               </div>
             </div>
 
-            <blockquote class="text-sm mt-2">
-              Image generated with <a href="https://gutenku.xyz" target="_blank"
-                >GutenKu</a
-              >
+            <blockquote class="text-xs mt-6">
+              Image generated with <a href="/projects">GutenKu</a>
             </blockquote>
           </div>
         </div>
