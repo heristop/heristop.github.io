@@ -151,7 +151,7 @@ h2.year-title::after {
 
 .site {
   text-align: justify;
-  width: 42em;
+  width: 46em;
   margin: 1.5em auto 2em;
   line-height: 1.5em;
 }
@@ -318,7 +318,7 @@ blockquote {
 }
 
 .fade-in-up-bounce {
-  animation: fade-in-up-bounce 0.8s forwards;
+  animation: fade-in-up-bounce 0.8s ease-out forwards;
 }
 
 @keyframes slide-down {
