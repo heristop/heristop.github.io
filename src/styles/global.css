@@ -308,7 +308,7 @@ blockquote {
 }
 
 .fade-in-up-bounce {
-  animation: fade-in-up-bounce 0.8s ease-out forwards;
+  animation: fade-in-up-bounce 0.8s ease-in-out forwards;
 }
 
 @keyframes slide-down {

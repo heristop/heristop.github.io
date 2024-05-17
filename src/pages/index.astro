@@ -23,6 +23,9 @@ const latestPosts = posts.slice(0, 5);
 
 const timestamp = new Date().getTime();
 const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/assets/img/daily_haiku_card.jpg?t=${timestamp}`;
+const haikuDescription = fetch(
+  "https://raw.githubusercontent.com/heristop/gutenku/main/assets/description.txt"
+).then((response) => response.text());
 ---
 
 <!doctype html>
@@ -92,21 +95,33 @@ const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/asset
                 class="absolute animate-spin rounded-full h-40 w-40 m-10 border-b-2 border-[#B47B84] opacity-50"
               >
               </div>
-              <div class="relative">
-                <Image
-                  width="250"
-                  height="250"
-                  class="haiku-img w-60 shadow-md align-middle text-center"
-                  src={haikuCard}
-                  alt="Haiku Image"
-                  aria-label="Haiku Image"
-                />
+              <div
+                class="relative flex flex-col md:flex-row space-x-0 md:space-x-6"
+              >
+                <div class="w-full md:w-1/3">
+                  <Image
+                    width="250"
+                    height="250"
+                    class="haiku-img w-60 shadow-md align-middle text-center"
+                    src={haikuCard}
+                    alt="Haiku Image"
+                    aria-label="Haiku Image"
+                  />
+
+                  <blockquote class="text-xs mt-6">
+                    Image generated with <a href="/projects">GutenKu</a>
+                  </blockquote>
+                </div>
+
+                <div
+                  class="mt-4 md:mt-0 w-full md:w-2/3 bg-black bg-opacity-5 rounded-md p-3 text-sm"
+                >
+                  <div class="px-0 md:px-4">
+                    🤖✒️<em> “{haikuDescription}”</em>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <blockquote class="text-xs mt-6">
-              Image generated with <a href="/projects">GutenKu</a>
-            </blockquote>
           </div>
         </div>
       </div>
