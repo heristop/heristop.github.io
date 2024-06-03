@@ -156,7 +156,7 @@ h2.year-title::after {
 }
 
 .site {
-  text-align: justify;
+  text-align: left;
   width: 46em;
   margin: 1.5em auto 2em;
   line-height: 1.5em;
