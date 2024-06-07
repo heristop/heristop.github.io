@@ -1,5 +1,5 @@
 ---
-title: "Frontend Development Weekly Digest 🎍 - Weeks 22-23"
+title: "Frontend Development Weekly Digest 💮 - Weeks 22-23"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-06-07"
 conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
