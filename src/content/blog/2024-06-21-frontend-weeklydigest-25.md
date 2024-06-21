@@ -3,7 +3,7 @@ title: "Frontend Development Weekly Digest 🌸 - Weeks 24-25"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-06-21"
 conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
-image: /images/posts/fili-santillan-qp51FQhBnS0-unsplash.jpg
+image: /images/posts/2024-06-21-state-of-js/state_of_js.png
 ---
 
 ### 📢 News & Trends
@@ -81,7 +81,7 @@ image: /images/posts/fili-santillan-qp51FQhBnS0-unsplash.jpg
 
 ---
 
-Cited Sources:
+**Cited Sources:**
 
 - logrocket.com
 - stateofjs.com

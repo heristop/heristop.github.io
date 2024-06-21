@@ -101,11 +101,10 @@ hr {
   width: 100%;
   opacity: 0.25;
   padding: 0;
-  margin-left: 0;
   color: var(--hr-color);
   text-align: center;
   border: var(--space-xs) solid;
-  margin-bottom: var(--space-md);
+  margin: var(--space-lg) 0;
 }
 
 .pre-content {
