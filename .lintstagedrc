@@ -1,7 +1,7 @@
 {
     "*.md": [
-        "pnpm markdownlint --ignore node_modules --disable=MD013",
-        "pnpm markdown-link-check --ignore node_modules -c .markdown-link-check.json"
+        "pnpm md:lint",
+        "pnpm md:check"
     ],
     "*.css": [
         "astro format",

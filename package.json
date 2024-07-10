@@ -11,7 +11,7 @@
     "prepare": "husky",
     "lint": "eslint src",
     "style:lint": "stylelint 'src/**/*.css' 'src/**/*.scss'",
-    "md:lint": "markdownlint src/content/**/*.md --ignore node_modules --disable=MD013",
+    "md:lint": "markdownlint src/content/**/*.md --ignore node_modules --disable=MD013 --disable=MD033",
     "md:check": "markdown-link-check src/content/**/*.md --ignore node_modules -c .markdown-link-check.json",
     "format": "prettier --write 'src/content/**/*.md' 'src/**/*.ts'"
   },
