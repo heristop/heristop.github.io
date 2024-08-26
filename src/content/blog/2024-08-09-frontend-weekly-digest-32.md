@@ -103,7 +103,9 @@ _When you let a backend dev code the synchronized swimming choreography in CSS:_
 }
 
 @media water {
-  * { waterproof: true !important; }
+  * {
+    waterproof: true !important;
+  }
 }
 ```
 
