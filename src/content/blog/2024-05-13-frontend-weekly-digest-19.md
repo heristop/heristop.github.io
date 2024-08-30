@@ -30,10 +30,6 @@ image: "/images/posts/kobu-agency-ipARHaxETRk-unsplash.jpg"
 
   - Updates in React 19 Beta focus on performance and developer experience.
 
-- **[💻 Node 22](https://coderoasis.com/nodejs-22-released/?ref=zazen_code)**
-
-  - Latest features in Node.js 22 include updates to ES modules and runtime efficiency.
-
 - **[🔮 Vue: The Shiki Magic Move](https://antfu.me/posts/shiki-magic-move/?ref=zazen_code)**
 
   - Introduction to Vue's Shiki Magic Move feature.
