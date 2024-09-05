@@ -29,6 +29,7 @@ image: "/images/posts/kobu-agency-ipARHaxETRk-unsplash.jpg"
 - **[🔧 React 19 Beta](https://react.dev/blog/2024/04/25/react-19/?ref=zazen_code)**
 
   - Updates in React 19 Beta focus on performance and developer experience.
+    @Carrefour CSI
 
 - **[🔮 Vue: The Shiki Magic Move](https://antfu.me/posts/shiki-magic-move/?ref=zazen_code)**
 
