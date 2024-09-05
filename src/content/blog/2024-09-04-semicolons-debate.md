@@ -44,14 +44,14 @@ Angular maintains a consistent use of semicolons, both in its core codebase and 
 
 ```typescript
 @Component({
-  selector: "app-counter",
-  template: '<button (click)="increment()">{{count}}</button>',
+  selector: "app-root",
+  template: `
+    <h1>{{ title }}</h1>
+    <app-hero-list></app-hero-list>
+  `,
 })
-export class CounterComponent {
-  count = 0;
-  increment() {
-    this.count++;
-  }
+export class AppComponent {
+  title = "Tour of Heroes";
 }
 ```
 
@@ -61,12 +61,13 @@ Vue.js, especially in Vue 3, has shown a recent trend towards omitting semicolon
 
 ```vue
 <script setup>
-const count = ref(0);
-const increment = () => count.value++;
+import { ref } from "vue";
+
+const message = ref("Hello World!");
 </script>
 
 <template>
-  <button @click="increment">{{ count }}</button>
+  <h1>{{ message }}</h1>
 </template>
 ```
 
@@ -75,10 +76,13 @@ const increment = () => count.value++;
 React's core codebase uses semicolons, but recent documentation tends to omit them in examples:
 
 ```jsx
-function Counter() {
-  const [count, setCount] = useState(0);
-  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+function Welcome(props) {
+  return <h1>Hello, {props.name}</h1>;
 }
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+const element = <Welcome name="Sara" />;
+root.render(element);
 ```
 
 ### Nuxt 3
@@ -87,13 +91,10 @@ Nuxt 3 follows Vue.js's trend of omitting semicolons:
 
 ```vue
 <script setup>
-const count = ref(0);
-const increment = () => count.value++;
+const { data: count } = await useFetch("/api/count");
 </script>
 
-<template>
-  <button @click="increment">{{ count }}</button>
-</template>
+<template>Page visits: {{ count }}</template>
 ```
 
 ### Next.js
@@ -101,9 +102,33 @@ const increment = () => count.value++;
 Next.js consistently omits semicolons in its examples and documentation:
 
 ```jsx
-export default function Counter() {
-  const [count, setCount] = useState(0);
-  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+import { useState } from "react";
+
+function Header({ title }) {
+  return <h1>{title ? title : "Default title"}</h1>;
+}
+
+export default function HomePage() {
+  const names = ["Ada Lovelace", "Grace Hopper", "Margaret Hamilton"];
+
+  const [likes, setLikes] = useState(0);
+
+  function handleClick() {
+    setLikes(likes + 1);
+  }
+
+  return (
+    <div>
+      <Header title="Develop. Preview. Ship." />
+      <ul>
+        {names.map((name) => (
+          <li key={name}>{name}</li>
+        ))}
+      </ul>
+
+      <button onClick={handleClick}>Like ({likes})</button>
+    </div>
+  );
 }
 ```
 
@@ -112,9 +137,30 @@ export default function Counter() {
 Remix also shows a clear preference for omitting semicolons:
 
 ```jsx
-export default function Counter() {
-  const [count, setCount] = useState(0);
-  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+
+export const loader = async () => {
+  return json({
+    posts: [
+      { id: 1, title: "My First Post" },
+      { id: 2, title: "A Wonderful World" },
+    ],
+  });
+};
+
+export default function Posts() {
+  const { posts } = useLoaderData();
+  return (
+    <main>
+      <h1>Posts</h1>
+      <ul>
+        {posts.map((post) => (
+          <li key={post.id}>{post.title}</li>
+        ))}
+      </ul>
+    </main>
+  );
 }
 ```
 
