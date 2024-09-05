@@ -135,18 +135,48 @@ h2.year-title::after {
   margin: var(--space-lg) 0 var(--space-md) 0;
 }
 
+.post ul,
+.post ol {
+  padding-left: 1.2em;
+}
+
 .post li {
-  padding: var(--space-xs) var(--space-lg);
+  position: relative;
+  padding: 0.4em 0; /* Augmenté de 0.2em à 0.4em */
+  margin-bottom: 0.4em; /* Augmenté également pour maintenir la cohérence */
 }
 
-.post blockquote li {
-  padding: var(--space-md) var(--space-lg);
-}
-
-.post blockquote li::before {
-  content: "- ";
+.post ul li::before {
+  content: "•";
   color: var(--primary-color);
-  font-weight: bold;
+  position: absolute;
+  left: -0.8em;
+  top: 0.4em; /* Ajusté pour s'aligner avec le nouveau padding */
+}
+
+.post ol {
+  counter-reset: list-counter;
+}
+
+.post ol li {
+  counter-increment: list-counter;
+}
+
+.post ol li::before {
+  content: counter(list-counter) ".";
+  color: var(--primary-color);
+  position: absolute;
+  left: -1.2em;
+  top: 0.4em; /* Ajusté pour s'aligner avec le nouveau padding */
+}
+
+.post li > p:first-child {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.post li > p:first-child strong {
+  display: inline-block;
 }
 
 .eof {
