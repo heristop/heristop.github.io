@@ -29,7 +29,7 @@ The possibilities are endless, and the results are always surprising (and often 
 You might be wondering how Pix Me! works its magic. The secret sauce is a combination of advanced AI models and careful prompt engineering. Here's what's under the hood:
 
 - **GPT-4o**: This powerful language model helps understand and process your requests.
-- **DALL-E-3 or Flux.1 Pro**: These image generation models bring your transformed selfies to life.
+- **DALL-E-3 or Flux.1 [PRO]**: These image generation models bring your transformed selfies to life.
 
 By crafting precise prompts for these AI models, it's possible to guide them to create the specific styles and transformations you see in Pix Me!.
 
