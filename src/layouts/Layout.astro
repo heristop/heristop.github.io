@@ -23,7 +23,7 @@ const { title, description, pubDate, updatedDate, image } = Astro.props;
       <div class="pre-content">
         <div class="flex flex-col sm:flex-row justify-between w-full">
           <div class="w-full sm:w-3/4">{title && <h1>{title}</h1>}</div>
-          <div class="w-full sm:w-1/4 meta text-sm align-right">
+          <div class="w-full sm:w-1/4 meta align-right">
             {pubDate && <FormattedDate date={pubDate} showYear />}
             {
               updatedDate && (
