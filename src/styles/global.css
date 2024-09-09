@@ -1,4 +1,5 @@
 @import url('katex/dist/katex.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap');
 
 :root {
   /* Color palette */
@@ -6,19 +7,20 @@
   --primary-bg-color: #F5EEE6;
   --link-color: #9d4261;
   --link-hover-color: #B47B84;
-  --link-color-secondary: #B47B84;
+  --link-color-secondary: #a7666f;
   --link-color-secondary-hover: #B47B84;
   --hr-color: #B47B84;
-  --text-secondary: #777;
+  --text-secondary: rgb(120 113 108);
   --banner-bg-color: #ECECEC;
-  --footer-text-color: #777;
-  --footer-border-color: #CCC;
+  --footer-text-color: rgb(87 83 78);
+  --footer-border-color: rgb(87 83 78 / 15%);
   --highlight-bg-color: #000;
 
   /* Font sizing */
-  --font-size-small: 0.8em;
-  --font-size-normal: 0.9em;
-  --font-size-large: 1em;
+  --font-size-small: 0.7em;
+  --font-size-normal: 0.8em;
+  --font-size-large: 0.9em;
+  --font-size-xl: 1.0em;
 
   /* Spacing */
   --space-xs: 1px;
@@ -37,33 +39,33 @@
   box-sizing: border-box;
 }
 
-@font-face {
-  font-family: 'Comic Neue';
-  font-style: normal;
-  font-weight: 400;
-  src: url("/fonts/comic-neue.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: 'Comic Neue';
-  font-style: normal;
-  font-weight: 700;
-  src: url("/fonts/comic-neue-bold.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
 html,
 body {
   height: 100%;
 }
 
 body {
-  background-color: var(--primary-bg-color);
-  font-family: 'Comic Neue', sans-serif;
+  position: relative;
+  font-family: Comfortaa, sans-serif;
   font-size: var(--font-size-normal);
   text-align: center;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-image: url("/images/background.gif");
+  background-repeat: repeat;
+  background-size: auto;
+  opacity: 0.5;
+  z-index: -1;
 }
 
 img {
@@ -75,8 +77,7 @@ img {
 h1,
 h2,
 h3 {
-  font-size: var(--font-size-large);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 h1 {
@@ -142,8 +143,8 @@ h2.year-title::after {
 
 .post li {
   position: relative;
-  padding: 0.4em 0; /* Augmenté de 0.2em à 0.4em */
-  margin-bottom: 0.4em; /* Augmenté également pour maintenir la cohérence */
+  padding: 0.4em 0;
+  margin-bottom: 0.4em;
 }
 
 .post ul li::before {
@@ -151,7 +152,7 @@ h2.year-title::after {
   color: var(--primary-color);
   position: absolute;
   left: -0.8em;
-  top: 0.4em; /* Ajusté pour s'aligner avec le nouveau padding */
+  top: 0.4em;
 }
 
 .post ol {
@@ -167,7 +168,7 @@ h2.year-title::after {
   color: var(--primary-color);
   position: absolute;
   left: -1.2em;
-  top: 0.4em; /* Ajusté pour s'aligner avec le nouveau padding */
+  top: 0.4em;
 }
 
 .post li > p:first-child {
@@ -181,12 +182,13 @@ h2.year-title::after {
 
 .eof {
   color: var(--text-secondary);
+  opacity: 0.5;
   margin-top: var(--space-lg);
 }
 
 .site {
   text-align: left;
-  width: 46em;
+  width: 52em;
   margin: 1.5em auto 2em;
   line-height: 1.5em;
 }
@@ -200,18 +202,13 @@ h2.year-title::after {
 
 .header .banner {
   width: 100%;
-  margin: 12px var(--space-md) 8px var(--space-md);
-  padding: var(--space-xs);
+  margin: var(--space-lg) 0;
   border-width: var(--space-xs);
   border-style: solid;
-  border-color: var(--primary-bg-color);
+  border-color: rgb(255 255 255 / 25%);
   text-align: center;
-  font-size: var(--space-md);
   background-color: var(--banner-bg-color);
   font-weight: bold;
-  box-shadow: 0 0 var(--space-sm) rgb(0 0 0 / 20%);
-  border-radius: var(--radius-md);
-  opacity: 0.9;
 }
 
 .header .banner .img {
@@ -229,6 +226,7 @@ h2.year-title::after {
   display: inline-block;
   margin: var(--space-sm) 0;
   color: var(--primary-color);
+  font-size: var(--font-size-xl);
 }
 
 .header a.extra {
@@ -250,8 +248,8 @@ h2.year-title::after {
   position: absolute;
   width: 100%;
   transform: scaleX(0);
-  height: 1.4px;
-  bottom: -3px;
+  height: 0.1em;
+  bottom: -0.6em;
   left: 0;
   background-color: var(--link-color-secondary);
   transform-origin: bottom right;
@@ -268,8 +266,8 @@ h2.year-title::after {
   position: absolute;
   width: 100%;
   transform: scaleX(1);
-  height: 1.4px;
-  bottom: -3px;
+  height: 0.1em;
+  bottom: -0.6em;
   left: 0;
   background-color: var(--link-color-secondary);
   transform-origin: bottom right;
@@ -286,8 +284,20 @@ h2.year-title::after {
 
 .footer {
   color: var(--footer-text-color);
-  border-top: 2px solid var(--footer-border-color);
-  margin-top: var(--font-size-normal);
+  margin-top: var(--font-size-large);
+  position: relative;
+  padding-top: 10px;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 2px;
+  background-color: var(--footer-border-color);
 }
 
 .footer .profile {
@@ -302,7 +312,7 @@ code {
   padding: .2em .4em;
   color: white;
   background-color: #333;
-  font-size: var(--font-size-small) !important;
+  font-size: var(--font-size-normal) !important;
 }
 
 pre {

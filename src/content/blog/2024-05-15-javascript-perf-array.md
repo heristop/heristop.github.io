@@ -12,7 +12,7 @@ In dev, choosing the appropriate data structure is often crucial for optimizing 
 
 We have a list of user IDs `userIds` and a sublist of admin IDs `adminIdsArray`. We want to count how many users are admins. For this, we have two methods:
 
-### Setup
+### a) Setup
 
 ```javascript
 // setup:
@@ -21,7 +21,7 @@ const adminIdsArray = userIds.slice(0, 10);
 const adminIdsSet = new Set(adminIdsArray);
 ```
 
-### Method 1: Using an Array
+### b) Method 1: Using an Array
 
 ```javascript
 let _ = 0;
@@ -32,7 +32,7 @@ for (let i = 0; i < userIds.length; i++) {
 }
 ```
 
-### Method 2: Using a `Set`
+### c) Method 2: Using a `Set`
 
 ```javascript
 let _ = 0;
@@ -45,11 +45,11 @@ for (let i = 0; i < userIds.length; i++) {
 
 ## Complexity Analysis
 
-### Method 1: `Array.includes()`
+### a) Method 1: `Array.includes()`
 
 The `includes()` method checks if an array contains a certain value. In the worst case, it must traverse the entire array, giving a time complexity of $ O(m) $, where $ m $ is the size of the array. Since this check is performed for each element in `userIds`, the total complexity of this method is $ O(n \times m) $, where $ n $ is the number of users and $ m $ is the number of admins.
 
-### Method 2: `Set.has()`
+### b) Method 2: `Set.has()`
 
 The `has()` method of a `Set` is much more efficient for checking the presence of an element, with an average time complexity of $ O(1) $. Therefore, the total complexity for checking all users is $ O(n) $, where $ n $ is the number of users.
 

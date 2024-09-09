@@ -14,6 +14,6 @@ It is quite common for a developer joining a new company or a client's mission t
 
 Curiosity can thus be seen as an essential skill: a curious developer does not merely follow trends; they explore, understand, and integrate them into their work. This open and proactive approach is essential to remain relevant in a constantly changing field and to add value to projects.
 
-👨‍🚀 Furthermore, I have sometimes observed this ability in some juniors who turned out to be more effective than more traditional seniors, thanks to a limitless explorer's mentality that pushed them to go beyond established conventions.
+> 👨‍🚀 Furthermore, I have sometimes observed this ability in some juniors who turned out to be more effective than more traditional seniors, thanks to a limitless explorer's mentality that pushed them to go beyond established conventions.
 
 The real challenge for companies is therefore to find a developer with a solid technical background, curiosity, and an eagerness to learn to adapt to changes. If they lack a skill today, they will not only be able to acquire it quickly but also bring new perspectives and explore potentially more innovative paths. This mindset should be a pillar in the recruitment process.
