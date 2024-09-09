@@ -20,13 +20,13 @@ Whether you're a seasoned JavaScript developer or just starting out, understandi
 
 The truth is, there's no universally "correct" answer to the semicolon debate. Both approaches - using and omitting semicolons - have their merits and can be considered valid in different contexts. Let's examine the arguments for each side:
 
-### Arguments for Using Semicolons
+### a) Arguments for Using Semicolons
 
 1. **Clarity**: Explicitly delimits statements, making code easier to read.
 2. **Safety**: Prevents potential errors from Automatic Semicolon Insertion (ASI).
 3. **Consistency**: Aligns with other C-style languages, making it easier for developers familiar with those languages.
 
-### Arguments for Omitting Semicolons
+### b) Arguments for Omitting Semicolons
 
 1. **Cleaner Code**: Can make code look cleaner and less cluttered.
 2. **Modern Trend**: Aligns with some modern JavaScript practices and newer frameworks.
@@ -38,7 +38,7 @@ The key takeaway is that consistency within a project is more important than the
 
 Different JavaScript frameworks and libraries have their own conventions regarding semicolon usage. Let's examine how some of the most popular frameworks approach this:
 
-### Angular
+### a) Angular
 
 Angular maintains a consistent use of semicolons, both in its core codebase and official style guide. Example:
 
@@ -55,15 +55,15 @@ export class AppComponent {
 }
 ```
 
-### Vue.js
+### b) Vue.js
 
 Vue.js, especially in Vue 3, has shown a recent trend towards omitting semicolons:
 
 ```vue
 <script setup>
-import { ref } from "vue";
+import { ref } from "vue"
 
-const message = ref("Hello World!");
+const message = ref("Hello World!")
 </script>
 
 <template>
@@ -71,7 +71,7 @@ const message = ref("Hello World!");
 </template>
 ```
 
-### React
+### c) React
 
 React's core codebase uses semicolons, but recent documentation tends to omit them in examples:
 
@@ -85,36 +85,36 @@ const element = <Welcome name="Sara" />;
 root.render(element);
 ```
 
-### Nuxt 3
+### d) Nuxt 3
 
 Nuxt 3 follows Vue.js's trend of omitting semicolons:
 
 ```vue
 <script setup>
-const { data: count } = await useFetch("/api/count");
+const { data: count } = await useFetch("/api/count")
 </script>
 
 <template>Page visits: {{ count }}</template>
 ```
 
-### Next.js
+### e) Next.js
 
 Next.js consistently omits semicolons in its examples and documentation:
 
 ```jsx
-import { useState } from "react";
+import { useState } from "react"
 
 function Header({ title }) {
-  return <h1>{title ? title : "Default title"}</h1>;
+  return <h1>{title ? title : "Default title"}</h1>
 }
 
 export default function HomePage() {
-  const names = ["Ada Lovelace", "Grace Hopper", "Margaret Hamilton"];
+  const names = ["Ada Lovelace", "Grace Hopper", "Margaret Hamilton"]
 
-  const [likes, setLikes] = useState(0);
+  const [likes, setLikes] = useState(0)
 
   function handleClick() {
-    setLikes(likes + 1);
+    setLikes(likes + 1)
   }
 
   return (
@@ -128,17 +128,17 @@ export default function HomePage() {
 
       <button onClick={handleClick}>Like ({likes})</button>
     </div>
-  );
+  )
 }
 ```
 
-### Remix
+### f) Remix
 
 Remix also shows a clear preference for omitting semicolons:
 
 ```jsx
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { json } from "@remix-run/node"
+import { useLoaderData } from "@remix-run/react"
 
 export const loader = async () => {
   return json({
@@ -146,11 +146,11 @@ export const loader = async () => {
       { id: 1, title: "My First Post" },
       { id: 2, title: "A Wonderful World" },
     ],
-  });
-};
+  })
+}
 
 export default function Posts() {
-  const { posts } = useLoaderData();
+  const { posts } = useLoaderData()
   return (
     <main>
       <h1>Posts</h1>
@@ -160,7 +160,7 @@ export default function Posts() {
         ))}
       </ul>
     </main>
-  );
+  )
 }
 ```
 
@@ -168,19 +168,19 @@ export default function Posts() {
 
 Automatic Semicolon Insertion is a key feature of JavaScript that automatically inserts semicolons in certain situations. Understanding ASI is crucial when deciding whether to use semicolons explicitly or rely on this automatic behavior.
 
-### Key Rules of ASI
+### a) Key Rules of ASI
 
 1. ASI occurs at the end of a line if the next line starts with an illegal token.
 2. ASI occurs before a closing brace `}`.
 3. ASI occurs after a `return`, `break`, `continue`, or `throw` statement if a line break follows.
 
-### Examples illustrating ASI behavior
+### b) Examples illustrating ASI behavior
 
 **Basic line termination:**
 
 ```javascript
-let a = 1;
-let b = 2;
+let a = 1
+let b = 2
 ```
 
 ASI transforms this to:
@@ -194,10 +194,8 @@ let b = 2;
 
 ```javascript
 function foo() {
-  return;
-  {
-    bar: 1;
-  }
+  return
+    { bar: 1 }
 }
 console.log(foo());
 ```
@@ -215,15 +213,6 @@ console.log(foo());
 ```
 
 This function will return `undefined` instead of the object `{ bar: 1 }`.
-
-**Issue with square brackets:**
-
-```javascript
-const a = [1, 2];
-const b = [3, 4][(a, b)].forEach(console.log);
-```
-
-Without semicolons, this code will throw an error because ASI doesn't insert a semicolon after `[3, 4]`, causing `[a, b]` to be interpreted as property access on `b`.
 
 ## Important Considerations
 
