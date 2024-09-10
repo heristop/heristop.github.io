@@ -1,5 +1,6 @@
 ---
 title: "Beyond the <script>: Reinventing the Technical Interview"
+metaTitle: "Beyond the Script: Reinventing the Technical Interview"
 description: ""
 pubDate: "2024-09-10"
 conclusion: "☝ This approach doesn't just more accurately assess the candidate's skills. It also contributes to making the recruitment experience more positive and enriching for all participants. And who knows? Even if the perfect fit isn't perfect for the position in question, you may have created a valuable professional connection for the future."

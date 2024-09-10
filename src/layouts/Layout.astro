@@ -8,12 +8,12 @@ import { SITE_TITLE } from "../consts";
 
 type Props = CollectionEntry<"blog">["data"];
 
-const { title, description, pubDate, updatedDate, image } = Astro.props;
+const { title, metaTitle, description, pubDate, updatedDate, image } = Astro.props;
 ---
 
 <html lang="en">
   <head>
-    <BaseHead title={title} description={description} image={image} />
+    <BaseHead title={title} metaTitle={metaTitle} description={description} image={image} />
   </head>
 
   <body>
