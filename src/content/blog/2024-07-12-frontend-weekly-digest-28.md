@@ -58,10 +58,6 @@ image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
 
   - Identify and overcome the common challenges faced when implementing design systems in your projects.
 
-- **🔄 [Tail Call Optimization ♻️and Recursion🔁 in JavaScript](https://bootcamp.uxdesign.cc/tail-call-optimization-%EF%B8%8Fand-recursion-in-javascript-8768f2f06a08?ref=zazen_code)**
-
-  - Understand the concepts of tail call optimization and recursion in JavaScript, and how they can improve your code efficiency.
-
 - **☁️ [Serverless vs. Traditional Hosting](https://dev.to/sh20raj/serverless-vs-traditional-hosting-2ckc?ref=zazen_code)**
 
   - Compare the pros and cons of serverless and traditional hosting to determine the best fit for your application.
