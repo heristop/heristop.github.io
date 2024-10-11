@@ -1,6 +1,7 @@
 ---
 import { getCollection, type CollectionEntry } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
+import SocialShare from "../../components/SocialShare.astro";
 import RecommendedPosts from "../../components/RecommendedPosts.astro";
 
 const currentPostSlug = Astro.props.slug;
@@ -26,5 +27,7 @@ const conclusion = post.data.conclusion;
     <blockquote>
       <RecommendedPosts {currentPostSlug} {conclusion} />
     </blockquote>
+
+    <SocialShare title={post.data.title} slug={currentPostSlug} />
   </div>
 </Layout>

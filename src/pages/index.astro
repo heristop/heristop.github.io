@@ -58,7 +58,7 @@ const haikuDescription = fetch(
                 <ul class="posts-by-year">
                   <li class="flex items-center space-x-2 align-middle">
                     {post.data.pubDate && (
-                      <span class="meta post-date w-16">
+                      <span class="text-stone-400 post-date w-16 text-xs font-semibold meta">
                         <FormattedDate date={post.data.pubDate} />
                       </span>
                     )}
