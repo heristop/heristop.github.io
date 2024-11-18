@@ -3,7 +3,7 @@ title: "Frontend Development Weekly Digest 🌸 - Weeks 45-46"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-11-18"
 conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
-image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
+image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.jpg"
 ---
 
 ### 📢 News & Trends
