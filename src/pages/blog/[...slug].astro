@@ -18,16 +18,41 @@ type Props = CollectionEntry<"blog">;
 const post = Astro.props;
 const { Content } = await post.render();
 const conclusion = post.data.conclusion;
+
+const plainText = post.body;
+const words = plainText.split(/\s+/).length;
+const readingTime = Math.ceil(words / 200);
+
+const postData = {
+  ...post.data,
+  readingTime,
+};
 ---
 
-<Layout {...post.data}>
+<Layout {...postData}>
   <div class="post">
+    <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between mb-6">
+      <div class="order-2 sm:order-1">
+        <SocialShare 
+          class="flex items-center justify-start" 
+          title={post.data.title} 
+          slug={currentPostSlug} 
+          minimal 
+        />
+      </div>
+
+      <div class="text-xs font-semibold meta flex items-center justify-end order-1 sm:order-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+        <span>{readingTime} min read</span>
+      </div>
+    </div>
+
     <Content />
 
     <blockquote>
       <RecommendedPosts {currentPostSlug} {conclusion} />
     </blockquote>
-
-    <SocialShare title={post.data.title} slug={currentPostSlug} />
   </div>
 </Layout>
