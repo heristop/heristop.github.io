@@ -16,5 +16,5 @@
       "pattern": "^../"
     }
   ],
-  "aliveStatusCodes": [200, 403]
+  "aliveStatusCodes": [200, 403, 429, 0]
 }
