@@ -11,7 +11,6 @@ image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 ### React
 
 - **Create React App Deprecation**: The React team officially deprecated Create React App (CRA), advising developers to migrate to modern frameworks or build tools like Vite. [Read more](https://react.dev/blog/2025/02/14/sunsetting-create-react-app#:~:text=February%2014%2C%202025%20by%20Matt,Carroll%20and%20Ricky%20Hanlon?ref=zazen_code).
-- **React 19 Release**: React v19 is now stable, bringing features like async transitions for state updates and other improvements. [Full release notes](https://react.dev/blog/2024/12/05/react-19#:~:text=React%20v19%20is%20now%20available,on%20npm).
 
 ### Angular
 
