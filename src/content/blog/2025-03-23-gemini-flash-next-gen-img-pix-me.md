@@ -8,6 +8,8 @@ image: "/images/posts/2025-03-23-gemini-flash-next-gen-img-pix-me/blog_gemini_ke
 
 I'm excited to announce that Pix Me! has integrated the experimental Gemini 2.0 Flash native image generation model into our avatar pipeline. This cutting-edge multimodal AI model – recently released by Google – dramatically improves how we generate and process user avatars. Web and AI developers using Pix Me! can now leverage Gemini 2.0 Flash to create and edit avatar images faster and with greater fidelity than ever before.
 
+![Zombification](/images/posts/2025-03-23-gemini-flash-next-gen-img-pix-me/pix-me-gemini-flash-exp-720.gif)
+
 ## What is Gemini 2.0 Flash (Experimental)? 🤔
 
 Gemini 2.0 Flash is Google's latest multimodal AI model and the workhorse of the Gemini 2.0 family. It builds on the success of the previous 1.5 Flash model with enhanced performance at similarly fast response times. In fact, Gemini 2.0 Flash outperforms its predecessor on key benchmarks while running about twice as fast as Gemini 1.5 Pro. Crucially, it introduces native image output for the first time, meaning the same model can now generate both text and images in one go. Here are the key highlights of this model:
@@ -43,8 +45,6 @@ Starting today, Pix Me!'s API supports Gemini 2.0 Flash (Experimental) for image
 This integration is experimental, so I invite you to try it out and share your feedback! 🧪 The addition of Gemini 2.0 Flash marks a big step forward in avatar generation – delivering faster, smarter image processing that unlocks creative new features for your users. I can't wait to see the diverse avatars and applications you build with this enhanced power at your fingertips! ✨
 
 The Pix Me! application allows you to choose from different models. 🎭 Depending on the selected model, Gemini Flash Experimental will be more faithful to the original (Comics, Manga, Zombie), and even for other models, it tries, thanks to multi-context, to maximize fidelity to the original image. It's also possible to edit the prompt (like adding a hat). 🎩 I plan to explore multi-edit iteration for a future evolution. 🔮
-
-![Zombification](/images/posts/2025-03-23-gemini-flash-next-gen-img-pix-me/pix-me-gemini-flash-exp-720.gif)
 
 ## Sources 📚
 
