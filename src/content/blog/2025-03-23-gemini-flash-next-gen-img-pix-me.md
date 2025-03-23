@@ -10,6 +10,8 @@ I'm excited to announce that Pix Me! has integrated the experimental Gemini 2.0 
 
 ![Zombification](/images/posts/2025-03-23-gemini-flash-next-gen-img-pix-me/pix-me-gemini-flash-exp-720.gif)
 
+👉 Try it now: **[Pix Me! Studio](https://pix-me.studio)**
+
 ## What is Gemini 2.0 Flash (Experimental)? 🤔
 
 Gemini 2.0 Flash is Google's latest multimodal AI model and the workhorse of the Gemini 2.0 family. It builds on the success of the previous 1.5 Flash model with enhanced performance at similarly fast response times. In fact, Gemini 2.0 Flash outperforms its predecessor on key benchmarks while running about twice as fast as Gemini 1.5 Pro. Crucially, it introduces native image output for the first time, meaning the same model can now generate both text and images in one go. Here are the key highlights of this model:
