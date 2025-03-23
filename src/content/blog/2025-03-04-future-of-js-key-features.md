@@ -19,6 +19,7 @@ Working with JavaScript’s `Date` object has always been a nightmare—timezone
 The new **Temporal API** introduces a much-needed, **reliable and intuitive** way to handle dates and time. It removes quirks from the legacy `Date` object and provides clear, predictable behavior.  
 
 **Example:**  
+
 ```javascript
 const now = Temporal.Now.plainDateTimeISO();
 console.log(now.toString()); // Displays a standardized, readable date
@@ -35,6 +36,7 @@ Mutable objects can be unpredictable, especially when passed around in large app
 Records and Tuples bring **immutable** data structures to JavaScript, making it easier to **ensure data consistency** and avoid unintended side effects. They work similarly to plain objects and arrays but are **frozen by default**.  
 
 **Example:**  
+
 ```javascript
 const product = #{ name: "Laptop", price: 999 };
 const stock = #[100, 200, 50];
@@ -51,6 +53,7 @@ Deeply nested function calls often become unreadable, especially in data transfo
 The **Pipeline Operator** simplifies function chaining, making code much easier to follow by keeping it **linear and logical**.  
 
 **Example:**  
+
 ```javascript
 const finalPrice = basePrice
   |> applyDiscount
@@ -69,6 +72,7 @@ Adding reusable behaviors to JavaScript classes often leads to repetitive, clutt
 Decorators provide a **declarative way** to enhance classes without modifying their core logic, making features like logging, caching, and access control **much cleaner**.  
 
 **Example:**  
+
 ```javascript
 function logUsage(target) {
   console.log(`Instantiating: ${target.name}`);
@@ -85,6 +89,7 @@ This **reduces boilerplate code** and keeps classes **focused on their primary r
 2025 is set to make JavaScript **more predictable, powerful, and developer-friendly**. These new features focus on **making code more readable, maintainable, and robust**—whether you’re building a small project or scaling a large application.  
 
 ### 🔗 Further Reading  
+
 1. [The Future of JavaScript: 4 Features You Need to Know in 2025 - Digital Minds](https://medium.com/@all.technology.stories/44573520e0fb?ref=zazen_code)  
 2. [MDN Web Docs - Temporal API](https://developer.mozilla.org/en-US/blog/javascript-temporal-is-coming/?ref=zazen_code)  
 3. [Thomas Dupont - JavaScript: Nouvelles fonctionnalités pour 2025](https://thomas-dupont.io/blog/javascript-nouveautes-2025?ref=zazen_code)  
