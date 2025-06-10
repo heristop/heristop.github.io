@@ -26,23 +26,15 @@ Hello everyone! This edition of the Frontend Digest covers mid-May through early
 
 * **[Nuxt 2025 Roadmap](https://nuxt.com/blog/2025-roadmap?ref=zazen_code)**: Upcoming Nuxt 4 will include support for Vue 3.4+ features and server components. Alpha expected around June 2025.
 
-### React
-
-* **[React Compiler RC](https://react.dev/blog?ref=zazen_code)**: The new compiler (“React Forget”) is now in preview. It enables auto-memoization and performance optimizations by default.
-* **[Create React App Deprecated](https://react.dev/blog?ref=zazen_code)**: CRA is now officially deprecated, with modern bundlers like Vite recommended.
-
 ## 🛠️ Developer Tools & Libraries
 
 * **[Node.js v24 Released](http://nodesource.com/blog/Node.js-version-24/?ref=zazen_code)**: Comes with npm 11, V8 12.4, and diagnostic improvements.
 * **[Sleeker Node.js Experience](https://www.developer-tech.com/news/nodejs-24-a-faster-sleeker-javascript-experience/?ref=zazen_code)**: Coverage of improved module handling and startup time.
 * **[Native TypeScript Compiler](https://devblogs.microsoft.com/typescript/typescript-native-port/?ref=zazen_code)**: Written in Go, this new compiler is up to 10× faster and will unlock better IDE performance.
-* **[ESLint 9.0.0 Retrospective](https://eslint.org/blog/2025/05/eslint-v9.0.0-retrospective/?ref=zazen_code)**: ESLint v9 now uses flat config by default and removes legacy rule APIs.
-* **[ESLint Flat Config Discussion](https://github.com/eslint/eslint/discussions/17468?ref=zazen_code)**: Guidance and migration notes for teams upgrading to ESLint 9.
 * **[Anime.js v4 – Announcement](https://x.com/JulianGarnier/status/1905686297525813453?ref=zazen_code)**
 * **[Anime.js v4 – Release Notes](https://github.com/juliangarnier/anime/releases?ref=zazen_code)**
 * **[Tailwind CSS Blog](https://tailwindcss.com/blog?ref=zazen_code)**
 * **[OpenJS Foundation CNA](https://socket.dev/blog/openjs-foundation-is-now-a-cna?ref=zazen_code)**
-* **[Storybook 8 Overview](https://storybook.js.org/blog/storybook-8/?ref=zazen_code)**: Adds visual tests, React Server Components support, faster builds, and better mobile UX.
 * **[Storybook 9 Preview](https://storybook.js.org/blog/storybook-9/?ref=zazen_code)**: Introduces new architecture and module unification.
 
 ## 🌐 Web Standards & Browser Updates
