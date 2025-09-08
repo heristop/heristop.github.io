@@ -1,6 +1,6 @@
 ---
 title: 🔍 Exit "Vibe Coding", Enter "Vibe Reviewing"
-description: "As a Chapter Lead at Carrefour France, I audit projects across different technical stacks (frontend, backend, mobile, etc.) as part of my role. Recently, I’ve been experimenting with AI agents for these audits. After several audited projects: time reduced by 3x, but not without challenges.  Spoiler: It’s not magic. Be wary of contrary claims. Some come from former no-code gurus now rebranded as “AI evangelists” who pontificate on topics they’ve never even prompted themselves. I’m sharing my learning journey through iteration, from disillusionment to a working method."
+description: "As a Chapter Lead at Carrefour France, I audit projects across different technical stacks (frontend, backend, mobile, etc.) as part of my role. Recently, I’ve been experimenting with AI agents for these audits. After several audited projects: time reduced by 3x, but not without challenges. Spoiler: It’s not magic. Be wary of contrary claims. Some come from former no-code gurus now rebranded as “AI evangelists” who pontificate on topics they’ve never even prompted themselves. I’m sharing my learning journey through iteration, from disillusionment to a working method."
 pubDate: "2025-09-08"
 conclusion: "👉 Eighth Lesson* (which will serve as a conclusion): A good audit doesn't end, it transforms into ongoing support."
 image: "/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751634589187.jpg"
@@ -64,9 +64,11 @@ So why not explore the same approach for code reviews? Agents can structure an a
 ## 📝 Iteration 1: The 2-Phase Process (Works... Then Drifts)
 
 **Phase 1 - The Plan**: Agent-agnostic pre-prompt to generate a structured audit plan with a progress tracking file.
+
 ✅ **Result**: Coherent structure, logical sections, solid framework.
 
 **Phase 2 - The Enrichment**: For each section, the agent ensures the project builds and runs locally, then installs scanning and quality tools + cross-checks with real figures.
+
 ✅ **Initial Result**: Detailed analyses, concrete metrics, CSV extractions to verify figures.
 
 **First Observed Drift**: With iterations, the agent loses the initial context. Depending on the LLM model, this can happen quickly, and context compression doesn't prevent the agent from becoming confused.
@@ -126,7 +128,7 @@ So why not explore the same approach for code reviews? Agents can structure an a
 
 **But Beware of Irony** (actually experienced): Asking an agent to find hallucinations... and it creates some by criticizing the other agent's work! I searched in vain for the hallucinated `CVE-9999`! 😅
 
-So I stopped using this agent, despite being newly released and free. Harsh jungle law of agents.
+So I stopped using this agent, despite being newly released and free (not for a long time). Harsh jungle law of agents.
 
 **Working Methodology**:
 
