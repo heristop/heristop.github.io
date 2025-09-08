@@ -8,6 +8,8 @@ image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.jpg"
 
 ### 📢 News & Trends
 
+ a
+
 - **💡 [JavaScript Rising Stars 2024](https://risingstars.js.org/2024/en?ref=zazen_code)**  
   - Discover the top JavaScript projects that gained significant traction in 2024, highlighting emerging trends and tools in the ecosystem.
 
