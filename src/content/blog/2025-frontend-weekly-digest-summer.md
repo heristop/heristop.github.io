@@ -20,11 +20,6 @@ Hello everyone! This summer edition of the Frontend Digest brings highlights fro
 * **[React’s `use()` API Is About to Make `useContext` Obsolete](https://blog.logrocket.com/reacts-use-api-makes-usecontext-obsolete)**  
   The upcoming `use()` API simplifies async data fetching and state handling, reducing the need for `useContext` and `useEffect`.
 
-### Platformatic
-
-* **[Introducing Massimo](https://blog.platformatic.dev/introducing-massimo)**  
-  Platformatic unveils **Massimo**, a lightweight JavaScript framework built for simplicity and developer experience.
-
 ### Vue / Nuxt
 
 * **[Post-Flush Watchers vs `nextTick`](https://michaelnthiessen.com/the-difference-between-a-post-flush-watcher-and-nexttick)**  
