@@ -263,7 +263,7 @@ So I stopped using this agent, despite being newly released and free (not for a 
 
 **The Visual Journey**:
 
-![Mermaid schema](/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751650698622.png)
+![Mermaid schema](/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/mermaid-workflow.png)
 
 **The Journey in Numbers**:
 
