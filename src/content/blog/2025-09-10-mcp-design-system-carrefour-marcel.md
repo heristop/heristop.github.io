@@ -8,17 +8,19 @@ image: "/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/c4-kit.png"
 
 ## TL;DR
 
-At Carrefour, in the Design System Tech Team, we built an MCP server that enables AI assistants (Claude, GitHub Copilot, Gemini-CLI, etc.) to understand and generate code for our Design System. Result: developers can prompt `create a product card with price and rating` and get production-ready Marcel code with the right components, tokens, and patterns.
+At Carrefour, in the Design System Tech Team, we built an MCP server that enables AI assistants (Claude, GitHub Copilot, Gemini-CLI, etc.) to understand and generate code for our Design System. 
+
+Result: developers can prompt `create a product card with price and rating` and get production-ready Marcel code with the right components, tokens, and patterns.
 
 <div class="flex w-full justify-center">
   <figure class="flex flex-col items-center gap-2">
     <img
       src="/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/marcel.png"
-      alt="Logo Marcel"
+      alt="Marcel Logo"
       class="w-1/2 md:w-84 border-2 border-white border-opacity-50 rounded-lg"
     />
     <figcaption class="text-xs text-center text-gray-600 dark:text-gray-400">
-      Logo Marcel
+      Marcel Logo
     </figcaption>
   </figure>
 </div>
