@@ -80,27 +80,27 @@ h4 {
 }
 
 h1 {
-  font-size: 1.4em;
+  font-size: 1.25em;
   font-weight: 700;
   margin: 0 0 var(--space-md) 0;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.08);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 8%);
 }
 
 h2 {
-  font-size: 1.25em;
+  font-size: 1.15em;
   font-weight: 600;
   margin: var(--space-lg) 0 var(--space-md) 0;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.08);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 8%);
 }
 
 h3 {
-  font-size: 1.1em;
+  font-size: 1.05em;
   font-weight: 500;
   margin: var(--space-md) 0 var(--space-sm) 0;
 }
 
 h4 {
-  font-size: 1em;
+  font-size: 0.95em;
   font-weight: 500;
   margin: var(--space-md) 0 var(--space-xs) 0;
 }
