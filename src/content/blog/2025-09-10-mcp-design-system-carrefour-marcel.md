@@ -1,5 +1,5 @@
 ---
-title: "MCP Design System: How We Connected Our DS to Code Assist"
+title: "How We Connected our Design System to Code Assist with MCP"
 description: "At Carrefour, in the Design System Tech Team, we built an MCP server that enables AI assistants (Claude, GitHub Copilot, Gemini-CLI, etc.) to understand and generate code for our Design System. Result: developers can prompt `create a product card with price and rating` and get production-ready Marcel code with the right components, tokens, and patterns."
 pubDate: "2025-09-10"
 conclusion: "👉 Interested in implementing MCP for your Design System? The protocol is open source and the community is growing. Feel free to reach out with questions!"
