@@ -146,12 +146,17 @@ The MCP server is packaged and versioned with the rest of the Design System:
 
 ### 1. Component Verification
 
-The MCP verifies in real-time that components actually exist:
+The MCP verifies that components actually exist:
 
 ```javascript
-// AI can no longer invent components
-// It knows exactly which components are available
-// and suggests alternatives for non-existent ones
+// MCP then suggests alternatives via:
+get_components_list({ category: "form" })
+// Returns: Available components like c-input-select, c-popin
+
+// This tool-based verification ensures:
+// - AI can only use components that actually exist in the current version
+// - Developers get helpful alternatives when requesting non-existent components
+// - All information comes from build-time generated metadata, not runtime analysis
 ```
 
 ### 2. Accurate Props and Events
@@ -162,7 +167,22 @@ Each component is documented with its actual props, preventing AI from guessing:
 // Before MCP: AI guesses props
 <CButton variant="large" color="blue" onClick={handle}>
 
-// After MCP: correct props from our actual components
+// With MCP: AI calls get_component_details first
+get_component_details({ componentName: "c-button", framework: "vue3" })
+
+// Returns actual component API:
+{
+  "props": [
+    { "name": "variation", "type": "string", "values": ["primary", "secondary"] },
+    { "name": "size", "type": "string", "values": ["s", "m", "l"] },
+    { "name": "disabled", "type": "boolean" }
+  ],
+  "events": [
+    { "name": "click", "payload": "MouseEvent" }
+  ]
+}
+
+// After MCP: correct props from verified data
 <CButton variation="primary" size="m" @click="handle">
 ```
 
@@ -213,6 +233,25 @@ The MCP includes our coding standards:
 // Official grouped import
 import { CButton, CInputText, CModal } from '@carrefour/design-system-components-vue3'
 ```
+
+#### Critical Anti-Hallucination Rule
+
+```javascript
+// The #1 rule in our guidelines
+get_guidelines({ guideline: "anti-hallucination" })
+
+// Returns:
+"MANDATORY: Always call get_component_details before using ANY component
+FORBIDDEN: Using a component without verification
+CRITICAL: Only use what exists, never guess"
+```
+
+This rule is so important that AI assistants are instructed to ALWAYS verify before generating code. The anti-hallucination guideline contains:
+
+- List of components that don't exist in Marcel but may be hallucinated: CDropdown, CNavbar, CSidebar...
+- Common naming mistakes to avoid
+- Mandatory verification protocol before any code generation
+- Correct alternatives for commonly requested but non-existent components
 
 ## Prompting Best Practices
 
