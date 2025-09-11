@@ -243,9 +243,9 @@ import { CButton, CInputText, CModal } from '@carrefour/design-system-components
 get_guidelines({ guideline: "anti-hallucination" })
 
 // Returns:
-"MANDATORY: Always call get_component_details before using ANY component
-FORBIDDEN: Using a component without verification
-CRITICAL: Only use what exists, never guess"
+"MANDATORY: Always call get_component_details before using ANY component"
+"FORBIDDEN: Using a component without verification"
+"CRITICAL: Only use what exists, never guess"
 ```
 
 This rule is so important that AI assistants are instructed to ALWAYS verify before generating code. The anti-hallucination guideline contains:

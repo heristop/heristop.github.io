@@ -243,13 +243,13 @@ h2.year-title::after {
 .header a {
   font-weight: bold;
   text-decoration: none;
+  font-size: var(--font-size-xl);
 }
 
 .title {
   display: inline-block;
   margin: var(--space-sm) 0;
   color: var(--primary-color);
-  font-size: var(--font-size-xl);
 }
 
 .header a.extra {
