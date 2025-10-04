@@ -8,8 +8,8 @@ image: "/images/posts/2024-07-09-conventional-commit-jira/banner.jpg"
 
 **TL;DR:** This guide demonstrates how to set up conventional commits with a customizable Jira ticket prefix for JavaScript projects. It covers configuring commit message validation using git hook, ensuring better commit practices and issue tracking. The guide also briefly touches on Jira-GitLab integration to enhance traceability in your development workflow.
 
-<div class="flex w-full justify-center">
-  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitmessage.jpg" alt="git message" class="w-2/3 md:w-52 border-2 border-white border-opacity-50" />
+<div class="img-container">
+  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitmessage.jpg" alt="git message" class="img-responsive" />
 </div>
 
 ## Table of Contents
@@ -273,7 +273,7 @@ Remember, while these examples are meant to be fun, maintaining consistent and c
 
 ## Step 3: Set Up Husky
 
-<img src="/images/posts/2024-07-09-conventional-commit-jira/githook.webp" alt="git hook" class="w-52" />
+<img src="/images/posts/2024-07-09-conventional-commit-jira/githook.webp" alt="git hook" class="img-small" />
 
 Initialize Husky to initialize a commit message hook:
 
@@ -352,8 +352,8 @@ To set up Jira integration in GitLab:
    - Project Key: Your Jira project key
 4. Test and save the settings.
 
-<div class="m-4 flex w-full justify-center">
-  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitlab.png"  alt="gitlab" class="w-4/5 md:w-2/3 border-2 border-white border-opacity-50" />
+<div class="img-container img-margin">
+  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitlab.png"  alt="gitlab" class="img-large" />
 </div>
 
 ### Benefits and Usage
@@ -362,14 +362,14 @@ Once set up, this integration offers several advantages:
 
 - **Automatic Issue Linking:** Including a Jira issue key (e.g., _PROJ-123_) in your commit message automatically creates a link to that issue in Jira.
 
-<div class="m-4 flex w-full justify-center">
-  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitlab-2.png" alt="gitlab" class="w-4/5 md:w-2/3 border-2 border-white border-opacity-50" />
+<div class="img-container img-margin">
+  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitlab-2.png" alt="gitlab" class="img-large" />
 </div>
 
 - **Commit Visibility in Jira:** Linked commits are visible in the Jira ticket's "Development" section, providing context within the ticket.
 
-<div class="m-4 flex w-full justify-center">
-  <img src="/images/posts/2024-07-09-conventional-commit-jira/jira.png" alt="jira" class="w-4/5 md:w-2/3 border-2 border-white border-opacity-50" />
+<div class="img-container img-margin">
+  <img src="/images/posts/2024-07-09-conventional-commit-jira/jira.png" alt="jira" class="img-large" />
 </div>
 
 By leveraging this integration, you create a more connected workflow between your project management in Jira and your code management in GitLab, enhancing traceability and team collaboration.

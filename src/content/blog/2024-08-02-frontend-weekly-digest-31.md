@@ -64,8 +64,8 @@ image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
 
 ### 💻 CSS for Dummies
 
-<div class="flex w-full justify-center">
-  <img src="/images/posts/2024-08-02-frontend-weekly-digest-31/surfer.jpg" alt="surfer" class="h-64 border-2 border-white border-opacity-50" />
+<div class="img-container">
+  <img src="/images/posts/2024-08-02-frontend-weekly-digest-31/surfer.jpg" alt="surfer" class="img-fixed-height" />
 </div>
 
 _When you try to center a div but accidentally send your surfer to the stratosphere:_

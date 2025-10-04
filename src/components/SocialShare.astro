@@ -6,7 +6,7 @@ interface Props {
   class?: string;
 }
 
-const { title, slug, minimal = false, class: className = 'md:mt-6' } = Astro.props;
+const { title, slug, minimal = false, class: className = 'social-share--default' } = Astro.props;
 const url = `https://heristop.github.io/blog/${slug}`;
 
 const shareLinks = [
@@ -28,43 +28,34 @@ const shareLinks = [
 ];
 ---
 
-<div class={`flex flex-wrap gap-2 font-semibold ${className}`}>
+<div class={`social-share ${className}`}>
   {shareLinks.map(link => (
     <a
       href={link.url}
       target="_blank"
       rel="noopener noreferrer"
-      class={`
-        group inline-flex items-center
-        ${minimal ? 'p-2' : 'px-3 sm:px-4 py-2'}
-        bg-stone-400/20 text-stone-700 rounded-full 
-        hover:bg-stone-400/15 transition-colors duration-300 
-        text-xs social-share-hover
-      `}
+      class:list={[
+        'social-share__link',
+        minimal ? 'social-share__link--minimal' : 'social-share__link--full',
+      ]}
       aria-label={`Share on ${link.name}`}
     >
-      <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        class={`
-          w-4 h-4 transition-transform duration-300 group-hover:scale-110
-          ${minimal ? '' : 'mr-1.5 sm:mr-2'}
-        `} 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        stroke-width="2" 
-        stroke-linecap="round" 
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class:list={[
+          'social-share__icon',
+          { 'social-share__icon--with-text': !minimal },
+        ]}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
         stroke-linejoin="round"
       >
         <Fragment set:html={link.icon} />
       </svg>
-      {!minimal && <span class="whitespace-nowrap">Share on {link.name}</span>}
+      {!minimal && <span class="social-share__text">Share on {link.name}</span>}
     </a>
   ))}
 </div>
-
-<style>
-  .social-share-hover:hover {
-    color: var(--link-color-secondary);
-  }
-</style>

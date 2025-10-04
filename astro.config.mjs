@@ -4,13 +4,12 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import sitemap from "@astrojs/sitemap";
 import { externalLink } from "./src/plugins/externalLink";
-import tailwind from "@astrojs/tailwind";
-
 import react from "@astrojs/react";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://heristop.github.io",
+
   markdown: {
     remarkPlugins: [remarkMath],
     rehypePlugins: [
@@ -23,5 +22,6 @@ export default defineConfig({
       rehypeKatex,
     ],
   },
-  integrations: [mdx(), sitemap(), tailwind(), react()],
+
+  integrations: [mdx(), sitemap(), react()],
 });

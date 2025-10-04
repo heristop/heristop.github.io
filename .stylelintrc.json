@@ -1,3 +1,8 @@
 {
-  "extends": "stylelint-config-standard"
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "selector-class-pattern": null,
+    "no-duplicate-selectors": null,
+    "no-descending-specificity": null
+  }
 }
