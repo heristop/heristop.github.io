@@ -6,10 +6,10 @@ import { SITE_TITLE } from "../consts";
 const title = `{ ${SITE_TITLE.replace(" ", "_")} }`;
 ---
 
-<header>
+<header class="site-header">
   <nav class="header">
     <div class="menu">
-      <h1 class="title"><a href="/">{title}</a></h1>
+      <h1 class="site-header__title title"><a href="/">{title}</a></h1>
 
       <HeaderLink class="extra" href="/blog">blog</HeaderLink>
 
@@ -18,9 +18,9 @@ const title = `{ ${SITE_TITLE.replace(" ", "_")} }`;
       <HeaderLink class="extra" href="/about">about</HeaderLink>
     </div>
 
-    <div class="banner rounded-md shadow-md">
+    <div class="banner site-header__banner">
       <div
-        class="img rounded-md"
+        class="img site-header__banner-image"
         style={`background: transparent url(${image}) no-repeat center center / cover`}
       >
       </div>

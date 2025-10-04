@@ -12,14 +12,14 @@ At Carrefour, in the Design System Tech Team, we built an MCP server that enable
 
 Result: developers can prompt `create a product card with price and rating` and get production-ready Marcel code with the right components, tokens, and patterns.
 
-<div class="flex w-full justify-center">
-  <figure class="flex flex-col items-center gap-2">
+<div class="img-container">
+  <figure class="img-figure">
     <img
       src="/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/marcel.png"
       alt="Marcel Logo"
-      class="w-1/2 md:w-84 border-2 border-white border-opacity-50 rounded-lg"
+      class="img-small img-rounded"
     />
-    <figcaption class="text-xs text-center text-gray-600 dark:text-gray-400">
+    <figcaption class="img-caption">
       Marcel Logo
     </figcaption>
   </figure>
@@ -131,14 +131,14 @@ We chose the STDIO (Standard Input/Output) approach because:
 
 The MCP server is packaged and versioned with the rest of the Design System:
 
-<div class="flex w-full justify-center">
-  <figure class="flex flex-col items-center gap-2">
+<div class="img-container">
+  <figure class="img-figure">
     <img
       src="/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/jfrog.png"
       alt="JFrog Carrefour"
-      class="w-full border-2 border-white border-opacity-50 rounded-lg"
+      class="img-large img-rounded"
     />
-    <figcaption class="text-xs text-center text-gray-600 dark:text-gray-400">
+    <figcaption class="img-caption">
       JFrog Carrefour
     </figcaption>
   </figure>
@@ -305,14 +305,14 @@ Example: When asked to create a login form, the AI now:
 
 The result is production-ready code that follows all our standards on the first generation:
 
-<div class="flex w-full justify-center">
-  <figure class="flex flex-col items-center gap-2">
+<div class="img-container">
+  <figure class="img-figure">
     <img
       src="/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/login-form.png"
       alt="Login Form with Marcel"
-      class="w-3/4 md:w-84 border-2 border-white border-opacity-50 rounded-lg"
+      class="img-three-quarter img-rounded"
     />
-    <figcaption class="text-xs text-center text-gray-600 dark:text-gray-400">
+    <figcaption class="img-caption">
       Login Form with Marcel
     </figcaption>
   </figure>

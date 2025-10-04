@@ -28,14 +28,14 @@ In short, real life isn't:
 
 > "Code me GTA VI", then "Add more cars", and "Now add a Zombie mode".
 
-<div class="flex w-full justify-center">
-  <figure class="flex flex-col items-center gap-2">
+<div class="img-container">
+  <figure class="img-figure">
     <img
       src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751651236397.png"
       alt="Screenshots of Vibe Coded Game"
-      class="w-full border-2 border-white border-opacity-50 rounded-lg"
+      class="img-large img-rounded"
     />
-    <figcaption class="text-xs text-center text-gray-600 dark:text-gray-400">
+    <figcaption class="img-caption">
       "Carrefour" Road Rage 3D
     </figcaption>
   </figure>
@@ -155,14 +155,14 @@ So I stopped using this agent, despite being newly released and free (not for a 
 ├── {AGENTS}.md               # example pre-instructions file at root
 ```
 
-<div class="flex w-full justify-center my-4">
-  <figure class="flex flex-col items-center gap-2">
+<div class="img-container img-margin-y">
+  <figure class="img-figure">
     <img
       src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751651127829.png"
       alt="VitePress documentation screenshot"
-      class="w-full border-2 border-white border-opacity-50 rounded-lg"
+      class="img-large img-rounded"
     />
-    <figcaption class="text-xs text-center text-gray-600 dark:text-gray-400">
+    <figcaption class="img-caption">
       VitePress Site Sample
     </figcaption>
   </figure>
@@ -180,14 +180,14 @@ So I stopped using this agent, despite being newly released and free (not for a 
 
 *👉 Fifth Lesson*: Gamifying documentation transforms the audit into a collaborative experience.
 
-<div class="flex w-full justify-center">
-  <figure class="flex flex-col items-center gap-2">
+<div class="img-container">
+  <figure class="img-figure">
     <img
       src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751897333288.png"
       alt="Documentation screenshot"
-      class="w-2/3 md:w-84 border-2 border-white border-opacity-50 rounded-lg"
+      class="img-responsive img-rounded"
     />
-    <figcaption class="text-xs text-center text-gray-600 dark:text-gray-400">
+    <figcaption class="img-caption">
       Reading Progression
     </figcaption>
   </figure>
@@ -275,14 +275,14 @@ So I stopped using this agent, despite being newly released and free (not for a 
 
 ## 👨‍🍳 Recipe to Start Your "Vibe Pudding with a Touch of Reality"
 
-<div class="flex w-full justify-center">
-  <figure class="flex flex-col items-center gap-2">
+<div class="img-container">
+  <figure class="img-figure">
     <img
       src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/ratatouille-vibe.png"
       alt="Recipe image"
-      class="w-2/3 md:w-84 border-2 border-white border-opacity-50 rounded-lg"
+      class="img-responsive img-rounded"
     />
-    <figcaption class="text-xs text-center text-gray-600 dark:text-gray-400">
+    <figcaption class="img-caption">
       Recipe for Vibe Pudding
     </figcaption>
   </figure>

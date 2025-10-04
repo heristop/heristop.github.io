@@ -80,8 +80,8 @@ image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 
 ### 💻 CSS for Dummies
 
-<div class="flex w-full justify-center">
-  <img src="/images/posts/2024-08-09-frontend-weekly-digest-32/swimmers.jpg" alt="swimmers" class="w-2/3 md:w-2/3 border-2 border-white border-opacity-50" />
+<div class="img-container">
+  <img src="/images/posts/2024-08-09-frontend-weekly-digest-32/swimmers.jpg" alt="swimmers" class="img-responsive" />
 </div>
 
 _When you let a backend dev code the synchronized swimming choreography in CSS:_

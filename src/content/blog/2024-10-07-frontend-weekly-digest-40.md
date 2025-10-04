@@ -60,8 +60,8 @@ image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 
 ### 💻 CSS for Dummies
 
-<div class="flex w-full justify-center">
-  <img src="/images/posts/2024-10-07-frontend-weekly-digest-40/elon.jpg" alt="elon" class="w-2/3 md:w-2/3 border-2 border-white border-opacity-50" />
+<div class="img-container">
+  <img src="/images/posts/2024-10-07-frontend-weekly-digest-40/elon.jpg" alt="elon" class="img-responsive" />
 </div>
 
 _When Elon jumps, Tesla stock drops:_

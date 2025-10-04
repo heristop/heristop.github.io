@@ -5,6 +5,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import FormattedDate from "../components/FormattedDate.astro";
 import { SITE_TITLE } from "../consts";
+import "../styles/global.css";
 
 type Props = CollectionEntry<"blog">["data"];
 
@@ -17,25 +18,25 @@ const { title, metaTitle, description, pubDate, updatedDate, image } = Astro.pro
   </head>
 
   <body>
-    <main class="site">
+    <main class="site-layout">
       <Header title={SITE_TITLE} {image} />
 
-      <div class="pre-content">
-        <div class="flex flex-col sm:flex-row justify-between w-full">
-          <div class="w-full sm:w-3/4">{title && <h1>{title}</h1>}</div>
-          <div class="w-full sm:w-1/4 text-right text-xs">
-            <div class="flex flex-col space-y-2">
+      <div class="site-layout__pre-content">
+        <div class="site-layout__meta">
+          <div class="site-layout__meta-title">{title && <h1>{title}</h1>}</div>
+          <div class="site-layout__meta-dates">
+            <div class="site-layout__date-list">
               {pubDate && (
-                <div class="flex items-center justify-end font-semibold meta">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="site-layout__date-row site-layout__date-row--muted">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="site-layout__date-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <FormattedDate date={pubDate} showYear />
                 </div>
               )}
               {updatedDate && (
-                <div class="flex items-center justify-end">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="site-layout__date-row">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="site-layout__date-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   <span>
@@ -47,7 +48,7 @@ const { title, metaTitle, description, pubDate, updatedDate, image } = Astro.pro
           </div>
         </div>
 
-        <div class="content">
+        <div class="site-layout__content">
           <slot />
         </div>
       </div>

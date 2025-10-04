@@ -63,7 +63,7 @@ image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.jpg"
 
 ### 📜 Historical Fun Fact
 
-- Did you know? The first website ever created is still online! Check it out [here](http://info.cern.ch/?ref=zazen_code). It’s a nostalgic trip back to 1991. 🕰️
+- Did you know? The first website ever created is still online! Check out [the world's first website](http://info.cern.ch/?ref=zazen_code). It's a nostalgic trip back to 1991. 🕰️
 
 ---
 
