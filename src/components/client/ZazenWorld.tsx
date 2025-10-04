@@ -123,7 +123,7 @@ export default function ZazenWorld() {
 
                 {/* Inputs for movement */}
                 <div className="mb-60">
-                  <table style={{ width: '100px', height: '85px', backgroundImage: `url(/images/zazen/compass.png)`, backgroundRepeat: 'no-repeat' }}>
+                  <table style={{ width: '6.25rem', height: '5.3125rem', backgroundImage: `url(/images/zazen/compass.png)`, backgroundRepeat: 'no-repeat' }}>
                     <tbody>
                       <tr>
                         <td></td>
