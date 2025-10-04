@@ -43,9 +43,9 @@ const delay = 10;
 ---
 
 <Layout title="All Posts" description="Blog">
-  <blockquote class="mb-4 flex gap-2">
-    <svg 
-      class="w-4 h-4" 
+  <blockquote class="blog-archive__subscribe">
+    <svg
+      class="blog-archive__subscribe-icon" 
       fill="#9d4261" 
       version="1.1"
       xmlns="http://www.w3.org/2000/svg" 
@@ -66,14 +66,14 @@ const delay = 10;
     <span>Subscribe to <a href="/rss.xml">RSS</a>.</span>
   </blockquote>
 
-  <ul>
+  <ul class="blog-archive">
     {
       sortedYears.map((year) => (
         <li>
-          <h2 class="flex items-center gap-x-2 align-middle year-title">
+          <h2 class="blog-archive__year-heading">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="w-4 h-4 text-[#B47B84]"
+              class="blog-archive__year-icon"
               fill="currentColor"
               class="bi bi-archive"
               viewBox="0 0 16 16"
@@ -84,7 +84,7 @@ const delay = 10;
             {year}
           </h2>
 
-          <ul class="posts-by-year">
+          <ul class="post-list blog-archive__post-list">
             {postsByYear[year].map(
               (
                 post: {
@@ -95,11 +95,11 @@ const delay = 10;
                 index: number
               ) => (
                 <li
-                  class="flex items-center space-x-2 align-middle slide-down"
+                  class="post-list__item blog-archive__post-item blog-archive__post-item--animated"
                   style={`animation-delay: ${delay * index}ms`}
                 >
                   {post.data.pubDate && (
-                    <span class="meta post-date w-16">
+                    <span class="post-list__date blog-archive__post-date u-text-muted">
                       <FormattedDate date={post.data.pubDate} />
                     </span>
                   )}

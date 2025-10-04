@@ -2,28 +2,28 @@
 import { SITE_AUTHOR, SITE_TITLE, AUTHOR_ROLE, LINKFOLIO_URL } from "../consts";
 ---
 
-<div class="eof text-xs font-semibold drop-shadow-sm">--eof--</div>
+<div class="site-footer__eof">--eof--</div>
 
-<footer
-  class="footer flex flex-col sm:flex-row justify-between space-x-0 sm:space-x-4 text-xs"
->
-  <a title="?" href="/extra" class="contact profile mb-4 sm:mb-0"></a>
-  <div class="contact mb-4 sm:mb-0 gap-y-8">
-    <p class="font-bold">{SITE_TITLE}</p>
-    <p class="flex flex-col gap-y-1">
+<footer class="site-footer">
+  <a title="?" href="/extra" class="site-footer__profile"></a>
+
+  <div class="site-footer__contact">
+    <p class="site-footer__title">{SITE_TITLE}</p>
+    <p class="site-footer__info">
       <span>Author: {SITE_AUTHOR}</span>
       <span>{AUTHOR_ROLE}</span>
     </p>
   </div>
-  <div class="contact">
+
+  <div class="site-footer__links">
     <p>
       <b>🔗 Linkfolio:</b>
       <br />
-      <b
-        ><a href={LINKFOLIO_URL} target="_blank"
-          >{LINKFOLIO_URL.replace("https://", "")}</a
-        ></b
-      >
+      <b>
+        <a href={LINKFOLIO_URL} target="_blank">
+          {LINKFOLIO_URL.replace("https://", "")}
+        </a>
+      </b>
     </p>
   </div>
 </footer>

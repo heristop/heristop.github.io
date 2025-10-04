@@ -83,8 +83,8 @@ image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
 
 ### 💻 CSS for Dummies
 
-<div class="flex w-full justify-center">
-  <img src="/images/posts/2024-10-21-frontend-weekly-digest-42/rocket.jpg" alt="rocket" class="w-2/3 md:w-2/3 border-2 border-white border-opacity-50" />
+<div class="img-container">
+  <img src="/images/posts/2024-10-21-frontend-weekly-digest-42/rocket.jpg" alt="rocket" class="img-responsive" />
 </div>
 
 _When you realize you left your wallet on Earth:_

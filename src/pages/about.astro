@@ -5,7 +5,7 @@ import Layout from "../layouts/Layout.astro";
 
 <Layout title="About" description="About page">
   <blockquote>
-    Hello, I'm <b>heristop</b>! <span class="wave">👋</span> I'm a Chapter Lead &
+    Hello, I'm <b>heristop</b>! <span class="about-info__wave">👋</span> I'm a Chapter Lead &
     Web Development Expert Passionate about crafting high-performance web applications,
     I lead teams of talented developers. My expertise spans JavaScript, TypeScript,
     Vue, React, Node.js, PHP, and Symfony. Constantly pursuing innovation, I strive
@@ -13,24 +13,24 @@ import Layout from "../layouts/Layout.astro";
     web solutions.
   </blockquote>
 
-  <section class="text-center my-8 bg-black bg-opacity-5 shadow-md rounded-md p-3 text-stone-800 text-xs">
-    <ul class="flex flex-row justify-center items-center gap-x-4 md:gap-x-10 font-bold">
-      <li class="flex flex-col">
-        💼 Chapter Lead <span class="text-[0.9em]">@Carrefour SI</span>
+  <section class="about-info">
+    <ul class="about-info__list">
+      <li class="about-info__item about-info__item--stacked">
+        💼 Chapter Lead <span class="about-info__subtitle">@Carrefour SI</span>
       </li>
-      <li>🎂 4 November</li>
-      <li>📌 Paris, France</li>
-      <li>🔗 <a href="https://heristop.github.io/about">Permalink</a></li>
+      <li class="about-info__item">🎂 4 November</li>
+      <li class="about-info__item">📌 Paris, France</li>
+      <li class="about-info__item">🔗&nbsp;<a href="https://heristop.github.io/about">Permalink</a></li>
     </ul>
   </section>
 
-  <h2 class="my-4">🔗 Social Networks</h2>
+  <h2>🔗 Social Networks</h2>
 
   <SocialNetworks filter="socialnetwork" />
 </Layout>
 
 <style>
-  .wave {
+  .about-info__wave {
     display: inline-block;
     font-size: 1.5em;
     animation: wave 1.8s ease-in-out 1;
@@ -54,7 +54,7 @@ import Layout from "../layouts/Layout.astro";
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const waveEmoji = document.querySelector(".wave") as HTMLElement;
+    const waveEmoji = document.querySelector(".about-info__wave") as HTMLElement;
     if (waveEmoji) {
       waveEmoji.addEventListener("mouseenter", () => {
         waveEmoji.style.animation = "none";

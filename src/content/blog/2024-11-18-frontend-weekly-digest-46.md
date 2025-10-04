@@ -67,8 +67,8 @@ image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.jpg"
 
 ### 💻 CSS for Dummies
 
-<div class="flex w-full justify-center">
-  <img src="/images/posts/2024-11-18-frontend-weekly-digest-46/sausage.webp" alt="rocket" class="w-2/3 md:w-2/3 border-2 border-white border-opacity-50" />
+<div class="img-container">
+  <img src="/images/posts/2024-11-18-frontend-weekly-digest-46/sausage.webp" alt="rocket" class="img-responsive" />
 </div>
 
 _When you need to handle responsive design on your overalls:_

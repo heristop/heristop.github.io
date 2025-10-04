@@ -9,8 +9,8 @@ image: "/images/posts/headway-5QgIuuBxKwM-unsplash.jpg"
 
 In continuation of our reflection on the essential qualities of a good developer ([Valuing Curiosity Beyond Technical Expertise in Developers](https://heristop.github.io/blog/2023-12-18-curiosity-beyond-technical-expertise/)), it's time to address an often neglected but crucial aspect: the quality of exchange during technical interviews. As a technical referee who has conducted numerous interviews, I've observed the critical importance of open and honest communication, both from the candidate and the recruiter.
 
-<div class="flex w-full justify-center">
-  <img src="/images/posts/2024-09-10-beyond-script-reinventing-interview/photo-1541178735493-479c1a27ed24.webp" alt="git message" class="w-2/3 md:w-72 border-2 border-white border-opacity-50" />
+<div class="img-container">
+  <img src="/images/posts/2024-09-10-beyond-script-reinventing-interview/photo-1541178735493-479c1a27ed24.webp" alt="git message" class="img-responsive" />
 </div>
 
 ## Beyond Canned Questions
@@ -47,8 +47,8 @@ To foster an authentic exchange, here are some strategies I can advise, on my hu
 
 In this context of authentic exchange, it's crucial for the recruiter to create an environment where saying "I don't know" is not only accepted but encouraged. As a recruiter, your role is to value this intellectual honesty. When a candidate admits to not knowing a subject, consider it an opportunity to explore their learning capacity and curiosity, rather than a shortcoming.
 
-<div class="flex w-full justify-center">
-  <img src="/images/posts/2024-09-10-beyond-script-reinventing-interview/photo-1518644730709-0835105d9daa.webp" alt="git message" class="w-2/3 md:w-72 border-2 border-white border-opacity-50" />
+<div class="img-container">
+  <img src="/images/posts/2024-09-10-beyond-script-reinventing-interview/photo-1518644730709-0835105d9daa.webp" alt="git message" class="img-responsive" />
 </div>
 
 ## When the Exchange Falls Short: Managing Difficult Interviews
@@ -78,8 +78,8 @@ It's useful, after a complicated interview, to step back and ask ourselves a few
 - Were the questions asked really appropriate?
 - Did the candidate have enough opportunities to show their strengths?
 
-<div class="flex w-full justify-center">
-  <img src="/images/posts/2024-09-10-beyond-script-reinventing-interview/photo-1573497491208-6b1acb260507.webp" alt="git message" class="w-2/3 md:w-72 border-2 border-white border-opacity-50" />
+<div class="img-container">
+  <img src="/images/posts/2024-09-10-beyond-script-reinventing-interview/photo-1573497491208-6b1acb260507.webp" alt="git message" class="img-responsive" />
 </div>
 
 ## Final Thoughts
