@@ -10,6 +10,7 @@ import icon from "astro-icon";
 // https://astro.build/config
 export default defineConfig({
   site: "https://heristop.github.io",
+  viewTransitions: true,
 
   markdown: {
     remarkPlugins: [remarkMath],

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
@@ -24,9 +25,22 @@ const latestPosts = posts.slice(0, 5);
 
 const timestamp = new Date().getTime();
 const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/assets/img/daily_haiku_card.jpg?t=${timestamp}`;
-const haikuDescription = fetch(
-  `https://raw.githubusercontent.com/heristop/gutenku/main/assets/description.txt?t=${timestamp}`
-).then((response) => response.text());
+
+let haikuDescription = "A fresh haiku will be shared here soon.";
+
+try {
+  const response = await fetch(
+    `https://raw.githubusercontent.com/heristop/gutenku/main/assets/description.txt?t=${timestamp}`
+  );
+
+  if (response.ok) {
+    haikuDescription = await response.text();
+  }
+} catch (error) {
+  if (import.meta.env.DEV) {
+    console.warn("Unable to load the daily haiku description:", error);
+  }
+}
 ---
 
 <!doctype html>
@@ -35,6 +49,7 @@ const haikuDescription = fetch(
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
   <body>
+    <ClientRouter />
     <main class="site-layout">
       <Header title={SITE_TITLE} />
 

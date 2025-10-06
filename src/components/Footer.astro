@@ -8,6 +8,8 @@ import {
   LINKEDIN_URL,
   X_URL,
   BLUESKY_URL,
+AUTHOR_LANGUAGES,
+SITE_PSEUDO,
 } from '../consts';
 import Icon from './Icon.astro';
 ---
@@ -31,11 +33,12 @@ import Icon from './Icon.astro';
         <address class="site-footer__contact">
           <p class="site-footer__author">
             <Icon name="user" size={16} aria-hidden={true} />
-            {SITE_AUTHOR}
+            {SITE_AUTHOR}<br />
+            ({SITE_PSEUDO})
           </p>
           <p class="site-footer__role">
             <Icon name="briefcase" size={16} aria-hidden={true} />
-            {AUTHOR_ROLE}
+            {AUTHOR_ROLE} / {AUTHOR_LANGUAGES}
           </p>
         </address>
       </div>
