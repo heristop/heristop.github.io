@@ -1,6 +1,6 @@
 ---
-import { LINKFOLIO_URL } from "../consts";
-import { Image } from "astro:assets";
+import { LINKFOLIO_URL } from '../consts';
+import { Image } from 'astro:assets';
 
 async function fetchUserConfig() {
   const response = await fetch(`${LINKFOLIO_URL}/api/config`);
@@ -34,11 +34,7 @@ type NetworkType = {
           class="social-network__card"
           style={`animation-delay: ${delay * index}ms`}
         >
-          <a
-            href={network.url}
-            target="_blank"
-            class="social-network__link"
-          >
+          <a href={network.url} target="_blank" class="social-network__link">
             <Image
               src={
                 network.iconSrc.src
@@ -53,9 +49,7 @@ type NetworkType = {
 
             <div class="social-network__content">
               <h3 class="social-network__title">{network.title}</h3>
-              <p class="social-network__description">
-                {network.description}
-              </p>
+              <p class="social-network__description">{network.description}</p>
             </div>
           </a>
         </div>

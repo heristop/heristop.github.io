@@ -1,9 +1,9 @@
 ---
-title: "Use Sencha ExtJS with Symfony 2, The Viewport"
-description: "How to use Sencha ExtJS with Symfony 2, The Viewport"
-pubDate: "2014-02-04"
-image: "/images/posts/screen_filter.png"
-conclusion: "💃 Happy Coding!"
+title: 'Use Sencha ExtJS with Symfony 2, The Viewport'
+description: 'How to use Sencha ExtJS with Symfony 2, The Viewport'
+pubDate: '2014-02-04'
+image: '/images/posts/screen_filter.png'
+conclusion: '💃 Happy Coding!'
 ---
 
 Sencha ExtJS is a javascript framework which allows to create some RIA (Rich Internet Application).
@@ -175,7 +175,7 @@ Activate it for the bundle in `config.yml`:
 ```yaml
 # app/config/config.yml
 assetic:
-  debug: "%kernel.debug%"
+  debug: '%kernel.debug%'
   use_controller: false
   bundles: [SenchaTicketBundle]
 ```
@@ -242,45 +242,45 @@ Ext.Loader.setConfig({
 });
 
 Ext.application({
-  name: "Ticket",
+  name: 'Ticket',
 
-  appFolder: "app",
+  appFolder: 'app',
 
-  controllers: ["Messages"],
+  controllers: ['Messages'],
 
-  appFolder: "app",
+  appFolder: 'app',
 
   launch: function () {
     Ext.tip.QuickTipManager.init();
 
-    Ext.create("Ext.container.Viewport", {
+    Ext.create('Ext.container.Viewport', {
       border: false,
       layout: {
-        type: "border",
+        type: 'border',
       },
       items: [
         {
           border: false,
-          region: "center",
+          region: 'center',
           layout: {
-            type: "border",
+            type: 'border',
           },
           items: [
             {
-              id: "content-panel",
+              id: 'content-panel',
               border: false,
-              region: "center",
+              region: 'center',
               layout: {
-                type: "card",
+                type: 'card',
               },
-              margins: "2 5 5 0",
+              margins: '2 5 5 0',
               items: [
                 {
                   // here we will display the grid!
-                  xtype: "messagelist",
-                  region: "center",
-                  title: "Tickets List",
-                  id: "ticket-grid",
+                  xtype: 'messagelist',
+                  region: 'center',
+                  title: 'Tickets List',
+                  id: 'ticket-grid',
                 },
               ],
             },
@@ -298,47 +298,47 @@ Then in the model, we define the structure of a message:
 
 ```js
 // Resources/public/js/app/model/Message.js
-Ext.define("Ticket.model.Message", {
-  extend: "Ext.data.Model",
+Ext.define('Ticket.model.Message', {
+  extend: 'Ext.data.Model',
   fields: [
     {
-      name: "Id",
-      type: "int",
+      name: 'Id',
+      type: 'int',
     },
     {
-      name: "Subject",
-      type: "string",
+      name: 'Subject',
+      type: 'string',
     },
     {
-      name: "Email",
-      type: "string",
+      name: 'Email',
+      type: 'string',
     },
     {
-      name: "Status",
-      type: "string",
+      name: 'Status',
+      type: 'string',
     },
     {
-      name: "Priority",
-      type: "string",
+      name: 'Priority',
+      type: 'string',
     },
     {
-      name: "Source",
-      type: "string",
+      name: 'Source',
+      type: 'string',
     },
     {
-      name: "OverdueDate",
-      type: "date",
-      dateFormat: "timestamp",
+      name: 'OverdueDate',
+      type: 'date',
+      dateFormat: 'timestamp',
     },
     {
-      name: "CreationDate",
-      type: "date",
-      dateFormat: "timestamp",
+      name: 'CreationDate',
+      type: 'date',
+      dateFormat: 'timestamp',
     },
     {
-      name: "ModificationDate",
-      type: "date",
-      dateFormat: "timestamp",
+      name: 'ModificationDate',
+      type: 'date',
+      dateFormat: 'timestamp',
     },
   ],
 });
@@ -351,8 +351,8 @@ The role of the store is to retrieve data via the proxy and apply filters.
 
 ```js
 // Resources/public/js/app/store/Message.js
-Ext.define("Ticket.store.Messages", {
-  extend: "Ext.data.Store",
+Ext.define('Ticket.store.Messages', {
+  extend: 'Ext.data.Store',
 
   constructor: function (cfg) {
     var me = this;
@@ -362,35 +362,35 @@ Ext.define("Ticket.store.Messages", {
       Ext.apply(
         {
           autoLoad: true,
-          model: "Ticket.model.Message",
+          model: 'Ticket.model.Message',
           proxy: {
-            type: "ajax",
-            url: "/message/list",
+            type: 'ajax',
+            url: '/message/list',
             reader: {
-              type: "json",
-              root: "results",
-              totalProperty: "totalCount",
-              successProperty: "success",
+              type: 'json',
+              root: 'results',
+              totalProperty: 'totalCount',
+              successProperty: 'success',
             },
           },
           sorters: [
             {
-              property: "CreationDate",
-              direction: "DESC",
+              property: 'CreationDate',
+              direction: 'DESC',
             },
           ],
           listeners: {
             load: function (records, operation, success) {
               if (false === success) {
                 Ext.MessageBox.alert(
-                  "Warning",
-                  "The server returned an error.",
+                  'Warning',
+                  'The server returned an error.'
                 );
               }
             },
           },
         },
-        cfg,
+        cfg
       ),
     ]);
   },
@@ -404,100 +404,100 @@ It extends the widget `Ext.grid.Panel`:
 
 ```js
 // Resources/public/js/app/view/message/List.js
-Ext.define("Ticket.view.message.List", {
-  extend: "Ext.grid.Panel",
-  alias: "widget.messagelist",
+Ext.define('Ticket.view.message.List', {
+  extend: 'Ext.grid.Panel',
+  alias: 'widget.messagelist',
 
   initComponent: function () {
     var me = this;
 
     me.callParent(
       Ext.applyIf(me, {
-        store: "Messages",
+        store: 'Messages',
         border: false,
         forceFit: true,
         columns: [
           {
-            xtype: "gridcolumn",
-            dataIndex: "Id",
-            text: "Ticket Id",
+            xtype: 'gridcolumn',
+            dataIndex: 'Id',
+            text: 'Ticket Id',
             filterable: true,
             hidden: true,
           },
           {
-            xtype: "gridcolumn",
-            dataIndex: "Subject",
-            text: "Subject",
+            xtype: 'gridcolumn',
+            dataIndex: 'Subject',
+            text: 'Subject',
             filterable: true,
           },
           {
-            xtype: "gridcolumn",
-            dataIndex: "Email",
-            text: "Email",
+            xtype: 'gridcolumn',
+            dataIndex: 'Email',
+            text: 'Email',
             filterable: true,
           },
           {
-            xtype: "gridcolumn",
-            dataIndex: "Status",
-            text: "Status",
+            xtype: 'gridcolumn',
+            dataIndex: 'Status',
+            text: 'Status',
             filterable: true,
             filter: {
-              type: "list",
-              options: ["opened", "assigned", "closed"],
+              type: 'list',
+              options: ['opened', 'assigned', 'closed'],
               phpMode: true,
             },
           },
           {
-            xtype: "gridcolumn",
-            dataIndex: "Priority",
-            text: "Priority",
+            xtype: 'gridcolumn',
+            dataIndex: 'Priority',
+            text: 'Priority',
             filterable: true,
             searchable: false,
             filter: {
-              type: "list",
-              options: ["low", "normal", "high", "emergency"],
+              type: 'list',
+              options: ['low', 'normal', 'high', 'emergency'],
               phpMode: true,
             },
           },
           {
-            xtype: "gridcolumn",
-            dataIndex: "Source",
-            text: "Source",
+            xtype: 'gridcolumn',
+            dataIndex: 'Source',
+            text: 'Source',
             filterable: true,
             searchable: false,
             filter: {
-              type: "list",
-              options: ["web", "email", "phone", "other"],
+              type: 'list',
+              options: ['web', 'email', 'phone', 'other'],
               phpMode: true,
             },
           },
           {
-            xtype: "datecolumn",
-            dataIndex: "OverdueDate",
-            text: "Due date",
-            format: "d/m/Y",
+            xtype: 'datecolumn',
+            dataIndex: 'OverdueDate',
+            text: 'Due date',
+            format: 'd/m/Y',
             filterable: true,
             searchable: false,
           },
           {
-            xtype: "datecolumn",
-            dataIndex: "CreationDate",
-            text: "Date creation",
-            format: "d/m/Y H:i:s",
+            xtype: 'datecolumn',
+            dataIndex: 'CreationDate',
+            text: 'Date creation',
+            format: 'd/m/Y H:i:s',
             filterable: true,
             searchable: false,
           },
           {
-            xtype: "datecolumn",
-            dataIndex: "ModificationDate",
-            text: "Date modification",
+            xtype: 'datecolumn',
+            dataIndex: 'ModificationDate',
+            text: 'Date modification',
             hidden: true,
-            format: "d/m/Y H:i:s",
+            format: 'd/m/Y H:i:s',
             filterable: true,
             searchable: false,
           },
         ],
-      }),
+      })
     );
   },
 });
@@ -510,11 +510,11 @@ Ext.define("Ticket.view.message.List", {
 Ext.Loader.setConfig({
   enabled: true,
   paths: {
-    "Ext.ux": "/bundles/senchaticket/ext/examples/ux",
+    'Ext.ux': '/bundles/senchaticket/ext/examples/ux',
   },
 });
 
-Ext.require(["Ext.ux.grid.FiltersFeature"]);
+Ext.require(['Ext.ux.grid.FiltersFeature']);
 ```
 
 But using the ExtJS loader function make loose the benefit of asset combining on the production environment.
@@ -546,15 +546,15 @@ The controller allows views, stores and models to link to each other:
 
 ```js
 // Resources/public/js/app/controller/Messages.js
-Ext.define("Ticket.controller.Messages", {
-  extend: "Ext.app.Controller",
+Ext.define('Ticket.controller.Messages', {
+  extend: 'Ext.app.Controller',
 
-  models: ["Message"],
+  models: ['Message'],
 
-  stores: ["Messages"],
+  stores: ['Messages'],
 
   views: [
-    "message.List",
+    'message.List',
     // and other views later like 'message.Show'
   ],
 
