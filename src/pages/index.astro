@@ -38,9 +38,9 @@ const haikuDescription = fetch(
     <main class="site-layout">
       <Header title={SITE_TITLE} />
 
-      <div class="site-layout__content">
-        <section class="latest-posts">
-          <h2 class="section-heading">
+      <div class="site-layout__content" id="main-content">
+        <section class="latest-posts" aria-labelledby="latest-posts-heading">
+          <h2 id="latest-posts-heading" class="section-heading">
             <Icon name="file-text" size={24} class="section-heading__icon" />
             Latest Posts
           </h2>
@@ -68,8 +68,8 @@ const haikuDescription = fetch(
           </blockquote>
         </section>
 
-        <div class="haiku-card-section">
-          <h2 class="section-heading">
+        <section class="haiku-card-section" aria-labelledby="haiku-heading">
+          <h2 id="haiku-heading" class="section-heading">
             <Icon name="feather" size={24} class="section-heading__icon" />
             Daily Haiku Card
           </h2>
@@ -86,8 +86,7 @@ const haikuDescription = fetch(
                     height="250"
                     class="haiku-card__image"
                     src={haikuCard}
-                    alt="Haiku Image"
-                    aria-label="Haiku Image"
+                    alt="Daily generated haiku card with artistic image"
                   />
                 </div>
 
@@ -103,7 +102,7 @@ const haikuDescription = fetch(
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
 
       <Footer />
