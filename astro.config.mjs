@@ -5,6 +5,7 @@ import rehypeKatex from "rehype-katex";
 import sitemap from "@astrojs/sitemap";
 import { externalLink } from "./src/plugins/externalLink";
 import react from "@astrojs/react";
+import icon from "astro-icon";
 
 // https://astro.build/config
 export default defineConfig({
@@ -23,5 +24,5 @@ export default defineConfig({
     ],
   },
 
-  integrations: [mdx(), sitemap(), react()],
+  integrations: [mdx(), sitemap(), react(), icon()],
 });
