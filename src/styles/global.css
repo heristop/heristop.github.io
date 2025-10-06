@@ -94,6 +94,16 @@ h2 {
   text-shadow: 0 1px 0 rgb(0 0 0 / 8%);
 }
 
+.icon-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon-heading .icon {
+  margin-top: -0.125rem;
+}
+
 h3 {
   font-size: 1.05em;
   font-weight: 500;
@@ -157,7 +167,7 @@ hr {
 .post-list__date {
   color: rgb(168 162 158);
   width: 4rem;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
@@ -580,6 +590,8 @@ tbody tr:hover {
 
 .about-info__item {
   display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .about-info__item--stacked {
@@ -603,6 +615,10 @@ tbody tr:hover {
   width: 1rem;
   height: 1rem;
   color: var(--link-hover-color);
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
 }
 
 .section-heading__divider {
@@ -734,6 +750,8 @@ tbody tr:hover {
 .blog-archive__subscribe-icon {
   width: 1rem;
   height: 1rem;
+  vertical-align: middle;
+  margin-right: 0.5rem;
 }
 
 .blog-archive__year-heading {
@@ -744,9 +762,12 @@ tbody tr:hover {
 }
 
 .blog-archive__year-icon {
-  width: 1rem;
-  height: 1rem;
   color: var(--link-hover-color);
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  margin-top: -0.125rem;
 }
 
 .blog-archive__post-item--animated {
@@ -797,6 +818,12 @@ tbody tr:hover {
 .site-footer__info {
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
+}
+
+.site-footer__links b {
+  display: flex;
+  align-items: center;
   gap: 0.25rem;
 }
 

@@ -1,6 +1,7 @@
 ---
 import SocialNetworks from "../components/SocialNetworks.astro";
 import Layout from "../layouts/Layout.astro";
+import Icon from "../components/Icon.astro";
 ---
 
 <Layout title="About" description="About page">
@@ -15,16 +16,20 @@ import Layout from "../layouts/Layout.astro";
 
   <section class="about-info">
     <ul class="about-info__list">
-      <li class="about-info__item about-info__item--stacked">
-        💼 Chapter Lead <span class="about-info__subtitle">@Carrefour SI</span>
+      <li class="about-info__item about-info__item--with-icon">
+        <Icon name="briefcase" size={20} />
+        <div class="about-info__content">
+          <div class="about-info__role">Chapter Lead</div>
+          <span class="about-info__subtitle">@Carrefour SI</span>
+        </div>
       </li>
-      <li class="about-info__item">🎂 4 November</li>
-      <li class="about-info__item">📌 Paris, France</li>
-      <li class="about-info__item">🔗&nbsp;<a href="https://heristop.github.io/about">Permalink</a></li>
+      <li class="about-info__item"><Icon name="calendar" size={20} /> 4 November</li>
+      <li class="about-info__item"><Icon name="map-pin" size={20} /> Paris, France</li>
+      <li class="about-info__item"><Icon name="link" size={20} /> <a href="https://heristop.github.io/about">Permalink</a></li>
     </ul>
   </section>
 
-  <h2>🔗 Social Networks</h2>
+  <h2 class="icon-heading"><Icon name="share-2" size={20} /> Social Networks</h2>
 
   <SocialNetworks filter="socialnetwork" />
 </Layout>
@@ -34,6 +39,24 @@ import Layout from "../layouts/Layout.astro";
     display: inline-block;
     font-size: 1.5em;
     animation: wave 1.8s ease-in-out 1;
+  }
+
+  .about-info__item--with-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .about-info__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.25rem;
+  }
+
+  .about-info__role {
+    font-weight: 700;
   }
 
   @keyframes wave {
