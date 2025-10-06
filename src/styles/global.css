@@ -14,9 +14,9 @@ body {
   --link-color-secondary: #a7666f;
   --link-color-secondary-hover: #B47B84;
   --hr-color: #B47B84;
-  --text-secondary: rgb(168 162 158);
+  --text-secondary: rgb(115 110 105);
   --banner-bg-color: #ECECEC;
-  --footer-text-color: rgb(87 83 78);
+  --footer-text-color: rgb(65 60 55);
   --footer-border-color: rgb(87 83 78 / 15%);
   --highlight-bg-color: #000;
   --heading-color: #5a2335;
@@ -130,6 +130,44 @@ a:hover {
   text-decoration: none;
 }
 
+a:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: auto;
+  height: auto;
+  background: var(--primary-color);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 100;
+  overflow: visible;
+}
+
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 hr {
   width: 100%;
   opacity: 0.25;
@@ -165,7 +203,7 @@ hr {
 }
 
 .post-list__date {
-  color: rgb(168 162 158);
+  color: var(--text-secondary);
   width: 4rem;
   font-size: 0.8rem;
   font-weight: 600;
