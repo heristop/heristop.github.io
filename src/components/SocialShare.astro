@@ -1,4 +1,6 @@
 ---
+import Icon from "./Icon.astro";
+
 interface Props {
   title: string;
   slug: string;
@@ -13,17 +15,17 @@ const shareLinks = [
   {
     name: 'BlueSky',
     url: `https://bsky.app/intent/compose?text=${encodeURIComponent(title)}%20${encodeURIComponent(url)}`,
-    icon: `<path d="M5.2 1.427C7.954 3.5 10.914 7.7 12 9.957v5.96c0-.127-.049.016-.154.325-.567 1.673-2.782 8.193-7.846 2.979-2.667-2.745-1.432-5.49 3.422-6.319-2.777.474-5.899-.31-6.755-3.38-.307-.724-.667-6.12-.667-6.87 0-3.682 3.217-2.525 5.2-1.029ZM18.8 1.427C16.046 3.5 13.086 7.7 12 9.957v5.96c0-.127.049.016.154.325.567 1.673 2.782 8.193 7.846 2.979 2.667-2.745 1.432-5.49-3.422-6.319 2.777.474 5.899-.31 6.755-3.38.307-.724.667-6.12.667-6.87 0-3.682-3.217-2.525-5.2-1.029Z" stroke-width="0.1" fill="currentColor"></path>`
+    icon: 'cloud'
   },
   {
     name: 'X',
     url: `https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
-    icon: `<path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path>`
+    icon: 'twitter'
   },
   {
     name: 'LinkedIn',
     url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
-    icon: `<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle>`
+    icon: 'linkedin'
   },
 ];
 ---
@@ -40,21 +42,14 @@ const shareLinks = [
       ]}
       aria-label={`Share on ${link.name}`}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
+      <Icon
+        name={link.icon}
+        size={20}
         class:list={[
           'social-share__icon',
           { 'social-share__icon--with-text': !minimal },
         ]}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <Fragment set:html={link.icon} />
-      </svg>
+      />
       {!minimal && <span class="social-share__text">Share on {link.name}</span>}
     </a>
   ))}

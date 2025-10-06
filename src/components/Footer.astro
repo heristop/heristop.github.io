@@ -1,5 +1,6 @@
 ---
 import { SITE_AUTHOR, SITE_TITLE, AUTHOR_ROLE, LINKFOLIO_URL } from "../consts";
+import Icon from "./Icon.astro";
 ---
 
 <div class="site-footer__eof">--eof--</div>
@@ -17,10 +18,9 @@ import { SITE_AUTHOR, SITE_TITLE, AUTHOR_ROLE, LINKFOLIO_URL } from "../consts";
 
   <div class="site-footer__links">
     <p>
-      <b>🔗 Linkfolio:</b>
-      <br />
+      <b>Linkfolio:</b>
       <b>
-        <a href={LINKFOLIO_URL} target="_blank">
+        <Icon name="external-link" size={16} /> <a href={LINKFOLIO_URL} target="_blank">
           {LINKFOLIO_URL.replace("https://", "")}
         </a>
       </b>
