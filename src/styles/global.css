@@ -29,6 +29,28 @@ body {
   --space-xl: 2rem;
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
+  --zen-transition-duration: 280ms;
+  --zen-transition-timing: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.site-layout {
+  view-transition-name: layout-shell;
+}
+
+.site-layout__content {
+  view-transition-name: page-body;
+}
+
+.site-layout__meta {
+  view-transition-name: page-meta;
+}
+
+.site-header-static {
+  view-transition-name: header-static;
+}
+
+.site-header-nav {
+  view-transition-name: header-sticky;
 }
 
 * {
@@ -170,6 +192,117 @@ select:focus {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+/* --- View transition styling --- */
+::view-transition-old(root),
+::view-transition-new(root) {
+  background: rgb(var(--bg-color-rgb));
+  animation: none;
+}
+
+::view-transition-group(layout-shell),
+::view-transition-group(page-body),
+::view-transition-group(page-meta),
+::view-transition-group(header-static),
+::view-transition-group(header-sticky) {
+  animation-duration: var(--zen-transition-duration);
+  animation-timing-function: var(--zen-transition-timing);
+}
+
+::view-transition-old(page-body) {
+  animation: zen-fade-out var(--zen-transition-duration)
+      var(--zen-transition-timing) both;
+}
+
+::view-transition-new(page-body) {
+  animation: zen-fade-in var(--zen-transition-duration)
+      var(--zen-transition-timing) both;
+}
+
+::view-transition-old(header-static),
+::view-transition-old(header-sticky),
+::view-transition-old(page-meta) {
+  animation: zen-topfade-out calc(var(--zen-transition-duration) * 0.85)
+      var(--zen-transition-timing) both;
+}
+
+::view-transition-new(header-static),
+::view-transition-new(header-sticky),
+::view-transition-new(page-meta) {
+  animation: zen-topfade-in calc(var(--zen-transition-duration) * 0.85)
+      var(--zen-transition-timing) both;
+}
+
+@keyframes zen-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+}
+
+@keyframes zen-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zen-topfade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+}
+
+@keyframes zen-topfade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(layout-shell),
+  ::view-transition-group(page-body),
+  ::view-transition-group(page-meta),
+  ::view-transition-group(header-static),
+  ::view-transition-group(header-sticky) {
+    animation-duration: 1ms !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(page-body),
+  ::view-transition-new(page-body),
+  ::view-transition-old(header-static),
+  ::view-transition-new(header-static),
+  ::view-transition-old(header-sticky),
+  ::view-transition-new(header-sticky),
+  ::view-transition-old(page-meta),
+  ::view-transition-new(page-meta) {
+    animation: none !important;
+  }
 }
 
 hr {
@@ -1100,6 +1233,17 @@ tbody tr:hover {
 
 .social-network__card:hover .social-network__description {
   color: rgb(31 41 55);
+}
+
+.social-network__empty {
+  width: 100%;
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  background: rgb(0 0 0 / 4%);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  animation: zen-fade-in var(--zen-transition-duration)
+      var(--zen-transition-timing) both;
 }
 
 /* About Info Block Component */
