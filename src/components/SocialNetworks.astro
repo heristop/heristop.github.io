@@ -1,46 +1,74 @@
 ---
-import { LINKFOLIO_URL } from '../consts';
-import { Image } from 'astro:assets';
+import { LINKFOLIO_URL } from "../consts";
+import { Image } from "astro:assets";
 
-async function fetchUserConfig() {
-  const response = await fetch(`${LINKFOLIO_URL}/api/config`);
-  const userConfig = await response.json();
-  return userConfig;
-}
-
-const { filter } = Astro.props;
-
-const userConfig = await fetchUserConfig();
-
-const delay = 100;
+type NetworkIcon = { src?: string } | string | undefined;
 
 type NetworkType = {
   title: string;
   description: string;
   url: string;
   group: string;
-  iconSrc: {
-    src: string;
-  };
+  iconSrc: NetworkIcon;
 };
+
+type UserConfig = {
+  socialNetworks?: NetworkType[];
+};
+
+async function fetchUserConfig(): Promise<UserConfig> {
+  try {
+    const response = await fetch(`${LINKFOLIO_URL}/api/config`);
+
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn("Unable to load remote social networks:", error);
+    }
+
+    return { socialNetworks: [] };
+  }
+}
+
+const { filter } = Astro.props;
+
+const userConfig = await fetchUserConfig();
+const networks = (userConfig.socialNetworks ?? []).filter(
+  (network: NetworkType) => network.group === filter
+);
+
+const resolveIconSrc = (iconSrc: NetworkIcon) => {
+  if (!iconSrc) {
+    return "";
+  }
+
+  if (typeof iconSrc === "string") {
+    return `${LINKFOLIO_URL}/${iconSrc}`;
+  }
+
+  if (iconSrc.src) {
+    return `${LINKFOLIO_URL}/${iconSrc.src}`;
+  }
+
+  return "";
+};
+
+const delay = 100;
+
 ---
 
 <section class="social-network">
   {
-    userConfig.socialNetworks
-      .filter((network: NetworkType) => network.group === filter)
-      .map((network: NetworkType, index: number) => (
-        <div
-          class="social-network__card"
-          style={`animation-delay: ${delay * index}ms`}
-        >
+    networks.length > 0 ? (
+      networks.map((network: NetworkType, index: number) => (
+        <div class="social-network__card" style={`animation-delay: ${delay * index}ms`}>
           <a href={network.url} target="_blank" class="social-network__link">
             <Image
-              src={
-                network.iconSrc.src
-                  ? `${LINKFOLIO_URL}/${network.iconSrc.src}`
-                  : `${LINKFOLIO_URL}/${network.iconSrc}`
-              }
+              src={resolveIconSrc(network.iconSrc)}
               alt={network.description}
               width={300}
               height={100}
@@ -54,5 +82,8 @@ type NetworkType = {
           </a>
         </div>
       ))
+    ) : (
+      <p class="social-network__empty">Currently meditating on new links. Please check back soon.</p>
+    )
   }
 </section>
