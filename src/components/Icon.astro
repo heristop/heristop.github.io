@@ -4,19 +4,19 @@ export interface Props {
   size?: number;
   color?: string;
   class?: string;
-  "aria-label"?: string;
-  "aria-hidden"?: boolean;
-  role?: "img" | "presentation" | "none";
+  'aria-label'?: string;
+  'aria-hidden'?: boolean;
+  role?: 'img' | 'presentation' | 'none';
 }
 
 const {
   name,
   size = 24,
-  color = "var(--primary-color)",
-  class: className = "",
-  "aria-label": ariaLabel,
-  "aria-hidden": ariaHidden,
-  role = "img"
+  color = 'var(--primary-color)',
+  class: className = '',
+  'aria-label': ariaLabel,
+  'aria-hidden': ariaHidden,
+  role = 'img',
 } = Astro.props;
 ---
 

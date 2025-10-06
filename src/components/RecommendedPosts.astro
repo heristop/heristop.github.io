@@ -1,15 +1,15 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection } from 'astro:content';
 const { currentPostSlug, conclusion } = Astro.props;
 
 export async function getRecommendedPosts(currentPostSlug: string) {
-  const posts = await getCollection("blog");
-  const currentIndex = posts.findIndex((post) => post.slug === currentPostSlug);
+  const posts = await getCollection('blog');
+  const currentIndex = posts.findIndex(post => post.slug === currentPostSlug);
   const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
   const nextPost =
     currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
 
-  let recommendedPosts = posts.filter((post) => post.slug !== currentPostSlug);
+  let recommendedPosts = posts.filter(post => post.slug !== currentPostSlug);
   recommendedPosts.sort((a, b) => {
     if (a.data.pubDate && b.data.pubDate) {
       return (
@@ -51,7 +51,7 @@ const recommendedPosts = await getRecommendedPosts(currentPostSlug);
 
   <ul>
     {
-      recommendedPosts.map((post) => (
+      recommendedPosts.map(post => (
         <li>
           <a href={`/blog/${post.slug}`}>{post.data.title}</a>
         </li>
