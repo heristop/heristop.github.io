@@ -6,8 +6,10 @@ import { SITE_TITLE } from "../consts";
 const title = `{ ${SITE_TITLE.replace(" ", "_")} }`;
 ---
 
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
 <header class="site-header">
-  <nav class="header">
+  <nav class="header" aria-label="Main navigation">
     <div class="menu">
       <h1 class="site-header__title title"><a href="/">{title}</a></h1>
 
