@@ -1,6 +1,4 @@
 ---
-import Icon from "./Icon.astro";
-
 interface Props {
   title: string;
   slug: string;
@@ -13,14 +11,14 @@ const url = `https://heristop.github.io/blog/${slug}`;
 
 const shareLinks = [
   {
-    name: 'BlueSky',
+    name: 'Bluesky',
     url: `https://bsky.app/intent/compose?text=${encodeURIComponent(title)}%20${encodeURIComponent(url)}`,
-    icon: 'cloud'
+    icon: 'bluesky'
   },
   {
     name: 'X',
     url: `https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
-    icon: 'twitter'
+    icon: 'x-twitter'
   },
   {
     name: 'LinkedIn',
@@ -42,9 +40,11 @@ const shareLinks = [
       ]}
       aria-label={`Share on ${link.name}`}
     >
-      <Icon
-        name={link.icon}
-        size={20}
+      <img
+        src={`/icons/${link.icon}.svg`}
+        alt={link.name}
+        width="20"
+        height="20"
         class:list={[
           'social-share__icon',
           { 'social-share__icon--with-text': !minimal },

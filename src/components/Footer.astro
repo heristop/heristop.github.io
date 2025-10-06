@@ -1,28 +1,90 @@
 ---
-import { SITE_AUTHOR, SITE_TITLE, AUTHOR_ROLE, LINKFOLIO_URL } from "../consts";
+import {
+  SITE_AUTHOR,
+  SITE_TITLE,
+  AUTHOR_ROLE,
+  LINKFOLIO_URL,
+  GITHUB_URL,
+  LINKEDIN_URL,
+  X_URL,
+  BLUESKY_URL
+} from "../consts";
+import Icon from "./Icon.astro";
 ---
 
 <div class="site-footer__eof">--eof--</div>
 
-<footer class="site-footer">
-  <a title="?" href="/extra" class="site-footer__profile"></a>
+<footer class="site-footer" role="contentinfo">
+  <div class="site-footer__container">
+    <!-- About Section -->
+    <section class="site-footer__section site-footer__about" aria-labelledby="footer-about">
+      <a title="Profile" href="/extra" class="site-footer__profile" aria-label="View profile"></a>
+      <div class="site-footer__info">
+        <h3 id="footer-about" class="site-footer__title">{SITE_TITLE}</h3>
+        <address class="site-footer__contact">
+          <p class="site-footer__author">
+            <Icon name="user" size={16} aria-hidden={true} />
+            {SITE_AUTHOR}
+          </p>
+          <p class="site-footer__role">
+            <Icon name="briefcase" size={16} aria-hidden={true} />
+            {AUTHOR_ROLE}
+          </p>
+        </address>
+      </div>
+    </section>
 
-  <div class="site-footer__contact">
-    <p class="site-footer__title">{SITE_TITLE}</p>
-    <p class="site-footer__info">
-      <span>Author: {SITE_AUTHOR}</span>
-      <span>{AUTHOR_ROLE}</span>
-    </p>
+    <!-- Navigation Section -->
+    <section class="site-footer__section site-footer__nav" aria-labelledby="footer-nav">
+      <h3 id="footer-nav" class="site-footer__section-title">Navigate</h3>
+      <nav aria-label="Footer navigation">
+        <ul class="site-footer__nav-list">
+          <li><a href="/" class="site-footer__nav-link">Home</a></li>
+          <li><a href="/blog" class="site-footer__nav-link">Blog</a></li>
+          <li><a href="/projects" class="site-footer__nav-link">Projects</a></li>
+          <li><a href="/about" class="site-footer__nav-link">About</a></li>
+        </ul>
+      </nav>
+    </section>
+
+    <!-- Social & Links Section -->
+    <section class="site-footer__section site-footer__social" aria-labelledby="footer-social">
+      <h3 id="footer-social" class="site-footer__section-title">Connect</h3>
+
+      <!-- Social Media -->
+      <div class="site-footer__social-links">
+        <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="site-footer__social-link" aria-label="GitHub Profile">
+          <img src="/icons/github.svg" alt="GitHub" width="20" height="20" />
+        </a>
+        <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" class="site-footer__social-link" aria-label="LinkedIn Profile">
+          <img src="/icons/linkedin.svg" alt="LinkedIn" width="20" height="20" />
+        </a>
+        <a href={X_URL} target="_blank" rel="noopener noreferrer" class="site-footer__social-link" aria-label="X (Twitter) Profile">
+          <img src="/icons/x-twitter.svg" alt="X" width="20" height="20" />
+        </a>
+        <a href={BLUESKY_URL} target="_blank" rel="noopener noreferrer" class="site-footer__social-link" aria-label="Bluesky Profile">
+          <img src="/icons/bluesky.svg" alt="Bluesky" width="20" height="20" />
+        </a>
+      </div>
+
+      <!-- Other Links -->
+      <div class="site-footer__other-links">
+        <a href={LINKFOLIO_URL} target="_blank" rel="noopener noreferrer" class="site-footer__link">
+          <Icon name="external-link" size={16} aria-hidden={true} />
+          Portfolio
+        </a>
+        <a href="/rss.xml" class="site-footer__link">
+          <Icon name="rss" size={16} aria-hidden={true} />
+          RSS Feed
+        </a>
+      </div>
+    </section>
   </div>
 
-  <div class="site-footer__links">
-    <p>
-      <b>Linkfolio:</b>
-      <b>
-        <a href={LINKFOLIO_URL} target="_blank">
-          {LINKFOLIO_URL.replace("https://", "")}
-        </a>
-      </b>
+  <!-- Copyright -->
+  <div class="site-footer__bottom">
+    <p class="site-footer__copyright">
+      © 2014-{new Date().getFullYear()} {SITE_TITLE}. Made with ❤️ and Astro.
     </p>
   </div>
 </footer>
