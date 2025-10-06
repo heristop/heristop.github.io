@@ -1,31 +1,316 @@
 ---
-import HeaderLink from "./HeaderLink.astro";
-const { image = "/images/zazen.webp" } = Astro.props;
-import { SITE_TITLE } from "../consts";
+import HeaderLink from './HeaderLink.astro';
+const { image = '/images/zazen.webp' } = Astro.props;
+import { SITE_TITLE } from '../consts';
 
-const title = `{ ${SITE_TITLE.replace(" ", "_")} }`;
+const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 ---
 
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
-<header class="site-header">
-  <nav class="header" aria-label="Main navigation">
-    <div class="menu">
-      <h1 class="site-header__title title"><a href="/">{title}</a></h1>
-
-      <HeaderLink class="extra" href="/blog">blog</HeaderLink>
-
-      <HeaderLink class="extra" href="/projects">projects</HeaderLink>
-
-      <HeaderLink class="extra" href="/about">about</HeaderLink>
+<!-- Static Header with Banner -->
+<header class="site-header-static">
+  <div class="site-header__container">
+    <div class="header__brand-section">
+      <h1 class="site-header__title title">
+        <a href="/" aria-label="Go to homepage">{title}</a>
+      </h1>
     </div>
 
-    <div class="banner site-header__banner">
+    <!-- Initial Navigation (visible immediately) -->
+    <nav
+      class="header__nav-initial"
+      aria-label="Main navigation"
+      role="navigation"
+    >
+      <div class="header__nav-links">
+        <!-- Desktop Navigation -->
+        <div
+          class="header__nav header__nav--desktop"
+          id="initial-nav"
+          role="menubar"
+        >
+          <HeaderLink class="header__link" href="/blog" role="menuitem"
+            >Blog</HeaderLink
+          >
+          <HeaderLink class="header__link" href="/projects" role="menuitem"
+            >Projects</HeaderLink
+          >
+          <HeaderLink class="header__link" href="/about" role="menuitem"
+            >About</HeaderLink
+          >
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <button
+          class="header__mobile-toggle"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+          aria-controls="initial-nav"
+          type="button"
+        >
+          <span class="header__hamburger"></span>
+          <span class="header__hamburger"></span>
+          <span class="header__hamburger"></span>
+        </button>
+
+        <!-- Mobile Navigation -->
+        <div
+          class="header__nav header__nav--mobile"
+          id="initial-mobile-nav"
+          role="menubar"
+        >
+          <HeaderLink
+            class="header__link header__link--mobile"
+            href="/blog"
+            role="menuitem">Blog</HeaderLink
+          >
+          <HeaderLink
+            class="header__link header__link--mobile"
+            href="/projects"
+            role="menuitem">Projects</HeaderLink
+          >
+          <HeaderLink
+            class="header__link header__link--mobile"
+            href="/about"
+            role="menuitem">About</HeaderLink
+          >
+        </div>
+      </div>
+    </nav>
+
+    <div class="banner site-header__banner" id="header-banner">
       <div
         class="img site-header__banner-image"
         style={`background: transparent url(${image}) no-repeat center center / cover`}
+        role="img"
+        aria-label="Banner image"
       >
       </div>
     </div>
-  </nav>
+  </div>
 </header>
+
+<!-- Sticky Navigation Bar -->
+<nav
+  class="site-header-nav"
+  id="sticky-nav"
+  aria-label="Main navigation"
+  role="navigation"
+>
+  <div class="site-header-nav__container">
+    <div class="header__nav-content">
+      <div class="header__brand-mini">
+        <a href="/" class="header__brand-link" aria-label="Go to homepage"
+          >{SITE_TITLE}</a
+        >
+      </div>
+
+      <!-- Desktop Navigation -->
+      <div
+        class="header__nav header__nav--desktop"
+        id="header-nav"
+        role="menubar"
+      >
+        <HeaderLink class="header__link" href="/blog" role="menuitem"
+          >Blog</HeaderLink
+        >
+        <HeaderLink class="header__link" href="/projects" role="menuitem"
+          >Projects</HeaderLink
+        >
+        <HeaderLink class="header__link" href="/about" role="menuitem"
+          >About</HeaderLink
+        >
+      </div>
+
+      <!-- Mobile Menu Toggle -->
+      <button
+        class="header__mobile-toggle"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="header-nav"
+        type="button"
+      >
+        <span class="header__hamburger"></span>
+        <span class="header__hamburger"></span>
+        <span class="header__hamburger"></span>
+      </button>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="header__nav header__nav--mobile" id="mobile-nav" role="menubar">
+      <HeaderLink
+        class="header__link header__link--mobile"
+        href="/blog"
+        role="menuitem">Blog</HeaderLink
+      >
+      <HeaderLink
+        class="header__link header__link--mobile"
+        href="/projects"
+        role="menuitem">Projects</HeaderLink
+      >
+      <HeaderLink
+        class="header__link header__link--mobile"
+        href="/about"
+        role="menuitem">About</HeaderLink
+      >
+    </div>
+  </div>
+</nav>
+
+<script>
+  // Mobile menu toggle functionality and sticky navigation
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initial navigation elements
+    const initialMobileToggle = document.querySelector(
+      '.header__nav-initial .header__mobile-toggle'
+    );
+    const initialMobileNav = document.querySelector('#initial-mobile-nav');
+
+    // Sticky navigation elements
+    const stickyMobileToggle = document.querySelector(
+      '.site-header-nav .header__mobile-toggle'
+    );
+    const stickyMobileNav = document.querySelector('#mobile-nav');
+    const stickyNav = document.querySelector('.site-header-nav');
+    const banner = document.querySelector('#header-banner');
+
+    // Helper function to handle mobile menu toggle
+    const setupMobileMenu = (toggle: Element | null, nav: Element | null) => {
+      if (!toggle || !nav) return;
+
+      toggle.addEventListener('click', () => {
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+
+        toggle.setAttribute('aria-expanded', (!isExpanded).toString());
+        toggle.classList.toggle('header__mobile-toggle--active');
+        nav.classList.toggle('header__nav--mobile-open');
+
+        // Prevent body scroll when mobile menu is open
+        document.body.classList.toggle('mobile-menu-open', !isExpanded);
+      });
+
+      // Close mobile menu when clicking on links
+      const mobileLinks = nav.querySelectorAll('.header__link--mobile');
+      mobileLinks.forEach((link: Element) => {
+        link.addEventListener('click', () => {
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.classList.remove('header__mobile-toggle--active');
+          nav.classList.remove('header__nav--mobile-open');
+          document.body.classList.remove('mobile-menu-open');
+        });
+      });
+    };
+
+    // Setup mobile menus for both initial and sticky navigation
+    setupMobileMenu(initialMobileToggle, initialMobileNav);
+    setupMobileMenu(stickyMobileToggle, stickyMobileNav);
+
+    // Close mobile menus on escape key
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        [initialMobileNav, stickyMobileNav].forEach(nav => {
+          if (nav?.classList.contains('header__nav--mobile-open')) {
+            const toggle = nav
+              .closest('.site-header-static, .site-header-nav')
+              ?.querySelector('.header__mobile-toggle');
+            if (toggle) {
+              toggle.setAttribute('aria-expanded', 'false');
+              toggle.classList.remove('header__mobile-toggle--active');
+              nav.classList.remove('header__nav--mobile-open');
+              document.body.classList.remove('mobile-menu-open');
+            }
+          }
+        });
+      }
+    });
+
+    // Smooth sticky navigation functionality
+    if (stickyNav && banner) {
+      let bannerBottom = 0;
+      let isVisible = false;
+      let ticking = false;
+
+      // Calculate banner bottom position
+      const updateBannerPosition = () => {
+        const bannerRect = banner.getBoundingClientRect();
+        bannerBottom = bannerRect.bottom + window.scrollY;
+      };
+
+      // Smooth scroll handler with RAF optimization
+      const handleScroll = () => {
+        if (!ticking) {
+          requestAnimationFrame(updateStickyNav);
+          ticking = true;
+        }
+      };
+
+      const updateStickyNav = () => {
+        const currentScrollY = window.scrollY;
+
+        // Define transition zones for smooth effect (mobile-responsive)
+        const isMobile = window.innerWidth <= 767;
+        const activationZone = bannerBottom - (isMobile ? 100 : 200); // Earlier on mobile
+        const fullyVisibleZone = bannerBottom - (isMobile ? 30 : 50); // Quicker transition on mobile
+
+        // Calculate progress for smooth transitions
+        let opacity = 0;
+        let translateY = -100;
+        let backdropBlur = 0;
+
+        if (currentScrollY >= activationZone) {
+          // Progressive reveal based on scroll position
+          const revealProgress = Math.min(
+            (currentScrollY - activationZone) /
+              (fullyVisibleZone - activationZone),
+            1
+          );
+
+          opacity = revealProgress;
+          translateY = -100 + revealProgress * 100; // From -100% to 0%
+          backdropBlur = revealProgress * 20; // From 0 to 20px blur
+
+          // Handle hide/show logic when fully in sticky mode
+          if (currentScrollY >= fullyVisibleZone) {
+            // Always keep the navigation visible - no hiding logic
+            translateY = 0;
+            opacity = 1;
+          }
+        }
+
+        // Apply smooth transforms using CSS custom properties
+        const stickyNavElement = stickyNav as HTMLElement;
+        stickyNavElement.style.setProperty('--nav-opacity', opacity.toString());
+        stickyNavElement.style.setProperty('--nav-translate', `${translateY}%`);
+        stickyNavElement.style.setProperty('--nav-blur', `${backdropBlur}px`);
+
+        // Add/remove visibility class for better performance
+        if (opacity > 0 && !isVisible) {
+          stickyNav?.classList.add('site-header-nav--active');
+          isVisible = true;
+        } else if (opacity <= 0 && isVisible) {
+          stickyNav?.classList.remove('site-header-nav--active');
+          isVisible = false;
+        }
+
+        ticking = false;
+      };
+
+      // Initial calculation and setup
+      updateBannerPosition();
+      updateStickyNav(); // Initial state
+
+      // Event listeners with mobile optimization
+      let resizeTimeout: ReturnType<typeof setTimeout>;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          updateBannerPosition();
+          updateStickyNav();
+        }, 100); // Debounce resize events
+      });
+
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    }
+  });
+</script>
