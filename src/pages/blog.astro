@@ -41,6 +41,40 @@ const sortedYears = Object.keys(postsByYear).sort(
 );
 
 const delay = 10;
+
+function timeAgo(date: Date) {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+
+  const seconds = Math.max(Math.floor(diff / 1000), 1);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
+
+  if (years >= 1) {
+    return years === 1 ? "1 year ago" : `${years} years ago`;
+  }
+
+  if (months >= 1) {
+    return months === 1 ? "1 month ago" : `${months} months ago`;
+  }
+
+  if (days >= 1) {
+    return days === 1 ? "1 day ago" : `${days} days ago`;
+  }
+
+  if (hours >= 1) {
+    return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
+  }
+
+  if (minutes >= 1) {
+    return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
+  }
+
+  return "Just now";
+}
 ---
 
 <Layout title="All Posts" description="Blog">
@@ -50,43 +84,125 @@ const delay = 10;
     <span>Subscribe to <a href="/rss.xml">RSS</a>.</span>
   </blockquote>
 
-  <ul class="blog-archive">
+  <div class="blog-archive">
     {
       sortedYears.map((year) => (
-        <li>
-          <h2 class="blog-archive__year-heading">
+        <section class="blog-archive__year" aria-labelledby={`year-${year}`}>
+          <h2 id={`year-${year}`} class="blog-archive__year-heading">
             <Icon name="archive" size={20} class="blog-archive__year-icon" aria-hidden={true} />
 
             {year}
           </h2>
 
-          <ul class="post-list blog-archive__post-list">
+          <div class="blog-archive__grid">
             {postsByYear[year].map(
               (
                 post: {
                   url: string;
-                  data: { pubDate?: Date; title: string };
+                  data: { pubDate?: Date; title: string; image?: string };
                   slug: string;
                 },
                 index: number
-              ) => (
-                <li
-                  class="post-list__item blog-archive__post-item blog-archive__post-item--animated"
-                  style={`animation-delay: ${delay * index}ms`}
-                >
-                  {post.data.pubDate && (
-                    <span class="post-list__date blog-archive__post-date u-text-muted">
-                      <FormattedDate date={post.data.pubDate} />
-                    </span>
-                  )}
+              ) => {
+                const isoDate = post.data.pubDate?.toISOString();
+                const imageSrc = post.data.image;
+                const cardStyle = `--blog-card-stagger: ${delay * index}ms`;
 
-                  <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
-                </li>
-              )
+                return (
+                  <a
+                    class="blog-card"
+                    href={`/blog/${post.slug}/`}
+                    style={cardStyle}
+                    data-bg={imageSrc ?? ""}
+                    data-prepared="false"
+                  >
+                    {isoDate && post.data.pubDate && (
+                      <time class="blog-card__date" datetime={isoDate}>
+                        <Icon name="calendar" size={14} class="blog-card__date-icon" />
+                        <FormattedDate date={post.data.pubDate} />
+                        <span class="blog-card__date-relative">{timeAgo(post.data.pubDate)}</span>
+                      </time>
+                    )}
+
+                    <h3 class="blog-card__title">{post.data.title}</h3>
+
+                    <span class="blog-card__cta" aria-hidden="true">
+                      <Icon name="arrow-right" size={16} class="blog-card__cta-icon" />
+                      <span class="blog-card__cta-text">Read more</span>
+                    </span>
+                  </a>
+                );
+              }
             )}
-          </ul>
-        </li>
+          </div>
+        </section>
       ))
     }
-  </ul>
+  </div>
+
+  <script type="module" is:inline>
+    const revealBlogCards = () => {
+      const cards = document.querySelectorAll(
+        '.blog-card[data-prepared="false"]'
+      );
+
+      if (!cards.length) {
+        return;
+      }
+
+      const assignBackgroundAndReveal = (card) => {
+        const bg = card.dataset.bg;
+        if (bg) {
+          card.style.setProperty('--blog-card-image', `url("${bg}")`);
+          card.dataset.bg = '';
+        }
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            card.classList.add('blog-card--visible');
+          });
+        });
+      };
+
+      const prepareCard = (card) => {
+        card.dataset.prepared = 'true';
+        if (!card.style.getPropertyValue('--blog-card-image')) {
+          card.style.setProperty('--blog-card-image', 'none');
+        }
+      };
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const card = entry.target;
+                assignBackgroundAndReveal(card);
+                observer.unobserve(card);
+              }
+            });
+          },
+          {
+            rootMargin: '0px 0px -10% 0px',
+            threshold: 0.25,
+          }
+        );
+
+        cards.forEach((card) => {
+          prepareCard(card);
+          observer.observe(card);
+        });
+      } else {
+        cards.forEach((card) => {
+          prepareCard(card);
+          assignBackgroundAndReveal(card);
+        });
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      revealBlogCards();
+      document.addEventListener('astro:page-load', revealBlogCards);
+    }
+  </script>
 </Layout>
