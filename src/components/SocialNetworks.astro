@@ -65,15 +65,22 @@ const delay = 100;
   {
     networks.length > 0 ? (
       networks.map((network: NetworkType, index: number) => (
-        <div class="social-network__card" style={`animation-delay: ${delay * index}ms`}>
+        <div
+          class="social-network__card"
+          style={`--social-card-stagger: ${delay * index}ms`}
+          data-prepared="false"
+        >
           <a href={network.url} target="_blank" class="social-network__link">
-            <Image
-              src={resolveIconSrc(network.iconSrc)}
-              alt={network.description}
-              width={300}
-              height={100}
-              class="social-network__image"
-            />
+            <div class="social-network__image-shell">
+              <Image
+                src={resolveIconSrc(network.iconSrc)}
+                alt={network.description}
+                width={300}
+                height={100}
+                class="social-network__image"
+                loading="lazy"
+              />
+            </div>
 
             <div class="social-network__content">
               <h3 class="social-network__title">{network.title}</h3>
@@ -87,3 +94,60 @@ const delay = 100;
     )
   }
 </section>
+
+{networks.length > 0 && (
+  <script type="module" is:inline>
+    const revealSocialCards = () => {
+      const cards = document.querySelectorAll(
+        '.social-network__card[data-prepared="false"]'
+      );
+
+      if (!cards.length) {
+        return;
+      }
+
+      const reveal = (card) => {
+        requestAnimationFrame(() => {
+          card.classList.add('social-network__card--visible');
+        });
+      };
+
+      const prepare = (card) => {
+        card.dataset.prepared = 'true';
+      };
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const card = entry.target;
+                reveal(card);
+                observer.unobserve(card);
+              }
+            });
+          },
+          {
+            rootMargin: '0px 0px -15% 0px',
+            threshold: 0.2,
+          }
+        );
+
+        cards.forEach((card) => {
+          prepare(card);
+          observer.observe(card);
+        });
+      } else {
+        cards.forEach((card) => {
+          prepare(card);
+          reveal(card);
+        });
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      revealSocialCards();
+      document.addEventListener('astro:page-load', revealSocialCards);
+    }
+  </script>
+)}
