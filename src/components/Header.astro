@@ -1,6 +1,6 @@
 ---
 import HeaderLink from './HeaderLink.astro';
-const { image = '/images/zazen.webp' } = Astro.props;
+const { image = '/images/zazen-header.png' } = Astro.props;
 import { SITE_TITLE } from '../consts';
 
 const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
@@ -30,6 +30,9 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
           id="initial-nav"
           role="menubar"
         >
+          <HeaderLink class="header__link" href="/" role="menuitem"
+            >Home</HeaderLink
+          >
           <HeaderLink class="header__link" href="/blog" role="menuitem"
             >Blog</HeaderLink
           >
@@ -60,6 +63,11 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
           id="initial-mobile-nav"
           role="menubar"
         >
+          <HeaderLink
+            class="header__link header__link--mobile"
+            href="/"
+            role="menuitem">Home</HeaderLink
+          >
           <HeaderLink
             class="header__link header__link--mobile"
             href="/blog"
@@ -112,6 +120,9 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         id="header-nav"
         role="menubar"
       >
+        <HeaderLink class="header__link" href="/" role="menuitem"
+          >Home</HeaderLink
+        >
         <HeaderLink class="header__link" href="/blog" role="menuitem"
           >Blog</HeaderLink
         >
@@ -139,6 +150,11 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 
     <!-- Mobile Navigation -->
     <div class="header__nav header__nav--mobile" id="mobile-nav" role="menubar">
+      <HeaderLink
+        class="header__link header__link--mobile"
+        href="/"
+        role="menuitem">Home</HeaderLink
+      >
       <HeaderLink
         class="header__link header__link--mobile"
         href="/blog"
