@@ -246,12 +246,28 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       };
 
       const updateStickyNav = () => {
+        const stickyNavElement = stickyNav as HTMLElement;
         const currentScrollY = window.scrollY;
 
-        // Define transition zones for smooth effect (mobile-responsive)
+        // Always keep the sticky navigation visible on small screens
         const isMobile = window.innerWidth <= 767;
-        const activationZone = bannerBottom - (isMobile ? 100 : 200); // Earlier on mobile
-        const fullyVisibleZone = bannerBottom - (isMobile ? 30 : 50); // Quicker transition on mobile
+        if (isMobile) {
+          stickyNavElement.style.setProperty('--nav-opacity', '1');
+          stickyNavElement.style.setProperty('--nav-translate', '0%');
+          stickyNavElement.style.setProperty('--nav-blur', '0px');
+
+          if (!isVisible) {
+            stickyNav?.classList.add('site-header-nav--active');
+            isVisible = true;
+          }
+
+          ticking = false;
+          return;
+        }
+
+        // Define transition zones for smooth effect (desktop and larger)
+        const activationZone = bannerBottom - 200;
+        const fullyVisibleZone = bannerBottom - 50;
 
         // Calculate progress for smooth transitions
         let opacity = 0;
@@ -279,7 +295,6 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         }
 
         // Apply smooth transforms using CSS custom properties
-        const stickyNavElement = stickyNav as HTMLElement;
         stickyNavElement.style.setProperty('--nav-opacity', opacity.toString());
         stickyNavElement.style.setProperty('--nav-translate', `${translateY}%`);
         stickyNavElement.style.setProperty('--nav-blur', `${backdropBlur}px`);
