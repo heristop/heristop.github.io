@@ -18,6 +18,8 @@ const {
   'aria-hidden': ariaHidden,
   role = 'img',
 } = Astro.props;
+
+const spritePath = `/icons/feather.svg#${name}`;
 ---
 
 <svg
@@ -33,7 +35,7 @@ const {
   aria-label={ariaLabel}
   aria-hidden={ariaHidden}
 >
-  <use href={`/icons/feather.svg#${name}`}></use>
+  <use href={spritePath}></use>
 </svg>
 
 <style>

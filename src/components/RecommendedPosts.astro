@@ -1,5 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
+import Icon from './Icon.astro';
+
 const { currentPostSlug, conclusion } = Astro.props;
 
 export async function getRecommendedPosts(currentPostSlug: string) {
@@ -41,13 +43,18 @@ const recommendedPosts = await getRecommendedPosts(currentPostSlug);
 <section class="recommended-posts">
   {
     conclusion && (
-      <p>
-        <b>{conclusion}</b>
+      <p class="recommended-posts__intro">
+        <Icon name="feather" size={18} aria-hidden={true} />
+        <b>{conclusion.replace(/^\W+\s*/, '')}</b>
       </p>
     )
   }
 
-  <h3>✨ Explore More:</h3>
+  <div class="recommended-posts__divider"></div>
+
+  <h3 class="recommended-posts__heading">
+    <Icon name="compass" size={18} aria-hidden={true} /> Explore More
+  </h3>
 
   <ul>
     {

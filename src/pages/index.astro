@@ -53,34 +53,44 @@ try {
     <main class="site-layout">
       <Header title={SITE_TITLE} />
 
-      <div class="site-layout__content" id="main-content">
+      <div class="site-layout__content site-layout__content--home" id="main-content">
         <section class="latest-posts" aria-labelledby="latest-posts-heading">
           <h2 id="latest-posts-heading" class="section-heading">
-            <Icon name="file-text" size={24} class="section-heading__icon" />
-            Latest Posts
+            <Icon name="book" size={24} class="section-heading__icon" />
+            Latest Reflections
           </h2>
 
-          <hr class="section-heading__divider" />
+          <div class="latest-posts__panel">
+            <ul class="post-list latest-posts__list">
+              {
+                latestPosts.map((post) => (
+                  <li class="post-list__item latest-posts__item">
+                    {post.data.pubDate && (
+                      <span class="post-list__date latest-posts__date">
+                        <FormattedDate date={post.data.pubDate} />
+                      </span>
+                    )}
 
-          <ul class="post-list latest-posts__list">
-            {
-              latestPosts.map((post) => (
-                <li class="post-list__item latest-posts__item">
-                  {post.data.pubDate && (
-                    <span class="post-list__date u-text-muted">
-                      <FormattedDate date={post.data.pubDate} />
-                    </span>
-                  )}
+                    <a class="latest-posts__link" href={`/blog/${post.slug}/`}>
+                      <span class="latest-posts__title">{post.data.title}</span>
+                      <Icon
+                        name="arrow-right"
+                        size={18}
+                        aria-hidden={true}
+                        class="latest-posts__link-icon"
+                      />
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
 
-                  <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
-                </li>
-              ))
-            }
-          </ul>
-
-          <blockquote class="latest-posts__archives">
-            See <a href="/blog/">Archives</a>
-          </blockquote>
+            <a class="latest-posts__cta" href="/blog/">
+              <Icon name="book-open" size={16} aria-hidden={true} />
+              Read all reflections
+              <Icon name="arrow-up-right" size={16} aria-hidden={true} />
+            </a>
+          </div>
         </section>
 
         <section class="haiku-card-section" aria-labelledby="haiku-heading">
@@ -89,30 +99,43 @@ try {
             Daily Haiku Card
           </h2>
 
-          <hr class="section-heading__divider" />
-
           <div class="haiku-card">
-            <div class="haiku-card__layout">
-              <div class="haiku-card__column haiku-card__column--left">
-                <div class="haiku-card__image-container">
-                  <div class="haiku-card__spinner"></div>
-                  <Image
-                    width="250"
-                    height="250"
-                    class="haiku-card__image"
-                    src={haikuCard}
-                    alt="Daily generated haiku card with artistic image"
-                  />
-                </div>
-
-                <blockquote class="haiku-card__image-credit">
-                  Image generated with <a href="/projects">GutenKu</a>
-                </blockquote>
+            <div class="haiku-card__frame">
+              <div class="haiku-card__meta">
+                <span class="haiku-card__badge">
+                  <Icon name="sunrise" size={16} /> Zen Daily
+                </span>
+                <span class="haiku-card__meta-note">
+                  Auto-refreshed verse •
+                  <a class="haiku-card__meta-link" href="/projects">Powered by GutenKu</a>
+                </span>
               </div>
 
-              <div class="haiku-card__column haiku-card__column--right">
-                <div class="haiku-card__description">
-                  <Icon name="cpu" size={16} /> "{haikuDescription}" <Icon name="pen-tool" size={16} />
+              <div class="haiku-card__grid">
+                <figure class="haiku-card__visual">
+                  <div class="haiku-card__visual-frame">
+                    <Image
+                      width="250"
+                      height="250"
+                      class="haiku-card__image"
+                      src={haikuCard}
+                      alt="Daily generated haiku card with artistic image"
+                      loading="lazy"
+                    />
+                  </div>
+                  <figcaption class="haiku-card__credit">
+                    Artwork composed each day
+                  </figcaption>
+                </figure>
+
+                <div class="haiku-card__content">
+                  <p class="haiku-card__quote">{haikuDescription}</p>
+
+                  <div class="haiku-card__divider" aria-hidden="true"></div>
+
+                  <p class="haiku-card__hint">
+                    Breathe in, read slowly, then refresh the page to welcome a new verse.
+                  </p>
                 </div>
               </div>
             </div>

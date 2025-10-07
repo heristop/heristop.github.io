@@ -4,8 +4,7 @@ export const SITE_DESCRIPTION =
 export const SITE_URL = "https://heristop.github.io";
 export const SITE_PSEUDO = "heristop";
 export const SITE_AUTHOR = "Alexandre Mogère";
-export const AUTHOR_ROLE = "Chapter Lead";
-export const AUTHOR_LANGUAGES = "JS & PHP";
+export const AUTHOR_ROLE = "Dev JS & PHP";
 export const LINKFOLIO_URL = "https://heristop.vercel.app";
 
 // Social Media Links
