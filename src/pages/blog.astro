@@ -106,11 +106,11 @@ function timeAgo(date: Date) {
               ) => {
                 const isoDate = post.data.pubDate?.toISOString();
                 const imageSrc = post.data.image;
-                const cardStyle = `--blog-card-stagger: ${delay * index}ms`;
+                const cardStyle = `--zen-card-stagger: ${delay * index}ms`;
 
                 return (
                   <a
-                    class="blog-card"
+                    class="zen-card blog-card"
                     href={`/blog/${post.slug}/`}
                     style={cardStyle}
                     data-bg={imageSrc ?? ""}
@@ -141,9 +141,9 @@ function timeAgo(date: Date) {
   </div>
 
   <script type="module" is:inline>
-    const revealBlogCards = () => {
+    const revealZenCards = () => {
       const cards = document.querySelectorAll(
-        '.blog-card[data-prepared="false"]'
+        '.zen-card[data-prepared="false"]'
       );
 
       if (!cards.length) {
@@ -153,21 +153,21 @@ function timeAgo(date: Date) {
       const assignBackgroundAndReveal = (card) => {
         const bg = card.dataset.bg;
         if (bg) {
-          card.style.setProperty('--blog-card-image', `url("${bg}")`);
+          card.style.setProperty('--zen-card-image', `url("${bg}")`);
           card.dataset.bg = '';
         }
 
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            card.classList.add('blog-card--visible');
+            card.classList.add('zen-card--visible');
           });
         });
       };
 
       const prepareCard = (card) => {
         card.dataset.prepared = 'true';
-        if (!card.style.getPropertyValue('--blog-card-image')) {
-          card.style.setProperty('--blog-card-image', 'none');
+        if (!card.style.getPropertyValue('--zen-card-image')) {
+          card.style.setProperty('--zen-card-image', 'none');
         }
       };
 
@@ -201,8 +201,8 @@ function timeAgo(date: Date) {
     };
 
     if (typeof window !== 'undefined') {
-      revealBlogCards();
-      document.addEventListener('astro:page-load', revealBlogCards);
+      revealZenCards();
+      document.addEventListener('astro:page-load', revealZenCards);
     }
   </script>
 </Layout>
