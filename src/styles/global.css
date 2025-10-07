@@ -633,7 +633,7 @@ hr {
   transition: background-color 0.2s ease;
   gap: 4px;
   position: relative;
-  z-index: 5;
+  z-index: 1101;
 }
 
 .header__mobile-toggle:hover {
@@ -857,24 +857,6 @@ body.mobile-menu-open {
   .title {
     font-size: 1.3rem;
     line-height: 1.3;
-  }
-
-  .site-header__title {
-    margin-top: var(--space-md);
-  }
-
-  .header__brand-mini {
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-
-  .header__brand-section {
-    padding: var(--space-lg) 0;
-  }
-
-  /* Add top margin to body content to account for fixed nav */
-  body {
-    margin-top: 60px;
   }
 }
 
@@ -1349,39 +1331,83 @@ tbody tr:hover {
 /* About Info Block Component */
 .about-info {
   text-align: center;
-  margin: 1rem 0;
   background-color: rgb(0 0 0 / 5%);
   box-shadow:
     0 4px 6px -1px rgb(0 0 0 / 10%),
     0 2px 4px -2px rgb(0 0 0 / 10%);
   border-radius: var(--radius-md);
-  padding: 0.75rem;
+  padding: clamp(0.75rem, 3vw, 1.5rem);
   color: rgb(87 83 78);
-  font-size: 0.75rem;
+  font-size: clamp(0.85rem, 2.5vw, 0.95rem);
 }
 
 .about-info__list {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  gap: 0.85rem;
   font-weight: 700;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-@media screen and (width >= 48rem) {
+.about-info__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: calc(var(--radius-sm) + 0.1rem);
+  background: rgb(255 255 255 / 25%);
+  width: 100%;
+  max-width: min(20rem, 100%);
+  margin: 0 auto;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.about-info__item svg {
+  flex-shrink: 0;
+}
+
+.about-info__item--with-icon {
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.about-info__item a {
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+
+@media screen and (width >= 40rem) {
   .about-info__list {
-    gap: 2.5rem;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .about-info__item {
+    background: transparent;
+    padding: 0;
+    width: auto;
+    max-width: none;
+    text-align: left;
+  }
+
+  .about-info__item--with-icon {
+    flex-direction: row;
+    gap: 0.5rem;
   }
 }
 
-.about-info__item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+@media screen and (width >= 60rem) {
+  .about-info__list {
+    gap: 2.5rem;
+  }
 }
 
 .about-info__item--stacked {
@@ -1933,7 +1959,7 @@ tbody tr:hover {
   gap: 0.35rem;
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
-  background: rgb(247 240 232 / 65%);
+  background: rgb(245 244 243 / 50%);
   color: var(--link-color-secondary);
   font-size: 0.75rem;
   letter-spacing: 0.1em;
