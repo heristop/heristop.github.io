@@ -45,8 +45,9 @@ import Icon from "../components/Icon.astro";
 
   .about-info__item--with-icon {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.35rem;
   }
 
   .about-info__content {
@@ -55,6 +56,18 @@ import Icon from "../components/Icon.astro";
     align-items: center;
     text-align: center;
     gap: 0.25rem;
+  }
+
+  @media screen and (width >= 40rem) {
+    .about-info__item--with-icon {
+      flex-direction: row;
+      gap: 0.5rem;
+    }
+
+    .about-info__content {
+      align-items: flex-start;
+      text-align: left;
+    }
   }
 
   .about-info__role {
