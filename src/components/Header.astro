@@ -90,7 +90,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     <div class="banner site-header__banner" id="header-banner">
       <div
         class="img site-header__banner-image"
-        style={`background: transparent url(${image}) no-repeat center center / cover`}
+        style={`background: transparent url(${image}) no-repeat left center / cover`}
         role="img"
         aria-label="Banner image"
       >
@@ -175,173 +175,223 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 </nav>
 
 <script>
-  // Mobile menu toggle functionality and sticky navigation
-  document.addEventListener('DOMContentLoaded', () => {
-    // Initial navigation elements
+  const setupMobileMenu = (toggle: Element | null, nav: Element | null) => {
+    if (!toggle || !nav) return;
+
+    const toggleEl = toggle as HTMLElement;
+    const navEl = nav as HTMLElement;
+
+    if (toggleEl.dataset.menuInitialized === 'true') return;
+    toggleEl.dataset.menuInitialized = 'true';
+
+    toggleEl.addEventListener('click', () => {
+      const isExpanded = toggleEl.getAttribute('aria-expanded') === 'true';
+
+      toggleEl.setAttribute('aria-expanded', (!isExpanded).toString());
+      toggleEl.classList.toggle('header__mobile-toggle--active');
+      navEl.classList.toggle('header__nav--mobile-open');
+
+      document.body.classList.toggle('mobile-menu-open', !isExpanded);
+    });
+
+    const mobileLinks = navEl.querySelectorAll('.header__link--mobile');
+    mobileLinks.forEach(link => {
+      const anchor = link as HTMLElement;
+      if (anchor.dataset.menuLinkInitialized === 'true') return;
+      anchor.dataset.menuLinkInitialized = 'true';
+
+      anchor.addEventListener('click', () => {
+        toggleEl.setAttribute('aria-expanded', 'false');
+        toggleEl.classList.remove('header__mobile-toggle--active');
+        navEl.classList.remove('header__nav--mobile-open');
+        document.body.classList.remove('mobile-menu-open');
+      });
+    });
+  };
+
+  const initializeMobileMenus = () => {
     const initialMobileToggle = document.querySelector(
       '.header__nav-initial .header__mobile-toggle'
     );
     const initialMobileNav = document.querySelector('#initial-mobile-nav');
-
-    // Sticky navigation elements
     const stickyMobileToggle = document.querySelector(
       '.site-header-nav .header__mobile-toggle'
     );
     const stickyMobileNav = document.querySelector('#mobile-nav');
-    const stickyNav = document.querySelector('.site-header-nav');
-    const banner = document.querySelector('#header-banner');
 
-    // Helper function to handle mobile menu toggle
-    const setupMobileMenu = (toggle: Element | null, nav: Element | null) => {
-      if (!toggle || !nav) return;
-
-      toggle.addEventListener('click', () => {
-        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-
-        toggle.setAttribute('aria-expanded', (!isExpanded).toString());
-        toggle.classList.toggle('header__mobile-toggle--active');
-        nav.classList.toggle('header__nav--mobile-open');
-
-        // Prevent body scroll when mobile menu is open
-        document.body.classList.toggle('mobile-menu-open', !isExpanded);
-      });
-
-      // Close mobile menu when clicking on links
-      const mobileLinks = nav.querySelectorAll('.header__link--mobile');
-      mobileLinks.forEach((link: Element) => {
-        link.addEventListener('click', () => {
-          toggle.setAttribute('aria-expanded', 'false');
-          toggle.classList.remove('header__mobile-toggle--active');
-          nav.classList.remove('header__nav--mobile-open');
-          document.body.classList.remove('mobile-menu-open');
-        });
-      });
-    };
-
-    // Setup mobile menus for both initial and sticky navigation
     setupMobileMenu(initialMobileToggle, initialMobileNav);
     setupMobileMenu(stickyMobileToggle, stickyMobileNav);
+  };
 
-    // Close mobile menus on escape key
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        [initialMobileNav, stickyMobileNav].forEach(nav => {
-          if (nav?.classList.contains('header__nav--mobile-open')) {
-            const toggle = nav
-              .closest('.site-header-static, .site-header-nav')
-              ?.querySelector('.header__mobile-toggle');
-            if (toggle) {
-              toggle.setAttribute('aria-expanded', 'false');
-              toggle.classList.remove('header__mobile-toggle--active');
-              nav.classList.remove('header__nav--mobile-open');
-              document.body.classList.remove('mobile-menu-open');
-            }
-          }
-        });
+  const setupEscapeListener = () => {
+    const existing = (window as any).__headerEscapeHandler as
+      | ((event: KeyboardEvent) => void)
+      | undefined;
+
+    if (existing) {
+      document.removeEventListener('keydown', existing);
+    }
+
+    const handler = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+
+      const openMenus = document.querySelectorAll(
+        '.header__nav--mobile.header__nav--mobile-open'
+      );
+
+      openMenus.forEach(nav => {
+        const toggle = nav
+          .closest('.site-header-static, .site-header-nav')
+          ?.querySelector('.header__mobile-toggle') as HTMLElement | null;
+
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.classList.remove('header__mobile-toggle--active');
+        }
+
+        nav.classList.remove('header__nav--mobile-open');
+      });
+
+      if (openMenus.length) {
+        document.body.classList.remove('mobile-menu-open');
       }
-    });
+    };
 
-    // Smooth sticky navigation functionality
-    if (stickyNav && banner) {
-      let bannerBottom = 0;
-      let isVisible = false;
-      let ticking = false;
+    document.addEventListener('keydown', handler);
+    (window as any).__headerEscapeHandler = handler;
+  };
 
-      // Calculate banner bottom position
-      const updateBannerPosition = () => {
-        const bannerRect = banner.getBoundingClientRect();
-        bannerBottom = bannerRect.bottom + window.scrollY;
-      };
+  const initializeStickyNav = () => {
+    const cleanup = (window as any).__headerStickyCleanup as
+      | (() => void)
+      | undefined;
 
-      // Smooth scroll handler with RAF optimization
-      const handleScroll = () => {
-        if (!ticking) {
-          requestAnimationFrame(updateStickyNav);
-          ticking = true;
-        }
-      };
+    if (cleanup) {
+      cleanup();
+    }
 
-      const updateStickyNav = () => {
-        const stickyNavElement = stickyNav as HTMLElement;
-        const currentScrollY = window.scrollY;
+    const stickyNav = document.querySelector('.site-header-nav') as
+      | HTMLElement
+      | null;
+    const banner = document.querySelector('#header-banner') as
+      | HTMLElement
+      | null;
 
-        // Always keep the sticky navigation visible on small screens
-        const isMobile = window.innerWidth <= 767;
-        if (isMobile) {
-          stickyNavElement.style.setProperty('--nav-opacity', '1');
-          stickyNavElement.style.setProperty('--nav-translate', '0%');
-          stickyNavElement.style.setProperty('--nav-blur', '0px');
+    if (!stickyNav || !banner) {
+      (window as any).__headerStickyCleanup = undefined;
+      return;
+    }
 
-          if (!isVisible) {
-            stickyNav?.classList.add('site-header-nav--active');
-            isVisible = true;
-          }
+    let bannerBottom = 0;
+    let isVisible = false;
+    let ticking = false;
+    let resizeTimeout: ReturnType<typeof setTimeout>;
 
-          ticking = false;
-          return;
-        }
+    const updateBannerPosition = () => {
+      const bannerRect = banner.getBoundingClientRect();
+      bannerBottom = bannerRect.bottom + window.scrollY;
+    };
 
-        // Define transition zones for smooth effect (desktop and larger)
-        const activationZone = bannerBottom - 200;
-        const fullyVisibleZone = bannerBottom - 50;
+    const updateStickyNav = () => {
+      const currentScrollY = window.scrollY;
+      const isMobile = window.innerWidth <= 767;
 
-        // Calculate progress for smooth transitions
-        let opacity = 0;
-        let translateY = -100;
-        let backdropBlur = 0;
+      if (isMobile) {
+        stickyNav.style.setProperty('--nav-opacity', '1');
+        stickyNav.style.setProperty('--nav-translate', '0%');
+        stickyNav.style.setProperty('--nav-blur', '0px');
 
-        if (currentScrollY >= activationZone) {
-          // Progressive reveal based on scroll position
-          const revealProgress = Math.min(
-            (currentScrollY - activationZone) /
-              (fullyVisibleZone - activationZone),
-            1
-          );
-
-          opacity = revealProgress;
-          translateY = -100 + revealProgress * 100; // From -100% to 0%
-          backdropBlur = revealProgress * 20; // From 0 to 20px blur
-
-          // Handle hide/show logic when fully in sticky mode
-          if (currentScrollY >= fullyVisibleZone) {
-            // Always keep the navigation visible - no hiding logic
-            translateY = 0;
-            opacity = 1;
-          }
-        }
-
-        // Apply smooth transforms using CSS custom properties
-        stickyNavElement.style.setProperty('--nav-opacity', opacity.toString());
-        stickyNavElement.style.setProperty('--nav-translate', `${translateY}%`);
-        stickyNavElement.style.setProperty('--nav-blur', `${backdropBlur}px`);
-
-        // Add/remove visibility class for better performance
-        if (opacity > 0 && !isVisible) {
-          stickyNav?.classList.add('site-header-nav--active');
+        if (!isVisible) {
+          stickyNav.classList.add('site-header-nav--active');
           isVisible = true;
-        } else if (opacity <= 0 && isVisible) {
-          stickyNav?.classList.remove('site-header-nav--active');
-          isVisible = false;
         }
 
         ticking = false;
-      };
+        return;
+      }
 
-      // Initial calculation and setup
-      updateBannerPosition();
-      updateStickyNav(); // Initial state
+      const activationZone = bannerBottom - 200;
+      const fullyVisibleZone = bannerBottom - 50;
 
-      // Event listeners with mobile optimization
-      let resizeTimeout: ReturnType<typeof setTimeout>;
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-          updateBannerPosition();
-          updateStickyNav();
-        }, 100); // Debounce resize events
-      });
+      let opacity = 0;
+      let translateY = -100;
+      let backdropBlur = 0;
 
-      window.addEventListener('scroll', handleScroll, { passive: true });
-    }
-  });
+      if (currentScrollY >= activationZone) {
+        const revealProgress = Math.min(
+          (currentScrollY - activationZone) / (fullyVisibleZone - activationZone),
+          1
+        );
+
+        opacity = revealProgress;
+        translateY = -100 + revealProgress * 100;
+        backdropBlur = revealProgress * 20;
+
+        if (currentScrollY >= fullyVisibleZone) {
+          translateY = 0;
+          opacity = 1;
+        }
+      }
+
+      stickyNav.style.setProperty('--nav-opacity', opacity.toString());
+      stickyNav.style.setProperty('--nav-translate', `${translateY}%`);
+      stickyNav.style.setProperty('--nav-blur', `${backdropBlur}px`);
+
+      if (opacity > 0 && !isVisible) {
+        stickyNav.classList.add('site-header-nav--active');
+        isVisible = true;
+      } else if (opacity <= 0 && isVisible) {
+        stickyNav.classList.remove('site-header-nav--active');
+        isVisible = false;
+      }
+
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(updateStickyNav);
+        ticking = true;
+      }
+    };
+
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        updateBannerPosition();
+        updateStickyNav();
+      }, 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    (window as any).__headerStickyCleanup = () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+    };
+
+    updateBannerPosition();
+    updateStickyNav();
+  };
+
+  const initializeHeader = () => {
+    const mobileNavs = document.querySelectorAll('.header__nav--mobile');
+    mobileNavs.forEach(nav => nav.classList.remove('header__nav--mobile-open'));
+
+    const toggles = document.querySelectorAll('.header__mobile-toggle');
+    toggles.forEach(toggle => {
+      const toggleEl = toggle as HTMLElement;
+      toggleEl.classList.remove('header__mobile-toggle--active');
+      toggleEl.setAttribute('aria-expanded', 'false');
+    });
+
+    initializeMobileMenus();
+    setupEscapeListener();
+    initializeStickyNav();
+    document.body.classList.remove('mobile-menu-open');
+  };
+
+  document.addEventListener('DOMContentLoaded', initializeHeader);
+  document.addEventListener('astro:after-swap', initializeHeader);
 </script>
