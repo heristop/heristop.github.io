@@ -427,6 +427,12 @@ hr {
   display: inline-block;
 }
 
+.post-page blockquote.post-page__endquote {
+  margin-top: 2rem;
+  margin-bottom: 0;
+  font-style: italic;
+}
+
 .site-layout {
   text-align: left;
   max-width: 65em;
@@ -1336,9 +1342,9 @@ tbody tr:hover {
     0 4px 6px -1px rgb(0 0 0 / 10%),
     0 2px 4px -2px rgb(0 0 0 / 10%);
   border-radius: var(--radius-md);
-  padding: clamp(0.75rem, 3vw, 1.5rem);
+  padding: clamp(0.65rem, 3vw, 1.5rem);
   color: rgb(87 83 78);
-  font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+  font-size: 0.75rem;
 }
 
 .about-info__list {
