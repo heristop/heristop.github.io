@@ -73,7 +73,7 @@ We developed an MCP server that lives directly in our Design System monorepo. It
 
 ```text
 Build Process:
-1. [Component Source Code] 
+1. [Component Source Code]
    ↓
 2. [Build Script: Extract Metadata]
    ↓
@@ -220,7 +220,7 @@ The MCP includes our coding standards:
 
 ```html
 <!-- Mandatory aria-* attributes when supported -->
-<CInputText 
+<CInputText
   label="Email"
   v-model="email"
   aria-describedby="email-help"
@@ -426,6 +426,10 @@ We're continuing to evolve MCP Marcel:
 - Gathering metrics on usage and impact
 
 ## Resources
+
+### Original LinkedIn Post
+
+- [Link to the post](https://www.linkedin.com/posts/heristop_designsystems-developerexperience-mcp-activity-7370858309102231552-EuiZ?utm_source=share)
 
 ### About MCP
 
