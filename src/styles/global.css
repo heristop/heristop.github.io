@@ -1091,7 +1091,6 @@ blockquote {
   box-shadow:
     0 12px 24px -18px rgb(0 0 0 / 20%),
     0 0 0 1px rgb(255 255 255 / 40%);
-  margin-bottom: 1.5rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -1345,6 +1344,7 @@ tbody tr:hover {
   padding: clamp(0.65rem, 3vw, 1.5rem);
   color: rgb(87 83 78);
   font-size: 0.75rem;
+  margin-top: 1rem;
 }
 
 .about-info__list {
