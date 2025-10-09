@@ -1,0 +1,54 @@
+.zazen-world-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden; /* Prevent clipping */
+}
+
+.zazen-world__map {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.zazen-world__header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 800px;
+  padding: 1rem;
+}
+
+.zazen-world__title {
+  font-size: 1.5rem;
+}
+
+.zazen-world__close {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.zazen-world__compass {
+  margin-bottom: 1rem;
+}
+
+.zazen-world__tile {
+  position: absolute;
+}
+
+.zazen-world__tile-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 64px;
+  height: 90px;
+  text-align: center;
+  background-position: bottom;
+  background-repeat: no-repeat;
+}
