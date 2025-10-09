@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import "./world.css";
+import "./world.scss";
 
 type MapTile = {
   x: number;
@@ -62,6 +62,32 @@ export default function ZazenWorld() {
     y: number;
   }>();
 
+  const [mapDimensions, setMapDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const calculateMapDimensions = () => {
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+      map.forEach(tile => {
+        const top = (tile.x + tile.y) * 16;
+        const left = (tile.x - tile.y) * 32;
+
+        if (top < minY) minY = top;
+        if (top > maxY) maxY = top;
+        if (left < minX) minX = left;
+        if (left > maxX) maxX = left;
+      });
+
+      // Add tile dimensions to the max values
+      const width = maxX - minX + 64; // 64 is the tile width
+      const height = maxY - minY + 90; // 90 is the tile height
+
+      setMapDimensions({ width, height });
+    };
+
+    calculateMapDimensions();
+  }, [map]);
+
   // Lazy initialization for character position
   useEffect(() => {
     const initialPosition = map.find((tile) => tile.perso === 1);
@@ -120,127 +146,115 @@ export default function ZazenWorld() {
   );
 
   return (
-    <div>
-      {isModalOpen && (
-        <div
-          className="zazen-modal"
-          aria-labelledby="modal-title"
-          role="dialog"
-          aria-modal="true"
+    <div className="zazen-world-container">
+      <div className="zazen-world__header">
+        <h1 className="zazen-world__title">Zazen World</h1>
+        <div className="">
+          <button
+            type="button"
+            className="zazen-world__close"
+            onClick={() => {
+              window.location.href = "/about";
+            }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+
+      {/* Inputs for movement */}
+      <div className="zazen-world__compass">
+        <table
+          style={{
+            width: "6.25rem",
+            height: "5.3125rem",
+            backgroundImage: `url(/images/zazen/compass.png)`,
+            backgroundRepeat: "no-repeat",
+          }}
         >
-          <div className="zazen-modal__container">
-            <div className="zazen-modal__backdrop" aria-hidden="true"></div>
+          <tbody>
+            <tr>
+              <td></td>
+              <td>
+                <input
+                  type="radio"
+                  name="direction"
+                  onClick={() => move("N")}
+                />
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>
+                <input
+                  type="radio"
+                  name="direction"
+                  onClick={() => move("W")}
+                />
+              </td>
+              <td></td>
+              <td>
+                <input
+                  type="radio"
+                  name="direction"
+                  onClick={() => move("E")}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>
+                <input
+                  type="radio"
+                  name="direction"
+                  onClick={() => move("S")}
+                />
+              </td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-            <div className="zazen-modal__dialog">
-              <div className="zazen-modal__content">
-                <div className="zazen-modal__header">
-                  <h1 className="zazen-modal__title">Zazen World</h1>
-
-                  <div className="">
-                    <button
-                      type="button"
-                      className="zazen-modal__close"
-                      onClick={() => {
-                        window.location.href = "/about";
-                      }}
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-
-                {/* Inputs for movement */}
-                <div className="zazen-modal__compass">
-                  <table
-                    style={{
-                      width: "6.25rem",
-                      height: "5.3125rem",
-                      backgroundImage: `url(/images/zazen/compass.png)`,
-                      backgroundRepeat: "no-repeat",
-                    }}
-                  >
-                    <tbody>
-                      <tr>
-                        <td></td>
-                        <td>
-                          <input
-                            type="radio"
-                            name="direction"
-                            onClick={() => move("N")}
-                          />
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <input
-                            type="radio"
-                            name="direction"
-                            onClick={() => move("W")}
-                          />
-                        </td>
-                        <td></td>
-                        <td>
-                          <input
-                            type="radio"
-                            name="direction"
-                            onClick={() => move("E")}
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td></td>
-                        <td>
-                          <input
-                            type="radio"
-                            name="direction"
-                            onClick={() => move("S")}
-                          />
-                        </td>
-                        <td></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <div>
-                  {map.map((tile, index) => (
-                    <div
-                      className="zazen-world__tile"
-                      key={index}
-                      style={{
-                        top: `${50 + (tile.x + tile.y) * 16}px`,
-                        left: `${250 + (tile.x - tile.y) * 32}px`,
-                      }}
-                    >
-                      <div
-                        className="zazen-world__tile-image"
-                        style={{
-                          backgroundImage: `url('/images/zazen/sol/${tile.img}.gif')`,
-                        }}
-                      >
-                        {tile.perso !== 0 && (
-                          <img
-                            src={`/images/zazen/persos/${tile.perso}.gif`}
-                            alt={`Character ${tile.perso}`}
-                          />
-                        )}
-                        {tile.decors !== "" && (
-                          <img
-                            src={`/images/zazen/decors/${tile.decors}.gif`}
-                            alt={tile.decors}
-                            className="zazen-world__decor"
-                          />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+      <div
+        className="zazen-world__map"
+        style={{
+          width: `${mapDimensions.width}px`,
+          height: `${mapDimensions.height}px`,
+        }}
+      >
+        {map.map((tile, index) => (
+          <div
+            className="zazen-world__tile"
+            key={index}
+            style={{
+              top: `${(tile.x + tile.y) * 16}px`,
+              left: `${(tile.x - tile.y) * 32}px`,
+            }}
+          >
+            <div
+              className="zazen-world__tile-image"
+              style={{
+                backgroundImage: `url('/images/zazen/sol/${tile.img}.gif')`,
+              }}
+            >
+              {tile.perso !== 0 && (
+                <img
+                  src={`/images/zazen/persos/${tile.perso}.gif`}
+                  alt={`Character ${tile.perso}`}
+                />
+              )}
+              {tile.decors !== "" && (
+                <img
+                  src={`/images/zazen/decors/${tile.decors}.gif`}
+                  alt={tile.decors}
+                  className="zazen-world__decor"
+                />
+              )}
             </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 }
