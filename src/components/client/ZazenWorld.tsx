@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
 import "./world.scss";
 
 type MapTile = {
@@ -9,49 +10,100 @@ type MapTile = {
   decors: string;
 };
 
-const initialMap: MapTile[] = [
-  { x: 1, y: 1, img: "terre", perso: 0, decors: "pierre" },
-  { x: 2, y: 1, img: "terre", perso: 0, decors: "" },
-  { x: 3, y: 1, img: "terre", perso: 0, decors: "" },
-  { x: 4, y: 1, img: "terre", perso: 0, decors: "" },
-  { x: 5, y: 1, img: "terre-2", perso: 0, decors: "" },
-  { x: 6, y: 1, img: "terre", perso: 0, decors: "" },
+// Helper function to generate terrain procedurally
+const generateTerrain = (x: number, y: number): { img: string; decors: string; perso: number } => {
+  // Original map content (centered at 4-9 range in 12x12 map)
+  const originalContent: Record<string, { img: string; decors: string; perso: number }> = {
+    "4-4": { img: "terre", decors: "pierre", perso: 0 },
+    "5-4": { img: "terre", decors: "", perso: 0 },
+    "6-4": { img: "terre", decors: "", perso: 0 },
+    "7-4": { img: "terre", decors: "", perso: 0 },
+    "8-4": { img: "terre-2", decors: "", perso: 0 },
+    "9-4": { img: "terre", decors: "", perso: 0 },
 
-  { x: 1, y: 2, img: "terre", perso: 0, decors: "pierre" },
-  { x: 2, y: 2, img: "terre", perso: 1, decors: "" },
-  { x: 3, y: 2, img: "terre", perso: 0, decors: "" },
-  { x: 4, y: 2, img: "terre", perso: 0, decors: "" },
-  { x: 5, y: 2, img: "terre", perso: 0, decors: "" },
-  { x: 6, y: 2, img: "terre-2", perso: 0, decors: "" },
+    "4-5": { img: "terre", decors: "pierre", perso: 0 },
+    "5-5": { img: "terre", decors: "", perso: 1 },
+    "6-5": { img: "terre", decors: "", perso: 0 },
+    "7-5": { img: "terre", decors: "", perso: 0 },
+    "8-5": { img: "terre", decors: "", perso: 0 },
+    "9-5": { img: "terre-2", decors: "", perso: 0 },
 
-  { x: 1, y: 3, img: "terre", perso: 0, decors: "" },
-  { x: 2, y: 3, img: "terre", perso: 0, decors: "" },
-  { x: 3, y: 3, img: "terre", perso: 0, decors: /*'bulletin'*/ "" },
-  { x: 4, y: 3, img: "terre", perso: 0, decors: "" },
-  { x: 5, y: 3, img: "terre", perso: 3, decors: "" },
-  { x: 6, y: 3, img: "terre", perso: 0, decors: "arbre" },
+    "4-6": { img: "terre", decors: "", perso: 0 },
+    "5-6": { img: "terre", decors: "", perso: 0 },
+    "6-6": { img: "terre", decors: "", perso: 0 },
+    "7-6": { img: "terre", decors: "", perso: 0 },
+    "8-6": { img: "terre", decors: "", perso: 3 },
+    "9-6": { img: "terre", decors: "arbre", perso: 0 },
 
-  { x: 1, y: 4, img: "terre", perso: 0, decors: "arbre" },
-  { x: 2, y: 4, img: "terre", perso: 0, decors: "" },
-  { x: 3, y: 4, img: "terre", perso: 0, decors: "" },
-  { x: 4, y: 4, img: "terre", perso: 0, decors: "" },
-  { x: 5, y: 4, img: "terre", perso: 2, decors: "" },
-  { x: 6, y: 4, img: "terre", perso: 0, decors: "" },
+    "4-7": { img: "terre", decors: "arbre", perso: 0 },
+    "5-7": { img: "terre", decors: "", perso: 0 },
+    "6-7": { img: "terre", decors: "", perso: 0 },
+    "7-7": { img: "terre", decors: "", perso: 0 },
+    "8-7": { img: "terre", decors: "", perso: 2 },
+    "9-7": { img: "terre", decors: "", perso: 0 },
 
-  { x: 1, y: 5, img: "eau-2", perso: 0, decors: "" },
-  { x: 2, y: 5, img: "eau-2", perso: 0, decors: "" },
-  { x: 3, y: 5, img: "eau-2", perso: 0, decors: "" },
-  { x: 4, y: 5, img: "eau-2", perso: 0, decors: "" },
-  { x: 5, y: 5, img: "eau-2", perso: 0, decors: "" },
-  { x: 6, y: 5, img: "eau-2", perso: 0, decors: "" },
+    "4-8": { img: "eau-2", decors: "", perso: 0 },
+    "5-8": { img: "eau-2", decors: "", perso: 0 },
+    "6-8": { img: "eau-2", decors: "", perso: 0 },
+    "7-8": { img: "eau-2", decors: "", perso: 0 },
+    "8-8": { img: "eau-2", decors: "", perso: 0 },
+    "9-8": { img: "eau-2", decors: "", perso: 0 },
 
-  { x: 1, y: 6, img: "eau-1", perso: 0, decors: "" },
-  { x: 2, y: 6, img: "eau-1", perso: 0, decors: "" },
-  { x: 3, y: 6, img: "eau-1", perso: 0, decors: "barque" },
-  { x: 4, y: 6, img: "eau-1", perso: 0, decors: "" },
-  { x: 5, y: 6, img: "eau-1", perso: 0, decors: "" },
-  { x: 6, y: 6, img: "eau-1", perso: 0, decors: "" },
-];
+    "4-9": { img: "eau-1", decors: "", perso: 0 },
+    "5-9": { img: "eau-1", decors: "", perso: 0 },
+    "6-9": { img: "eau-1", decors: "barque", perso: 0 },
+    "7-9": { img: "eau-1", decors: "", perso: 0 },
+    "8-9": { img: "eau-1", decors: "", perso: 0 },
+    "9-9": { img: "eau-1", decors: "", perso: 0 },
+  };
+
+  const key = `${x}-${y}`;
+  if (originalContent[key]) {
+    return originalContent[key];
+  }
+
+  // Procedural generation for new areas
+  const centerX = 6.5;
+  const centerY = 6.5;
+  const distanceFromCenter = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+
+  // Create varied terrain based on distance and position
+  let img = "terre";
+  let decors = "";
+  let perso = 0;
+
+  // Water areas - river crossing the entire map horizontally
+  if (y >= 8 && y <= 9) {
+    img = y === 9 ? "eau-1" : "eau-2";
+  }
+  // Mountain/rocky areas at edges
+  else if (distanceFromCenter > 7 || (x <= 2 || x >= 11 || y <= 2 || y >= 11)) {
+    img = Math.random() > 0.6 ? "terre-2" : "terre";
+  }
+  // Regular terrain with variation
+  else {
+    img = Math.random() > 0.7 ? "terre-2" : "terre";
+  }
+
+  // Add decorations (more sparse)
+  if (img.includes("terre") && Math.random() > 0.8) {
+    const decorOptions = ["arbre", "pierre"];
+    decors = decorOptions[Math.floor(Math.random() * decorOptions.length)];
+  }
+
+  // No additional boats - only the one in original content
+
+  return { img, decors, perso };
+};
+
+// Generate the 12x12 map
+const initialMap: MapTile[] = [];
+for (let x = 1; x <= 12; x++) {
+  for (let y = 1; y <= 12; y++) {
+    const { img, decors, perso } = generateTerrain(x, y);
+    initialMap.push({ x, y, img, decors, perso });
+  }
+}
 
 export default function ZazenWorld() {
   const [isModalOpen] = useState(true);
@@ -88,14 +140,6 @@ export default function ZazenWorld() {
     calculateMapDimensions();
   }, [map]);
 
-  // Lazy initialization for character position
-  useEffect(() => {
-    const initialPosition = map.find((tile) => tile.perso === 1);
-    if (initialPosition) {
-      setCharacterPosition({ x: initialPosition.x, y: initialPosition.y });
-    }
-  }, [map]);
-
   const move = useCallback(
     (direction: "N" | "E" | "S" | "W") => {
       if (!characterPosition) return;
@@ -103,17 +147,18 @@ export default function ZazenWorld() {
       let newX = characterPosition.x;
       let newY = characterPosition.y;
 
+      // Fixed directions for isometric view
       switch (direction) {
-        case "N":
+        case "N": // Move up-left visually
           newX -= 1;
           break;
-        case "E":
+        case "E": // Move up-right visually
           newY -= 1;
           break;
-        case "S":
+        case "S": // Move down-right visually
           newX += 1;
           break;
-        case "W":
+        case "W": // Move down-left visually
           newY += 1;
           break;
       }
@@ -145,75 +190,93 @@ export default function ZazenWorld() {
     [characterPosition, map],
   );
 
+  // Lazy initialization for character position
+  useEffect(() => {
+    const initialPosition = map.find((tile) => tile.perso === 1);
+    if (initialPosition) {
+      setCharacterPosition({ x: initialPosition.x, y: initialPosition.y });
+    }
+  }, [map]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      switch (e.key.toLowerCase()) {
+        case 'arrowup':
+        case 'w':
+          e.preventDefault();
+          move('N');
+          break;
+        case 'arrowdown':
+        case 's':
+          e.preventDefault();
+          move('S');
+          break;
+        case 'arrowleft':
+        case 'a':
+          e.preventDefault();
+          move('W');
+          break;
+        case 'arrowright':
+        case 'd':
+          e.preventDefault();
+          move('E');
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [move]);
+
   return (
     <div className="zazen-world-container">
       <div className="zazen-world__header">
         <h1 className="zazen-world__title">Zazen World</h1>
-        <div className="">
-          <button
-            type="button"
-            className="zazen-world__close"
-            onClick={() => {
-              window.location.href = "/about";
-            }}
-          >
-            Close
-          </button>
-        </div>
       </div>
 
       {/* Inputs for movement */}
       <div className="zazen-world__compass">
-        <table
-          style={{
-            width: "6.25rem",
-            height: "5.3125rem",
-            backgroundImage: `url(/images/zazen/compass.png)`,
-            backgroundRepeat: "no-repeat",
-          }}
+        <div
+          className="zazen-world__compass-container"
         >
-          <tbody>
-            <tr>
-              <td></td>
-              <td>
-                <input
-                  type="radio"
-                  name="direction"
-                  onClick={() => move("N")}
-                />
-              </td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>
-                <input
-                  type="radio"
-                  name="direction"
-                  onClick={() => move("W")}
-                />
-              </td>
-              <td></td>
-              <td>
-                <input
-                  type="radio"
-                  name="direction"
-                  onClick={() => move("E")}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>
-                <input
-                  type="radio"
-                  name="direction"
-                  onClick={() => move("S")}
-                />
-              </td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
+          <button
+            className="zazen-world__compass-btn zazen-world__compass-btn--north"
+            onClick={() => move("N")}
+            aria-label="Move North (W/↑)"
+            title="Press W or ↑ arrow"
+          >
+            <ArrowUp size={16} strokeWidth={2.5} />
+            <span>W</span>
+          </button>
+          <button
+            className="zazen-world__compass-btn zazen-world__compass-btn--west"
+            onClick={() => move("W")}
+            aria-label="Move West (A/←)"
+            title="Press A or ← arrow"
+          >
+            <ArrowLeft size={16} strokeWidth={2.5} />
+            <span>A</span>
+          </button>
+          <button
+            className="zazen-world__compass-btn zazen-world__compass-btn--east"
+            onClick={() => move("E")}
+            aria-label="Move East (D/→)"
+            title="Press D or → arrow"
+          >
+            <ArrowRight size={16} strokeWidth={2.5} />
+            <span>D</span>
+          </button>
+          <button
+            className="zazen-world__compass-btn zazen-world__compass-btn--south"
+            onClick={() => move("S")}
+            aria-label="Move South (S/↓)"
+            title="Press S or ↓ arrow"
+          >
+            <ArrowDown size={16} strokeWidth={2.5} />
+            <span>S</span>
+          </button>
+        </div>
       </div>
 
       <div

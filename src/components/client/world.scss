@@ -3,27 +3,68 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  overflow: hidden; /* Prevent clipping */
+  padding: 2rem;
+  overflow: auto;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    min-height: 100vh;
+  }
 }
 
 .zazen-world__map {
   position: relative;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  margin: 2rem auto;
+  left: 84%;
+  transform: translateX(-50%);
+
+  @media (max-width: 768px) {
+    left: 100%;
+    margin: 1rem auto;
+    transform: translateX(-50%) scale(0.8);
+    transform-origin: center;
+  }
+
+  @media (max-width: 480px) {
+    left: 110%;
+    transform: translateX(-50%) scale(0.6);
+    margin: 0.5rem auto;
+  }
 }
 
 .zazen-world__header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
   max-width: 800px;
-  padding: 1rem;
+  padding: 0 1rem;
+
+  @media (max-width: 768px) {
+    padding: 0 0.5rem;
+  }
 }
 
 .zazen-world__title {
   font-size: 1.5rem;
+  margin-top: 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.2rem;
+  }
+}
+
+.zazen-world__position {
+  font-size: 0.9rem;
+  color: #5c4a3a;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(139, 115, 85, 0.3);
+  font-family: monospace;
 }
 
 .zazen-world__close {
@@ -35,7 +76,151 @@
 }
 
 .zazen-world__compass {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+
+  @media (max-width: 768px) {
+    margin-bottom: 1rem;
+  }
+
+  &-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (max-width: 768px) {
+      width: 140px;
+      height: 140px;
+    }
+
+    @media (max-width: 480px) {
+      width: 160px;
+      height: 160px;
+    }
+  }
+
+  &-btn {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #5c4a3a;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #3d3228;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 8px;
+    font-weight: 600;
+
+    @media (max-width: 768px) {
+      width: 48px;
+      height: 48px;
+      font-size: 10px;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 480px) {
+      width: 56px;
+      height: 56px;
+      font-size: 12px;
+      border-radius: 14px;
+    }
+
+    span {
+      margin-top: 1px;
+      opacity: 0.7;
+      font-size: 8px;
+
+      @media (max-width: 768px) {
+        font-size: 10px;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 12px;
+      }
+    }
+
+    &:focus {
+      outline: 3px solid #8b7355;
+      outline-offset: 2px;
+    }
+
+    &:hover {
+      background: #ffffff;
+      color: #2a1f17;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      border-color: #4a3929;
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    // North button
+    &--north {
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+
+      &:hover {
+        transform: translateX(-50%) scale(1.05);
+      }
+      &:active {
+        transform: translateX(-50%) scale(0.95);
+      }
+    }
+
+    // West button
+    &--west {
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+
+      &:hover {
+        transform: translateY(-50%) scale(1.05);
+      }
+      &:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+    }
+
+    // East button
+    &--east {
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+
+      &:hover {
+        transform: translateY(-50%) scale(1.05);
+      }
+      &:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+    }
+
+    // South button
+    &--south {
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+
+      &:hover {
+        transform: translateX(-50%) scale(1.05);
+      }
+      &:active {
+        transform: translateX(-50%) scale(0.95);
+      }
+    }
+  }
 }
 
 .zazen-world__tile {
@@ -51,4 +236,12 @@
   text-align: center;
   background-position: bottom;
   background-repeat: no-repeat;
+
+  img {
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
+  }
+}
+
+.zazen-world__decor {
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.2));
 }
