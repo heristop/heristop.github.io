@@ -2632,3 +2632,81 @@ tbody tr:hover {
 .social-network__card {
   margin-top: 0.25rem;
 }
+
+/* Avatar tooltip for Extra page */
+.site-footer__profile {
+  position: relative;
+}
+
+.site-footer__profile-tooltip {
+  position: absolute;
+  bottom: -2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  z-index: 10;
+
+  /* Small arrow pointing up */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid rgba(0, 0, 0, 0.6);
+  }
+}
+
+.site-footer__profile:hover .site-footer__profile-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+/* Hide tooltip on mobile */
+@media (max-width: 768px) {
+  .site-footer__profile-tooltip {
+    display: none;
+  }
+}
+
+/* Extra link positioning under avatar */
+.site-footer__extra-link {
+  position: absolute;
+  bottom: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+    color: var(--link-color);
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+/* Make sure the about section has relative positioning for the absolute icon */
+.site-footer__about {
+  position: relative;
+}
