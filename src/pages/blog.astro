@@ -79,8 +79,8 @@ function timeAgo(date: Date) {
 
 <Layout title="All Posts" description="Blog">
   <blockquote class="blog-archive__subscribe">
-    <Icon name="rss" size={32} class="blog-archive__subscribe-icon" />
-    
+    <Icon name="rss" size={32} class="blog-archive__subscribe-icon" aria-hidden={true} />
+
     <span>Subscribe to <a href="/rss.xml">RSS</a>.</span>
   </blockquote>
 
@@ -118,7 +118,7 @@ function timeAgo(date: Date) {
                   >
                     {isoDate && post.data.pubDate && (
                       <time class="blog-card__date" datetime={isoDate}>
-                        <Icon name="calendar" size={14} class="blog-card__date-icon" />
+                        <Icon name="calendar" size={14} class="blog-card__date-icon" aria-hidden={true} />
                         <FormattedDate date={post.data.pubDate} />
                         <span class="blog-card__date-relative">{timeAgo(post.data.pubDate)}</span>
                       </time>
@@ -126,7 +126,7 @@ function timeAgo(date: Date) {
 
                     <h3 class="blog-card__title">{post.data.title}</h3>
 
-                    <span class="blog-card__cta" aria-hidden="true">
+                    <span class="blog-card__cta" aria-hidden={true}>
                       <Icon name="arrow-right" size={16} class="blog-card__cta-icon" />
                       <span class="blog-card__cta-text">Read more</span>
                     </span>
