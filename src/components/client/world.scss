@@ -229,7 +229,7 @@
       box-shadow: 0 1px 3px rgb(157 66 97 / 20%);
     }
 
-    // North button
+    /* North button */
     &--north {
       top: 0;
       left: 50%;
@@ -244,7 +244,7 @@
       }
     }
 
-    // West button
+    /* West button */
     &--west {
       left: 0;
       top: 50%;
@@ -259,7 +259,7 @@
       }
     }
 
-    // East button
+    /* East button */
     &--east {
       right: 0;
       top: 50%;
@@ -274,7 +274,7 @@
       }
     }
 
-    // South button
+    /* South button */
     &--south {
       bottom: 0;
       left: 50%;
@@ -333,7 +333,7 @@
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
 }

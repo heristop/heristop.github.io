@@ -1,60 +1,20 @@
-import { useState, useEffect, useCallback } from "react";
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from "lucide-react";
 import "./world.scss";
 
-type MapTile = {
+interface MapTile {
   x: number;
   y: number;
   img: string;
   perso: number;
   decors: string;
-};
+}
 
 // Helper function to generate terrain procedurally
 const generateTerrain = (x: number, y: number): { img: string; decors: string; perso: number } => {
   // Original map content (centered at 4-9 range in 12x12 map)
   const originalContent: Record<string, { img: string; decors: string; perso: number }> = {
-    "4-4": { img: "terre", decors: "pierre", perso: 0 },
-    "5-4": { img: "terre", decors: "", perso: 0 },
-    "6-4": { img: "terre", decors: "", perso: 0 },
-    "7-4": { img: "terre", decors: "", perso: 0 },
-    "8-4": { img: "terre-2", decors: "", perso: 0 },
-    "9-4": { img: "terre", decors: "", perso: 0 },
-
-    "4-5": { img: "terre", decors: "pierre", perso: 0 },
-    "5-5": { img: "terre", decors: "", perso: 1 },
-    "6-5": { img: "terre", decors: "", perso: 0 },
-    "7-5": { img: "terre", decors: "", perso: 0 },
-    "8-5": { img: "terre", decors: "", perso: 0 },
-    "9-5": { img: "terre-2", decors: "", perso: 0 },
-
-    "4-6": { img: "terre", decors: "", perso: 0 },
-    "5-6": { img: "terre", decors: "", perso: 0 },
-    "6-6": { img: "terre", decors: "", perso: 0 },
-    "7-6": { img: "terre", decors: "", perso: 0 },
-    "8-6": { img: "terre", decors: "", perso: 3 },
-    "9-6": { img: "terre", decors: "arbre", perso: 0 },
-
-    "4-7": { img: "terre", decors: "arbre", perso: 0 },
-    "5-7": { img: "terre", decors: "", perso: 0 },
-    "6-7": { img: "terre", decors: "", perso: 0 },
-    "7-7": { img: "terre", decors: "", perso: 0 },
-    "8-7": { img: "terre", decors: "", perso: 2 },
-    "9-7": { img: "terre", decors: "", perso: 0 },
-
-    "4-8": { img: "eau-2", decors: "", perso: 0 },
-    "5-8": { img: "eau-2", decors: "", perso: 0 },
-    "6-8": { img: "eau-2", decors: "", perso: 0 },
-    "7-8": { img: "eau-2", decors: "", perso: 0 },
-    "8-8": { img: "eau-2", decors: "", perso: 0 },
-    "9-8": { img: "eau-2", decors: "", perso: 0 },
-
-    "4-9": { img: "eau-1", decors: "", perso: 0 },
-    "5-9": { img: "eau-1", decors: "", perso: 0 },
-    "6-9": { img: "eau-1", decors: "barque", perso: 0 },
-    "7-9": { img: "eau-1", decors: "", perso: 0 },
-    "8-9": { img: "eau-1", decors: "", perso: 0 },
-    "9-9": { img: "eau-1", decors: "", perso: 0 },
+    "4-4": { img: "terre", decors: "pierre", perso: 0 }, "4-5": { img: "terre", decors: "pierre", perso: 0 }, "4-6": { img: "terre", decors: "", perso: 0 }, "4-7": { img: "terre", decors: "arbre", perso: 0 }, "4-8": { img: "eau-2", decors: "", perso: 0 }, "4-9": { img: "eau-1", decors: "", perso: 0 }, "5-4": { img: "terre", decors: "", perso: 0 }, "5-5": { img: "terre", decors: "", perso: 1 }, "5-6": { img: "terre", decors: "", perso: 0 }, "5-7": { img: "terre", decors: "", perso: 0 }, "5-8": { img: "eau-2", decors: "", perso: 0 }, "5-9": { img: "eau-1", decors: "", perso: 0 }, "6-4": { img: "terre", decors: "", perso: 0 }, "6-5": { img: "terre", decors: "", perso: 0 }, "6-6": { img: "terre", decors: "", perso: 0 }, "6-7": { img: "terre", decors: "", perso: 0 }, "6-8": { img: "eau-2", decors: "", perso: 0 }, "6-9": { img: "eau-1", decors: "barque", perso: 0 }, "7-4": { img: "terre", decors: "", perso: 0 }, "7-5": { img: "terre", decors: "", perso: 0 }, "7-6": { img: "terre", decors: "", perso: 0 }, "7-7": { img: "terre", decors: "", perso: 0 }, "7-8": { img: "eau-2", decors: "", perso: 0 }, "7-9": { img: "eau-1", decors: "", perso: 0 }, "8-4": { img: "terre-2", decors: "", perso: 0 }, "8-5": { img: "terre", decors: "", perso: 0 }, "8-6": { img: "terre", decors: "", perso: 3 }, "8-7": { img: "terre", decors: "", perso: 2 }, "8-8": { img: "eau-2", decors: "", perso: 0 }, "8-9": { img: "eau-1", decors: "", perso: 0 }, "9-4": { img: "terre", decors: "", perso: 0 }, "9-5": { img: "terre-2", decors: "", perso: 0 }, "9-6": { img: "terre", decors: "arbre", perso: 0 }, "9-7": { img: "terre", decors: "", perso: 0 }, "9-8": { img: "eau-2", decors: "", perso: 0 }, "9-9": { img: "eau-1", decors: "", perso: 0 },
   };
 
   const key = `${x}-${y}`;
@@ -93,7 +53,7 @@ const generateTerrain = (x: number, y: number): { img: string; decors: string; p
 
   // No additional boats - only the one in original content
 
-  return { img, decors, perso };
+  return { decors, img, perso };
 };
 
 // Generate the 12x12 map
@@ -101,7 +61,7 @@ const initialMap: MapTile[] = [];
 for (let x = 1; x <= 12; x++) {
   for (let y = 1; y <= 12; y++) {
     const { img, decors, perso } = generateTerrain(x, y);
-    initialMap.push({ x, y, img, decors, perso });
+    initialMap.push({ decors, img, perso, x, y });
   }
 }
 
@@ -113,7 +73,7 @@ export default function ZazenWorld() {
     y: number;
   }>();
 
-  const [mapDimensions, setMapDimensions] = useState({ width: 0, height: 0 });
+  const [mapDimensions, setMapDimensions] = useState({ height: 0, width: 0 });
 
   useEffect(() => {
     const calculateMapDimensions = () => {
@@ -123,17 +83,17 @@ export default function ZazenWorld() {
         const top = (tile.x + tile.y) * 16;
         const left = (tile.x - tile.y) * 32;
 
-        if (top < minY) minY = top;
-        if (top > maxY) maxY = top;
-        if (left < minX) minX = left;
-        if (left > maxX) maxX = left;
+        if (top < minY) {minY = top;}
+        if (top > maxY) {maxY = top;}
+        if (left < minX) {minX = left;}
+        if (left > maxX) {maxX = left;}
       });
 
       // Add tile dimensions to the max values
       const width = maxX - minX + 64; // 64 is the tile width
       const height = maxY - minY + 90; // 90 is the tile height
 
-      setMapDimensions({ width, height });
+      setMapDimensions({ height, width });
     };
 
     calculateMapDimensions();
@@ -141,25 +101,29 @@ export default function ZazenWorld() {
 
   const move = useCallback(
     (direction: "N" | "E" | "S" | "W") => {
-      if (!characterPosition) return;
+      if (!characterPosition) {return;}
 
       let newX = characterPosition.x;
       let newY = characterPosition.y;
 
       // Fixed directions for isometric view
       switch (direction) {
-        case "N": // Move up-left visually
+        case "N": { // Move up-left visually
           newX -= 1;
           break;
-        case "E": // Move up-right visually
+        }
+        case "E": { // Move up-right visually
           newY -= 1;
           break;
-        case "S": // Move down-right visually
+        }
+        case "S": { // Move down-right visually
           newX += 1;
           break;
-        case "W": // Move down-left visually
+        }
+        case "W": { // Move down-left visually
           newY += 1;
           break;
+        }
       }
 
       const targetTileIndex = map.findIndex(
@@ -168,7 +132,7 @@ export default function ZazenWorld() {
           tile.y === newY &&
           tile.perso === 0 &&
           tile.decors === "" &&
-          !tile.img.match(/eau/),
+          !/eau/.test(tile.img),
       );
 
       if (targetTileIndex !== -1) {
@@ -202,25 +166,29 @@ export default function ZazenWorld() {
     const handleKeyPress = (e: KeyboardEvent) => {
       switch (e.key.toLowerCase()) {
         case 'arrowup':
-        case 'w':
+        case 'w': {
           e.preventDefault();
           move('N');
           break;
+        }
         case 'arrowdown':
-        case 's':
+        case 's': {
           e.preventDefault();
           move('S');
           break;
+        }
         case 'arrowleft':
-        case 'a':
+        case 'a': {
           e.preventDefault();
           move('W');
           break;
+        }
         case 'arrowright':
-        case 'd':
+        case 'd': {
           e.preventDefault();
           move('E');
           break;
+        }
       }
     };
 
@@ -289,8 +257,7 @@ export default function ZazenWorld() {
         aria-label="Interactive game world map"
         aria-describedby="game-instructions"
         style={{
-          width: `${mapDimensions.width}px`,
-          height: `${mapDimensions.height}px`,
+          height: `${mapDimensions.height}px`, width: `${mapDimensions.width}px`,
         }}
       >
         <div className="sr-only" aria-live="polite" id="position-announcer">
@@ -301,8 +268,7 @@ export default function ZazenWorld() {
             className="zazen-world__tile"
             key={index}
             style={{
-              top: `${(tile.x + tile.y) * 16}px`,
-              left: `${(tile.x - tile.y) * 32}px`,
+              left: `${(tile.x - tile.y) * 32}px`, top: `${(tile.x + tile.y) * 16}px`,
             }}
           >
             <div

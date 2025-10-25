@@ -439,7 +439,7 @@ We're continuing to evolve MCP Marcel:
 
 ### Getting Started with MCP
 
-- [MCP SDK (TypeScript/Python)](https://github.com/modelcontextprotocol/sdk)
+- [MCP SDK (TypeScript/Python)](https://github.com/modelcontextprotocol)
 - [Building MCP Servers](https://modelcontextprotocol.io/tutorials)
 - [Claude Desktop App](https://claude.ai/download)
 

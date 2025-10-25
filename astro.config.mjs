@@ -26,4 +26,4 @@ export default defineConfig({
   },
 
   integrations: [mdx(), sitemap(), react(), icon()],
-});
+});https

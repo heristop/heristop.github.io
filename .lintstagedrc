@@ -1,15 +1,12 @@
 {
     "*.md": [
-        "pnpm md:lint",
-        "pnpm md:check"
+        "pnpm md:lint"
     ],
-    "*.css": [
+    "*.{css,scss}": [
         "astro format",
         "pnpm stylelint"
     ],
-    "*.astro": [
-        "astro format",
-        "pnpm lint",
-        "pnpm build"
+    "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,astro}": [
+        "oxlint --fix"
     ]
 }

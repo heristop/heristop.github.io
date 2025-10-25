@@ -204,12 +204,12 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 
 <script>
   const setupMobileMenu = (toggle: Element | null, nav: Element | null) => {
-    if (!toggle || !nav) return;
+    if (!toggle || !nav) {return;}
 
     const toggleEl = toggle as HTMLElement;
     const navEl = nav as HTMLElement;
 
-    if (toggleEl.dataset.menuInitialized === 'true') return;
+    if (toggleEl.dataset.menuInitialized === 'true') {return;}
     toggleEl.dataset.menuInitialized = 'true';
 
     toggleEl.addEventListener('click', () => {
@@ -225,7 +225,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     const mobileLinks = navEl.querySelectorAll('.header__link--mobile');
     mobileLinks.forEach(link => {
       const anchor = link as HTMLElement;
-      if (anchor.dataset.menuLinkInitialized === 'true') return;
+      if (anchor.dataset.menuLinkInitialized === 'true') {return;}
       anchor.dataset.menuLinkInitialized = 'true';
 
       anchor.addEventListener('click', () => {
@@ -261,7 +261,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     }
 
     const handler = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
+      if (event.key !== 'Escape') {return;}
 
       const openMenus = document.querySelectorAll(
         '.header__nav--mobile.header__nav--mobile-open'
@@ -280,7 +280,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         nav.classList.remove('header__nav--mobile-open');
       });
 
-      if (openMenus.length) {
+      if (openMenus.length > 0) {
         document.body.classList.remove('mobile-menu-open');
       }
     };
@@ -312,7 +312,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 
     let isVisible = false;
     let resizeTimeout: ReturnType<typeof setTimeout>;
-    let scrollObserver: IntersectionObserver | null = null;
+    let scrollObserver: IntersectionObserver | null;
 
     const isMobile = () => window.innerWidth <= 767;
 
@@ -364,7 +364,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
           });
         },
         {
-          root: null,
+          root: undefined,
           rootMargin: '0px',
           threshold: thresholds
         }
@@ -403,7 +403,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     const searchClose = document.querySelector('.search-close') as HTMLButtonElement | null;
     const searchResults = document.querySelector('#search-results') as HTMLElement | null;
 
-    if (!searchToggles.length || !searchOverlay || !searchInput || !searchClose || !searchResults) return;
+    if (searchToggles.length === 0 || !searchOverlay || !searchInput || !searchClose || !searchResults) {return;}
 
     let blogPosts: any[] = [];
     let searchTimeout: ReturnType<typeof setTimeout>;
@@ -422,6 +422,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 
     const openSearch = () => {
       searchOverlay.setAttribute('aria-hidden', 'false');
+      searchOverlay.removeAttribute('inert');
       searchOverlay.classList.add('search-overlay--open');
       searchToggles.forEach(toggle => toggle.setAttribute('aria-expanded', 'true'));
 
@@ -431,6 +432,12 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         inputWrapper.setAttribute('aria-expanded', 'true');
       }
 
+      // Restore focusable elements
+      const focusableElements = searchOverlay.querySelectorAll('input, button, [tabindex="-1"]');
+      focusableElements.forEach(element => {
+        element.removeAttribute('tabindex');
+      });
+
       document.body.classList.add('search-open');
 
       // Focus input after animation
@@ -438,7 +445,13 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     };
 
     const closeSearch = () => {
+      // Blur any focused elements inside search overlay first
+      if (document.activeElement && searchOverlay.contains(document.activeElement)) {
+        (document.activeElement as HTMLElement).blur();
+      }
+
       searchOverlay.setAttribute('aria-hidden', 'true');
+      searchOverlay.setAttribute('inert', '');
       searchOverlay.classList.remove('search-overlay--open');
       searchToggles.forEach(toggle => toggle.setAttribute('aria-expanded', 'false'));
 
@@ -447,6 +460,12 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       if (inputWrapper) {
         inputWrapper.setAttribute('aria-expanded', 'false');
       }
+
+      // Make all focusable elements non-focusable
+      const focusableElements = searchOverlay.querySelectorAll('input, button, [tabindex]');
+      focusableElements.forEach(element => {
+        element.setAttribute('tabindex', '-1');
+      });
 
       document.body.classList.remove('search-open');
       searchInput.value = '';
@@ -554,7 +573,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       if (searchOverlay.classList.contains('search-overlay--open')) {
         const results = searchResults.querySelectorAll('.search-result');
         const currentFocus = document.activeElement as HTMLElement;
-        let currentIndex = Array.from(results).indexOf(currentFocus as any);
+        let currentIndex = [...results].indexOf(currentFocus as any);
 
         if (e.key === 'ArrowDown') {
           e.preventDefault();
