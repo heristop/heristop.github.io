@@ -2,7 +2,6 @@
 title: "Expose Symfony i18n messages to ExtJS"
 description: "How to expose Symfony i18n messages to ExtJS"
 pubDate: "2014-02-21"
-image: "/images/posts/screen_msgalertfr.png"
 conclusion: "💃 Happy Coding!"
 ---
 

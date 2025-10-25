@@ -6,25 +6,25 @@ import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import GlobalKeyboardNavigation from "../components/GlobalKeyboardNavigation.astro";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import FormattedDate from "../components/FormattedDate.astro";
 import Icon from "../components/Icon.astro";
 
-export type Post = {
+export interface Post {
   data: {
     title: string;
     slug: string;
     pubDate?: Date;
   };
-};
+}
 
-const posts = (await getCollection("blog")).sort(
+const posts = (await getCollection("blog")).toSorted(
   (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0)
 );
 
 const latestPosts = posts.slice(0, 5);
 
-const timestamp = new Date().getTime();
+const timestamp = Date.now();
 const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/assets/img/daily_haiku_card.jpg?t=${timestamp}`;
 
 let haikuDescription = "A fresh haiku will be shared here soon.";
@@ -147,5 +147,60 @@ try {
     </main>
 
     <GlobalKeyboardNavigation />
+
+    <!-- Search Overlay -->
+    <div
+      class="search-overlay"
+      id="search-overlay"
+      aria-hidden="true"
+      inert
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="search-title"
+    >
+      <div class="search-container">
+        <div class="search-header">
+          <h2 id="search-title" class="sr-only">Search reflections</h2>
+          <div class="search-input-component">
+            <div class="search-input-wrapper" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+              <div class="search-input-icon search-input-icon--left">
+                <Icon name="search" size={20} aria-hidden={true} />
+              </div>
+              <input
+                class="search-input"
+                placeholder="Search reflections..."
+                aria-label="Search blog posts"
+                aria-autocomplete="list"
+                aria-controls="search-results"
+                autocomplete="off"
+                spellcheck="false"
+                inputmode="search"
+              />
+              <button
+                class="search-input-icon search-input-icon--right search-close"
+                aria-label="Close search (Escape)"
+                type="button"
+              >
+                <Icon name="x" size={20} aria-hidden={true} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="search-results"
+          id="search-results"
+          role="listbox"
+          aria-label="Search results"
+        >
+          <div class="search-results-content">
+            <div class="search-empty">
+              <Icon name="search" size={32} class="search-empty-icon" aria-hidden={true} />
+              <p>Start typing to search reflections...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

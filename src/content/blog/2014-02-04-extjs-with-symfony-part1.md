@@ -2,7 +2,6 @@
 title: 'Use Sencha ExtJS with Symfony 2, The Viewport'
 description: 'How to use Sencha ExtJS with Symfony 2, The Viewport'
 pubDate: '2014-02-04'
-image: '/images/posts/screen_filter.png'
 conclusion: '💃 Happy Coding!'
 ---
 

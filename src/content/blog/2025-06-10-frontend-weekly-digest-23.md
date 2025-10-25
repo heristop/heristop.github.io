@@ -24,7 +24,7 @@ Hello everyone! This edition of the Frontend Digest covers mid-May through early
 
 ### Vue / Nuxt
 
-* **[Nuxt 2025 Roadmap](https://nuxt.com/blog/2025-roadmap?ref=zazen_code)**: Upcoming Nuxt 4 will include support for Vue 3.4+ features and server components. Alpha expected around June 2025.
+* **[Nuxt 2025 Roadmap]**: Upcoming Nuxt 4 will include support for Vue 3.4+ features and server components. Alpha expected around June 2025.
 
 ## 🛠️ Developer Tools & Libraries
 

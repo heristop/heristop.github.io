@@ -16,19 +16,13 @@ const url = `https://heristop.github.io/blog/${slug}`;
 
 const shareLinks = [
   {
-    name: 'Bluesky',
-    url: `https://bsky.app/intent/compose?text=${encodeURIComponent(title)}%20${encodeURIComponent(url)}`,
-    icon: 'bluesky',
+    icon: 'bluesky', name: 'Bluesky', url: `https://bsky.app/intent/compose?text=${encodeURIComponent(title)}%20${encodeURIComponent(url)}`,
   },
   {
-    name: 'X',
-    url: `https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
-    icon: 'x-twitter',
+    icon: 'x-twitter', name: 'X', url: `https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
   },
   {
-    name: 'LinkedIn',
-    url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
-    icon: 'linkedin',
+    icon: 'linkedin', name: 'LinkedIn', url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
   },
 ];
 ---

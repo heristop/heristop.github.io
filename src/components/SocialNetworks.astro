@@ -4,17 +4,17 @@ import { Image } from "astro:assets";
 
 type NetworkIcon = { src?: string } | string | undefined;
 
-type NetworkType = {
+interface NetworkType {
   title: string;
   description: string;
   url: string;
   group: string;
   iconSrc: NetworkIcon;
-};
+}
 
-type UserConfig = {
+interface UserConfig {
   socialNetworks?: NetworkType[];
-};
+}
 
 async function fetchUserConfig(): Promise<UserConfig> {
   try {
@@ -102,7 +102,7 @@ const delay = 100;
         '.social-network__card[data-prepared="false"]'
       );
 
-      if (!cards.length) {
+      if (cards.length === 0) {
         return;
       }
 
