@@ -5,6 +5,7 @@ import { ClientRouter } from "astro:transitions";
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import GlobalKeyboardNavigation from "../components/GlobalKeyboardNavigation.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 import FormattedDate from "../components/FormattedDate.astro";
 import Icon from "../components/Icon.astro";
@@ -56,7 +57,7 @@ try {
       <div class="site-layout__content site-layout__content--home" id="main-content">
         <section class="latest-posts" aria-labelledby="latest-posts-heading">
           <h2 id="latest-posts-heading" class="section-heading">
-            <Icon name="book" size={24} class="section-heading__icon" />
+            <Icon name="book" size={24} class="section-heading__icon" aria-hidden={true} />
             Latest Reflections
           </h2>
 
@@ -65,13 +66,12 @@ try {
               {
                 latestPosts.map((post) => (
                   <li class="post-list__item latest-posts__item">
-                    {post.data.pubDate && (
-                      <span class="post-list__date latest-posts__date">
-                        <FormattedDate date={post.data.pubDate} />
-                      </span>
-                    )}
-
                     <a class="latest-posts__link" href={`/blog/${post.slug}/`}>
+                      {post.data.pubDate && (
+                        <span class="post-list__date latest-posts__date">
+                          <FormattedDate date={post.data.pubDate} />
+                        </span>
+                      )}
                       <span class="latest-posts__title">{post.data.title}</span>
                       <Icon
                         name="arrow-right"
@@ -95,7 +95,7 @@ try {
 
         <section class="haiku-card-section" aria-labelledby="haiku-heading">
           <h2 id="haiku-heading" class="section-heading">
-            <Icon name="feather" size={24} class="section-heading__icon" />
+            <Icon name="feather" size={24} class="section-heading__icon" aria-hidden={true} />
             Daily Haiku Card
           </h2>
 
@@ -103,7 +103,7 @@ try {
             <div class="haiku-card__frame">
               <div class="haiku-card__meta">
                 <span class="haiku-card__badge">
-                  <Icon name="sunrise" size={16} /> Zen Daily
+                  <Icon name="sunrise" size={16} aria-hidden={true} /> Zen Daily
                 </span>
                 <span class="haiku-card__meta-note">
                   <a class="haiku-card__meta-link" href="/projects">Powered by GutenKu</a>
@@ -131,7 +131,7 @@ try {
                 <div class="haiku-card__content">
                   <p class="haiku-card__quote">{haikuDescription}</p>
 
-                  <div class="haiku-card__divider" aria-hidden="true"></div>
+                  <div class="haiku-card__divider" aria-hidden={true}></div>
 
                   <p class="haiku-card__hint">
                     Breathe in, read slowly, and check back tomorrow to welcome the next verse.
@@ -145,5 +145,7 @@ try {
 
       <Footer />
     </main>
+
+    <GlobalKeyboardNavigation />
   </body>
 </html>
