@@ -338,10 +338,10 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       stickyNav.style.setProperty('--nav-translate', `${translateY}%`);
       stickyNav.style.setProperty('--nav-blur', `${backdropBlur}px`);
 
-      if (opacity > 0.1 && !isVisible) {
+      if (opacity < 0.9 && !isVisible) {
         stickyNav.classList.add('site-header-nav--active');
         isVisible = true;
-      } else if (opacity <= 0.1 && isVisible) {
+      } else if (opacity >= 0.9 && isVisible) {
         stickyNav.classList.remove('site-header-nav--active');
         isVisible = false;
       }
@@ -397,13 +397,13 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
   };
 
   const initializeSearch = () => {
-    const searchToggle = document.querySelector('.header__search-toggle') as HTMLButtonElement | null;
+    const searchToggles = document.querySelectorAll('.header__search-toggle') as NodeListOf<HTMLButtonElement>;
     const searchOverlay = document.querySelector('#search-overlay') as HTMLElement | null;
     const searchInput = document.querySelector('.search-input') as HTMLInputElement | null;
     const searchClose = document.querySelector('.search-close') as HTMLButtonElement | null;
     const searchResults = document.querySelector('#search-results') as HTMLElement | null;
 
-    if (!searchToggle || !searchOverlay || !searchInput || !searchClose || !searchResults) return;
+    if (!searchToggles.length || !searchOverlay || !searchInput || !searchClose || !searchResults) return;
 
     let blogPosts: any[] = [];
     let searchTimeout: ReturnType<typeof setTimeout>;
@@ -423,7 +423,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     const openSearch = () => {
       searchOverlay.setAttribute('aria-hidden', 'false');
       searchOverlay.classList.add('search-overlay--open');
-      searchToggle.setAttribute('aria-expanded', 'true');
+      searchToggles.forEach(toggle => toggle.setAttribute('aria-expanded', 'true'));
 
       // Update combobox state
       const inputWrapper = searchOverlay.querySelector('[role="combobox"]');
@@ -440,7 +440,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     const closeSearch = () => {
       searchOverlay.setAttribute('aria-hidden', 'true');
       searchOverlay.classList.remove('search-overlay--open');
-      searchToggle.setAttribute('aria-expanded', 'false');
+      searchToggles.forEach(toggle => toggle.setAttribute('aria-expanded', 'false'));
 
       // Update combobox state
       const inputWrapper = searchOverlay.querySelector('[role="combobox"]');
@@ -531,7 +531,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     };
 
     // Event listeners
-    searchToggle.addEventListener('click', openSearch);
+    searchToggles.forEach(toggle => toggle.addEventListener('click', openSearch));
     searchClose.addEventListener('click', closeSearch);
 
     searchInput.addEventListener('input', (e) => {
