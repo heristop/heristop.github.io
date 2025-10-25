@@ -2,7 +2,6 @@
 title: 'Use Sencha ExtJS with Symfony 2, The Proxy'
 description: 'How to use Sencha ExtJS with Symfony 2, The Proxy'
 pubDate: '2014-02-09'
-image: '/images/posts/screen_list.png'
 conclusion: '💃 Happy Coding!'
 ---
 

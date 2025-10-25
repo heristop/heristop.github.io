@@ -7,9 +7,9 @@ const { currentPostSlug, conclusion } = Astro.props;
 export async function getRecommendedPosts(currentPostSlug: string) {
   const posts = await getCollection('blog');
   const currentIndex = posts.findIndex(post => post.slug === currentPostSlug);
-  const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
+  const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : undefined;
   const nextPost =
-    currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
+    currentIndex < posts.length - 1 ? posts[currentIndex + 1] : undefined;
 
   let recommendedPosts = posts.filter(post => post.slug !== currentPostSlug);
   recommendedPosts.sort((a, b) => {
@@ -17,9 +17,9 @@ export async function getRecommendedPosts(currentPostSlug: string) {
       return (
         new Date(a.data.pubDate).getTime() - new Date(b.data.pubDate).getTime()
       );
-    } else {
-      return 0;
     }
+      return 0;
+    
   });
   recommendedPosts = recommendedPosts.slice(-3);
 

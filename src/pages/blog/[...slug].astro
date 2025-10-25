@@ -1,5 +1,6 @@
 ---
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import Layout from "../../layouts/Layout.astro";
 import SocialShare from "../../components/SocialShare.astro";
 import RecommendedPosts from "../../components/RecommendedPosts.astro";
@@ -26,14 +27,14 @@ const words = plainText.split(/\s+/).length;
 const readingTime = Math.ceil(words / 200);
 
 // Get all posts for navigation
-const allPosts = (await getCollection("blog")).sort(
+const allPosts = (await getCollection("blog")).toSorted(
   (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0)
 );
 
 // Find current post index and adjacent posts
 const currentIndex = allPosts.findIndex(p => p.slug === currentPostSlug);
-const previousPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
-const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+const previousPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : undefined;
+const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : undefined;
 
 const postData = {
   ...post.data,
@@ -72,6 +73,12 @@ const postData = {
   </div>
 
   <script type="module" is:inline define:vars={{ previousPost, nextPost }}>
+    // Device detection (global scope)
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isMobile = () => window.innerWidth <= 768;
+    const isTablet = () => window.innerWidth > 768 && window.innerWidth <= 1024;
+    const shouldUseTouchNavigation = () => isTouchDevice && (isMobile() || isTablet());
+
     function initKeyboardNavigation() {
       // Clean up any existing global navigation indicators
       const existingGlobalNav = document.querySelector('.global-navigation-indicators');
@@ -80,7 +87,7 @@ const postData = {
       }
 
       // Only enable if we have navigation options
-      if (!previousPost && !nextPost) return;
+      if (!previousPost && !nextPost) {return;}
 
       let isInputFocused = false;
 
@@ -98,35 +105,95 @@ const postData = {
       document.addEventListener('focusin', updateInputFocus);
       document.addEventListener('focusout', updateInputFocus);
 
-      // Handle keyboard navigation
-      document.addEventListener('keydown', (event) => {
-        // Skip if input is focused or modifier keys are pressed
-        if (isInputFocused || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
-          return;
+      // Unified navigation function
+      function navigateToPost(direction) {
+        const targetPost = direction === 'previous' ? previousPost : nextPost;
+        if (targetPost) {
+          showNavigationHint(direction);
+          setTimeout(() => {
+            window.location.href = `/blog/${targetPost.slug}/`;
+          }, 150);
         }
+      }
 
-        switch (event.key) {
-          case 'ArrowLeft':
-            if (previousPost) {
-              event.preventDefault();
-              showNavigationHint('previous');
-              setTimeout(() => {
-                window.location.href = `/blog/${previousPost.slug}/`;
-              }, 150);
-            }
-            break;
+      // Handle keyboard navigation (desktop only)
+      if (!shouldUseTouchNavigation()) {
+        document.addEventListener('keydown', (event) => {
+          // Skip if input is focused or modifier keys are pressed
+          if (isInputFocused || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+            return;
+          }
 
-          case 'ArrowRight':
-            if (nextPost) {
-              event.preventDefault();
-              showNavigationHint('next');
-              setTimeout(() => {
-                window.location.href = `/blog/${nextPost.slug}/`;
-              }, 150);
+          switch (event.key) {
+            case 'ArrowLeft': {
+              if (previousPost) {
+                event.preventDefault();
+                navigateToPost('previous');
+              }
+              break;
             }
-            break;
-        }
-      });
+
+            case 'ArrowRight': {
+              if (nextPost) {
+                event.preventDefault();
+                navigateToPost('next');
+              }
+              break;
+            }
+          }
+        });
+      }
+
+      // Handle touch navigation (mobile/tablet only)
+      if (shouldUseTouchNavigation()) {
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        const swipeThreshold = 100; // Minimum distance for swipe
+        const swipeTimeout = 500; // Maximum time for swipe
+        const verticalThreshold = 50; // Maximum vertical movement
+
+        document.addEventListener('touchstart', (event) => {
+          if (isInputFocused) {return;}
+
+          const touch = event.touches[0];
+          touchStartX = touch.clientX;
+          touchStartY = touch.clientY;
+          touchStartTime = Date.now();
+        }, { passive: true });
+
+        document.addEventListener('touchend', (event) => {
+          if (isInputFocused || !touchStartX) {return;}
+
+          const touch = event.changedTouches[0];
+          const touchEndX = touch.clientX;
+          const touchEndY = touch.clientY;
+          const touchEndTime = Date.now();
+
+          const deltaX = touchEndX - touchStartX;
+          const deltaY = Math.abs(touchEndY - touchStartY);
+          const timeDelta = touchEndTime - touchStartTime;
+
+          // Reset touch tracking
+          touchStartX = 0;
+
+          // Check if this qualifies as a horizontal swipe
+          if (Math.abs(deltaX) > swipeThreshold &&
+              deltaY < verticalThreshold &&
+              timeDelta < swipeTimeout) {
+
+            if (deltaX > 0 && previousPost) {
+              // Swipe right = go to previous post
+              event.preventDefault();
+              navigateToPost('previous');
+            } else if (deltaX < 0 && nextPost) {
+              // Swipe left = go to next post
+              event.preventDefault();
+              navigateToPost('next');
+            }
+          }
+        }, { passive: false });
+      }
 
       // Show brief visual feedback for navigation
       function showNavigationHint(direction) {
@@ -135,7 +202,7 @@ const postData = {
         hint.textContent = direction === 'previous' ? '← Previous' : 'Next →';
         hint.setAttribute('aria-live', 'polite');
 
-        document.body.appendChild(hint);
+        document.body.append(hint);
 
         requestAnimationFrame(() => {
           hint.style.opacity = '1';
@@ -169,8 +236,8 @@ const postData = {
         indicatorHTML.push(`
           <button
             class="post-nav-indicator post-nav-indicator--left"
-            title="Previous: ${previousPost.data.title.replace(/"/g, '&quot;')}"
-            aria-label="Previous post: ${previousPost.data.title.replace(/"/g, '&quot;')}"
+            title="Previous: ${previousPost.data.title.replaceAll(/"/g, '&quot;')}"
+            aria-label="Previous post: ${previousPost.data.title.replaceAll(/"/g, '&quot;')}"
             onclick="window.location.href = '/blog/${previousPost.slug}/'"
           >←</button>
         `);
@@ -180,25 +247,29 @@ const postData = {
         indicatorHTML.push(`
           <button
             class="post-nav-indicator post-nav-indicator--right"
-            title="Next: ${nextPost.data.title.replace(/"/g, '&quot;')}"
-            aria-label="Next post: ${nextPost.data.title.replace(/"/g, '&quot;')}"
+            title="Next: ${nextPost.data.title.replaceAll(/"/g, '&quot;')}"
+            aria-label="Next post: ${nextPost.data.title.replaceAll(/"/g, '&quot;')}"
             onclick="window.location.href = '/blog/${nextPost.slug}/'"
           >→</button>
         `);
       }
 
       if (previousPost || nextPost) {
+        const hintText = shouldUseTouchNavigation()
+          ? 'Swipe left/right to navigate reflections'
+          : 'Use ← → keys to navigate reflections';
+
         indicatorHTML.push(`
           <span
             class="post-nav-hint"
             role="status"
             aria-live="polite"
-          >Use ← → keys to navigate reflections</span>
+          >${hintText}</span>
         `);
       }
 
       indicators.innerHTML = indicatorHTML.join('');
-      document.body.appendChild(indicators);
+      document.body.append(indicators);
     }
 
     // Initialize when DOM is ready

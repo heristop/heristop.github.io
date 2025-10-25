@@ -2,7 +2,7 @@
 
 ## Description
 
-This is a simple project started in 2014 to share knowledge about programming, software development, and other related topics. The project is built using [Astro](https://astro.build). The project is hosted on [GitHub Pages](https://pages.github.com).
+This is a simple project started in 2014 to share knowledge about programming, software development, and other related topics. The project is built using [Astro](https://astro.build). the project is hosted on [github pages](;https://pages.github.com).
 
 ## Installation
 
