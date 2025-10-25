@@ -1,5 +1,6 @@
 ---
 import HeaderLink from './HeaderLink.astro';
+import Icon from './Icon.astro';
 const { image = '/images/zazen-header.png' } = Astro.props;
 import { SITE_TITLE } from '../consts';
 
@@ -44,18 +45,31 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
           >
         </div>
 
-        <!-- Mobile Menu Toggle -->
-        <button
-          class="header__mobile-toggle"
-          aria-label="Toggle navigation menu"
-          aria-expanded="false"
-          aria-controls="initial-nav"
-          type="button"
-        >
-          <span class="header__hamburger"></span>
-          <span class="header__hamburger"></span>
-          <span class="header__hamburger"></span>
-        </button>
+        <!-- Search and Mobile Menu Actions -->
+        <div class="header__actions">
+          <!-- Search Button -->
+          <button
+            class="header__search-toggle"
+            aria-label="Toggle search"
+            aria-expanded="false"
+            type="button"
+          >
+            <Icon name="search" size={20} aria-hidden={true} />
+          </button>
+
+          <!-- Mobile Menu Toggle -->
+          <button
+            class="header__mobile-toggle"
+            aria-label="Toggle navigation menu"
+            aria-expanded="false"
+            aria-controls="initial-nav"
+            type="button"
+          >
+            <span class="header__hamburger"></span>
+            <span class="header__hamburger"></span>
+            <span class="header__hamburger"></span>
+          </button>
+        </div>
 
         <!-- Mobile Navigation -->
         <div
@@ -134,18 +148,31 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         >
       </div>
 
-      <!-- Mobile Menu Toggle -->
-      <button
-        class="header__mobile-toggle"
-        aria-label="Toggle navigation menu"
-        aria-expanded="false"
-        aria-controls="header-nav"
-        type="button"
-      >
-        <span class="header__hamburger"></span>
-        <span class="header__hamburger"></span>
-        <span class="header__hamburger"></span>
-      </button>
+      <!-- Search and Mobile Menu Actions -->
+      <div class="header__actions">
+        <!-- Search Button -->
+        <button
+          class="header__search-toggle"
+          aria-label="Toggle search"
+          aria-expanded="false"
+          type="button"
+        >
+          <Icon name="search" size={20} aria-hidden={true} />
+        </button>
+
+        <!-- Mobile Menu Toggle -->
+        <button
+          class="header__mobile-toggle"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+          aria-controls="header-nav"
+          type="button"
+        >
+          <span class="header__hamburger"></span>
+          <span class="header__hamburger"></span>
+          <span class="header__hamburger"></span>
+        </button>
+      </div>
     </div>
 
     <!-- Mobile Navigation -->
@@ -171,6 +198,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         role="menuitem">About</HeaderLink
       >
     </div>
+
   </div>
 </nav>
 
@@ -282,21 +310,14 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       return;
     }
 
-    let bannerBottom = 0;
     let isVisible = false;
-    let ticking = false;
     let resizeTimeout: ReturnType<typeof setTimeout>;
+    let scrollObserver: IntersectionObserver | null = null;
 
-    const updateBannerPosition = () => {
-      const bannerRect = banner.getBoundingClientRect();
-      bannerBottom = bannerRect.bottom + window.scrollY;
-    };
+    const isMobile = () => window.innerWidth <= 767;
 
-    const updateStickyNav = () => {
-      const currentScrollY = window.scrollY;
-      const isMobile = window.innerWidth <= 767;
-
-      if (isMobile) {
+    const updateNavVisibility = (progress: number) => {
+      if (isMobile()) {
         stickyNav.style.setProperty('--nav-opacity', '1');
         stickyNav.style.setProperty('--nav-translate', '0%');
         stickyNav.style.setProperty('--nav-blur', '0px');
@@ -305,74 +326,272 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
           stickyNav.classList.add('site-header-nav--active');
           isVisible = true;
         }
-
-        ticking = false;
         return;
       }
 
-      const activationZone = bannerBottom - 200;
-      const fullyVisibleZone = bannerBottom - 50;
-
-      let opacity = 0;
-      let translateY = -100;
-      let backdropBlur = 0;
-
-      if (currentScrollY >= activationZone) {
-        const revealProgress = Math.min(
-          (currentScrollY - activationZone) / (fullyVisibleZone - activationZone),
-          1
-        );
-
-        opacity = revealProgress;
-        translateY = -100 + revealProgress * 100;
-        backdropBlur = revealProgress * 20;
-
-        if (currentScrollY >= fullyVisibleZone) {
-          translateY = 0;
-          opacity = 1;
-        }
-      }
+      // Progressive reveal based on banner scroll progress
+      const opacity = Math.max(0, Math.min(1, 1 - progress));
+      const translateY = Math.max(-100, Math.min(0, (progress - 0.7) * 333));
+      const backdropBlur = Math.max(0, Math.min(20, (1 - progress) * 20));
 
       stickyNav.style.setProperty('--nav-opacity', opacity.toString());
       stickyNav.style.setProperty('--nav-translate', `${translateY}%`);
       stickyNav.style.setProperty('--nav-blur', `${backdropBlur}px`);
 
-      if (opacity > 0 && !isVisible) {
+      if (opacity > 0.1 && !isVisible) {
         stickyNav.classList.add('site-header-nav--active');
         isVisible = true;
-      } else if (opacity <= 0 && isVisible) {
+      } else if (opacity <= 0.1 && isVisible) {
         stickyNav.classList.remove('site-header-nav--active');
         isVisible = false;
       }
-
-      ticking = false;
     };
 
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(updateStickyNav);
-        ticking = true;
+    const initializeObserver = () => {
+      // Clean up existing observer
+      if (scrollObserver) {
+        scrollObserver.disconnect();
       }
+
+      // Create observer with multiple thresholds for smooth animation
+      const thresholds = Array.from({ length: 21 }, (_, i) => i * 0.05);
+
+      scrollObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const progress = 1 - entry.intersectionRatio;
+            updateNavVisibility(progress);
+          });
+        },
+        {
+          root: null,
+          rootMargin: '0px',
+          threshold: thresholds
+        }
+      );
+
+      scrollObserver.observe(banner);
     };
 
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        updateBannerPosition();
-        updateStickyNav();
+        // Reinitialize observer on resize for accuracy
+        initializeObserver();
+        updateNavVisibility(0);
       }, 100);
     };
 
     window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Initialize the observer
+    initializeObserver();
 
     (window as any).__headerStickyCleanup = () => {
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleScroll);
+      if (scrollObserver) {
+        scrollObserver.disconnect();
+        scrollObserver = null;
+      }
+    };
+  };
+
+  const initializeSearch = () => {
+    const searchToggle = document.querySelector('.header__search-toggle') as HTMLButtonElement | null;
+    const searchOverlay = document.querySelector('#search-overlay') as HTMLElement | null;
+    const searchInput = document.querySelector('.search-input') as HTMLInputElement | null;
+    const searchClose = document.querySelector('.search-close') as HTMLButtonElement | null;
+    const searchResults = document.querySelector('#search-results') as HTMLElement | null;
+
+    if (!searchToggle || !searchOverlay || !searchInput || !searchClose || !searchResults) return;
+
+    let blogPosts: any[] = [];
+    let searchTimeout: ReturnType<typeof setTimeout>;
+
+    // Fetch blog posts data
+    const loadBlogPosts = async () => {
+      try {
+        const response = await fetch('/api/search-posts.json');
+        if (response.ok) {
+          blogPosts = await response.json();
+        }
+      } catch (error) {
+        console.warn('Could not load blog posts for search:', error);
+      }
     };
 
-    updateBannerPosition();
-    updateStickyNav();
+    const openSearch = () => {
+      searchOverlay.setAttribute('aria-hidden', 'false');
+      searchOverlay.classList.add('search-overlay--open');
+      searchToggle.setAttribute('aria-expanded', 'true');
+
+      // Update combobox state
+      const inputWrapper = searchOverlay.querySelector('[role="combobox"]');
+      if (inputWrapper) {
+        inputWrapper.setAttribute('aria-expanded', 'true');
+      }
+
+      document.body.classList.add('search-open');
+
+      // Focus input after animation
+      setTimeout(() => searchInput.focus(), 150);
+    };
+
+    const closeSearch = () => {
+      searchOverlay.setAttribute('aria-hidden', 'true');
+      searchOverlay.classList.remove('search-overlay--open');
+      searchToggle.setAttribute('aria-expanded', 'false');
+
+      // Update combobox state
+      const inputWrapper = searchOverlay.querySelector('[role="combobox"]');
+      if (inputWrapper) {
+        inputWrapper.setAttribute('aria-expanded', 'false');
+      }
+
+      document.body.classList.remove('search-open');
+      searchInput.value = '';
+      showEmptyState();
+    };
+
+    const showEmptyState = () => {
+      searchResults.innerHTML = `
+        <div class="search-results-content">
+          <div class="search-empty">
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-empty-icon" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <p>Start typing to search reflections...</p>
+          </div>
+        </div>
+      `;
+    };
+
+    const performSearch = (query: string) => {
+      if (!query.trim()) {
+        showEmptyState();
+        return;
+      }
+
+      const results = blogPosts.filter(post =>
+        post.title.toLowerCase().includes(query.toLowerCase()) ||
+        (post.body && post.body.toLowerCase().includes(query.toLowerCase()))
+      ).slice(0, 6);
+
+      if (results.length === 0) {
+        searchResults.innerHTML = `
+          <div class="search-results-content">
+            <div class="search-empty">
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-empty-icon" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+              </svg>
+              <p>No reflections found for "${query}"</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Helper function to escape HTML
+      const escapeHtml = (text: string) => {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      };
+
+      // Helper function to format date like articles (10 Sept 2025)
+      const formatDate = (date: string | Date) => {
+        const postDate = new Date(date);
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+        const day = postDate.getDate();
+        const month = months[postDate.getMonth()];
+        const year = postDate.getFullYear();
+        return `${day} ${month} ${year}`;
+      };
+
+      searchResults.innerHTML = `
+        <div class="search-results-content">
+          ${results.map((post) => `
+            <a
+              href="/blog/${post.slug}/"
+              class="search-result"
+              tabindex="0"
+              role="option"
+              aria-label="Search result: ${escapeHtml(post.title)}"
+            >
+              <div class="search-result-content">
+                <h3 class="search-result-title">${escapeHtml(post.title)}</h3>
+                ${post.pubDate ? `<time class="search-result-date">${formatDate(post.pubDate)}</time>` : ''}
+              </div>
+            </a>
+          `).join('')}
+        </div>
+      `;
+    };
+
+    // Event listeners
+    searchToggle.addEventListener('click', openSearch);
+    searchClose.addEventListener('click', closeSearch);
+
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      const query = (e.target as HTMLInputElement).value;
+      searchTimeout = setTimeout(() => performSearch(query), 150);
+    });
+
+    // Enhanced keyboard navigation and shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && searchOverlay.classList.contains('search-overlay--open')) {
+        closeSearch();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        openSearch();
+      }
+
+      // Arrow key navigation for search results
+      if (searchOverlay.classList.contains('search-overlay--open')) {
+        const results = searchResults.querySelectorAll('.search-result');
+        const currentFocus = document.activeElement as HTMLElement;
+        let currentIndex = Array.from(results).indexOf(currentFocus as any);
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          currentIndex = Math.min(currentIndex + 1, results.length - 1);
+          if (results[currentIndex]) {
+            (results[currentIndex] as HTMLElement).focus();
+          }
+        }
+
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (currentIndex <= 0) {
+            searchInput.focus();
+          } else {
+            currentIndex = Math.max(currentIndex - 1, 0);
+            if (results[currentIndex]) {
+              (results[currentIndex] as HTMLElement).focus();
+            }
+          }
+        }
+
+        if (e.key === 'Enter' && currentFocus && currentFocus.classList.contains('header__search-result')) {
+          e.preventDefault();
+          currentFocus.click();
+        }
+      }
+    });
+
+    // Click outside to close
+    searchOverlay.addEventListener('click', (e) => {
+      if (e.target === searchOverlay) {
+        closeSearch();
+      }
+    });
+
+    // Load posts on initialization
+    loadBlogPosts();
   };
 
   const initializeHeader = () => {
@@ -389,6 +608,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     initializeMobileMenus();
     setupEscapeListener();
     initializeStickyNav();
+    initializeSearch();
     document.body.classList.remove('mobile-menu-open');
   };
 

@@ -106,7 +106,6 @@ for (let x = 1; x <= 12; x++) {
 }
 
 export default function ZazenWorld() {
-  const [isModalOpen] = useState(true);
 
   const [map, setMap] = useState<MapTile[]>(initialMap);
   const [characterPosition, setCharacterPosition] = useState<{
@@ -233,10 +232,15 @@ export default function ZazenWorld() {
     <div className="zazen-world-container">
       <div className="zazen-world__header">
         <h1 className="zazen-world__title">Zazen World</h1>
+        <p className="zazen-world__instructions" id="game-instructions">
+          Use WASD keys or arrow keys to move your character around the world.
+          Click the compass buttons or use keyboard navigation to explore.
+        </p>
       </div>
 
       {/* Inputs for movement */}
-      <div className="zazen-world__compass">
+      <div className="zazen-world__compass" role="group" aria-labelledby="compass-label">
+        <div className="sr-only" id="compass-label">Movement controls</div>
         <div
           className="zazen-world__compass-container"
         >
@@ -281,11 +285,17 @@ export default function ZazenWorld() {
 
       <div
         className="zazen-world__map"
+        role="application"
+        aria-label="Interactive game world map"
+        aria-describedby="game-instructions"
         style={{
           width: `${mapDimensions.width}px`,
           height: `${mapDimensions.height}px`,
         }}
       >
+        <div className="sr-only" aria-live="polite" id="position-announcer">
+          {characterPosition && `Character is at position ${characterPosition.x}, ${characterPosition.y}`}
+        </div>
         {map.map((tile, index) => (
           <div
             className="zazen-world__tile"

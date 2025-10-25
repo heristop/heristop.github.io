@@ -1,0 +1,173 @@
+---
+const currentPath = Astro.url.pathname;
+
+// Main navigation pages in order
+const navPages = [
+  { path: '/', title: 'Home' },
+  { path: '/blog/', title: 'Blog' },
+  { path: '/projects/', title: 'Projects' },
+  { path: '/about/', title: 'About' }
+];
+
+// Find current page index
+const getCurrentPageIndex = (path: string) => {
+  // Normalize paths for comparison
+  const normalizedPath = path === '/' ? '/' : path.replace(/\/$/, '/');
+
+  // Special handling for blog index
+  if (path === '/blog' || path === '/blog/') {
+    return navPages.findIndex(page => page.path === '/blog/');
+  }
+
+  return navPages.findIndex(page => page.path === normalizedPath);
+};
+
+const currentIndex = getCurrentPageIndex(currentPath);
+
+// Calculate previous and next pages (cyclical)
+const previousIndex = currentIndex > 0 ? currentIndex - 1 : navPages.length - 1;
+const nextIndex = currentIndex < navPages.length - 1 ? currentIndex + 1 : 0;
+
+const previousPage = currentIndex >= 0 ? navPages[previousIndex] : null;
+const nextPage = currentIndex >= 0 ? navPages[nextIndex] : null;
+---
+
+<script type="module" is:inline define:vars={{ previousPage, nextPage, currentIndex }}>
+  function initGlobalKeyboardNavigation() {
+    // Only enable if we're on a main navigation page
+    if (currentIndex < 0) return;
+
+    let isInputFocused = false;
+
+    function updateInputFocus() {
+      const activeElement = document.activeElement;
+      isInputFocused = activeElement && (
+        activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.tagName === 'SELECT' ||
+        activeElement.contentEditable === 'true'
+      );
+    }
+
+    // Listen for focus/blur on input elements
+    document.addEventListener('focusin', updateInputFocus);
+    document.addEventListener('focusout', updateInputFocus);
+
+    // Handle keyboard navigation
+    document.addEventListener('keydown', (event) => {
+      // Skip if input is focused or modifier keys are pressed
+      if (isInputFocused || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          if (previousPage) {
+            event.preventDefault();
+            showNavigationHint('previous', previousPage.title);
+            setTimeout(() => {
+              window.location.href = previousPage.path;
+            }, 150);
+          }
+          break;
+
+        case 'ArrowRight':
+          if (nextPage) {
+            event.preventDefault();
+            showNavigationHint('next', nextPage.title);
+            setTimeout(() => {
+              window.location.href = nextPage.path;
+            }, 150);
+          }
+          break;
+      }
+    });
+
+    // Show brief visual feedback for navigation
+    function showNavigationHint(direction, pageTitle) {
+      const hint = document.createElement('div');
+      hint.className = `navigation-hint navigation-hint--${direction}`;
+      hint.textContent = direction === 'previous' ? `← ${pageTitle}` : `${pageTitle} →`;
+      hint.setAttribute('aria-live', 'polite');
+
+      document.body.appendChild(hint);
+
+      requestAnimationFrame(() => {
+        hint.style.opacity = '1';
+        hint.style.transform = 'translateY(0)';
+      });
+
+      setTimeout(() => {
+        hint.style.opacity = '0';
+        hint.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+          if (hint.parentNode) {
+            hint.parentNode.removeChild(hint);
+          }
+        }, 300);
+      }, 1000);
+    }
+
+    // Add navigation indicators to page
+    createGlobalNavigationIndicators();
+  }
+
+  function createGlobalNavigationIndicators() {
+    // Check if indicators already exist to avoid duplicates
+    if (document.querySelector('.global-navigation-indicators')) {
+      return;
+    }
+
+    const indicators = document.createElement('div');
+    indicators.className = 'global-navigation-indicators';
+    indicators.setAttribute('role', 'region');
+    indicators.setAttribute('aria-label', 'Page navigation');
+
+    const indicatorHTML = [];
+
+    if (previousPage) {
+      indicatorHTML.push(`
+        <button
+          class="post-nav-indicator global-nav-indicator global-nav-indicator--left"
+          title="Previous: ${previousPage.title}"
+          aria-label="Previous page: ${previousPage.title}"
+          onclick="window.location.href = '${previousPage.path}'"
+        >←</button>
+      `);
+    }
+
+    if (nextPage) {
+      indicatorHTML.push(`
+        <button
+          class="post-nav-indicator global-nav-indicator global-nav-indicator--right"
+          title="Next: ${nextPage.title}"
+          aria-label="Next page: ${nextPage.title}"
+          onclick="window.location.href = '${nextPage.path}'"
+        >→</button>
+      `);
+    }
+
+    if (previousPage || nextPage) {
+      indicatorHTML.push(`
+        <span
+          class="post-nav-hint global-nav-hint"
+          role="status"
+          aria-live="polite"
+        >Use ← → keys to navigate pages</span>
+      `);
+    }
+
+    indicators.innerHTML = indicatorHTML.join('');
+    document.body.appendChild(indicators);
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGlobalKeyboardNavigation);
+  } else {
+    initGlobalKeyboardNavigation();
+  }
+
+  // Reinitialize on page navigation (for SPA-like behavior)
+  document.addEventListener('astro:page-load', initGlobalKeyboardNavigation);
+</script>

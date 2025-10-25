@@ -3,6 +3,8 @@ import { getCollection, type CollectionEntry } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import SocialShare from "../../components/SocialShare.astro";
 import RecommendedPosts from "../../components/RecommendedPosts.astro";
+import FormattedDate from "../../components/FormattedDate.astro";
+import Icon from "../../components/Icon.astro";
 
 const currentPostSlug = Astro.props.slug;
 
@@ -23,6 +25,16 @@ const plainText = post.body;
 const words = plainText.split(/\s+/).length;
 const readingTime = Math.ceil(words / 200);
 
+// Get all posts for navigation
+const allPosts = (await getCollection("blog")).sort(
+  (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0)
+);
+
+// Find current post index and adjacent posts
+const currentIndex = allPosts.findIndex(p => p.slug === currentPostSlug);
+const previousPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
+const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+
 const postData = {
   ...post.data,
   readingTime,
@@ -31,7 +43,17 @@ const postData = {
 
 <Layout {...postData}>
   <div class="post-page">
-    <div class="post-page__header">
+    <div class="post-page__meta">
+      <div class="post-page__meta-info">
+        <div class="post-page__date">
+          <Icon name="calendar" size={16} class="post-page__date-icon" aria-hidden={true} />
+          {post.data.pubDate && <FormattedDate date={post.data.pubDate} showYear />}
+        </div>
+        <div class="post-page__reading-time">
+          <Icon name="book" size={16} class="post-page__reading-icon" aria-hidden={true} />
+          <span>{readingTime} min read</span>
+        </div>
+      </div>
       <div class="post-page__share">
         <SocialShare
           class="post-page__share-links"
@@ -39,13 +61,6 @@ const postData = {
           slug={currentPostSlug}
           minimal
         />
-      </div>
-
-      <div class="post-page__reading-time u-text-muted">
-        <svg xmlns="http://www.w3.org/2000/svg" class="post-page__reading-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-        </svg>
-        <span>{readingTime} min read</span>
       </div>
     </div>
 
@@ -55,4 +70,145 @@ const postData = {
       <RecommendedPosts {currentPostSlug} {conclusion} />
     </blockquote>
   </div>
+
+  <script type="module" is:inline define:vars={{ previousPost, nextPost }}>
+    function initKeyboardNavigation() {
+      // Clean up any existing global navigation indicators
+      const existingGlobalNav = document.querySelector('.global-navigation-indicators');
+      if (existingGlobalNav) {
+        existingGlobalNav.remove();
+      }
+
+      // Only enable if we have navigation options
+      if (!previousPost && !nextPost) return;
+
+      let isInputFocused = false;
+
+      function updateInputFocus() {
+        const activeElement = document.activeElement;
+        isInputFocused = activeElement && (
+          activeElement.tagName === 'INPUT' ||
+          activeElement.tagName === 'TEXTAREA' ||
+          activeElement.tagName === 'SELECT' ||
+          activeElement.contentEditable === 'true'
+        );
+      }
+
+      // Listen for focus/blur on input elements
+      document.addEventListener('focusin', updateInputFocus);
+      document.addEventListener('focusout', updateInputFocus);
+
+      // Handle keyboard navigation
+      document.addEventListener('keydown', (event) => {
+        // Skip if input is focused or modifier keys are pressed
+        if (isInputFocused || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+          return;
+        }
+
+        switch (event.key) {
+          case 'ArrowLeft':
+            if (previousPost) {
+              event.preventDefault();
+              showNavigationHint('previous');
+              setTimeout(() => {
+                window.location.href = `/blog/${previousPost.slug}/`;
+              }, 150);
+            }
+            break;
+
+          case 'ArrowRight':
+            if (nextPost) {
+              event.preventDefault();
+              showNavigationHint('next');
+              setTimeout(() => {
+                window.location.href = `/blog/${nextPost.slug}/`;
+              }, 150);
+            }
+            break;
+        }
+      });
+
+      // Show brief visual feedback for navigation
+      function showNavigationHint(direction) {
+        const hint = document.createElement('div');
+        hint.className = `navigation-hint navigation-hint--${direction}`;
+        hint.textContent = direction === 'previous' ? '← Previous' : 'Next →';
+        hint.setAttribute('aria-live', 'polite');
+
+        document.body.appendChild(hint);
+
+        requestAnimationFrame(() => {
+          hint.style.opacity = '1';
+          hint.style.transform = 'translateY(0)';
+        });
+
+        setTimeout(() => {
+          hint.style.opacity = '0';
+          hint.style.transform = 'translateY(-10px)';
+          setTimeout(() => {
+            if (hint.parentNode) {
+              hint.parentNode.removeChild(hint);
+            }
+          }, 300);
+        }, 1000);
+      }
+
+      // Add navigation hints to page
+      createNavigationIndicators();
+    }
+
+    function createNavigationIndicators() {
+      const indicators = document.createElement('div');
+      indicators.className = 'post-navigation-indicators';
+      indicators.setAttribute('role', 'region');
+      indicators.setAttribute('aria-label', 'Blog post navigation');
+
+      const indicatorHTML = [];
+
+      if (previousPost) {
+        indicatorHTML.push(`
+          <button
+            class="post-nav-indicator post-nav-indicator--left"
+            title="Previous: ${previousPost.data.title.replace(/"/g, '&quot;')}"
+            aria-label="Previous post: ${previousPost.data.title.replace(/"/g, '&quot;')}"
+            onclick="window.location.href = '/blog/${previousPost.slug}/'"
+          >←</button>
+        `);
+      }
+
+      if (nextPost) {
+        indicatorHTML.push(`
+          <button
+            class="post-nav-indicator post-nav-indicator--right"
+            title="Next: ${nextPost.data.title.replace(/"/g, '&quot;')}"
+            aria-label="Next post: ${nextPost.data.title.replace(/"/g, '&quot;')}"
+            onclick="window.location.href = '/blog/${nextPost.slug}/'"
+          >→</button>
+        `);
+      }
+
+      if (previousPost || nextPost) {
+        indicatorHTML.push(`
+          <span
+            class="post-nav-hint"
+            role="status"
+            aria-live="polite"
+          >Use ← → keys to navigate reflections</span>
+        `);
+      }
+
+      indicators.innerHTML = indicatorHTML.join('');
+      document.body.appendChild(indicators);
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initKeyboardNavigation);
+    } else {
+      initKeyboardNavigation();
+    }
+
+    // Reinitialize on page navigation (for SPA-like behavior)
+    document.addEventListener('astro:page-load', initKeyboardNavigation);
+  </script>
 </Layout>
