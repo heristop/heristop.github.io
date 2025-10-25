@@ -886,25 +886,30 @@ hr {
   right: 0;
   z-index: 1000;
 
+  &--active {
+    visibility: visible;
+    pointer-events: all;
+  }
+
   /* CSS Custom Properties for smooth JS control */
   --nav-opacity: 0;
   --nav-translate: -100%;
   --nav-blur: 0px;
 
   /* Smooth transform and opacity */
-  opacity: var(--nav-opacity);
+  opacity: 1;
   transform: translateY(var(--nav-translate));
 
   /* Enhanced glassmorphism background */
-  background: rgb(245 238 230 / calc(0.25 + var(--nav-opacity) * 0.55));
-  backdrop-filter: blur(var(--nav-blur)) saturate(calc(1.2 + var(--nav-opacity) * 0.5)) brightness(calc(1 + var(--nav-opacity) * 0.1));
-  border-bottom: 1px solid rgb(255 255 255 / calc(0.2 + var(--nav-opacity) * 0.3));
+  background: rgb(245 238 230 / calc(0.9 + var(--nav-opacity) * 0.1));
+  backdrop-filter: blur(calc(20px + var(--nav-blur))) saturate(calc(1.2 + var(--nav-opacity) * 0.5)) brightness(calc(1 + var(--nav-opacity) * 0.1));
+  border-bottom: none;
 
   /* Enhanced shadow with depth and glow */
   box-shadow:
     0 4px 32px rgb(0 0 0 / calc(0.02 + var(--nav-opacity) * 0.08)),
-    0 1px 0 rgb(255 255 255 / calc(0.1 + var(--nav-opacity) * 0.2)) inset,
-    0 8px 40px rgb(245 238 230 / calc(0.1 + var(--nav-opacity) * 0.15));
+    0 8px 40px rgb(245 238 230 / calc(0.1 + var(--nav-opacity) * 0.15)),
+    0 1px 3px rgb(0 0 0 / calc(0.05 + var(--nav-opacity) * 0.15));
 
   /* Smooth transitions for all properties */
   transition:
@@ -1085,12 +1090,12 @@ hr {
     box-shadow:
       0 20px 40px rgb(0 0 0 / 15%),
       0 1px 0 rgb(255 255 255 / 40%) inset;
-    backdrop-filter: blur(24px) saturate(1.3) brightness(1.05);
-    position: absolute;
+    backdrop-filter: none;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
+    z-index: 9999;
     margin: 0 var(--space-sm);
     transform: translateY(-100%);
     opacity: 0;
@@ -1335,6 +1340,7 @@ body.mobile-menu-open {
   z-index: 999999;
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
   transition:
     opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
     visibility 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1347,6 +1353,7 @@ body.mobile-menu-open {
   &--open {
     opacity: 1;
     visibility: visible;
+    pointer-events: all;
   }
 
   &[aria-hidden="true"] {
@@ -1805,17 +1812,6 @@ body.mobile-menu-open {
 /* Mobile menu backdrop overlay */
 .mobile-menu-open {
   overflow: hidden;
-
-  &::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: rgb(0 0 0 / 20%);
-    backdrop-filter: blur(4px);
-    z-index: 999;
-    opacity: 0;
-    animation: backdrop-fade-in 0.3s ease forwards;
-  }
 }
 
 @keyframes backdrop-fade-in {
