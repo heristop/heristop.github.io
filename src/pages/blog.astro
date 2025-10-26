@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import Icon from "../components/Icon.astro";
+import ZenSlide from "../components/zen/ZenSlide.astro";
 
 export interface Post {
   data: {
@@ -78,21 +79,25 @@ function timeAgo(date: Date) {
 ---
 
 <Layout title="All Posts" description="Blog">
-  <blockquote class="blog-archive__subscribe">
-    <Icon name="rss" size={32} class="blog-archive__subscribe-icon" aria-hidden={true} />
+  <ZenSlide direction="up" delay={200}>
+    <blockquote class="blog-archive__subscribe">
+      <Icon name="rss" size={32} class="blog-archive__subscribe-icon" aria-hidden={true} />
 
-    <span>Subscribe to <a href="/rss.xml">RSS</a>.</span>
-  </blockquote>
+      <span>Subscribe to <a href="/rss.xml">RSS</a>.</span>
+    </blockquote>
+  </ZenSlide>
 
   <div class="blog-archive">
     {
-      sortedYears.map((year) => (
+      sortedYears.map((year, yearIndex) => (
         <section class="blog-archive__year" aria-labelledby={`year-${year}`}>
-          <h2 id={`year-${year}`} class="blog-archive__year-heading">
-            <Icon name="archive" size={20} class="blog-archive__year-icon" aria-hidden={true} />
+          <ZenSlide direction="up" delay={400 + yearIndex * 200}>
+            <h2 id={`year-${year}`} class="blog-archive__year-heading">
+              <Icon name="archive" size={20} class="blog-archive__year-icon" aria-hidden={true} />
 
-            {year}
-          </h2>
+              {year}
+            </h2>
+          </ZenSlide>
 
           <div class="blog-archive__grid">
             {postsByYear[year].map(

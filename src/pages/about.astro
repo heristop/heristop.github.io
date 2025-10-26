@@ -2,21 +2,27 @@
 import SocialNetworks from "../components/SocialNetworks.astro";
 import Layout from "../layouts/Layout.astro";
 import Icon from "../components/Icon.astro";
+import ZenSlide from "../components/zen/ZenSlide.astro";
+import ZenStagger from "../components/zen/ZenStagger.astro";
+import ZenFade from "../components/zen/ZenFade.astro";
 ---
 
 <Layout title="About" description="About page">
-  <blockquote>
-    Hello, I'm <b>heristop</b>! <span class="about-info__wave">👋</span> I'm a Chapter Lead &
-    Web Development Expert Passionate about crafting high-performance web applications,
-    I lead teams of talented developers. My expertise spans JavaScript, TypeScript,
-    Vue, React, Node.js, PHP, and Symfony. Constantly pursuing innovation, I strive
-    to blend technical leadership with cutting-edge knowledge to design state-of-the-art
-    web solutions.
-  </blockquote>
+  <ZenSlide direction="up" delay={200}>
+    <blockquote>
+      Hello, I'm <b>heristop</b>! <span class="about-info__wave">👋</span> I'm a Chapter Lead &
+      Web Development Expert Passionate about crafting high-performance web applications,
+      I lead teams of talented developers. My expertise spans JavaScript, TypeScript,
+      Vue, React, Node.js, PHP, and Symfony. Constantly pursuing innovation, I strive
+      to blend technical leadership with cutting-edge knowledge to design state-of-the-art
+      web solutions.
+    </blockquote>
+  </ZenSlide>
 
   <section class="about-info" aria-labelledby="personal-info-heading">
     <h2 class="sr-only" id="personal-info-heading">Personal Information</h2>
-    <ul class="about-info__list">
+    <ZenStagger>
+      <ul class="about-info__list">
       <li class="about-info__item about-info__item--with-icon">
         <Icon name="briefcase" size={20} aria-hidden={true} />
         <div class="about-info__content">
@@ -24,17 +30,22 @@ import Icon from "../components/Icon.astro";
           <span class="about-info__subtitle">@Carrefour SI</span>
         </div>
       </li>
-      <li class="about-info__item"><Icon name="calendar" size={20} aria-hidden={true} /> 4 November</li>
-      <li class="about-info__item"><Icon name="map-pin" size={20} aria-hidden={true} /> Paris, France</li>
-      <li class="about-info__item"><Icon name="link" size={20} aria-hidden={true} /> <a href="https://heristop.github.io/about">Permalink</a></li>
-    </ul>
+        <li class="about-info__item"><Icon name="calendar" size={20} aria-hidden={true} /> 4 November</li>
+        <li class="about-info__item"><Icon name="map-pin" size={20} aria-hidden={true} /> Paris, France</li>
+        <li class="about-info__item"><Icon name="link" size={20} aria-hidden={true} /> <a href="https://heristop.github.io/about">Permalink</a></li>
+      </ul>
+    </ZenStagger>
   </section>
 
-  <h2 class="icon-heading social-heading">
-    <Icon name="share-2" size={20} /> Zen Broadcasts
-  </h2>
+  <ZenSlide direction="up" delay={800}>
+    <h2 class="icon-heading social-heading">
+      <Icon name="share-2" size={20} /> Zen Broadcasts
+    </h2>
+  </ZenSlide>
 
-  <SocialNetworks filter="socialnetwork" />
+  <ZenFade delay={1000}>
+    <SocialNetworks filter="socialnetwork" />
+  </ZenFade>
 </Layout>
 
 <style>

@@ -1,0 +1,28 @@
+---
+interface Props {
+  direction?: 'up' | 'down' | 'left' | 'right';
+  delay?: number;
+  duration?: 'fast' | 'normal' | 'slow';
+  className?: string;
+  [key: string]: any;
+}
+
+const {
+  direction = 'up',
+  delay = 0,
+  duration = 'normal',
+  className = '',
+  ...rest
+} = Astro.props;
+
+const slideClass = `zen-slide-${direction}`;
+const delayClass = delay > 0 ? `zen-delay-${delay}` : '';
+const durationClass = duration !== 'normal' ? `zen-duration-${duration}` : '';
+---
+
+<div
+  class={`${slideClass} ${delayClass} ${durationClass} ${className}`}
+  {...rest}
+>
+  <slot />
+</div>

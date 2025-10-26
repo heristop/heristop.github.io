@@ -1,0 +1,25 @@
+---
+interface Props {
+  delay?: number;
+  duration?: 'fast' | 'normal' | 'slow';
+  className?: string;
+  [key: string]: any;
+}
+
+const {
+  delay = 0,
+  duration = 'normal',
+  className = '',
+  ...rest
+} = Astro.props;
+
+const delayClass = delay > 0 ? `zen-delay-${delay}` : '';
+const durationClass = duration !== 'normal' ? `zen-duration-${duration}` : '';
+---
+
+<div
+  class={`zen-fade ${delayClass} ${durationClass} ${className}`}
+  {...rest}
+>
+  <slot />
+</div>

@@ -2,14 +2,22 @@
 import SocialNetworks from "../components/SocialNetworks.astro";
 import Layout from "../layouts/Layout.astro";
 import Icon from "../components/Icon.astro";
+import ZenSlide from "../components/zen/ZenSlide.astro";
+import ZenFade from "../components/zen/ZenFade.astro";
 ---
 
 <Layout title="Projects" description="Projects page">
-  <blockquote>Welcome to my Digital Playground.</blockquote>
+  <ZenSlide direction="up" delay={200}>
+    <blockquote>Welcome to my Digital Playground.</blockquote>
+  </ZenSlide>
 
-  <h2 class="projects-page__heading icon-heading links-heading">
-    <Icon name="compass" size={20} /> Compass Links
-  </h2>
+  <ZenSlide direction="up" delay={400}>
+    <h2 class="projects-page__heading icon-heading links-heading">
+      <Icon name="compass" size={20} /> Compass Links
+    </h2>
+  </ZenSlide>
 
-  <SocialNetworks filter="project" />
+  <ZenFade delay={600}>
+    <SocialNetworks filter="project" />
+  </ZenFade>
 </Layout>
