@@ -9,6 +9,8 @@ import GlobalKeyboardNavigation from "../components/GlobalKeyboardNavigation.ast
 import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import FormattedDate from "../components/FormattedDate.astro";
 import Icon from "../components/Icon.astro";
+import ZenFade from "../components/zen/ZenFade.astro";
+import ZenSlide from "../components/zen/ZenSlide.astro";
 
 export interface Post {
   data: {
@@ -56,90 +58,100 @@ try {
 
       <div class="site-layout__content site-layout__content--home" id="main-content">
         <section class="latest-posts" aria-labelledby="latest-posts-heading">
-          <h2 id="latest-posts-heading" class="section-heading">
-            <Icon name="book" size={24} class="section-heading__icon" aria-hidden={true} />
-            Latest Reflections
-          </h2>
+          <ZenSlide direction="up" delay={200}>
+            <h2 id="latest-posts-heading" class="section-heading">
+              <Icon name="book" size={24} class="section-heading__icon" aria-hidden={true} />
+              Latest Reflections
+            </h2>
+          </ZenSlide>
 
           <div class="latest-posts__panel">
-            <ul class="post-list latest-posts__list">
-              {
-                latestPosts.map((post) => (
-                  <li class="post-list__item latest-posts__item">
-                    <a class="latest-posts__link" href={`/blog/${post.slug}/`}>
-                      {post.data.pubDate && (
-                        <span class="post-list__date latest-posts__date">
-                          <FormattedDate date={post.data.pubDate} />
-                        </span>
-                      )}
-                      <span class="latest-posts__title">{post.data.title}</span>
-                      <Icon
-                        name="arrow-right"
-                        size={18}
-                        aria-hidden={true}
-                        class="latest-posts__link-icon"
-                      />
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
+            <ZenSlide direction="up" delay={400}>
+              <ul class="post-list latest-posts__list">
+                {
+                  latestPosts.map((post) => (
+                    <li class="post-list__item latest-posts__item">
+                      <a class="latest-posts__link zen-hover-lift" href={`/blog/${post.slug}/`}>
+                        {post.data.pubDate && (
+                          <span class="post-list__date latest-posts__date">
+                            <FormattedDate date={post.data.pubDate} />
+                          </span>
+                        )}
+                        <span class="latest-posts__title">{post.data.title}</span>
+                        <Icon
+                          name="arrow-right"
+                          size={18}
+                          aria-hidden={true}
+                          class="latest-posts__link-icon"
+                        />
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </ZenSlide>
 
-            <a class="latest-posts__cta" href="/blog/">
-              <Icon name="book-open" size={16} aria-hidden={true} />
-              Read all reflections
-              <Icon name="arrow-up-right" size={16} aria-hidden={true} />
-            </a>
+            <ZenSlide direction="up" delay={500}>
+              <a class="latest-posts__cta zen-hover-scale" href="/blog/">
+                <Icon name="book-open" size={16} aria-hidden={true} />
+                Read all reflections
+                <Icon name="arrow-up-right" size={16} aria-hidden={true} />
+              </a>
+            </ZenSlide>
           </div>
         </section>
 
         <section class="haiku-card-section" aria-labelledby="haiku-heading">
-          <h2 id="haiku-heading" class="section-heading">
-            <Icon name="feather" size={24} class="section-heading__icon" aria-hidden={true} />
-            Daily Haiku Card
-          </h2>
+          <ZenSlide direction="up" delay={600}>
+            <h2 id="haiku-heading" class="section-heading">
+              <Icon name="feather" size={24} class="section-heading__icon" aria-hidden={true} />
+              Daily Haiku Card
+            </h2>
+          </ZenSlide>
 
-          <div class="haiku-card">
-            <div class="haiku-card__frame">
-              <div class="haiku-card__meta">
-                <span class="haiku-card__badge">
-                  <Icon name="sunrise" size={16} aria-hidden={true} /> Zen Daily
-                </span>
-                <span class="haiku-card__meta-note">
-                  <a class="haiku-card__meta-link" href="/projects">Powered by GutenKu</a>
-                </span>
-              </div>
+          <ZenFade delay={800}>
+            <div class="haiku-card">
+              <div class="haiku-card__frame">
+                <div class="haiku-card__meta">
+                  <span class="haiku-card__badge">
+                    <Icon name="sunrise" size={16} aria-hidden={true} /> Zen Daily
+                  </span>
+                  <span class="haiku-card__meta-note">
+                    <a class="haiku-card__meta-link" href="/projects">Powered by GutenKu</a>
+                  </span>
+                </div>
 
-              <div class="haiku-card__grid">
-                <figure class="haiku-card__visual">
-                  <div class="haiku-card__visual-frame">
-                    <Image
-                      width="250"
-                      height="250"
-                      class="haiku-card__image"
-                      src={haikuCard}
-                      alt="Daily generated haiku card with artistic image"
-                      loading="lazy"
-                    />
+                <div class="haiku-card__grid">
+                  <figure class="haiku-card__visual">
+                    <div class="haiku-card__visual-frame">
+                      <Image
+                        width="250"
+                        height="250"
+                        class="haiku-card__image"
+                        src={haikuCard}
+                        alt="Daily generated haiku card with artistic image"
+                        loading="lazy"
+                      />
+                    </div>
+
+                    <figcaption class="haiku-card__credit">
+                      This composition borrows its spark from literature. Can you trace it back?
+                    </figcaption>
+                  </figure>
+
+                  <div class="haiku-card__content">
+                    <p class="haiku-card__quote">{haikuDescription}</p>
+
+                    <div class="haiku-card__divider" aria-hidden={true}></div>
+
+                    <p class="haiku-card__hint">
+                      Breathe in, read slowly, and check back tomorrow to welcome the next verse.
+                    </p>
                   </div>
-
-                  <figcaption class="haiku-card__credit">
-                    This composition borrows its spark from literature. Can you trace it back?
-                  </figcaption>
-                </figure>
-
-                <div class="haiku-card__content">
-                  <p class="haiku-card__quote">{haikuDescription}</p>
-
-                  <div class="haiku-card__divider" aria-hidden={true}></div>
-
-                  <p class="haiku-card__hint">
-                    Breathe in, read slowly, and check back tomorrow to welcome the next verse.
-                  </p>
                 </div>
               </div>
             </div>
-          </div>
+          </ZenFade>
         </section>
       </div>
 
