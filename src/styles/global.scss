@@ -32,6 +32,19 @@ body {
   --radius-lg: 0.75rem;
   --zen-transition-duration: 280ms;
   --zen-transition-timing: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Zen Animation System */
+  --zen-duration-fast: 200ms;
+  --zen-duration-normal: 300ms;
+  --zen-duration-slow: 400ms;
+  --zen-duration-breath: 4000ms;
+  --zen-ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --zen-ease-in-out: cubic-bezier(0.4, 0, 0.6, 1);
+  --zen-ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --zen-ease-gentle: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --zen-distance-sm: 12px;
+  --zen-distance-md: 20px;
+  --zen-distance-lg: 30px;
   --home-card-shadow: 0 22px 42px -34px rgb(38 24 28 / 26%),
     0 10px 24px -28px rgb(38 24 28 / 14%);
   --home-card-shadow-hover: 0 26px 52px -32px rgb(38 24 28 / 32%),
@@ -3735,4 +3748,238 @@ tbody tr:hover {
 /* Make sure the about section has relative positioning for the absolute icon */
 .site-footer__about {
   position: relative;
+}
+
+/* Zen Animation System */
+
+/* Base animation classes */
+.zen-animate {
+  will-change: transform, opacity;
+}
+
+/* Zen Animation Keyframes */
+@keyframes zen-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zen-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--zen-distance-md));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zen-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--zen-distance-md) * -1));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zen-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(var(--zen-distance-md));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes zen-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--zen-distance-md) * -1));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes zen-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes zen-breathe {
+  0%, 100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.01);
+  }
+}
+
+/* Animation Utility Classes */
+.zen-fade {
+  animation: zen-fade-in var(--zen-duration-normal) var(--zen-ease-out) both;
+}
+
+.zen-slide-up {
+  animation: zen-slide-up var(--zen-duration-normal) var(--zen-ease-out) both;
+}
+
+.zen-slide-down {
+  animation: zen-slide-down var(--zen-duration-normal) var(--zen-ease-out) both;
+}
+
+.zen-slide-left {
+  animation: zen-slide-left var(--zen-duration-normal) var(--zen-ease-out) both;
+}
+
+.zen-slide-right {
+  animation: zen-slide-right var(--zen-duration-normal) var(--zen-ease-out) both;
+}
+
+.zen-scale {
+  animation: zen-scale-in var(--zen-duration-normal) var(--zen-ease-out) both;
+}
+
+.zen-breathe {
+  animation: zen-breathe var(--zen-duration-breath) var(--zen-ease-in-out) infinite;
+}
+
+/* Zen Delay Classes */
+.zen-delay-100 { animation-delay: 100ms; }
+.zen-delay-200 { animation-delay: 200ms; }
+.zen-delay-300 { animation-delay: 300ms; }
+.zen-delay-400 { animation-delay: 400ms; }
+.zen-delay-500 { animation-delay: 500ms; }
+.zen-delay-600 { animation-delay: 600ms; }
+.zen-delay-700 { animation-delay: 700ms; }
+.zen-delay-800 { animation-delay: 800ms; }
+.zen-delay-900 { animation-delay: 900ms; }
+.zen-delay-1000 { animation-delay: 1000ms; }
+
+/* Zen Duration Classes */
+.zen-duration-fast { animation-duration: var(--zen-duration-fast); }
+.zen-duration-normal { animation-duration: var(--zen-duration-normal); }
+.zen-duration-slow { animation-duration: var(--zen-duration-slow); }
+
+/* Zen Hover Effects */
+.zen-hover-lift {
+  transition: transform var(--zen-duration-fast) var(--zen-ease-out);
+}
+
+.zen-hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.zen-hover-scale {
+  transition: transform var(--zen-duration-fast) var(--zen-ease-out);
+}
+
+.zen-hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.zen-hover-glow {
+  transition: box-shadow var(--zen-duration-normal) var(--zen-ease-out);
+}
+
+.zen-hover-glow:hover {
+  box-shadow: var(--home-card-shadow-hover);
+}
+
+/* Touch Feedback for Mobile */
+@media (hover: none) and (pointer: coarse) {
+  .zen-hover-lift:active {
+    transform: scale(0.98);
+    transition-duration: var(--zen-duration-fast);
+  }
+
+  .zen-hover-scale:active {
+    transform: scale(0.98);
+    transition-duration: var(--zen-duration-fast);
+  }
+
+  .zen-hover-lift:hover,
+  .zen-hover-scale:hover {
+    transform: none;
+  }
+}
+
+/* Stagger Utility */
+.zen-stagger > * {
+  opacity: 0;
+  transform: translateY(var(--zen-distance-md));
+  animation: zen-slide-up var(--zen-duration-normal) var(--zen-ease-out) both;
+}
+
+.zen-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.zen-stagger > *:nth-child(2) { animation-delay: 100ms; }
+.zen-stagger > *:nth-child(3) { animation-delay: 200ms; }
+.zen-stagger > *:nth-child(4) { animation-delay: 300ms; }
+.zen-stagger > *:nth-child(5) { animation-delay: 400ms; }
+.zen-stagger > *:nth-child(6) { animation-delay: 500ms; }
+.zen-stagger > *:nth-child(7) { animation-delay: 600ms; }
+.zen-stagger > *:nth-child(8) { animation-delay: 700ms; }
+.zen-stagger > *:nth-child(9) { animation-delay: 800ms; }
+.zen-stagger > *:nth-child(10) { animation-delay: 900ms; }
+
+/* Intersection Observer Support */
+.zen-observe {
+  opacity: 0;
+  transform: translateY(var(--zen-distance-md));
+  transition:
+    opacity var(--zen-duration-normal) var(--zen-ease-out),
+    transform var(--zen-duration-normal) var(--zen-ease-out);
+}
+
+.zen-observe.zen-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .zen-fade,
+  .zen-slide-up,
+  .zen-slide-down,
+  .zen-slide-left,
+  .zen-slide-right,
+  .zen-scale,
+  .zen-breathe,
+  .zen-stagger > *,
+  .zen-observe {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .zen-hover-lift:hover,
+  .zen-hover-scale:hover {
+    transform: none !important;
+  }
 }

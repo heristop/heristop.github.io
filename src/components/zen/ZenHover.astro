@@ -1,0 +1,22 @@
+---
+interface Props {
+  effect?: 'lift' | 'scale' | 'glow';
+  className?: string;
+  [key: string]: any;
+}
+
+const {
+  effect = 'lift',
+  className = '',
+  ...rest
+} = Astro.props;
+
+const hoverClass = `zen-hover-${effect}`;
+---
+
+<div
+  class={`${hoverClass} ${className}`}
+  {...rest}
+>
+  <slot />
+</div>
