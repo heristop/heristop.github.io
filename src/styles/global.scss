@@ -3178,7 +3178,7 @@ tbody tr:hover {
   }
 
   @media screen and (width >= 1024px) {
-    height: clamp(320px, 35vh, 450px);
+    height: clamp(280px, 30vh, 380px);
   }
 
   &:hover {
