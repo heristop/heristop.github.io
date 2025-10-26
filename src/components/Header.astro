@@ -1,8 +1,10 @@
 ---
 import HeaderLink from './HeaderLink.astro';
 import Icon from './Icon.astro';
-const { image = '/images/zazen-header.png' } = Astro.props;
+const { image } = Astro.props;
 import { SITE_TITLE } from '../consts';
+
+const bannerImage = image || '/images/zazen.png';
 
 const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 ---
@@ -101,15 +103,26 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       </div>
     </nav>
 
-    <div class="banner site-header__banner" id="header-banner">
-      <div
-        class="img site-header__banner-image"
-        style={`background: transparent url(${image}) no-repeat left center / cover`}
-        role="img"
-        aria-label="Banner image"
-      >
+    <figure class="banner site-header__banner" id="header-banner">
+      <div class="site-header__banner-container">
+        <picture class="site-header__banner-picture">
+          <source
+            srcset={bannerImage}
+            type="image/png"
+          />
+          <img
+            src={bannerImage}
+            alt="Zen meditation scene with minimalist aesthetic, featuring serene natural elements that embody the contemplative spirit of zazen practice"
+            class="site-header__banner-image"
+            loading="eager"
+            decoding="async"
+            width="1200"
+            height="400"
+          />
+        </picture>
+        <div class="site-header__banner-overlay" aria-hidden="true"></div>
       </div>
-    </div>
+    </figure>
   </div>
 </header>
 
@@ -631,6 +644,28 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     document.body.classList.remove('mobile-menu-open');
   };
 
-  document.addEventListener('DOMContentLoaded', initializeHeader);
-  document.addEventListener('astro:after-swap', initializeHeader);
+  const updateParallax = () => {
+    const bannerImage = document.querySelector('.site-header__banner-image') as HTMLElement;
+    if (bannerImage) {
+      const scrollY = window.scrollY;
+      const limitedScrollY = Math.min(scrollY, 300);
+      bannerImage.style.setProperty('--scroll-y', `${limitedScrollY}px`);
+    }
+  };
+
+  const initializeParallax = () => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', updateParallax, { passive: true });
+      updateParallax();
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initializeHeader();
+    initializeParallax();
+  });
+  document.addEventListener('astro:after-swap', () => {
+    initializeHeader();
+    initializeParallax();
+  });
 </script>
