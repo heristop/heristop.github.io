@@ -860,6 +860,10 @@ hr {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--space-md);
+
+  @media screen and (width <= 480px) {
+    padding: 0 var(--space-xs);
+  }
 }
 
 /* ===== MODERN HEADER STYLES ===== */
@@ -874,6 +878,10 @@ hr {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--space-md);
+
+  @media screen and (width <= 480px) {
+    padding: 0 var(--space-xs);
+  }
 }
 
 .header__brand-section {
@@ -1991,13 +1999,6 @@ body.mobile-menu-open {
   }
 }
 
-.site-header__banner-image {
-  background: transparent url("/images/zazen.webp") no-repeat center center /
-    cover;
-  height: 7.5rem;
-  margin: auto;
-  border-radius: var(--radius-md);
-}
 
 .u-text-muted {
   color: var(--text-secondary);
@@ -2303,11 +2304,6 @@ tbody tr:hover {
     margin: 2em 1em;
   }
 
-  .site-header__banner-image {
-    width: auto;
-    height: 6rem;
-    margin: var(--space-md) 0;
-  }
 
   .site-layout__meta-dates {
     text-align: left;
@@ -3163,14 +3159,137 @@ tbody tr:hover {
 
 /* Header Component */
 .site-header__banner {
-  border-radius: var(--radius-md);
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
   box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 10%),
-    0 2px 4px -2px rgb(0 0 0 / 10%);
+    0 20px 40px -12px rgb(0 0 0 / 18%),
+    0 8px 16px -8px rgb(0 0 0 / 12%),
+    0 4px 8px -4px rgb(0 0 0 / 8%),
+    inset 0 1px 0 rgb(255 255 255 / 25%);
+  transition: box-shadow var(--zen-duration-normal) var(--zen-ease-out);
+
+  /* Responsive height */
+  height: clamp(150px, 20vh, 250px);
+
+  @media screen and (width >= 768px) {
+    height: clamp(280px, 30vh, 400px);
+  }
+
+  @media screen and (width >= 1024px) {
+    height: clamp(320px, 35vh, 450px);
+  }
+
+  &:hover {
+    box-shadow:
+      0 30px 60px -15px rgb(0 0 0 / 25%),
+      0 15px 30px -10px rgb(0 0 0 / 18%),
+      0 8px 16px -6px rgb(0 0 0 / 12%),
+      inset 0 1px 0 rgb(255 255 255 / 30%);
+  }
+}
+
+.site-header__banner-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background-color: var(--primary-bg-color);
+}
+
+.site-header__banner-picture {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .site-header__banner-image {
-  border-radius: var(--radius-md);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: var(--radius-lg);
+
+  /* Smooth parallax transform */
+  transform: translateY(calc(var(--scroll-y, 0px) * -0.1));
+  will-change: transform;
+
+  /* Improve image quality */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.site-header__banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgb(157 66 97 / 10%) 0%,
+    rgb(126 47 81 / 6%) 25%,
+    transparent 40%,
+    transparent 60%,
+    rgb(100 39 65 / 8%) 75%,
+    rgb(90 35 53 / 15%) 100%
+  );
+  pointer-events: none;
+  border-radius: var(--radius-lg);
+
+  /* Subtle vignette effect */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 20%,
+      rgb(0 0 0 / 4%) 70%,
+      rgb(0 0 0 / 8%) 100%
+    );
+    border-radius: var(--radius-lg);
+  }
+}
+
+
+/* Ken Burns animation keyframes */
+@keyframes zen-ken-burns {
+  0% {
+    transform: scale(1) translateX(0);
+  }
+
+  100% {
+    transform: scale(1.01) translateX(-0.5px);
+  }
+}
+
+/* Parallax effect on scroll */
+@media (prefers-reduced-motion: no-preference) {
+  .site-header__banner-image {
+    transform-origin: center bottom;
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .site-header__banner-image {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .site-header__banner:hover .site-header__banner-image {
+    transform: none !important;
+  }
+
+  .site-header__banner-container {
+    transform: none !important;
+  }
 }
 
 /* Footer Responsive Design */
