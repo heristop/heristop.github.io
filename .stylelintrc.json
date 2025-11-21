@@ -3,6 +3,7 @@
   "rules": {
     "selector-class-pattern": null,
     "no-duplicate-selectors": null,
-    "no-descending-specificity": null
+    "no-descending-specificity": null,
+    "no-empty-source": null
   }
 }
