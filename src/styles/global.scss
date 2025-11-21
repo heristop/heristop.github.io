@@ -190,9 +190,7 @@ a {
   }
 
   &:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-    border-radius: 2px;
+    outline: none;
   }
 }
 
@@ -2607,7 +2605,6 @@ tbody tr:hover {
 
     &:hover,
     &:focus-within {
-      transform: translateX(3px);
       background: rgb(255 255 255 / 46%);
       border-color: rgb(157 66 97 / 24%);
       box-shadow:
@@ -2619,7 +2616,7 @@ tbody tr:hover {
       }
 
       .latest-posts__link-icon {
-        transform: translateX(4px);
+        transform: none;
       }
 
       .latest-posts__title {
@@ -2682,7 +2679,6 @@ tbody tr:hover {
       background-color 0.2s ease;
 
     &:hover {
-      transform: translateY(-1px);
       box-shadow:
         var(--home-card-shadow-soft),
         0 1px 0 rgb(255 255 255 / 45%);
@@ -3160,7 +3156,8 @@ tbody tr:hover {
 /* Header Component */
 .site-header__banner {
   position: relative;
-  margin: 0;
+  margin: 0 auto;
+  max-width: 85%;
   overflow: hidden;
   border-radius: var(--radius-lg);
   box-shadow:
@@ -3171,14 +3168,14 @@ tbody tr:hover {
   transition: box-shadow var(--zen-duration-normal) var(--zen-ease-out);
 
   /* Responsive height */
-  height: clamp(150px, 20vh, 250px);
+  height: clamp(100px, 14vh, 180px);
 
   @media screen and (width >= 768px) {
-    height: clamp(280px, 30vh, 400px);
+    height: clamp(200px, 22vh, 280px);
   }
 
   @media screen and (width >= 1024px) {
-    height: clamp(280px, 30vh, 380px);
+    height: clamp(200px, 22vh, 260px);
   }
 
   &:hover {
@@ -4011,7 +4008,7 @@ tbody tr:hover {
 }
 
 .zen-hover-lift:hover {
-  transform: translateY(-2px);
+  transform: none;
 }
 
 .zen-hover-scale {
