@@ -5,7 +5,6 @@ import { ClientRouter } from "astro:transitions";
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import GlobalKeyboardNavigation from "../components/GlobalKeyboardNavigation.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import FormattedDate from "../components/FormattedDate.astro";
 import Icon from "../components/Icon.astro";
@@ -125,8 +124,8 @@ try {
                   <figure class="haiku-card__visual">
                     <div class="haiku-card__visual-frame">
                       <Image
-                        width="250"
-                        height="250"
+                        width="192"
+                        height="256"
                         class="haiku-card__image"
                         src={haikuCard}
                         alt="Daily generated haiku card with artistic image"
@@ -157,8 +156,6 @@ try {
 
       <Footer />
     </main>
-
-    <GlobalKeyboardNavigation />
 
     <!-- Search Overlay -->
     <div
