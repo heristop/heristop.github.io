@@ -2842,7 +2842,7 @@ tbody tr:hover {
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
-    align-items: flex-start;
+    align-items: center;
 
     @media screen and (width >= 48rem) {
       flex: 0 0 clamp(18rem, 24vw, 22rem);
@@ -2851,8 +2851,8 @@ tbody tr:hover {
 
   &__visual-frame {
     position: relative;
-    width: min(22rem, 100%);
-    aspect-ratio: 1 / 1;
+    width: min(16rem, 100%);
+    aspect-ratio: 3 / 4;
     border-radius: calc(var(--radius-md) + 0.125rem);
     overflow: hidden;
     box-shadow:
@@ -2870,10 +2870,6 @@ tbody tr:hover {
       border-radius: inherit;
       border: 1px solid rgb(255 255 255 / 45%);
       pointer-events: none;
-    }
-
-    @media screen and (width >= 48rem) {
-      width: 100%;
     }
   }
 
