@@ -2851,7 +2851,7 @@ tbody tr:hover {
 
   &__visual-frame {
     position: relative;
-    width: min(16rem, 100%);
+    width: min(18rem, 100%);
     aspect-ratio: 3 / 4;
     border-radius: calc(var(--radius-md) + 0.125rem);
     overflow: hidden;
