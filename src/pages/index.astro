@@ -28,21 +28,7 @@ const latestPosts = posts.slice(0, 5);
 const timestamp = Date.now();
 const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/assets/img/daily_haiku_card.jpg?t=${timestamp}`;
 
-let haikuDescription = "A fresh haiku will be shared here soon.";
-
-try {
-  const response = await fetch(
-    `https://raw.githubusercontent.com/heristop/gutenku/main/assets/description.txt?t=${timestamp}`
-  );
-
-  if (response.ok) {
-    haikuDescription = await response.text();
-  }
-} catch (error) {
-  if (import.meta.env.DEV) {
-    console.warn("Unable to load the daily haiku description:", error);
-  }
-}
+const haikuDescriptionUrl = "https://raw.githubusercontent.com/heristop/gutenku/main/assets/description.txt";
 ---
 
 <!doctype html>
@@ -125,7 +111,7 @@ try {
                     <div class="haiku-card__visual-frame">
                       <Image
                         width="216"
-                        height="288"
+                        height="270"
                         class="haiku-card__image"
                         src={haikuCard}
                         alt="Daily generated haiku card with artistic image"
@@ -139,7 +125,7 @@ try {
                   </figure>
 
                   <div class="haiku-card__content">
-                    <p class="haiku-card__quote">{haikuDescription}</p>
+                    <p class="haiku-card__quote" id="haiku-description" data-url={haikuDescriptionUrl}>Loading today's verse...</p>
 
                     <div class="haiku-card__divider" aria-hidden={true}></div>
 
@@ -211,5 +197,22 @@ try {
         </div>
       </div>
     </div>
+
+    <script>
+      const haikuEl = document.getElementById("haiku-description");
+      if (haikuEl) {
+        const url = haikuEl.dataset.url;
+        if (url) {
+          fetch(`${url}?t=${Date.now()}`)
+            .then((res) => (res.ok ? res.text() : Promise.reject()))
+            .then((text) => {
+              haikuEl.textContent = text;
+            })
+            .catch(() => {
+              haikuEl.textContent = "A fresh haiku will be shared here soon.";
+            });
+        }
+      }
+    </script>
   </body>
 </html>
