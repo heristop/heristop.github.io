@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - 🌟 [Announcing TypeScript 5.6](https://devblogs.microsoft.com/typescript/announcing-typescript-5-6?ref=zazen_code)  
   - TypeScript 5.6 introduces new features and performance improvements, including better type-checking and enhanced build speeds, solidifying its place as a must-use tool for JavaScript developers.

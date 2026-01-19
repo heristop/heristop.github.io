@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **💡 [State of CSS 2024](https://2024.stateofcss.com/en-US?ref=zazen_code)**
 

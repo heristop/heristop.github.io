@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/paul-esch-laurent-oZMUrWFHOB4-unsplash.jpg"
 ---
 
-### 🌟 News & Trends
+## 🌟 News & Trends
 
 - 📈 **[2024 Predictions by JavaScript Frontend Framework Maintainers](https://thenewstack.io/2024-predictions-by-javascript-frontend-framework-maintainers/?ref=zazen_code)**
 

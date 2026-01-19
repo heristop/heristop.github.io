@@ -5,7 +5,7 @@ pubDate: "2023-12-08"
 conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
 ---
 
-### 🌟 News & Trends
+## 🌟 News & Trends
 
 - 📈 **[Svelte Summit Fall 2023 Highlights](https://svelte.dev/blog/whats-new-in-svelte-december-2023?ref=zazen_code)**
 
@@ -15,7 +15,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 
   - The official release of Vitest version 1.0.0, a Vite-native test framework.
 
-### 📝 Articles & Guides
+## 📝 Articles & Guides
 
 - ✏️ **[Frontend Rewind 2023 – Day 01](https://tympanus.net/codrops/2023/12/01/frontend-rewind-2023-day-01?ref=zazen_code)**
 
@@ -29,7 +29,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 
   - A guide on creating a Vue.js composable to effectively manage feature flags in your projects.
 
-### 🪐 Explore More
+## 🪐 Explore More
 
 - 🎨 **[Scribble Diffusion](https://scribblediffusion.com?ref=zazen_code)**
 

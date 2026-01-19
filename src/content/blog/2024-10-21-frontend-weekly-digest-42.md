@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **🚀 [Improving Core Web Vitals with Partial Hydration in Angular 18](https://dev.to/this-is-angular/angular-18-improving-application-performance-with-partial-hydration-and-ssr-2nie)**
 

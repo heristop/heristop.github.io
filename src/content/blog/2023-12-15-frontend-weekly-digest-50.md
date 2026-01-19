@@ -5,7 +5,7 @@ pubDate: "2023-12-15"
 conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
 ---
 
-### 🌟 News & Trends
+## 🌟 News & Trends
 
 - 📊 **[Netlify's 2023 State of Web Development Report](https://www.netlify.com/blog/unveiling-the-state-of-web-development-and-predictions-for-2024-and-beyond/?ref=zazen_code)**
 
@@ -19,7 +19,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 
   - Examines the increasing influence of generative AI, including tools like ChatGPT, on the web development landscape.
 
-### 📝 Articles & Guides
+## 📝 Articles & Guides
 
 - 💻 **[CSS Developments: Container Queries and View Transitions](https://developer.chrome.com/blog/css-wrapped-2023?hl=en&ref=zazen_code)**
 
@@ -29,7 +29,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 
   - Astro's rise in framework growth and satisfaction, highlighting a key trend in frontend development.
 
-### 🪐 Explore More
+## 🪐 Explore More
 
 - 🚀 **[Astro's Rapid Growth and High Satisfaction](https://devclass.com/2023/12/14/where-next-for-jamstack-netlify-survey-avoids-the-word-highlights-rise-of-astro/?ref=zazen_code)**
 

@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
 ---
 
-### 📝 Articles & Guides
+## 📝 Articles & Guides
 
 - 📘 **[React 19 Will Be Compiled](https://reacttraining.com/blog/react-19-will-be-compiled?ref=zazen_code)**
 

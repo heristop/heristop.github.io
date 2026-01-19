@@ -5,7 +5,7 @@ pubDate: "2023-11-24"
 conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
 ---
 
-### 🌐 News & Updates
+## 🌐 News & Updates
 
 - 🌐 **[Trends in Front-End Development 2023](https://www.fronttribe.com/stories/front-end-development-trends-2023-guide?ref=zazen_code)**
 
@@ -27,7 +27,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 
   - Playwright Test Generator enhancements, new APIs, and browser version updates.
 
-### 🪐 Explore More
+## 🪐 Explore More
 
 - 🐻🎈 **[Firefox's CSS :has() demo](https://twitter.com/i/status/1727022275747258873?ref=zazen_code)**
 

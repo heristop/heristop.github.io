@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **✍️ [Challenges in Writing a Programming Book](https://dev.to/this-is-learning/challenges-in-writing-a-programming-book-4dh9?ref=zazen_code)**
 

@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **⚡️ [onClick={someFunction} VS onClick={()=>someFunction}](https://dev.to/itric/onclicksomefunction-vs-onclicksomefunction-5d1i?ref=zazen_code)**
 

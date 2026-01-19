@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **💡 [Feature detect CSS @starting-style support](https://www.bram.us/2024/07/11/feature-detect-css-starting-style-support/?ref=zazen_code)**
 

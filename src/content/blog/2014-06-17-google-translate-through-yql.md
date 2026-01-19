@@ -11,7 +11,7 @@ I tried some alternative solutions and it was limited in number. Finally, I just
 
 Then, I saw it was possible to use the Google API indirectly through YQL.
 
-### YQL
+## YQL
 
 YQL is a language used for Yahoo API. It turns webservices and data on the web into databases and allows you to select, filter, sort and limit data. In our case, we are interested in retrieving Google translations.
 
@@ -37,7 +37,7 @@ debug = [ true / false ]
 callback = [ function name ]
 ```
 
-### PHP sample
+## PHP sample
 
 Lastly, here is the code I used to run an automatic translation:
 

@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **🌟 [Signals And Array Mutability In Angular 18](https://www.bennadel.com/blog/4701-signals-and-array-mutability-in-angular-18.htm?ref=zazen_code)**
 

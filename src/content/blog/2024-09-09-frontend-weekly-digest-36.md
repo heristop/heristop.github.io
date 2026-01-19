@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **💡 [Frontend Performance Love Story](https://itnext.io/frontend-performance-love-story-ce92302fea5f?ref=zazen_code)**
 

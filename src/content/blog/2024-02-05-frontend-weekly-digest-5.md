@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.jpg"
 ---
 
-### 🌟 News & Trends
+## 🌟 News & Trends
 
 - 🚀 **[WebAssembly's Evolution](https://thenewstack.io/wasi-0-2-preview-a-new-dawn-for-webassembly/?ref=zazen_code)**
 

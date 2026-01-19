@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **🧩 [React Mindset: How New React Developers Should Think](https://dev.to/ymir/react-mindset-how-new-react-developers-should-think-2cap?ref=zazen_code)**  
 

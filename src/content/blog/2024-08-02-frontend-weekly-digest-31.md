@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **🔮 [Exploring the magic of runes in Svelte 5](https://blog.logrocket.com/exploring-runes-svelte-5/?ref=zazen_code)**
 
