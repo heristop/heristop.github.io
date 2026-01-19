@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
 ---
 
-### 🌟 News & Trends
+## 🌟 News & Trends
 
 - 🛌 **[Lazy Loading](https://dev.to/jorjishasan/lazy-loading-lod?ref=zazen_code)**
 

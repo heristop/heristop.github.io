@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **[🌐 ECMAScript 2024 takes shape](https://www.infoworld.com/article/3715341/ecmascript-2024-takes-shape.html?ref=zazen_code)**
 

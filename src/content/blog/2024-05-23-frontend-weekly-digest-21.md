@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **📊 [React 19: New Features, Optimizations, and Improvements](https://app.daily.dev/posts/pzL4n8Krf?ref=zazen_code)**
 

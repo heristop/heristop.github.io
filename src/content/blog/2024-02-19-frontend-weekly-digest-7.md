@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 ---
 
-### 🌟 News & Trends
+## 🌟 News & Trends
 
 - 🚀 **[How to Make a Great Framework Better?—Svelte 5 With Rich Harris](https://www.youtube.com/watch?v=z7n17ajJpCo?ref=zazen_code)**
   - Rich Harris discusses enhancements in Svelte 5, focusing on framework improvements.

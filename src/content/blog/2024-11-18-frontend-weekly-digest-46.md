@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **🚀 [Angular 19 - 5 Game-Changing Features You Need to Know](https://dev.to/this-is-angular/angular-19-5-game-changing-features-you-need-to-know-32cd?ref=zazen_code)**
   - An overview of Angular 19's most impactful updates, from zoneless change detection to new reactive APIs, tailored for developers eager to optimize their Angular apps.

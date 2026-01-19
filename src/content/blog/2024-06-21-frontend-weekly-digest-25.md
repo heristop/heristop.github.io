@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: /images/posts/2024-06-21-state-of-js/state_of_js.png
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **🌟 [Signals vs. ngOnChanges for better Angular state management](https://blog.logrocket.com/signals-vs-ngonchanges-angular-state-management/?ref=zazen_code)**
 

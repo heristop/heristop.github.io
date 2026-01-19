@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/jackson-sophat-wUbNvDTsOIc-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - 💬 **[Bun or Node.js in 2024?](https://dev.to/vedansh0412/bun-or-nodejs-in-2024-6e3?ref=zazen_code)**
 

@@ -5,7 +5,7 @@ pubDate: "2023-11-17"
 conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
 ---
 
-### 🌐 News & Updates
+## 🌐 News & Updates
 
 - 🌍 **[Why GraphQL Needs an Open Federation Approach](https://thenewstack.io/why-graphql-needs-an-open-federation-approach/?ref=zazen_code)**
 

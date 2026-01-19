@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **🚀 [Streaming Resources in Angular 19.2: Details and Semantics](https://www.angulararchitects.io/en/blog/streaming-resources-in-angular-19-2-details-and-semantics/?ref=zazen_code)**  
   - Angular 19.2 introduces a new way to handle streaming resources, improving efficiency and performance for large-scale applications.

@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: /images/posts/fili-santillan-qp51FQhBnS0-unsplash.jpg
 ---
 
-### 🌟 News & Trends
+## 🌟 News & Trends
 
 - 🔄 **[Angular and Wiz Merge Announcement](https://rubenperegrina.com/angular-will-be-merged-with-wiz?ref=zazen_code)**
 

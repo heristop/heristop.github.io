@@ -5,7 +5,7 @@ pubDate: "2023-12-01"
 conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
 ---
 
-### 🌟 News & Trends
+## 🌟 News & Trends
 
 - 📊 **[Vite Rust-ifies, Roc Language, JS Framework SDKs](https://thenewstack.io/dev-news-vite-rust-ifies-roc-language-js-framework-sdks?ref=zazen_code)**
 
@@ -19,7 +19,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 
   - Discover how modern CSS in 2023 has evolved to become more intuitive and efficient.
 
-### 📝 Articles & Guides
+## 📝 Articles & Guides
 
 - 🧱 **[Introduction to Full Stack Composability](https://www.smashingmagazine.com/2023/11/introduction-full-stack-composability/?ref=zazen_code)**
 
@@ -37,7 +37,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 
   - Techniques for creating raindrop effects in CSS.
 
-### 🛠 Tools & Resources
+## 🛠 Tools & Resources
 
 - 🤖 **[GitHub Copilot Chat Coming in December](https://www.blogdumoderateur.com/developpement/github-copilot-chat/?ref=zazen_code)**
 

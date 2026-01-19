@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
 ---
 
-### 🌟 News & Trends
+## 🌟 News & Trends
 
 - 🔗 **[JavaScript Continues to Dominate, AI Integration Rises](https://thenewstack.io/web-development-in-2023-javascript-still-rules-ai-emerges/?ref=zazen_code)**
 

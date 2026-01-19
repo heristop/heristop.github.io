@@ -6,7 +6,7 @@ conclusion: "💡 Stay updated with the latest in frontend development. Follow t
 image: "/images/posts/kobu-agency-ipARHaxETRk-unsplash.jpg"
 ---
 
-### 📢 News & Trends
+## 📢 News & Trends
 
 - **[🌍 The Vue Ecosystem in 2024](https://frontendmasters.com/blog/the-vue-ecosystem-in-2024/?ref=zazen_code)**
 

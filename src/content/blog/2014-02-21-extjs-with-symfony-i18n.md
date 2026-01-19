@@ -9,7 +9,7 @@ In previous articles, I explained how to implement ExtJS in a Symfony 2 project,
 
 Now it's time to see one of the advantages of this marriage: expose your Symfony translation messages to your ExtJS application.
 
-### Translation file
+## Translation file
 
 First, create a translation file in the `Resources/translations/` directory of your bundle.
 You can use the default domain `messages` or specify an other domain.
@@ -36,7 +36,7 @@ In the example below, I created a file for the French:
 
 **Note:** Symfony provides others loaders than XLIFF, including PHP and YAML.
 
-### Translations in JS
+## Translations in JS
 
 Now to expose your translations to the javascript, install the bundle `JsTranslationBundle`.
 For that, add this requirement in your composer configuration file:
@@ -118,7 +118,7 @@ If the language of the user's locale is French, it will display this message:
 
 ![screenshot](/images/posts/screen_msgalertfr.png)
 
-### ExtJS locales
+## ExtJS locales
 
 Assetic has a great feature to produce different outputs for the same asset: `variables`.
 Asset variables are very useful to include ExtJS language files depending on user's locale.
