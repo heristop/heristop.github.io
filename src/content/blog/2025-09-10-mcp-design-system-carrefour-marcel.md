@@ -3,7 +3,7 @@ title: "How We Connected our Design System to Code Assist with MCP"
 description: "At Carrefour, in the Design System Tech Team, we built an MCP server that enables AI assistants to understand and generate code for our Design System. Result: developers can prompt `create a product card with price and rating` and get production-ready Marcel code with the right components, tokens, and patterns."
 pubDate: "2025-09-10"
 conclusion: "👉 Interested in implementing MCP for your Design System? The protocol is open source and the community is growing. Feel free to reach out with questions!"
-image: "/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/c4-kit.png"
+image: "/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/c4-kit.webp"
 ---
 
 ## TL;DR
@@ -15,7 +15,7 @@ Result: developers can prompt `create a product card with price and rating` and 
 <div class="img-container">
   <figure class="img-figure">
     <img
-      src="/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/marcel.png"
+      src="/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/marcel.webp"
       alt="Marcel Logo"
       class="img-small img-rounded"
     />
@@ -134,7 +134,7 @@ The MCP server is packaged and versioned with the rest of the Design System:
 <div class="img-container">
   <figure class="img-figure">
     <img
-      src="/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/jfrog.png"
+      src="/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/jfrog.webp"
       alt="JFrog Carrefour"
       class="img-large img-rounded"
     />
@@ -155,7 +155,7 @@ The MCP verifies that components actually exist:
 get_components_list({ category: "form" })
 // Returns: Available components like c-input-select, c-popin
 
-// This tool-based verification ensures:
+// Tool-based verification provides:
 // - AI can only use components that actually exist in the current version
 // - Developers get helpful alternatives when requesting non-existent components
 // - All information comes from build-time generated metadata, not runtime analysis
@@ -308,7 +308,7 @@ The result is production-ready code that follows all our standards on the first 
 <div class="img-container">
   <figure class="img-figure">
     <img
-      src="/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/login-form.png"
+      src="/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/login-form.webp"
       alt="Login Form with Marcel"
       class="img-three-quarter img-rounded"
     />
@@ -343,17 +343,17 @@ The result is production-ready code that follows all our standards on the first 
 
 ## Lessons Learned
 
-### 1. Start with the Problem, Not the Solution
+### 1. Identify the Problem First
 
-Before implementing MCP, we asked:
+Before implementing MCP, we analyzed:
 
-- What specific problems do LLMs create for our developers?
-- Which AI tools are our teams actually using?
-- What infrastructure do we already have in place?
+- What specific problems LLMs create for our developers
+- Which AI tools our teams actually use
+- What infrastructure we already have in place
 
-### 2. STDIO Works Great for Design Systems
+### 2. STDIO Works Well for Design Systems
 
-The STDIO approach was perfect because:
+The STDIO approach worked because:
 
 - We already had npm infrastructure
 - Developers are familiar with npm packages
@@ -445,9 +445,9 @@ We're continuing to evolve MCP Marcel:
 
 ## Conclusion
 
-MCP Marcel has fundamentally changed how our developers work with AI assistants. Instead of fighting against generic code generation, we've given AI the context it needs to generate Marcel-compliant code from the start.
+MCP Marcel has changed how our developers work with AI assistants. Instead of refactoring generic code, we've given AI the context it needs to generate Marcel-compliant code from the start.
 
-The key insight: **Your proprietary Design System doesn't have to be a barrier to AI assistance—it can be enhanced by it.**
+**Your proprietary Design System doesn't have to be a barrier to AI assistance—it can work with it.**
 
 By connecting our Design System to AI through MCP, we've achieved:
 
@@ -456,4 +456,4 @@ By connecting our Design System to AI through MCP, we've achieved:
 - Better accessibility compliance
 - Maintained visual identity
 
-The future of Design Systems isn't just about components and tokens—it's about making them accessible to the AI tools that developers increasingly rely on.
+Design Systems need to be accessible to the AI tools that developers increasingly use.

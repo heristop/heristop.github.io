@@ -4,7 +4,7 @@ metaTitle: "Beyond the Script: Reinventing the Technical Interview"
 description: ""
 pubDate: "2024-09-10"
 conclusion: "☝ This approach doesn't just more accurately assess the candidate's skills. It also contributes to making the recruitment experience more positive and enriching for all participants. And who knows? Even if the perfect fit isn't perfect for the position in question, you may have created a valuable professional connection for the future."
-image: "/images/posts/headway-5QgIuuBxKwM-unsplash.jpg"
+image: "/images/posts/headway-5QgIuuBxKwM-unsplash.webp"
 ---
 
 In continuation of our reflection on the essential qualities of a good developer ([Valuing Curiosity Beyond Technical Expertise in Developers](https://heristop.github.io/blog/2023-12-18-curiosity-beyond-technical-expertise/)), it's time to address an often neglected but crucial aspect: the quality of exchange during technical interviews. As a technical referee who has conducted numerous interviews, I've observed the critical importance of open and honest communication, both from the candidate and the recruiter.

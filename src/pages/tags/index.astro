@@ -1,0 +1,125 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import Icon from "../../components/Icon.astro";
+import ZenSlide from "../../components/zen/ZenSlide.astro";
+
+const posts = await getCollection("blog");
+
+// Collect all tags with their counts
+const tagCounts = new Map<string, number>();
+posts.forEach(post => {
+  const tags = post.data.tags ?? [];
+  tags.forEach(tag => {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  });
+});
+
+// Sort tags alphabetically
+const sortedTags = [...tagCounts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+
+const delay = 50;
+---
+
+<Layout title="Tags" description="Browse blog posts by tag">
+  <ZenSlide direction="up" delay={200}>
+    <p class="tags-page__intro">
+      Browse all topics covered in my reflections.
+    </p>
+  </ZenSlide>
+
+  <div class="tags-page">
+    <ZenSlide direction="up" delay={400}>
+      <div class="tags-page__grid">
+        {sortedTags.map(([tag, count], index) => (
+          <a
+            class="zen-card tags-page__tag"
+            href={`/tags/${tag}/`}
+            style={`--zen-card-stagger: ${delay * index}ms`}
+            data-prepared="false"
+          >
+            <Icon name="tag" size={18} class="tags-page__tag-icon" aria-hidden={true} />
+            <span class="tags-page__tag-name">{tag}</span>
+            <span class="tags-page__tag-count">{count} {count === 1 ? 'post' : 'posts'}</span>
+          </a>
+        ))}
+      </div>
+    </ZenSlide>
+
+    {sortedTags.length === 0 && (
+      <ZenSlide direction="up" delay={400}>
+        <p class="tags-page__empty">No tags found. Start adding tags to your blog posts!</p>
+      </ZenSlide>
+    )}
+  </div>
+
+  <script type="module" is:inline>
+    const revealZenCards = () => {
+      const cards = document.querySelectorAll('.zen-card[data-prepared="false"]');
+      if (cards.length === 0) return;
+
+      cards.forEach((card, index) => {
+        card.dataset.prepared = 'true';
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            card.classList.add('zen-card--visible');
+          });
+        });
+      });
+    };
+
+    if (typeof window !== 'undefined') {
+      revealZenCards();
+      document.addEventListener('astro:page-load', revealZenCards);
+    }
+  </script>
+</Layout>
+
+<style>
+  .tags-page__intro {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-lg);
+  }
+
+  .tags-page__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    justify-content: center;
+  }
+
+  .tags-page__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .tags-page__tag:hover {
+    transform: translateY(-2px);
+  }
+
+  .tags-page__tag-icon {
+    opacity: 0.6;
+  }
+
+  .tags-page__tag-name {
+    font-weight: 500;
+  }
+
+  .tags-page__tag-count {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-left: var(--space-xs);
+  }
+
+  .tags-page__empty {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: var(--space-xl);
+  }
+</style>

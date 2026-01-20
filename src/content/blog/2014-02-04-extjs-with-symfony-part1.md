@@ -536,7 +536,7 @@ So prefer to include what you need on the template, and be careful to respect th
 
 Now we have a great filters feature on our grid!
 
-![screenshot](/images/posts/screen_filter.png)
+![screenshot](/images/posts/screen_filter.webp)
 
 ### Controller
 

@@ -2,57 +2,126 @@
 title: "Frontend Development Weekly Digest 🧘 - Weeks 8-9"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2025-02-27"
-conclusion: "That’s it for this week’s frontend digest! What are you most excited about? Happy coding! 🚀"
-image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
+conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
+image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
 ---
 
 ## 🔥 Framework Updates
 
 ### React
 
-- **Create React App Deprecation**: The React team officially deprecated Create React App (CRA), advising developers to migrate to modern frameworks or build tools like Vite. [Read more](https://react.dev/blog/2025/02/14/sunsetting-create-react-app#:~:text=February%2014%2C%202025%20by%20Matt,Carroll%20and%20Ricky%20Hanlon?ref=zazen_code).
+- **(⚰️) [Create React App Is Dead](https://react.dev/blog/2025/02/14/sunsetting-create-react-app?ref=zazen_code)**
+
+  The React team finally pulled the plug on CRA. Pour one out for `npx create-react-app my-app` — you served us well (kind of). Time to migrate to Vite or Next.js. The future is now, folks.
 
 ### Angular
 
-- **Angular 19.2 Update**: Angular 19.2.0 introduces experimental `httpResource` APIs and TypeScript 5.8 support. [Read more](https://blog.ninja-squad.com/2025/02/26/what-is-new-angular-19.2/#:~:text=Angular%C2%A019).
-- **Angular Roadmap**: The Angular team focuses on Signals, zoneless Angular, and improved tooling. [Check the roadmap](https://angular.dev/roadmap#:~:text=Currently%2C%20Angular%20has%20two%20goals,for%20the%20framework).
+- **(🅰️) [Angular 19.2 Update](https://blog.ninja-squad.com/2025/02/26/what-is-new-angular-19.2/?ref=zazen_code)**
+
+  Experimental `httpResource` APIs and TypeScript 5.8 support dropped. Angular keeps shipping while the haters keep typing.
+
+- **(🗺️) [Angular Roadmap](https://angular.dev/roadmap?ref=zazen_code)**
+
+  Signals, zoneless Angular, and improved tooling are on the menu. The Angular team has been eating well lately.
 
 ### Vue.js
 
-- **Vue 3.6 Preview**: Vue 3.6 introduces “Vapor Mode” for improved performance. [More details](https://www.cypress.io/blog/three-talks-to-check-out-at-vue-js-nation#:~:text=Evan%20You%20%E2%80%93%20Preview%20of,6%20%26%20Vapor%20Mode).
-- **Nuxt DevTools 2.0**: Enhanced debugging and editor integration for Nuxt developers. [Release notes](https://github.com/nuxt/devtools/releases#:~:text=Nuxt%20DevTools%20v2,us%20to%20move%20forward%20easier).
+- **(💚) [Vue 3.6 Preview](https://www.cypress.io/blog/three-talks-to-check-out-at-vue-js-nation?ref=zazen_code)**
+
+  Vapor Mode is coming and the Vue community can barely contain their excitement. Performance gains without the React drama? Sign us up.
+
+- **(🔧) [Nuxt DevTools 2.0](https://github.com/nuxt/devtools/releases?ref=zazen_code)**
+
+  Debugging just got a whole lot prettier. Editor integration that actually works.
 
 ### Svelte
 
-- **Svelte 5.19 Release**: Minor updates improving reactivity and developer experience. [Changelog](https://github.com/sveltejs/svelte/releases?page=2#:~:text=Minor%20Changes).
-- **Threlte 8 (Three.js + Svelte)**: New features for better 3D graphics in Svelte. [Read more](https://threlte.xyz/blog/threlte-8#:~:text=Today%20we%20are%20releasing%20Threlte,3D%20graphics%20on%20the%20web).
+- **(🧡) [Svelte 5.19 Release](https://github.com/sveltejs/svelte/releases?ref=zazen_code)**
+
+  Minor updates improving reactivity and DX. Svelte keeps winning hearts one release at a time.
+
+- **(🎮) [Threlte 8 (Three.js + Svelte)](https://threlte.xyz/blog/threlte-8?ref=zazen_code)**
+
+  3D graphics in Svelte just got a major glow-up. Your portfolio sites are about to get *fancy*.
 
 ### Other Frameworks
 
-- **SolidJS 2.0 Roadmap**: Improvements in async handling and reactivity. [Discussion](https://github.com/solidjs/solid/discussions/2425#:~:text=Hello%20everyone,0).
-- **Next.js 14 Updates**: Caching and performance enhancements. [Latest news](https://nextjs.org/blog/next-14-2#:~:text=Next,and%20caching%20improvements).
-- **Astro 4.0**: New APIs and performance boosts. [See what's new](https://astro.build/blog/astro-4/#:~:text=Introducing%20Astro%204,in%20new%20and%20exciting%20ways).
+- **(⚡) [SolidJS 2.0 Roadmap](https://github.com/solidjs/solid/discussions/2425?ref=zazen_code)**
+
+  Async handling and reactivity improvements incoming. SolidJS continues to punch above its weight.
+
+- **(▲) [Next.js 14 Updates](https://nextjs.org/blog/next-14-2?ref=zazen_code)**
+
+  Caching and performance enhancements. Vercel's cash cow keeps getting shinier.
+
+- **(🚀) [Astro 4.0](https://astro.build/blog/astro-4/?ref=zazen_code)**
+
+  New APIs and performance boosts. The "ship less JavaScript" framework ships even less JavaScript.
 
 ## 🛠️ Developer Tools & Libraries
 
-- **Storybook 8.5**: Real-time a11y testing and better React Native Web integration. [Read more](https://storybook.js.org/blog/storybook-8-5/#:~:text=,storybookjs%29%20January%2021%2C%202025).
-- **tRPC + TanStack Query Integration**: Simplifies state management in full-stack TypeScript apps. [Details](https://trpc.io/blog/introducing-tanstack-react-query-client#:~:text=We%20are%20excited%20to%20announce,with%20our%20own%20client).
+- **(📚) [Storybook 8.5](https://storybook.js.org/blog/storybook-8-5/?ref=zazen_code)**
+
+  Real-time a11y testing and better React Native Web integration. Your design system thanks you.
+
+- **(🔗) [tRPC + TanStack Query Integration](https://trpc.io/blog/introducing-tanstack-react-query-client?ref=zazen_code)**
+
+  TypeScript end-to-end just got even more type-safe. Runtime errors? Never heard of them.
 
 ## 🌐 Web Standards & Browser Updates
 
-- **Interop 2025**: Browser compatibility improvements across multiple focus areas. [Read more](https://webkit.org/blog/16458/announcing-interop-2025/#:~:text=This%20year%E2%80%99s%20Interop%202025%20runs,tests%20for%2019%20focus%20areas).
-- **Chrome 134 & WebGPU**: New GPU capabilities for better performance. [More info](https://developer.chrome.com/blog/new-in-webgpu-134?hl=en#:~:text=Improve%20machine).
-- **TC39 Stage 4 Proposals**: New JavaScript features reaching standardization. [Check it out](https://socket.dev/blog/tc39-advances-3-proposals-to-stage-4-regexp-escaping-float16array-and-redeclarable-global-eval#:~:text=Stage%204%2C%20meaning%20they%20are,progress%20to%20the%20next%20stages).
+- **(🌍) [Interop 2025](https://webkit.org/blog/16458/announcing-interop-2025/?ref=zazen_code)**
+
+  Browser compatibility improvements across 19 focus areas. The "works in Chrome but not Safari" era is (slowly) ending.
+
+- **(🎨) [Chrome 134 & WebGPU](https://developer.chrome.com/blog/new-in-webgpu-134?ref=zazen_code)**
+
+  New GPU capabilities for better performance. Your fancy WebGL demos just got fancier.
+
+- **(📜) [TC39 Stage 4 Proposals](https://socket.dev/blog/tc39-advances-3-proposals-to-stage-4-regexp-escaping-float16array-and-redeclarable-global-eval?ref=zazen_code)**
+
+  RegExp escaping, Float16Array, and more reaching standardization. JavaScript keeps evolving.
 
 ## 📈 Trends & Best Practices
 
-- **State of CSS 2024**: `:has()`, Container Queries, and CSS Nesting trends. [Survey results](https://web.dev/blog/state-of-css-html-2024#:~:text=For%20CSS%2C%20,tied%20with%20CSS%20nesting).
-- **Less JavaScript Movement**: Developers focus on reducing JS bloat. [Read more](https://stackoverflow.blog/2023/01/27/the-less-javascript-the-better-ep-532/#:~:text=Astro%20is%20a%20site%20builder,rich%2C%20performant%20websites).
+- **(📊) [State of CSS 2024](https://web.dev/blog/state-of-css-html-2024?ref=zazen_code)**
+
+  `:has()`, Container Queries, and CSS Nesting are trending. CSS is eating JavaScript's lunch.
+
+- **(🪶) [Less JavaScript Movement](https://stackoverflow.blog/2023/01/27/the-less-javascript-the-better-ep-532/?ref=zazen_code)**
+
+  Developers are finally realizing maybe we don't need 2MB of JS for a blog. Revolutionary concept.
 
 ## 🎤 Events
 
-- **Svelte Summit 2025**: Happening May 8-9, 2025, in Barcelona & online. [Event details](https://www.sveltesummit.com/#:~:text=Spring%202025).
+- **(🎪) [Svelte Summit 2025](https://www.sveltesummit.com/?ref=zazen_code)**
+
+  May 8-9, Barcelona & online. Get your Svelte on.
 
 ## 🎮 Bonus
 
-- **CS16 Design System**: A Counter-Strike 1.6 themed CSS framework! [Check it out](https://cs16.samke.me/#:~:text=CSS%20library%20based%20on%20Counter,6%20UI).
+- **(🔫) [CS16 Design System](https://cs16.samke.me/?ref=zazen_code)**
+
+  A Counter-Strike 1.6 themed CSS framework. Finally, someone understands what developers *really* need.
+
+---
+
+**Cited Sources:**
+
+- React Blog
+- Ninja Squad
+- Angular Dev
+- Cypress Blog
+- GitHub
+- Threlte
+- SolidJS
+- Next.js Blog
+- Astro Blog
+- Storybook Blog
+- tRPC Blog
+- WebKit Blog
+- Chrome Developers
+- Socket.dev
+- Web.dev
+- Stack Overflow Blog
+- Svelte Summit

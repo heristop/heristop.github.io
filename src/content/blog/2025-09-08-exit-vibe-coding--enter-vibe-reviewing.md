@@ -3,7 +3,7 @@ title: 🔍 Exit "Vibe Coding", Enter "Vibe Reviewing"
 description: "As a Chapter Lead at Carrefour France, I audit projects across different technical stacks (frontend, backend, mobile, etc.) as part of my role. Recently, I’ve been experimenting with AI agents for these audits. After several audited projects: time reduced by 3x, but not without challenges. Spoiler: It’s not magic. Be wary of contrary claims. Some come from former no-code gurus now rebranded as “AI evangelists” who pontificate on topics they’ve never even prompted themselves. I’m sharing my learning journey through iteration, from disillusionment to a working method."
 pubDate: "2025-09-08"
 conclusion: "👉 Eighth Lesson* (which will serve as a conclusion): A good audit doesn't end, it transforms into ongoing support."
-image: "/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751634589187.jpg"
+image: "/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751634589187.webp"
 ---
 
 **TL;DR**: As a Chapter Lead at Carrefour France, I audit projects across different technical stacks (frontend, backend, mobile, etc.) as part of my role. Recently, I've been experimenting with AI agents for these audits. **After several audited projects**: time reduced by 3x, but not without challenges.
@@ -31,7 +31,7 @@ In short, real life isn't:
 <div class="img-container">
   <figure class="img-figure">
     <img
-      src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751651236397.png"
+      src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751651236397.webp"
       alt="Screenshots of Vibe Coded Game"
       class="img-large img-rounded"
     />
@@ -158,7 +158,7 @@ So I stopped using this agent, despite being newly released and free (not for a 
 <div class="img-container img-margin-y">
   <figure class="img-figure">
     <img
-      src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751651127829.png"
+      src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751651127829.webp"
       alt="VitePress documentation screenshot"
       class="img-large img-rounded"
     />
@@ -183,7 +183,7 @@ So I stopped using this agent, despite being newly released and free (not for a 
 <div class="img-container">
   <figure class="img-figure">
     <img
-      src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751897333288.png"
+      src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751897333288.webp"
       alt="Documentation screenshot"
       class="img-responsive img-rounded"
     />
@@ -263,7 +263,7 @@ So I stopped using this agent, despite being newly released and free (not for a 
 
 **The Visual Journey**:
 
-![Mermaid schema](/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/mermaid-workflow.png)
+![Mermaid schema](/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/mermaid-workflow.webp)
 
 **The Journey in Numbers**:
 
@@ -278,7 +278,7 @@ So I stopped using this agent, despite being newly released and free (not for a 
 <div class="img-container">
   <figure class="img-figure">
     <img
-      src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/ratatouille-vibe.png"
+      src="/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/ratatouille-vibe.webp"
       alt="Recipe image"
       class="img-responsive img-rounded"
     />

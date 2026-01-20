@@ -3,7 +3,7 @@ title: "How Carrefour Built a 360° Frontend Observatory for Hundreds of Project
 description: "Measuring Design System adoption, accessibility compliance, and tech standards at scale using AST parsing"
 pubDate: "2025-11-28"
 conclusion: "☝ A Design System without measurement is a blind investment. With our Frontend Observatory, we now have a 360° view: from the tech ecosystem down to every component and accessibility attribute. If you can't measure it, you can't improve it."
-image: "/images/posts/2025-11-28-frontend-observatory/observatory-header.png"
+image: "/images/posts/2025-11-28-frontend-observatory/observatory-header.webp"
 ---
 
 Picture this: you're responsible for frontend architecture across a large organization. Hundreds of active projects. Multiple teams. Different frameworks. Various coding standards.
@@ -45,12 +45,12 @@ Raw numbers mean nothing without context, so we compare our tech choices against
 
 ### 💡 Key Insight After One Year
 
-One pattern emerged clearly: **teams using our starter kits consistently show higher adoption of quality tools and earlier Design System integration**.
+One pattern emerged: **teams using our starter kits consistently show higher adoption of quality tools and earlier Design System integration**.
 
-The starter kit isn't just a convenience—it's a multiplier for standards adoption.
+The starter kit correlates with better standards adoption.
 
 <div class="img-container">
-  <img src="/images/posts/2025-11-28-frontend-observatory/starter-kit.png" alt="Starter kit adoption metrics across Digital Factories" class="img-responsive" />
+  <img src="/images/posts/2025-11-28-frontend-observatory/starter-kit.webp" alt="Starter kit adoption metrics across Digital Factories" class="img-responsive" />
 </div>
 
 ## 🎨 Phase 2: Going Deeper with Design System Analysis
@@ -83,7 +83,7 @@ With AST parsing in place, we can extract three categories of data from every pr
 #### Component Usage
 
 <div class="img-container">
-  <img src="/images/posts/2025-11-28-frontend-observatory/marcel-component-distribution.png" alt="Marcel component usage distribution" class="img-responsive" />
+  <img src="/images/posts/2025-11-28-frontend-observatory/marcel-component-distribution.webp" alt="Marcel component usage distribution" class="img-responsive" />
 </div>
 
 We identify every Marcel component used in the codebase. A typical scan picks up elements like:
@@ -99,7 +99,7 @@ For each component, we count how many times it appears, analyze usage patterns, 
 #### Design Token References
 
 <div class="img-container">
-  <img src="/images/posts/2025-11-28-frontend-observatory/token-usage-category.png" alt="Design token usage breakdown by category" class="img-responsive" />
+  <img src="/images/posts/2025-11-28-frontend-observatory/token-usage-category.webp" alt="Design token usage breakdown by category" class="img-responsive" />
 </div>
 
 Beyond components, we scan CSS files for design token references:
@@ -171,7 +171,7 @@ For those interested in the implementation:
 ## 📈 The Output: Auto-Generated Dashboards
 
 <div class="img-container">
-  <img src="/images/posts/2025-11-28-frontend-observatory/dashboard.png" alt="Frontend Observatory auto-generated dashboard overview" class="img-responsive" />
+  <img src="/images/posts/2025-11-28-frontend-observatory/dashboard.webp" alt="Frontend Observatory auto-generated dashboard overview" class="img-responsive" />
 </div>
 
 Every scan produces interactive dashboards with charts and visualizations, along with detailed reports broken down by Digital Factory. Each project gets a scorecard with actionable recommendations, plus trend analysis showing how metrics evolve over time.
@@ -180,21 +180,21 @@ These dashboards are automatically generated and reviewed in **every Digital Fac
 
 ## 🎓 Lessons Learned
 
-Building this system taught us several things worth sharing.
+Building this system taught us several things.
 
 **Measure what matters.** npm install counts are vanity metrics—actual component usage in code tells the real story.
 
 **Automate everything.** Manual reporting doesn't scale. If it's not automated, it won't happen consistently.
 
-**Connect to business rhythms.** Dashboards that get reviewed in performance meetings create accountability. Data without visibility is useless.
+**Connect to business rhythms.** Dashboards reviewed in performance meetings create accountability. Data without visibility is useless.
 
-**Start simple, then go deep.** We began with basic framework detection; AST parsing came later. Iterate based on the questions that matter most.
+**Start simple, then go deep.** We began with basic framework detection; AST parsing came later. Iterate based on what matters most.
 
-**Invest in foundations.** Great starter kits are the highest-leverage way to spread standards across teams—get them right, and adoption follows.
+**Invest in foundations.** Starter kits spread standards across teams effectively when done right.
 
 ## 🔮 What's Next
 
-We're now looking at how to make the system smarter. AI-powered recommendations could suggest specific accessibility fixes. Predictive alerts would flag projects before they drift too far from standards. We're also exploring cross-project component sharing analysis to identify reuse opportunities, and real-time scanning via CI/CD integration so teams get feedback with every commit.
+We're now looking at how to expand the system. AI-powered recommendations could suggest specific accessibility fixes. Predictive alerts would flag projects before they drift from standards. We're exploring cross-project component sharing analysis to identify reuse opportunities, and real-time scanning via CI/CD integration for immediate feedback.
 
 The goal remains the same: replace assumptions with data, and turn that data into action.
 

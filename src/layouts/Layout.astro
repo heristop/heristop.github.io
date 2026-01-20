@@ -8,17 +8,20 @@ import Icon from "../components/Icon.astro";
 import { SITE_TITLE } from "../consts";
 import "../styles/global.scss";
 
-type Props = CollectionEntry<"blog">["data"] & {
+type Props = Partial<CollectionEntry<"blog">["data"]> & {
+  title: string;
+  description: string;
   readingTime?: number;
+  isArticle?: boolean;
 };
 
-const { title, metaTitle, description, image } = Astro.props;
+const { title, metaTitle, description, image, isArticle, pubDate, updatedDate } = Astro.props;
 
 ---
 
 <html lang="en">
   <head>
-    <BaseHead title={title} metaTitle={metaTitle} description={description} image={image} />
+    <BaseHead title={title} metaTitle={metaTitle} description={description} image={image} isArticle={isArticle} pubDate={pubDate} updatedDate={updatedDate} />
   </head>
 
   <body>

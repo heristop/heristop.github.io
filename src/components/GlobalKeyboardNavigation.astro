@@ -9,12 +9,9 @@ const navPages = [
   { path: '/about/', title: 'About' }
 ];
 
-// Find current page index
 const getCurrentPageIndex = (path: string) => {
-  // Normalize paths for comparison
   const normalizedPath = path === '/' ? '/' : path.replace(/\/$/, '/');
 
-  // Special handling for blog index
   if (path === '/blog' || path === '/blog/') {
     return navPages.findIndex(page => page.path === '/blog/');
   }
@@ -24,7 +21,6 @@ const getCurrentPageIndex = (path: string) => {
 
 const currentIndex = getCurrentPageIndex(currentPath);
 
-// Calculate previous and next pages (cyclical)
 const previousIndex = currentIndex > 0 ? currentIndex - 1 : navPages.length - 1;
 const nextIndex = currentIndex < navPages.length - 1 ? currentIndex + 1 : 0;
 
@@ -33,23 +29,19 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
 ---
 
 <script type="module" is:inline define:vars={{ previousPage, nextPage, currentIndex }}>
-  // Device detection (global scope)
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   const isMobile = () => window.innerWidth <= 768;
   const isTablet = () => window.innerWidth > 768 && window.innerWidth <= 1024;
   const shouldUseTouchNavigation = () => isTouchDevice && (isMobile() || isTablet());
 
   function initGlobalKeyboardNavigation() {
-    // Only enable if we're on a main navigation page
     if (currentIndex < 0) {return;}
 
-    // Clean up any existing post navigation indicators from blog articles
     const existingPostNav = document.querySelector('.post-navigation-indicators');
     if (existingPostNav) {
       existingPostNav.remove();
     }
 
-    // Also clean up any existing global navigation to prevent duplicates
     const existingGlobalNav = document.querySelector('.global-navigation-indicators');
     if (existingGlobalNav) {
       existingGlobalNav.remove();
@@ -67,11 +59,9 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
       );
     }
 
-    // Listen for focus/blur on input elements
     document.addEventListener('focusin', updateInputFocus);
     document.addEventListener('focusout', updateInputFocus);
 
-    // Unified navigation function
     function navigateToPage(direction) {
       const targetPage = direction === 'previous' ? previousPage : nextPage;
       if (targetPage) {
@@ -82,10 +72,8 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
       }
     }
 
-    // Handle keyboard navigation (desktop only)
     if (!shouldUseTouchNavigation()) {
       document.addEventListener('keydown', (event) => {
-        // Skip if input is focused or modifier keys are pressed
         if (isInputFocused || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
           return;
         }
@@ -110,14 +98,13 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
       });
     }
 
-    // Handle touch navigation (mobile/tablet only)
     if (shouldUseTouchNavigation()) {
       let touchStartX = 0;
       let touchStartY = 0;
       let touchStartTime = 0;
-      const swipeThreshold = 100; // Minimum distance for swipe
-      const swipeTimeout = 500; // Maximum time for swipe
-      const verticalThreshold = 50; // Maximum vertical movement
+      const swipeThreshold = 100;
+      const swipeTimeout = 500;
+      const verticalThreshold = 50;
 
       document.addEventListener('touchstart', (event) => {
         if (isInputFocused) {return;}
@@ -140,20 +127,16 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
         const deltaY = Math.abs(touchEndY - touchStartY);
         const timeDelta = touchEndTime - touchStartTime;
 
-        // Reset touch tracking
         touchStartX = 0;
 
-        // Check if this qualifies as a horizontal swipe
         if (Math.abs(deltaX) > swipeThreshold &&
             deltaY < verticalThreshold &&
             timeDelta < swipeTimeout) {
 
           if (deltaX > 0 && previousPage) {
-            // Swipe right = go to previous page
             event.preventDefault();
             navigateToPage('previous');
           } else if (deltaX < 0 && nextPage) {
-            // Swipe left = go to next page
             event.preventDefault();
             navigateToPage('next');
           }
@@ -161,7 +144,6 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
       }, { passive: false });
     }
 
-    // Show brief visual feedback for navigation
     function showNavigationHint(direction, pageTitle) {
       const hint = document.createElement('div');
       hint.className = `navigation-hint navigation-hint--${direction}`;
@@ -186,12 +168,10 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
       }, 1000);
     }
 
-    // Add navigation indicators to page
     createGlobalNavigationIndicators();
   }
 
   function createGlobalNavigationIndicators() {
-    // Check if indicators already exist to avoid duplicates
     if (document.querySelector('.global-navigation-indicators')) {
       return;
     }
@@ -243,22 +223,18 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
     document.body.append(indicators);
   }
 
-  // Clean up function to remove only global navigation indicators
   function cleanupGlobalNavigation() {
     const globalNav = document.querySelector('.global-navigation-indicators');
     if (globalNav) {globalNav.remove();}
   }
 
-  // Initialize when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initGlobalKeyboardNavigation);
   } else {
     initGlobalKeyboardNavigation();
   }
 
-  // Clean up and reinitialize on page navigation (for SPA-like behavior)
   document.addEventListener('astro:page-load', () => {
-    // Only clean up if we're on a page that should have global navigation
     const isArticlePage = window.location.pathname.startsWith('/blog/') &&
                          window.location.pathname !== '/blog/' &&
                          window.location.pathname !== '/blog';
