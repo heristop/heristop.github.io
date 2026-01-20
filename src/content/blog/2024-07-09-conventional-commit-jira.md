@@ -3,13 +3,13 @@ title: "Implementing Conventional Commits with Jira Ticket Prefix Validation"
 description: "Learn how to set up and configure conventional commits with a customizable Jira ticket prefix in uppercase letters for better commit message practices and seamless tracking of issues and tasks."
 pubDate: "2024-07-09"
 conclusion: 'Remember, clear commit messages make everyone''s life easier, and linking commits to Jira tickets keeps your project organized and your team informed. And please, try to avoid being the "last commit" developer - your team will thank you! Now go forth and commit with style! 💪'
-image: "/images/posts/2024-07-09-conventional-commit-jira/banner.jpg"
+image: "/images/posts/2024-07-09-conventional-commit-jira/banner.webp"
 ---
 
 **TL;DR:** This guide demonstrates how to set up conventional commits with a customizable Jira ticket prefix for JavaScript projects. It covers configuring commit message validation using git hook, ensuring better commit practices and issue tracking. The guide also briefly touches on Jira-GitLab integration to enhance traceability in your development workflow.
 
 <div class="img-container">
-  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitmessage.jpg" alt="git message" class="img-responsive" />
+  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitmessage.webp" alt="git message" class="img-responsive" />
 </div>
 
 ## Table of Contents
@@ -321,7 +321,7 @@ This setup includes a detailed error message that is displayed when a commit fai
 
 This descriptive message helps reduce confusion and frustration, especially for developers who are new to the project or to Conventional Commits. It serves as an immediate, contextual guide right at the moment when a developer needs it most - when their commit has been rejected.
 
-![hook](/images/posts/2024-07-09-conventional-commit-jira/hook.png)
+![hook](/images/posts/2024-07-09-conventional-commit-jira/hook.webp)
 
 ## Step 4: Using Conventional Commits with Jira Integration
 
@@ -353,7 +353,7 @@ To set up Jira integration in GitLab:
 4. Test and save the settings.
 
 <div class="img-container img-margin">
-  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitlab.png"  alt="gitlab" class="img-large" />
+  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitlab.webp"  alt="gitlab" class="img-large" />
 </div>
 
 ### Benefits and Usage
@@ -363,13 +363,13 @@ Once set up, this integration offers several advantages:
 - **Automatic Issue Linking:** Including a Jira issue key (e.g., _PROJ-123_) in your commit message automatically creates a link to that issue in Jira.
 
 <div class="img-container img-margin">
-  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitlab-2.png" alt="gitlab" class="img-large" />
+  <img src="/images/posts/2024-07-09-conventional-commit-jira/gitlab-2.webp" alt="gitlab" class="img-large" />
 </div>
 
 - **Commit Visibility in Jira:** Linked commits are visible in the Jira ticket's "Development" section, providing context within the ticket.
 
 <div class="img-container img-margin">
-  <img src="/images/posts/2024-07-09-conventional-commit-jira/jira.png" alt="jira" class="img-large" />
+  <img src="/images/posts/2024-07-09-conventional-commit-jira/jira.webp" alt="jira" class="img-large" />
 </div>
 
 By leveraging this integration, you create a more connected workflow between your project management in Jira and your code management in GitLab, enhancing traceability and team collaboration.

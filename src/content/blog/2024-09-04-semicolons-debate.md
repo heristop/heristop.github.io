@@ -3,7 +3,7 @@ title: "The Great Semicolon Debate in JavaScript: A Comprehensive Analysis"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-09-04"
 conclusion: "💡 In the end, the goal is to produce high-quality, maintainable JavaScript code. The semicolon debate, while important, should not overshadow this primary objective. By making an informed decision and maintaining consistency, you can ensure that your codebase remains clean and efficient, with or without semicolons."
-image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
+image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
 ---
 
 ## Introduction

@@ -342,7 +342,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         return;
       }
 
-      // Progressive reveal based on banner scroll progress
+      // Navigation bar visibility based on banner scroll position
       const opacity = Math.max(0, Math.min(1, 1 - progress));
       const translateY = Math.max(-100, Math.min(0, (progress - 0.7) * 333));
       const backdropBlur = Math.max(0, Math.min(20, (1 - progress) * 20));
@@ -361,12 +361,11 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     };
 
     const initializeObserver = () => {
-      // Clean up existing observer
       if (scrollObserver) {
         scrollObserver.disconnect();
       }
 
-      // Create observer with multiple thresholds for smooth animation
+      // 21 thresholds (0.05 increments) for smooth scroll animation
       const thresholds = Array.from({ length: 21 }, (_, i) => i * 0.05);
 
       scrollObserver = new IntersectionObserver(
@@ -389,15 +388,12 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        // Reinitialize observer on resize for accuracy
         initializeObserver();
         updateNavVisibility(0);
       }, 100);
     };
 
     window.addEventListener('resize', handleResize);
-
-    // Initialize the observer
     initializeObserver();
 
     (window as any).__headerStickyCleanup = () => {
@@ -421,7 +417,6 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     let blogPosts: any[] = [];
     let searchTimeout: ReturnType<typeof setTimeout>;
 
-    // Fetch blog posts data
     const loadBlogPosts = async () => {
       try {
         const response = await fetch('/api/search-posts.json');
@@ -458,7 +453,6 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     };
 
     const closeSearch = () => {
-      // Blur any focused elements inside search overlay first
       if (document.activeElement && searchOverlay.contains(document.activeElement)) {
         (document.activeElement as HTMLElement).blur();
       }
@@ -525,14 +519,12 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         return;
       }
 
-      // Helper function to escape HTML
       const escapeHtml = (text: string) => {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
       };
 
-      // Helper function to format date like articles (10 Sept 2025)
       const formatDate = (date: string | Date) => {
         const postDate = new Date(date);
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
@@ -562,7 +554,6 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       `;
     };
 
-    // Event listeners
     searchToggles.forEach(toggle => toggle.addEventListener('click', openSearch));
     searchClose.addEventListener('click', closeSearch);
 
@@ -572,7 +563,6 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       searchTimeout = setTimeout(() => performSearch(query), 150);
     });
 
-    // Enhanced keyboard navigation and shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && searchOverlay.classList.contains('search-overlay--open')) {
         closeSearch();
@@ -582,7 +572,6 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         openSearch();
       }
 
-      // Arrow key navigation for search results
       if (searchOverlay.classList.contains('search-overlay--open')) {
         const results = searchResults.querySelectorAll('.search-result');
         const currentFocus = document.activeElement as HTMLElement;
@@ -615,14 +604,12 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       }
     });
 
-    // Click outside to close
     searchOverlay.addEventListener('click', (e) => {
       if (e.target === searchOverlay) {
         closeSearch();
       }
     });
 
-    // Load posts on initialization
     loadBlogPosts();
   };
 

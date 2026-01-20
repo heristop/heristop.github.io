@@ -3,7 +3,7 @@ title: "Frontend Development Weekly Digest 🧘 - Weeks 2-3"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2026-01-19"
 conclusion: "That’s it for this week’s frontend digest! What are you most excited about? Happy coding! 🚀"
-image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.jpg"
+image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
 ---
 
 ## 📢 News & Trends

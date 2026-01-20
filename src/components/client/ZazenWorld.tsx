@@ -10,9 +10,7 @@ interface MapTile {
   decors: string;
 }
 
-// Helper function to generate terrain procedurally
 const generateTerrain = (x: number, y: number): { img: string; decors: string; perso: number } => {
-  // Original map content (centered at 4-9 range in 12x12 map)
   const originalContent: Record<string, { img: string; decors: string; perso: number }> = {
     "4-4": { img: "terre", decors: "pierre", perso: 0 }, "4-5": { img: "terre", decors: "pierre", perso: 0 }, "4-6": { img: "terre", decors: "", perso: 0 }, "4-7": { img: "terre", decors: "arbre", perso: 0 }, "4-8": { img: "eau-2", decors: "", perso: 0 }, "4-9": { img: "eau-1", decors: "", perso: 0 }, "5-4": { img: "terre", decors: "", perso: 0 }, "5-5": { img: "terre", decors: "", perso: 1 }, "5-6": { img: "terre", decors: "", perso: 0 }, "5-7": { img: "terre", decors: "", perso: 0 }, "5-8": { img: "eau-2", decors: "", perso: 0 }, "5-9": { img: "eau-1", decors: "", perso: 0 }, "6-4": { img: "terre", decors: "", perso: 0 }, "6-5": { img: "terre", decors: "", perso: 0 }, "6-6": { img: "terre", decors: "", perso: 0 }, "6-7": { img: "terre", decors: "", perso: 0 }, "6-8": { img: "eau-2", decors: "", perso: 0 }, "6-9": { img: "eau-1", decors: "barque", perso: 0 }, "7-4": { img: "terre", decors: "", perso: 0 }, "7-5": { img: "terre", decors: "", perso: 0 }, "7-6": { img: "terre", decors: "", perso: 0 }, "7-7": { img: "terre", decors: "", perso: 0 }, "7-8": { img: "eau-2", decors: "", perso: 0 }, "7-9": { img: "eau-1", decors: "", perso: 0 }, "8-4": { img: "terre-2", decors: "", perso: 0 }, "8-5": { img: "terre", decors: "", perso: 0 }, "8-6": { img: "terre", decors: "", perso: 3 }, "8-7": { img: "terre", decors: "", perso: 2 }, "8-8": { img: "eau-2", decors: "", perso: 0 }, "8-9": { img: "eau-1", decors: "", perso: 0 }, "9-4": { img: "terre", decors: "", perso: 0 }, "9-5": { img: "terre-2", decors: "", perso: 0 }, "9-6": { img: "terre", decors: "arbre", perso: 0 }, "9-7": { img: "terre", decors: "", perso: 0 }, "9-8": { img: "eau-2", decors: "", perso: 0 }, "9-9": { img: "eau-1", decors: "", perso: 0 },
   };
@@ -22,41 +20,32 @@ const generateTerrain = (x: number, y: number): { img: string; decors: string; p
     return originalContent[key];
   }
 
-  // Procedural generation for new areas
   const centerX = 6.5;
   const centerY = 6.5;
   const distanceFromCenter = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
 
-  // Create varied terrain based on distance and position
   let img = "terre";
   let decors = "";
   let perso = 0;
 
-  // Water areas - river crossing the entire map horizontally
   if (y >= 8 && y <= 9) {
     img = y === 9 ? "eau-1" : "eau-2";
   }
-  // Mountain/rocky areas at edges
   else if (distanceFromCenter > 7 || (x <= 2 || x >= 11 || y <= 2 || y >= 11)) {
     img = Math.random() > 0.6 ? "terre-2" : "terre";
   }
-  // Regular terrain with variation
   else {
     img = Math.random() > 0.7 ? "terre-2" : "terre";
   }
 
-  // Add decorations (more sparse)
   if (img.includes("terre") && Math.random() > 0.8) {
     const decorOptions = ["arbre", "pierre"];
     decors = decorOptions[Math.floor(Math.random() * decorOptions.length)];
   }
 
-  // No additional boats - only the one in original content
-
   return { decors, img, perso };
 };
 
-// Generate the 12x12 map
 const initialMap: MapTile[] = [];
 for (let x = 1; x <= 12; x++) {
   for (let y = 1; y <= 12; y++) {
@@ -89,9 +78,8 @@ export default function ZazenWorld() {
         if (left > maxX) {maxX = left;}
       });
 
-      // Add tile dimensions to the max values
-      const width = maxX - minX + 64; // 64 is the tile width
-      const height = maxY - minY + 90; // 90 is the tile height
+      const width = maxX - minX + 64;
+      const height = maxY - minY + 90;
 
       setMapDimensions({ height, width });
     };
@@ -106,21 +94,20 @@ export default function ZazenWorld() {
       let newX = characterPosition.x;
       let newY = characterPosition.y;
 
-      // Fixed directions for isometric view
       switch (direction) {
-        case "N": { // Move up-left visually
+        case "N": {
           newX -= 1;
           break;
         }
-        case "E": { // Move up-right visually
+        case "E": {
           newY -= 1;
           break;
         }
-        case "S": { // Move down-right visually
+        case "S": {
           newX += 1;
           break;
         }
-        case "W": { // Move down-left visually
+        case "W": {
           newY += 1;
           break;
         }
@@ -136,24 +123,22 @@ export default function ZazenWorld() {
       );
 
       if (targetTileIndex !== -1) {
-        // Create a new map only if necessary
         const newMap = [...map];
         const currentIndex = map.findIndex(
           (tile) =>
             tile.x === characterPosition.x && tile.y === characterPosition.y,
         );
         if (currentIndex !== -1) {
-          newMap[targetTileIndex] = { ...newMap[targetTileIndex], perso: 1 }; // Set the new position
-          newMap[currentIndex] = { ...newMap[currentIndex], perso: 0 }; // Clear the old position
-          setMap(newMap); // Update the map state
-          setCharacterPosition({ x: newX, y: newY }); // Update the character position state
+          newMap[targetTileIndex] = { ...newMap[targetTileIndex], perso: 1 };
+          newMap[currentIndex] = { ...newMap[currentIndex], perso: 0 };
+          setMap(newMap);
+          setCharacterPosition({ x: newX, y: newY });
         }
       }
     },
     [characterPosition, map],
   );
 
-  // Lazy initialization for character position
   useEffect(() => {
     const initialPosition = map.find((tile) => tile.perso === 1);
     if (initialPosition) {
@@ -161,7 +146,6 @@ export default function ZazenWorld() {
     }
   }, [map]);
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       switch (e.key.toLowerCase()) {
@@ -206,7 +190,6 @@ export default function ZazenWorld() {
         </p>
       </div>
 
-      {/* Inputs for movement */}
       <div className="zazen-world__compass" role="group" aria-labelledby="compass-label">
         <div className="sr-only" id="compass-label">Movement controls</div>
         <div

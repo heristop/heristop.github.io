@@ -3,7 +3,7 @@ title: "State of JavaScript 2023 - Summary"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-06-21"
 conclusion: "The State of JavaScript 2023 provides a valuable overview of the current JavaScript ecosystem, illustrating the most popular technologies and emerging trends. While based on developer opinions, these insights help better understand JavaScript development dynamics. See you next year to track these trends and discover new technologies shaping the future of JavaScript development. 🚀✨"
-image: /images/posts/2024-06-21-state-of-js/state_of_js.png
+image: /images/posts/2024-06-21-state-of-js/state_of_js.webp
 ---
 
 ## Introduction
@@ -12,7 +12,7 @@ The **[State of JS 2023](https://2023.stateofjs.com/)** is an annual survey that
 
 ## Library Tier List
 
-![Tiers List](/images/posts/2024-06-21-state-of-js/tiers_list.png)
+![Tiers List](/images/posts/2024-06-21-state-of-js/tiers_list.webp)
 
 **Category S (90%+)**:
 The most appreciated tools include **Vite**, **Vitest**, **Playwright**, **pnpm**, **esbuild**, and **Astro**. These tools are highly rated for their speed and efficiency, reflecting massive adoption and positive feedback. 🚀
@@ -28,19 +28,19 @@ Older tools like **Parcel**, **Mocha**, and **webpack** show declining popularit
 
 ## Changes Over Time
 
-![Tools](/images/posts/2024-06-21-state-of-js/tools_arrows.png)
+![Tools](/images/posts/2024-06-21-state-of-js/tools_arrows.webp)
 
 Some technologies like **Vite**, **esbuild**, and **SWC** are rising in popularity due to their speed. **React**, **Next.js**, and **Jest** remain stable with consistently positive reviews. **Angular**, **Mocha**, and **Selenium** are declining as developers move towards more efficient alternatives. New entries like **Bun**, **Qwik**, and **Solid** show growing adoption and positive feedback. 🔄
 
 ## Frontend Frameworks Ratios Over Time
 
-![Frameworks](/images/posts/2024-06-21-state-of-js/frontend_ratios.png)
+![Frameworks](/images/posts/2024-06-21-state-of-js/frontend_ratios.webp)
 
 **React** continues to dominate with stable and high adoption. **Vue.js** has stabilized after significant growth. **Angular** is declining due to its complexity and increased competition. **Svelte** is rising thanks to its performance and simplicity. **Preact** and **Solid** show positive trends with stable and growing adoption, respectively. Other frameworks like **Qwik**, **Stencil**, **Alpine.js**, **Lit**, and **HTMX** are gaining recognition. 📈
 
 ## Meta-Frameworks Frontend
 
-![Meta-Frameworks](/images/posts/2024-06-21-state-of-js/meta_frameworks_ratios.png)
+![Meta-Frameworks](/images/posts/2024-06-21-state-of-js/meta_frameworks_ratios.webp)
 
 **Next.js** leads with steady growth, reaching around 60% adoption in 2023. Its strengths lie in server-side rendering (SSR) and static site generation (SSG), making it a popular choice for developers. **Nuxt** follows closely for Vue.js users, maintaining stable adoption rates. **Gatsby** has seen a decline after peaking in 2020, losing ground to more modern solutions. **SvelteKit** and **Remix** are gaining traction, with developers appreciating their performance and modern features. **Astro** is growing rapidly, favored for its ultra-fast static site generation. **Eleventy**, **Docusaurus**, **SolidStart**, and **Deno Fresh** show modest adoption but potential for growth, reflecting interest in specialized use cases and new paradigms. 🛠️
 

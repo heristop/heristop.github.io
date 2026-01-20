@@ -1,15 +1,26 @@
 ---
-// Import the global.css file here so that it is included on
-// all pages through the use of the <BaseHead /> component.
 import '../styles/global.scss';
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+interface Props {
+  title: string;
+  metaTitle?: string;
+  description: string;
+  image?: string;
+  isArticle?: boolean;
+  pubDate?: Date;
+  updatedDate?: Date;
+}
 
 const {
   title,
   metaTitle,
   description,
   image = '/images/og-zazen.webp',
+  isArticle = false,
+  pubDate,
+  updatedDate,
 } = Astro.props;
 ---
 
@@ -28,11 +39,20 @@ const {
 <meta name="description" content={description} />
 
 <!-- Open Graph / Facebook -->
-<meta property="og:type" content="website" />
+<meta property="og:type" content={isArticle ? 'article' : 'website'} />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:title" content={metaTitle ?? title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(image, Astro.url)} />
+{isArticle && pubDate && (
+  <meta property="article:published_time" content={pubDate.toISOString()} />
+)}
+{isArticle && updatedDate && (
+  <meta property="article:modified_time" content={updatedDate.toISOString()} />
+)}
+{isArticle && (
+  <meta property="article:author" content="Alexandre Mogère" />
+)}
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image" />

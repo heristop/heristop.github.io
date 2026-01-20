@@ -2,47 +2,73 @@
 title: "Frontend Development Weekly Digest 🎍 - Week 11-12"
 description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2025-03-24"
-conclusion: "💡 Stay updated with the latest in frontend development. Follow the links for more insights."
-image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.jpg"
+conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
+image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
 ---
 
 ## 🔥 Framework Updates
 
 ### Vue.js
 
-- **Vue 3.4: `onWatcherCleanup` API:** Vue 3.4 introduces `onWatcherCleanup`, enabling internal cleanup logic directly inside watchers. This streamlines lifecycle handling in reactive components. [Read more](https://javascript.plainenglish.io/vues-watch-revolution-unlocking-powerful-new-features-in-2025-0b15d7fd3ff4?ref=zazen_code)
+- **(👀) [Vue 3.4: `onWatcherCleanup` API](https://javascript.plainenglish.io/vues-watch-revolution-unlocking-powerful-new-features-in-2025-0b15d7fd3ff4?ref=zazen_code)**
 
-- **Motion for Vue:** Framer Motion arrives in the Vue ecosystem with `<motion.div>`, layout transitions, and scroll animations. Same API, same power — now in Vue.  [Read more](https://motion.dev/blog/introducing-motion-for-vue?ref=zazen_code)
+  Finally, cleanup logic *inside* watchers. No more forgotten cleanup functions haunting your components at 2am.
 
-- **Nuxt 3.16 + Nuxt UI v3:** Nuxt 3.16 introduces `npm create nuxt`, while Nuxt UI v3 brings full Tailwind v4 support, improved accessibility, and a modern design refresh. [Nuxt 3.16 Release](https://nuxt.com/blog/v3-16?ref=zazen_code) | [Nuxt UI v3](https://nuxt.com/blog/nuxt-ui-v3?ref=zazen_code)
+- **(🎬) [Motion for Vue](https://motion.dev/blog/introducing-motion-for-vue?ref=zazen_code)**
+
+  Framer Motion has entered the Vue chat. `<motion.div>`, layout transitions, scroll animations — React devs can stop feeling smug now.
+
+- **(💚) [Nuxt 3.16 + Nuxt UI v3](https://nuxt.com/blog/v3-16?ref=zazen_code)**
+
+  `npm create nuxt` is here and Nuxt UI v3 brings Tailwind v4 support. The DX just keeps getting better.
 
 ### Next.js
 
-- **Next.js 15.2 + Security Patch:** New metadata system, enhanced error overlays, and support for React view transitions. Also patched a critical middleware bypass vulnerability (CVE-2025-29927). [What’s New](https://medium.com/@rs4528090/next-js-15-2-release-whats-new-ed7feb64b88e?ref=zazen_code) | [Security Patch](https://nextjs.org/blog/cve-2025-29927?ref=zazen_code)
+- **(▲) [Next.js 15.2 + Security Patch](https://medium.com/@rs4528090/next-js-15-2-release-whats-new-ed7feb64b88e?ref=zazen_code)**
+
+  New metadata system, error overlays, and React view transitions. Oh, and they patched a critical middleware bypass (CVE-2025-29927). Maybe update before your weekend, yeah?
 
 ### Svelte
 
-- **SvelteKit 2.17 + Svelte 5.20:** WebSocket support in SvelteKit and new `$props.id()` utility in Svelte 5.20 for SSR-friendly IDs. [What’s New](https://svelte.dev/blog/whats-new-in-svelte-march-2025?ref=zazen_code)
+- **(🧡) [SvelteKit 2.17 + Svelte 5.20](https://svelte.dev/blog/whats-new-in-svelte-march-2025?ref=zazen_code)**
+
+  WebSocket support in SvelteKit and `$props.id()` for SSR-friendly IDs. Svelte keeps making the small things feel effortless.
 
 ## 🛠️ Developer Tools & Libraries
 
-- **Oxlint (Beta):** Rust-based linter (50–100× faster than ESLint). [Read more](https://socket.dev/blog/oxlint-now-in-beta-with-500-built-in-rules-2X-faster-javascript-linting?ref=zazen_code)
+- **(🦀) [Oxlint Beta](https://socket.dev/blog/oxlint-now-in-beta-with-500-built-in-rules-2X-faster-javascript-linting?ref=zazen_code)**
 
-- **ESLint 9 Flat Config:** ESLint 9 moves to `eslint.config.js`. [Migration guide](https://www.neoxs.me/blog/migration-to-eslint-v9?ref=zazen_code)
+  Rust-based linter that's 50–100× faster than ESLint. Your CI pipeline just shed a tear of joy.
 
-- **Rsdoctor 1.0:** Rspack/Webpack visual analyzer. [Release notes](https://rsdoctor.dev/blog/release/release-note-1_0?ref=zazen_code)
+- **(📝) [ESLint 9 Flat Config](https://www.neoxs.me/blog/migration-to-eslint-v9?ref=zazen_code)**
 
-- **TypeScript in Go:** New Go-based compiler. [Announcement](https://blog.logrocket.com/typescript-new-compiler?ref=zazen_code)
+  `eslint.config.js` is the new hotness. RIP `.eslintrc`, you were... complicated.
+
+- **(🔬) [Rsdoctor 1.0](https://rsdoctor.dev/blog/release/release-note-1_0?ref=zazen_code)**
+
+  Rspack/Webpack visual analyzer. Finally understand why your bundle is the size of a small country.
+
+- **(🦫) [TypeScript Compiler in Go](https://blog.logrocket.com/typescript-new-compiler?ref=zazen_code)**
+
+  Microsoft rewrote the TypeScript compiler in Go. 10× faster. Your IDE might actually keep up with your typing now.
 
 ## 🌐 Web Standards & Browser Updates
 
-- **Chrome Q1 2025 APIs:** `text-box`, `node.moveBefore()`, File System Access. [Details](https://app.daily.dev/posts/new-in-chrome-q1-2025-css-text-box-file-system-access-for-android-baseline-updates-and-more?ref=zazen_code)
+- **(🌐) [Chrome Q1 2025 APIs](https://app.daily.dev/posts/new-in-chrome-q1-2025-css-text-box-file-system-access-for-android-baseline-updates-and-more?ref=zazen_code)**
 
-- **CSS Gap Decorations Proposal:** Native gap styling proposal. [Proposal](https://blogs.windows.com/msedgedev/2025/03/19/minding-the-gaps-a-new-way-to-draw-separators-in-css?ref=zazen_code)
+  `text-box`, `node.moveBefore()`, File System Access. Chrome keeps shipping like it's Black Friday.
 
-- **Firefox 136:** `:open`, `:has-slotted()`, `Intl.DurationFormat`. [Release notes](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/136?ref=zazen_code)
+- **(🎨) [CSS Gap Decorations Proposal](https://blogs.windows.com/msedgedev/2025/03/19/minding-the-gaps-a-new-way-to-draw-separators-in-css?ref=zazen_code)**
 
-- **Safari 18.3:** Fixes for `:has()`, `::view-transition`. [WebKit blog](https://webkit.org/blog/16439/webkit-features-in-safari-18-3?ref=zazen_code)
+  Native gap styling is coming. No more pseudo-element hacks for simple dividers. Finally.
+
+- **(🦊) [Firefox 136](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/136?ref=zazen_code)**
+
+  `:open`, `:has-slotted()`, `Intl.DurationFormat`. Firefox staying relevant one release at a time.
+
+- **(🧭) [Safari 18.3](https://webkit.org/blog/16439/webkit-features-in-safari-18-3?ref=zazen_code)**
+
+  `:has()` and `::view-transition` fixes. Safari fixing bugs? 2025 really is different.
 
 ## 📈 Trends & Best Practices
 
@@ -90,3 +116,28 @@ _Sass-flation:_
   }
 }
 ```
+
+---
+
+**Cited Sources:**
+
+- JavaScript Plain English
+- Motion.dev
+- Nuxt Blog
+- Medium
+- Svelte Blog
+- Socket.dev
+- Rsdoctor
+- LogRocket
+- Daily.dev
+- Microsoft Edge Dev Blog
+- MDN
+- WebKit Blog
+- Smashing Magazine
+- Clagnut
+- Cloud Four
+- JSWorld Conference
+- Frontrunners
+- React Miami
+- CityJS London
+- Codrops

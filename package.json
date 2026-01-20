@@ -19,7 +19,9 @@
     "test:visual": "playwright test",
     "test:visual:update": "playwright test --update-snapshots",
     "test:visual:ui": "playwright test --ui",
-    "test:visual:headed": "playwright test --headed"
+    "test:visual:headed": "playwright test --headed",
+    "optimize:images": "node scripts/optimize-images.mjs",
+    "optimize:images:dry": "node scripts/optimize-images.mjs --dry-run"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.6",
@@ -57,6 +59,7 @@
     "prettier": "^3.8.0",
     "prettier-plugin-astro": "^0.14.1",
     "sass": "^1.97.2",
+    "sharp": "^0.34.5",
     "stylelint": "^17.0.0",
     "stylelint-config-standard": "^40.0.0"
   }

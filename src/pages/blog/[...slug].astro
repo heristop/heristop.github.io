@@ -6,6 +6,8 @@ import SocialShare from "../../components/SocialShare.astro";
 import RecommendedPosts from "../../components/RecommendedPosts.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import Icon from "../../components/Icon.astro";
+import BlogPostSchema from "../../components/BlogPostSchema.astro";
+import BreadcrumbSchema from "../../components/BreadcrumbSchema.astro";
 
 const currentPostSlug = Astro.props.slug;
 
@@ -36,11 +38,30 @@ const currentIndex = allPosts.findIndex(p => p.slug === currentPostSlug);
 const previousPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : undefined;
 const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : undefined;
 
+const postUrl = `https://heristop.github.io/blog/${currentPostSlug}/`;
+
 const postData = {
   ...post.data,
   readingTime,
+  isArticle: true,
 };
+
+const breadcrumbItems = [
+  { name: 'Home', url: '/' },
+  { name: 'Blog', url: '/blog' },
+  { name: post.data.title, url: postUrl },
+];
 ---
+
+<BlogPostSchema
+  title={post.data.title}
+  description={post.data.description}
+  pubDate={post.data.pubDate}
+  updatedDate={post.data.updatedDate}
+  image={post.data.image}
+  url={postUrl}
+/>
+<BreadcrumbSchema items={breadcrumbItems} />
 
 <Layout {...postData}>
   <div class="post-page">
@@ -73,20 +94,17 @@ const postData = {
   </div>
 
   <script type="module" is:inline define:vars={{ previousPost, nextPost }}>
-    // Device detection (global scope)
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const isMobile = () => window.innerWidth <= 768;
     const isTablet = () => window.innerWidth > 768 && window.innerWidth <= 1024;
     const shouldUseTouchNavigation = () => isTouchDevice && (isMobile() || isTablet());
 
     function initKeyboardNavigation() {
-      // Clean up any existing global navigation indicators
       const existingGlobalNav = document.querySelector('.global-navigation-indicators');
       if (existingGlobalNav) {
         existingGlobalNav.remove();
       }
 
-      // Only enable if we have navigation options
       if (!previousPost && !nextPost) {return;}
 
       let isInputFocused = false;
@@ -101,11 +119,9 @@ const postData = {
         );
       }
 
-      // Listen for focus/blur on input elements
       document.addEventListener('focusin', updateInputFocus);
       document.addEventListener('focusout', updateInputFocus);
 
-      // Unified navigation function
       function navigateToPost(direction) {
         const targetPost = direction === 'previous' ? previousPost : nextPost;
         if (targetPost) {
@@ -116,10 +132,8 @@ const postData = {
         }
       }
 
-      // Handle keyboard navigation (desktop only)
       if (!shouldUseTouchNavigation()) {
         document.addEventListener('keydown', (event) => {
-          // Skip if input is focused or modifier keys are pressed
           if (isInputFocused || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
             return;
           }
@@ -144,14 +158,13 @@ const postData = {
         });
       }
 
-      // Handle touch navigation (mobile/tablet only)
       if (shouldUseTouchNavigation()) {
         let touchStartX = 0;
         let touchStartY = 0;
         let touchStartTime = 0;
-        const swipeThreshold = 100; // Minimum distance for swipe
-        const swipeTimeout = 500; // Maximum time for swipe
-        const verticalThreshold = 50; // Maximum vertical movement
+        const swipeThreshold = 100;
+        const swipeTimeout = 500;
+        const verticalThreshold = 50;
 
         document.addEventListener('touchstart', (event) => {
           if (isInputFocused) {return;}
@@ -174,20 +187,16 @@ const postData = {
           const deltaY = Math.abs(touchEndY - touchStartY);
           const timeDelta = touchEndTime - touchStartTime;
 
-          // Reset touch tracking
           touchStartX = 0;
 
-          // Check if this qualifies as a horizontal swipe
           if (Math.abs(deltaX) > swipeThreshold &&
               deltaY < verticalThreshold &&
               timeDelta < swipeTimeout) {
 
             if (deltaX > 0 && previousPost) {
-              // Swipe right = go to previous post
               event.preventDefault();
               navigateToPost('previous');
             } else if (deltaX < 0 && nextPost) {
-              // Swipe left = go to next post
               event.preventDefault();
               navigateToPost('next');
             }
@@ -195,7 +204,6 @@ const postData = {
         }, { passive: false });
       }
 
-      // Show brief visual feedback for navigation
       function showNavigationHint(direction) {
         const hint = document.createElement('div');
         hint.className = `navigation-hint navigation-hint--${direction}`;
@@ -220,7 +228,6 @@ const postData = {
         }, 1000);
       }
 
-      // Add navigation hints to page
       createNavigationIndicators();
     }
 
@@ -272,14 +279,12 @@ const postData = {
       document.body.append(indicators);
     }
 
-    // Initialize when DOM is ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initKeyboardNavigation);
     } else {
       initKeyboardNavigation();
     }
 
-    // Reinitialize on page navigation (for SPA-like behavior)
     document.addEventListener('astro:page-load', initKeyboardNavigation);
   </script>
 </Layout>

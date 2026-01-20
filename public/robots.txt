@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://heristop.github.io/sitemap-index.xml

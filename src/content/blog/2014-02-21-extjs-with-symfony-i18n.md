@@ -116,7 +116,7 @@ Ext.Msg.show({
 
 If the language of the user's locale is French, it will display this message:
 
-![screenshot](/images/posts/screen_msgalertfr.png)
+![screenshot](/images/posts/screen_msgalertfr.webp)
 
 ## ExtJS locales
 
@@ -142,4 +142,4 @@ Then, include the locale file with the variable instead of the lang:
 
 Thus, you can take advantage of standard translations for widgets, like the calendar for instance:
 
-![screenshot](/images/posts/screen_calendarfr.png)
+![screenshot](/images/posts/screen_calendarfr.webp)

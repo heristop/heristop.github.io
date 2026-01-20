@@ -8,7 +8,7 @@ export const GET: APIRoute = async () => {
     body: post.body.slice(0, 300),
     pubDate: post.data.pubDate,
     slug: post.slug,
-    title: post.data.title, // First 300 chars for search
+    title: post.data.title,
   }));
 
   return new Response(JSON.stringify(searchPosts), {

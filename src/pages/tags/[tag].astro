@@ -1,0 +1,204 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import FormattedDate from "../../components/FormattedDate.astro";
+import Icon from "../../components/Icon.astro";
+import ZenSlide from "../../components/zen/ZenSlide.astro";
+import BreadcrumbSchema from "../../components/BreadcrumbSchema.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+
+  // Collect all unique tags
+  const tags = new Set<string>();
+  posts.forEach(post => {
+    const postTags = post.data.tags ?? [];
+    postTags.forEach(tag => tags.add(tag));
+  });
+
+  // Generate paths for each tag
+  return [...tags].map(tag => ({
+    params: { tag },
+    props: { tag },
+  }));
+}
+
+interface Props {
+  tag: string;
+}
+
+const { tag } = Astro.props;
+
+const posts = (await getCollection("blog"))
+  .filter(post => (post.data.tags ?? []).includes(tag))
+  .toSorted((a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0));
+
+const delay = 10;
+
+const breadcrumbItems = [
+  { name: 'Home', url: '/' },
+  { name: 'Tags', url: '/tags' },
+  { name: tag, url: `/tags/${tag}/` },
+];
+
+function timeAgo(date: Date) {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+
+  const seconds = Math.max(Math.floor(diff / 1000), 1);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
+
+  if (years >= 1) return years === 1 ? "1 year ago" : `${years} years ago`;
+  if (months >= 1) return months === 1 ? "1 month ago" : `${months} months ago`;
+  if (days >= 1) return days === 1 ? "1 day ago" : `${days} days ago`;
+  if (hours >= 1) return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
+  if (minutes >= 1) return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
+  return "Just now";
+}
+---
+
+<BreadcrumbSchema items={breadcrumbItems} />
+
+<Layout title={`Posts tagged "${tag}"`} description={`All blog posts tagged with ${tag}`}>
+  <ZenSlide direction="up" delay={200}>
+    <div class="tag-archive__header">
+      <a href="/tags" class="tag-archive__back">
+        <Icon name="arrow-left" size={16} aria-hidden={true} />
+        All tags
+      </a>
+      <p class="tag-archive__count">
+        {posts.length} {posts.length === 1 ? 'post' : 'posts'} tagged with <strong>"{tag}"</strong>
+      </p>
+    </div>
+  </ZenSlide>
+
+  <div class="blog-archive">
+    <div class="blog-archive__grid">
+      {posts.map((post, index) => {
+        const isoDate = post.data.pubDate?.toISOString();
+        const imageSrc = post.data.image;
+        const cardStyle = `--zen-card-stagger: ${delay * index}ms`;
+
+        return (
+          <a
+            class="zen-card blog-card"
+            href={`/blog/${post.slug}/`}
+            style={cardStyle}
+            data-bg={imageSrc ?? ""}
+            data-prepared="false"
+          >
+            {isoDate && post.data.pubDate && (
+              <time class="blog-card__date" datetime={isoDate}>
+                <Icon name="calendar" size={14} class="blog-card__date-icon" aria-hidden={true} />
+                <FormattedDate date={post.data.pubDate} />
+                <span class="blog-card__date-relative">{timeAgo(post.data.pubDate)}</span>
+              </time>
+            )}
+
+            <h3 class="blog-card__title">{post.data.title}</h3>
+
+            <span class="blog-card__cta" aria-hidden={true}>
+              <Icon name="arrow-right" size={16} class="blog-card__cta-icon" />
+              <span class="blog-card__cta-text">Read more</span>
+            </span>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+
+  <script type="module" is:inline>
+    const revealZenCards = () => {
+      const cards = document.querySelectorAll('.zen-card[data-prepared="false"]');
+      if (cards.length === 0) return;
+
+      const assignBackgroundAndReveal = (card) => {
+        const bg = card.dataset.bg;
+        if (bg) {
+          card.style.setProperty('--zen-card-image', `url("${bg}")`);
+          card.dataset.bg = '';
+        }
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            card.classList.add('zen-card--visible');
+          });
+        });
+      };
+
+      const prepareCard = (card) => {
+        card.dataset.prepared = 'true';
+        if (!card.style.getPropertyValue('--zen-card-image')) {
+          card.style.setProperty('--zen-card-image', 'none');
+        }
+      };
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const card = entry.target;
+                assignBackgroundAndReveal(card);
+                observer.unobserve(card);
+              }
+            });
+          },
+          {
+            rootMargin: '0px 0px 50px 0px',
+            threshold: 0.1,
+          }
+        );
+
+        cards.forEach((card) => {
+          prepareCard(card);
+          observer.observe(card);
+        });
+      } else {
+        cards.forEach((card) => {
+          prepareCard(card);
+          assignBackgroundAndReveal(card);
+        });
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      revealZenCards();
+      document.addEventListener('astro:page-load', revealZenCards);
+    }
+  </script>
+</Layout>
+
+<style>
+  .tag-archive__header {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+  }
+
+  .tag-archive__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-bottom: var(--space-sm);
+    transition: color 0.2s ease;
+  }
+
+  .tag-archive__back:hover {
+    color: var(--text-primary);
+  }
+
+  .tag-archive__count {
+    color: var(--text-secondary);
+  }
+
+  .tag-archive__count strong {
+    color: var(--text-primary);
+  }
+</style>

@@ -1,0 +1,48 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  pubDate?: Date;
+  updatedDate?: Date;
+  image?: string;
+  url: string;
+}
+
+const { title, description, pubDate, updatedDate, image, url } = Astro.props;
+
+const siteUrl = 'https://heristop.github.io';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description: description,
+  url: url,
+  datePublished: pubDate?.toISOString(),
+  dateModified: (updatedDate ?? pubDate)?.toISOString(),
+  image: image ? new URL(image, siteUrl).toString() : undefined,
+  author: {
+    '@type': 'Person',
+    name: 'Alexandre Mogère',
+    url: `${siteUrl}/about`,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Alexandre Mogère',
+    url: siteUrl,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${siteUrl}/favicon.svg`,
+    },
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': url,
+  },
+};
+
+// Remove undefined values
+const cleanSchema = JSON.parse(JSON.stringify(schema));
+---
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(cleanSchema)} />

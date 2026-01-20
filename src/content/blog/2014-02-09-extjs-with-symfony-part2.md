@@ -150,8 +150,8 @@ For completeness, a concrete example can be found here: [HeriTicketManager](http
 
 The grid looks like this:
 
-![screenshot](/images/posts/screen_list.png)
+![screenshot](/images/posts/screen_list.webp)
 
 And here's a view sample to display the detail of a ticket:
 
-![screenshot](/images/posts/screen_show.png)
+![screenshot](/images/posts/screen_show.webp)
