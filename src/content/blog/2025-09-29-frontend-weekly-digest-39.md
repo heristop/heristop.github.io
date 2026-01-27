@@ -58,23 +58,23 @@ Two weeks of frontend goodness packed into one digest. Framework updates, shiny 
 
 **Cited Sources:**
 
-- TresJS Blog
-- Nuxt Blog
-- JavaScript Plain English
-- Reshaped Blog
-- Chonkie AI Docs
-- Tailwind CSS Animations
-- Medium (Lens.js)
-- Slidev
-- DEV Community
-- Brad Woods Layout Land
-- Ahmad Shadeed
-- React Just Parallax
-- MCP UI
-- Fliiipbook
-- State of JS Survey
-- ViteConf
-- Vue Fes Japan
-- Ironic Sans
-- Poke-Holo
-- Emil Kowalski  
+* TresJS Blog
+* Nuxt Blog
+* JavaScript Plain English
+* Reshaped Blog
+* Chonkie AI Docs
+* Tailwind CSS Animations
+* Medium (Lens.js)
+* Slidev
+* DEV Community
+* Brad Woods Layout Land
+* Ahmad Shadeed
+* React Just Parallax
+* MCP UI
+* Fliiipbook
+* State of JS Survey
+* ViteConf
+* Vue Fes Japan
+* Ironic Sans
+* Poke-Holo
+* Emil Kowalski  
