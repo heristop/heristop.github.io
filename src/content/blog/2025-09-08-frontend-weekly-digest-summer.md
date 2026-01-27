@@ -65,21 +65,21 @@ Summer 2025 was hot — and not just the weather. Major framework updates, new t
 
 **Cited Sources:**
 
-- Angular Blog
-- LogRocket
-- Michael Thiessen
-- GitHub (Front-End Checklist)
-- GitHub (JavaScript Algorithms)
-- GitHub (Awesome Node.js Security)
-- Brad Woods Layout Generator
-- SVGL App
-- Animate Icons
-- JSV9000
-- CSS-Tip
-- Theatre.js
-- JSDev Space
-- VoidZero
-- DEV Community
-- Swizec Blog
-- Curbanii Blog
-- YouTube  
+* Angular Blog
+* LogRocket
+* Michael Thiessen
+* GitHub (Front-End Checklist)
+* GitHub (JavaScript Algorithms)
+* GitHub (Awesome Node.js Security)
+* Brad Woods Layout Generator
+* SVGL App
+* Animate Icons
+* JSV9000
+* CSS-Tip
+* Theatre.js
+* JSDev Space
+* VoidZero
+* DEV Community
+* Swizec Blog
+* Curbanii Blog
+* YouTube  

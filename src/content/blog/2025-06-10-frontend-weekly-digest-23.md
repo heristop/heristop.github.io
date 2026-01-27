@@ -75,30 +75,30 @@ A packed couple of weeks covering mid-May through early June 2025. Major framewo
 
 **Cited Sources:**
 
-- Bacancy Technology
-- Remix Blog
-- Svelte Blog
-- NodeSource
-- Developer Tech
-- Microsoft DevBlogs
-- GitHub (Anime.js)
-- Tailwind CSS Blog
-- Socket.dev
-- Storybook Blog
-- Chrome Developers
-- PPC Land
-- Apple Developer
-- WebKit Blog
-- Overreacted
-- LogRocket
-- Smashing Magazine
-- The New Stack
-- Frontend Masters
-- Evil Martians
-- VoidZero
-- CSS-Tricks
-- Svelte Summit
-- Google I/O
-- Apple WWDC
-- Codrops
-- Benjamin Aster
+* Bacancy Technology
+* Remix Blog
+* Svelte Blog
+* NodeSource
+* Developer Tech
+* Microsoft DevBlogs
+* GitHub (Anime.js)
+* Tailwind CSS Blog
+* Socket.dev
+* Storybook Blog
+* Chrome Developers
+* PPC Land
+* Apple Developer
+* WebKit Blog
+* Overreacted
+* LogRocket
+* Smashing Magazine
+* The New Stack
+* Frontend Masters
+* Evil Martians
+* VoidZero
+* CSS-Tricks
+* Svelte Summit
+* Google I/O
+* Apple WWDC
+* Codrops
+* Benjamin Aster

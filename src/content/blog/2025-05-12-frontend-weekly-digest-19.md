@@ -74,23 +74,23 @@ image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
 
 **Cited Sources:**
 
-- Medium
-- DEV Community
-- Svelte Blog
-- Astro Blog
-- Nuxt Blog
-- Node.js Blog
-- GSAP Blog
-- Electron Blog
-- Web.dev
-- WebKit Blog
-- InfoWorld
-- Overreacted
-- Vue School
-- Netguru
-- Smashing Magazine
-- Vue.js Events
-- Google I/O
-- Reddit
-- Codrops
-- freeCodeCamp
+* Medium
+* DEV Community
+* Svelte Blog
+* Astro Blog
+* Nuxt Blog
+* Node.js Blog
+* GSAP Blog
+* Electron Blog
+* Web.dev
+* WebKit Blog
+* InfoWorld
+* Overreacted
+* Vue School
+* Netguru
+* Smashing Magazine
+* Vue.js Events
+* Google I/O
+* Reddit
+* Codrops
+* freeCodeCamp

@@ -95,7 +95,7 @@ image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
 
 ### 💻 CSS for Dummies
 
-_Sass-flation:_
+*Sass-flation:*
 
 ```css
 .egg-carton {
