@@ -8,41 +8,41 @@ image: "/images/posts/jackson-sophat-wUbNvDTsOIc-unsplash.webp"
 
 ## 📢 News & Trends
 
-- **(💬) [Bun or Node.js in 2024?](https://dev.to/vedansh0412/bun-or-nodejs-in-2024-6e3?ref=zazen_code)**
+- **(💬) [Bun or Node.js in 2024?](https://dev.to/vedansh0412/bun-or-nodejs-in-2024-6e3?ref=heristop.github.io)**
 
   This discussion debates the merits and potential of Bun and Node.js in the year 2024, focusing on their performance, usability, and community support.
 
-- **(📊) [JavaScript Explained](https://substackcdn.com/image/fetch/w_1456,c_limit,f_webp,q_auto:good,fl_lossy/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fc297bae5-67e2-4d8c-a020-162ea437c11c_1280x1664.gif?ref=zazen_code)**
+- **(📊) [JavaScript Explained](https://substackcdn.com/image/fetch/w_1456,c_limit,f_webp,q_auto:good,fl_lossy/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fc297bae5-67e2-4d8c-a020-162ea437c11c_1280x1664.gif?ref=heristop.github.io)**
 
   This visual content from Substack provides insights into JavaScript's functionalities and quirks through animations, offering an engaging way to understand complex JavaScript concepts.
 
 ## 🆕 Releases & Updates
 
-- **(🚀) [Server-only with NextJS](https://www.builder.io/blog/server-only-next-app-router?ref=zazen_code)**
+- **(🚀) [Server-only with NextJS](https://www.builder.io/blog/server-only-next-app-router?ref=heristop.github.io)**
 
   This article explains how to implement server-only code in a Next.js application using a package called `server-only`. It discusses how to ensure that certain functions run only on the server side, preventing them from being included in client-side bundles to enhance application security and integrity.
 
-- **(🎨) [Bun 1.1](https://bun.sh/blog/bun-v1.1?ref=zazen_code)**
+- **(🎨) [Bun 1.1](https://bun.sh/blog/bun-v1.1?ref=heristop.github.io)**
 
   Bun has released version 1.1, introducing new features and improvements that enhance its performance and developer experience. This version solidifies Bun as a formidable contender in the JavaScript runtime environment.
 
 ## 🛠 Tools & Resources
 
-- **(🌐) [Tailwind CSS Animation Helper](https://www.tailwindcss-animated.com/configurator.html?ref=zazen_code)**
+- **(🌐) [Tailwind CSS Animation Helper](https://www.tailwindcss-animated.com/configurator.html?ref=heristop.github.io)**
 
   Tailwind CSS now offers an animation configurator tool that allows developers to customize and apply animations easily within their Tailwind projects. This tool simplifies creating and managing CSS animations, making it accessible even for those with minimal animation experience.
 
-- **(📝) [JavaScript Cheat Sheet](https://htmlcheatsheet.com/js/?ref=zazen_code)**
+- **(📝) [JavaScript Cheat Sheet](https://htmlcheatsheet.com/js/?ref=heristop.github.io)**
 
   An essential resource for developers, this cheat sheet provides quick access to JavaScript syntax and common code snippets, which can be very handy during development.
 
 ## 🪐 Explore More
 
-- **(📚) [21 HTML Tips You Must Know About](https://dev.to/devshefali/21-html-tips-you-must-know-about-55j7?ref=zazen_code)**
+- **(📚) [21 HTML Tips You Must Know About](https://dev.to/devshefali/21-html-tips-you-must-know-about-55j7?ref=heristop.github.io)**
 
   This article offers practical HTML tips that can help developers optimize their markup for better performance, accessibility, and maintainability.
 
-- **(📖) [Comprehensive NestJS Course](https://www.freecodecamp.org/news/comprehensive-nestjs-course/?ref=zazen_code)**
+- **(📖) [Comprehensive NestJS Course](https://www.freecodecamp.org/news/comprehensive-nestjs-course/?ref=heristop.github.io)**
 
   A detailed course that covers NestJS, a progressive Node.js framework for building efficient and scalable server-side applications.
 

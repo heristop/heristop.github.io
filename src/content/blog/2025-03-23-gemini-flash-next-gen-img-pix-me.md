@@ -46,9 +46,9 @@ The Pix Me! application allows you to choose from different models. 🎭 Dependi
 
 ## Sources 📚
 
-- [Google Blog: Gemini AI Update December 2024](https://blog.google/technology/google-deepmind/google-gemini-ai-update-december-2024/?ref=zazen_code)
-- [Vercel Templates: Next.js Gemini 2.0 Flash Image Generation](https://vercel.com/templates/next.js/gemini-2-0-flash-image-generation-and-editing?ref=zazen_code)
-- [TechRadar: 5 Ways to Get the Best Art from Google's Flash 2.0](https://www.techradar.com/computing/artificial-intelligence/i-tried-geminis-new-ai-image-generation-tool-here-are-5-ways-to-get-the-best-art-from-googles-flash-2-0?ref=zazen_code)
-- [Google Developers Blog: Experiment with Gemini 2.0 Flash Native Image Generation](https://developers.googleblog.com/en/experiment-with-gemini-20-flash-native-image-generation/?ref=zazen_code)
-- [Google AI: Gemini API Docs - Image Generation](https://ai.google.dev/gemini-api/docs/image-generation?ref=zazen_code)
-- [Medium: Google's Gemini 2.0 Flash - The AI Model That's Disrupting DeepSeek and OpenAI](https://medium.com/@mail_18109/googles-gemini-2-0-flash-the-ai-model-that-s-disrupting-deepseek-and-openai-2ddec286df91?ref=zazen_code)
+- [Google Blog: Gemini AI Update December 2024](https://blog.google/technology/google-deepmind/google-gemini-ai-update-december-2024/?ref=heristop.github.io)
+- [Vercel Templates: Next.js Gemini 2.0 Flash Image Generation](https://vercel.com/templates/next.js/gemini-2-0-flash-image-generation-and-editing?ref=heristop.github.io)
+- [TechRadar: 5 Ways to Get the Best Art from Google's Flash 2.0](https://www.techradar.com/computing/artificial-intelligence/i-tried-geminis-new-ai-image-generation-tool-here-are-5-ways-to-get-the-best-art-from-googles-flash-2-0?ref=heristop.github.io)
+- [Google Developers Blog: Experiment with Gemini 2.0 Flash Native Image Generation](https://developers.googleblog.com/en/experiment-with-gemini-20-flash-native-image-generation/?ref=heristop.github.io)
+- [Google AI: Gemini API Docs - Image Generation](https://ai.google.dev/gemini-api/docs/image-generation?ref=heristop.github.io)
+- [Medium: Google's Gemini 2.0 Flash - The AI Model That's Disrupting DeepSeek and OpenAI](https://medium.com/@mail_18109/googles-gemini-2-0-flash-the-ai-model-that-s-disrupting-deepseek-and-openai-2ddec286df91?ref=heristop.github.io)

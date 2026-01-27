@@ -8,39 +8,39 @@ image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
 
 ## 📢 News & Trends
 
-- **(🔗) [JavaScript Continues to Dominate, AI Integration Rises](https://thenewstack.io/web-development-in-2023-javascript-still-rules-ai-emerges/?ref=zazen_code)**
+- **(🔗) [JavaScript Continues to Dominate, AI Integration Rises](https://thenewstack.io/web-development-in-2023-javascript-still-rules-ai-emerges/?ref=heristop.github.io)**
 
   JavaScript remained the dominant language in web development in 2023, with increasing integration of generative AI in web frameworks.
 
-- **(🌐) [Fediverse Gains Momentum, Less Dependence on JavaScript](https://thenewstack.io/web-dev-2024-fediverse-ramps-up-more-ai-less-javascript/?ref=zazen_code)**
+- **(🌐) [Fediverse Gains Momentum, Less Dependence on JavaScript](https://thenewstack.io/web-dev-2024-fediverse-ramps-up-more-ai-less-javascript/?ref=heristop.github.io)**
 
   The Fediverse, based on the W3C ActivityPub specification, saw considerable growth, hinting at a shift in web development trends for 2024.
 
 ## 📝 Articles & Guides
 
-- **(💤) [How Lazy Loading Works in Web Development](https://www.freecodecamp.org/news/how-lazy-loading-works-in-web-development/?ref=zazen_code)**
+- **(💤) [How Lazy Loading Works in Web Development](https://www.freecodecamp.org/news/how-lazy-loading-works-in-web-development/?ref=heristop.github.io)**
 
   An informative article explaining the concept and benefits of lazy loading in web development.
 
-- **(📦) [Break Out Elements from Containers Using Flexbox](https://www.freecodecamp.org/news/break-out-elements-from-containers-using-flexbox/?ref=zazen_code)**
+- **(📦) [Break Out Elements from Containers Using Flexbox](https://www.freecodecamp.org/news/break-out-elements-from-containers-using-flexbox/?ref=heristop.github.io)**
 
   A guide on utilizing flexbox to create layouts where elements break out of their containers.
 
-- **(🔠) [The Ultimate Guide to Web Fonts](https://www.litmus.com/blog/the-ultimate-guide-to-web-fonts?ref=zazen_code)**
+- **(🔠) [The Ultimate Guide to Web Fonts](https://www.litmus.com/blog/the-ultimate-guide-to-web-fonts?ref=heristop.github.io)**
 
   A comprehensive guide covering everything you need to know about using web fonts effectively.
 
-- **(📘) [How to Learn React Step by Step](https://www.freecodecamp.org/news/how-to-learn-react-step-by-step/?ref=zazen_code)**
+- **(📘) [How to Learn React Step by Step](https://www.freecodecamp.org/news/how-to-learn-react-step-by-step/?ref=heristop.github.io)**
 
   A structured approach to learning React for beginners.
 
-- **(🔤) [HTML and CSS Cheat Sheet](https://htmlcheatsheet.com/css/?ref=zazen_code)**
+- **(🔤) [HTML and CSS Cheat Sheet](https://htmlcheatsheet.com/css/?ref=heristop.github.io)**
 
   A handy cheat sheet for HTML and CSS, useful for quick reference.
 
 ## 🪐 Explore More
 
-- **(🌐) [vue0: Vue Version Open Source Alternative for v0.dev](https://github.com/zernonia/vue0?ref=zazen_code)**
+- **(🌐) [vue0: Vue Version Open Source Alternative for v0.dev](https://github.com/zernonia/vue0?ref=heristop.github.io)**
 
   vue0 is an open-source project that serves as an alternative to v0.dev, developed using Vue and TypeScript. It showcases modern web development practices and community engagement.
 
