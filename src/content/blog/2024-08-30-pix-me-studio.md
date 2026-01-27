@@ -39,6 +39,6 @@ The interface is built with Nuxt 3 and Tailwind CSS, providing a responsive user
 
 ## Try It Yourself
 
-**[Try Pix Me! for free](https://pix-me.studio/?ref=zazen_code)**
+**[Try Pix Me! for free](https://pix-me.studio/?ref=heristop.github.io)**
 
 Test the transformations yourself and see the results.
