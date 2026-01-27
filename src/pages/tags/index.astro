@@ -58,7 +58,7 @@ const delay = 50;
       const cards = document.querySelectorAll('.zen-card[data-prepared="false"]');
       if (cards.length === 0) return;
 
-      cards.forEach((card, index) => {
+      cards.forEach((card) => {
         card.dataset.prepared = 'true';
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {

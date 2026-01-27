@@ -35,14 +35,18 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
   const shouldUseTouchNavigation = () => isTouchDevice && (isMobile() || isTablet());
 
   function initGlobalKeyboardNavigation() {
-    if (currentIndex < 0) {return;}
+    if (currentIndex < 0) {
+      return;
+    }
 
     const existingPostNav = document.querySelector('.post-navigation-indicators');
+
     if (existingPostNav) {
       existingPostNav.remove();
     }
 
     const existingGlobalNav = document.querySelector('.global-navigation-indicators');
+
     if (existingGlobalNav) {
       existingGlobalNav.remove();
     }
@@ -225,7 +229,10 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
 
   function cleanupGlobalNavigation() {
     const globalNav = document.querySelector('.global-navigation-indicators');
-    if (globalNav) {globalNav.remove();}
+
+    if (globalNav) {
+      globalNav.remove();
+    }
   }
 
   if (document.readyState === 'loading') {

@@ -12,8 +12,8 @@
  *   --keep       Keep original files (default: false)
  */
 
-import { readdir, stat, unlink, rename } from 'node:fs/promises';
-import { join, extname, basename, dirname } from 'node:path';
+import { readdir, stat, unlink } from 'node:fs/promises';
+import { join, extname, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
