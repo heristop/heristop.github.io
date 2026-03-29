@@ -1,4 +1,5 @@
-import { type Page, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 export async function waitForPageLoad(page: Page) {
   // Wait for the page to fully load
@@ -10,8 +11,8 @@ export async function waitForPageLoad(page: Page) {
 
 export async function takeFullPageScreenshot(page: Page, name: string) {
   await expect(page).toHaveScreenshot(`${name}-full-page.png`, {
-    fullPage: true,
     animations: 'disabled',
+    fullPage: true,
   });
 }
 
@@ -25,19 +26,19 @@ export async function waitForImagesLoad(page: Page) {
   // Wait for all images to load with longer timeout and error handling
   try {
     await page.waitForFunction(() => {
-      const images = Array.from(document.querySelectorAll('img'));
+      const images = [...document.querySelectorAll('img')];
       return images.every(img => img.complete && img.naturalHeight !== 0);
-    }, { timeout: 10000 });
-  } catch (error) {
+    }, { timeout: 10_000 });
+  } catch {
     // If images don't load within timeout, continue anyway
     console.warn('Some images may not have loaded fully');
   }
 }
 
 export const viewports = {
-  desktop: { width: 1920, height: 1080 },
-  tablet: { width: 768, height: 1024 },
-  mobile: { width: 375, height: 667 },
+  desktop: { height: 1080, width: 1920 },
+  mobile: { height: 667, width: 375 },
+  tablet: { height: 1024, width: 768 },
 } as const;
 
 export async function testResponsiveScreenshots(page: Page, url: string, testName: string) {

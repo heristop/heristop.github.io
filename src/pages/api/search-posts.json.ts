@@ -5,9 +5,9 @@ export const GET: APIRoute = async () => {
   const posts = await getCollection("blog");
 
   const searchPosts = posts.map((post) => ({
-    body: post.body.slice(0, 300),
+    body: (post.body ?? "").slice(0, 300),
     pubDate: post.data.pubDate,
-    slug: post.slug,
+    slug: post.id,
     title: post.data.title,
   }));
 

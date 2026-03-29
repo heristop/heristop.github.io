@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { testResponsiveScreenshots, waitForPageLoad, waitForImagesLoad } from '../utils/test-helpers';
+import { testResponsiveScreenshots, waitForImagesLoad, waitForPageLoad } from '../utils/test-helpers';
 
 test.describe('Projects Page Visual Tests', () => {
   test('should match projects page layout across all devices', async ({ page }) => {
@@ -16,8 +16,8 @@ test.describe('Projects Page Visual Tests', () => {
     await projectGrid.scrollIntoViewIfNeeded();
 
     await page.screenshot({
-      path: 'test-results/projects-grid.png',
       clip: await projectGrid.boundingBox() || undefined,
+      path: 'test-results/projects-grid.png',
     });
   });
 });

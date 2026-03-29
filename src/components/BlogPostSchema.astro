@@ -15,30 +15,30 @@ const siteUrl = 'https://heristop.github.io';
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
-  headline: title,
-  description: description,
-  url: url,
-  datePublished: pubDate?.toISOString(),
-  dateModified: (updatedDate ?? pubDate)?.toISOString(),
-  image: image ? new URL(image, siteUrl).toString() : undefined,
   author: {
     '@type': 'Person',
     name: 'Alexandre Mogère',
     url: `${siteUrl}/about`,
   },
+  dateModified: (updatedDate ?? pubDate)?.toISOString(),
+  datePublished: pubDate?.toISOString(),
+  description: description,
+  headline: title,
+  image: image ? new URL(image, siteUrl).toString() : undefined,
+  mainEntityOfPage: {
+    '@id': url,
+    '@type': 'WebPage',
+  },
   publisher: {
     '@type': 'Organization',
-    name: 'Alexandre Mogère',
-    url: siteUrl,
     logo: {
       '@type': 'ImageObject',
       url: `${siteUrl}/favicon.svg`,
     },
+    name: 'Alexandre Mogère',
+    url: siteUrl,
   },
-  mainEntityOfPage: {
-    '@type': 'WebPage',
-    '@id': url,
-  },
+  url: url,
 };
 
 // Remove undefined values

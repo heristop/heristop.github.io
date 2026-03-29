@@ -6,6 +6,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Icon from "../components/Icon.astro";
 import { SITE_TITLE } from "../consts";
+import ZenTitleReveal from "../components/client/zen-title-reveal";
 import "../styles/global.scss";
 
 type Props = Partial<CollectionEntry<"blog">["data"]> & {
@@ -32,10 +33,16 @@ const { title, metaTitle, description, image, isArticle, pubDate, updatedDate } 
 
       <div class="site-layout__pre-content">
         <div class="site-layout__meta">
-          <div class="site-layout__meta-title">{title && <h1>{title}</h1>}</div>
+          <div class="site-layout__meta-title">
+            {title && (
+              isArticle
+                ? <ZenTitleReveal client:load text={title} />
+                : <h1>{title}</h1>
+            )}
+          </div>
         </div>
 
-        <main role="main" aria-label="Main content" class="site-layout__content" id="main-content">
+        <main aria-label="Main content" class="site-layout__content" id="main-content">
           <slot />
         </main>
       </div>
@@ -85,7 +92,6 @@ const { title, metaTitle, description, image, isArticle, pubDate, updatedDate } 
         <div
           class="search-results"
           id="search-results"
-          role="listbox"
           aria-label="Search results"
         >
           <div class="search-results-content">

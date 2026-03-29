@@ -47,6 +47,5 @@ const getUrl = (element: Element) => {
   return url.toString();
 };
 
-const isExternal = (url: string, domain: string) => {
-  return url.startsWith("http") && !url.includes(domain);
-};
+const isExternal = (url: string, domain: string) =>
+  url.startsWith("http") && !url.includes(domain);

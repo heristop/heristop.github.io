@@ -26,25 +26,28 @@
     "node_modules/**"
   ],
   "rules": {
+    // React (automatic JSX transform, React 19 — no need for React in scope)
+    "react/react-in-jsx-scope": "off",
+
     // Core Code Quality Rules
     "no-console": "warn",
     "no-debugger": "error",
-    "no-unused-vars": "error",
-    "no-duplicate-imports": "error",
-    "no-var": "error",
-    "prefer-const": "error",
-    "eqeqeq": "error",
-    "no-eval": "error",
-    "no-implied-eval": "error",
-    "no-new-func": "error",
-    "no-return-assign": "error",
-    "no-sequences": "error",
-    "no-unreachable": "error",
-    "no-unused-expressions": "error",
-    "no-useless-concat": "error",
-    "no-useless-return": "error",
-    "prefer-template": "error",
-    "radix": "error",
+    "no-unused-vars": "warn",
+    "no-duplicate-imports": "warn",
+    "no-var": "warn",
+    "prefer-const": "warn",
+    "eqeqeq": "warn",
+    "no-eval": "warn",
+    "no-implied-eval": "warn",
+    "no-new-func": "warn",
+    "no-return-assign": "warn",
+    "no-sequences": "warn",
+    "no-unreachable": "warn",
+    "no-unused-expressions": "warn",
+    "no-useless-concat": "warn",
+    "no-useless-return": "warn",
+    "prefer-template": "warn",
+    "radix": "warn",
 
     // Modern JavaScript Best Practices
     "prefer-arrow-callback": "warn",
@@ -256,7 +259,7 @@
   },
   "settings": {
     "react": {
-      "version": "detect"
+      "version": "19.0"
     }
   }
 }

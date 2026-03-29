@@ -9,7 +9,7 @@ export interface Post {
   data: {
     pubDate?: Date;
     title: string;
-    slug: string;
+    id: string;
   };
 }
 
@@ -20,7 +20,7 @@ const posts = (await getCollection("blog")).toSorted(
 function groupPostsByYear(posts: any) {
   return posts.reduce(
     (
-      acc: { [x: string]: any[] },
+      acc: Record<string, any[]>,
       post: { data: { pubDate?: { getFullYear: () => any } } }
     ) => {
       const year = post.data.pubDate?.getFullYear();
@@ -105,7 +105,7 @@ function timeAgo(date: Date) {
                 post: {
                   url: string;
                   data: { pubDate?: Date; title: string; image?: string };
-                  slug: string;
+                  id: string;
                 },
                 index: number
               ) => {
@@ -116,7 +116,7 @@ function timeAgo(date: Date) {
                 return (
                   <a
                     class="zen-card blog-card"
-                    href={`/blog/${post.slug}/`}
+                    href={`/blog/${post.id}/`}
                     style={cardStyle}
                     data-bg={imageSrc ?? ""}
                     data-prepared="false"
@@ -156,7 +156,7 @@ function timeAgo(date: Date) {
       }
 
       const assignBackgroundAndReveal = (card) => {
-        const bg = card.dataset.bg;
+        const {bg} = card.dataset;
         if (bg) {
           card.style.setProperty('--zen-card-image', `url("${bg}")`);
           card.dataset.bg = '';

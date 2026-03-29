@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { readFileSync, writeFileSync } from "fs";
-import { join, basename } from "path";
+import { readFileSync, writeFileSync } from "node:fs";
+import { basename, join } from "node:path";
 
 const BLOG_DIR = "src/content/blog";
 
@@ -52,12 +52,12 @@ const EMOJI_PATTERN =
 
 // Section heading mappings (normalize to standard names)
 const SECTION_MAPPINGS = {
-  "news & updates": "\u{1F4E2} News & Trends",
-  "news & trends": "\u{1F4E2} News & Trends",
-  "releases & updates": "\u{1F195} Releases & Updates",
-  "tools & resources": "\u{1F6E0} Tools & Resources",
   "explore more": "\u{1FA90} Explore More",
   "historical fun fact": "\u{1F4DC} Historical Fun Fact",
+  "news & trends": "\u{1F4E2} News & Trends",
+  "news & updates": "\u{1F4E2} News & Trends",
+  "releases & updates": "\u{1F195} Releases & Updates",
+  "tools & resources": "\u{1F6E0} Tools & Resources",
 };
 
 function parseFrontmatter(content) {
@@ -91,7 +91,7 @@ function parseFrontmatter(content) {
     }
   }
 
-  return { frontmatter, body };
+  return { body, frontmatter };
 }
 
 function buildFrontmatter(fm) {
@@ -108,7 +108,7 @@ function buildFrontmatter(fm) {
 function normalizeHeading(line) {
   // Convert ### to ## for main sections
   const headingMatch = line.match(/^(#{2,3})\s*(.*)$/);
-  if (!headingMatch) return line;
+  if (!headingMatch) {return line;}
 
   const content = headingMatch[2].trim();
 
@@ -217,7 +217,7 @@ function processBody(body) {
     }
 
     // Check for section headings (## or ###)
-    if (line.match(/^#{2,3}\s/)) {
+    if (/^#{2,3}\s/.test(line)) {
       const normalized = normalizeHeading(line);
       result.push(normalized);
       i++;
@@ -238,7 +238,7 @@ function processBody(body) {
           const nextLine = lines[i];
 
           // Sub-bullet description (like "  - Description text")
-          if (nextLine.match(/^\s+-\s+/)) {
+          if (/^\s+-\s+/.test(nextLine)) {
             const descMatch = nextLine.match(/^\s+-\s+(.*)$/);
             if (descMatch && descMatch[1].trim()) {
               description = descMatch[1].trim();
@@ -248,7 +248,7 @@ function processBody(body) {
           }
 
           // Indented description (like "  Description text")
-          if (nextLine.match(/^\s{2,}\S/)) {
+          if (/^\s{2,}\S/.test(nextLine)) {
             const trimmed = nextLine.trim();
             if (trimmed && !trimmed.startsWith("-")) {
               description = trimmed;
@@ -292,7 +292,7 @@ function processBody(body) {
   }
 
   // Clean up multiple consecutive blank lines
-  let cleanedResult = [];
+  const cleanedResult = [];
   let prevWasBlank = false;
 
   for (const line of result) {
@@ -307,7 +307,7 @@ function processBody(body) {
   // Ensure file ends with single newline
   while (
     cleanedResult.length > 0 &&
-    cleanedResult[cleanedResult.length - 1].trim() === ""
+    cleanedResult.at(-1).trim() === ""
   ) {
     cleanedResult.pop();
   }
@@ -319,7 +319,7 @@ function processBody(body) {
 function processFile(filePath) {
   console.log(`Processing: ${basename(filePath)}`);
 
-  const content = readFileSync(filePath, "utf-8");
+  const content = readFileSync(filePath, "utf8");
   const { frontmatter, body } = parseFrontmatter(content);
 
   // Update frontmatter
@@ -334,7 +334,7 @@ function processFile(filePath) {
   // Rebuild file
   const newContent = buildFrontmatter(frontmatter) + processedBody;
 
-  writeFileSync(filePath, newContent, "utf-8");
+  writeFileSync(filePath, newContent, "utf8");
   console.log(`  Updated: ${basename(filePath)}`);
 }
 
@@ -349,8 +349,8 @@ for (const file of FILES_TO_PROCESS) {
   try {
     processFile(filePath);
     processed++;
-  } catch (err) {
-    console.error(`  Error processing ${file}: ${err.message}`);
+  } catch (error) {
+    console.error(`  Error processing ${file}: ${error.message}`);
     errors++;
   }
 }

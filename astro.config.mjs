@@ -9,11 +9,8 @@ import icon from "astro-icon";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://heristop.github.io",
-  viewTransitions: true,
-
+  integrations: [mdx(), sitemap(), react(), icon()],
   markdown: {
-    remarkPlugins: [remarkMath],
     rehypePlugins: [
       [
         externalLink,
@@ -23,7 +20,10 @@ export default defineConfig({
       ],
       rehypeKatex,
     ],
+    remarkPlugins: [remarkMath],
   },
 
-  integrations: [mdx(), sitemap(), react(), icon()],
+  site: "https://heristop.github.io",
+
+  viewTransitions: true,
 });
