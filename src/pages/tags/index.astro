@@ -16,7 +16,7 @@ posts.forEach(post => {
 });
 
 // Sort tags alphabetically
-const sortedTags = [...tagCounts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+const sortedTags = [...tagCounts.entries()].toSorted((a, b) => a[0].localeCompare(b[0]));
 
 const delay = 50;
 ---
@@ -56,7 +56,7 @@ const delay = 50;
   <script type="module" is:inline>
     const revealZenCards = () => {
       const cards = document.querySelectorAll('.zen-card[data-prepared="false"]');
-      if (cards.length === 0) return;
+      if (cards.length === 0) {return;}
 
       cards.forEach((card) => {
         card.dataset.prepared = 'true';

@@ -52,11 +52,11 @@ function timeAgo(date: Date) {
   const months = Math.floor(days / 30);
   const years = Math.floor(days / 365);
 
-  if (years >= 1) return years === 1 ? "1 year ago" : `${years} years ago`;
-  if (months >= 1) return months === 1 ? "1 month ago" : `${months} months ago`;
-  if (days >= 1) return days === 1 ? "1 day ago" : `${days} days ago`;
-  if (hours >= 1) return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
-  if (minutes >= 1) return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
+  if (years >= 1) {return years === 1 ? "1 year ago" : `${years} years ago`;}
+  if (months >= 1) {return months === 1 ? "1 month ago" : `${months} months ago`;}
+  if (days >= 1) {return days === 1 ? "1 day ago" : `${days} days ago`;}
+  if (hours >= 1) {return hours === 1 ? "1 hour ago" : `${hours} hours ago`;}
+  if (minutes >= 1) {return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;}
   return "Just now";
 }
 ---
@@ -86,7 +86,7 @@ function timeAgo(date: Date) {
         return (
           <a
             class="zen-card blog-card"
-            href={`/blog/${post.slug}/`}
+            href={`/blog/${post.id}/`}
             style={cardStyle}
             data-bg={imageSrc ?? ""}
             data-prepared="false"
@@ -114,10 +114,10 @@ function timeAgo(date: Date) {
   <script type="module" is:inline>
     const revealZenCards = () => {
       const cards = document.querySelectorAll('.zen-card[data-prepared="false"]');
-      if (cards.length === 0) return;
+      if (cards.length === 0) {return;}
 
       const assignBackgroundAndReveal = (card) => {
-        const bg = card.dataset.bg;
+        const {bg} = card.dataset;
         if (bg) {
           card.style.setProperty('--zen-card-image', `url("${bg}")`);
           card.dataset.bg = '';
@@ -191,7 +191,7 @@ function timeAgo(date: Date) {
   }
 
   .tag-archive__back:hover {
-    color: var(--text-primary);
+    color: var(--heading-color);
   }
 
   .tag-archive__count {
@@ -199,6 +199,6 @@ function timeAgo(date: Date) {
   }
 
   .tag-archive__count strong {
-    color: var(--text-primary);
+    color: var(--heading-color);
   }
 </style>

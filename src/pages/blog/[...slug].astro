@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import Layout from "../../layouts/Layout.astro";
 import SocialShare from "../../components/SocialShare.astro";
@@ -9,22 +9,22 @@ import Icon from "../../components/Icon.astro";
 import BlogPostSchema from "../../components/BlogPostSchema.astro";
 import BreadcrumbSchema from "../../components/BreadcrumbSchema.astro";
 
-const currentPostSlug = Astro.props.slug;
+const currentPostSlug = Astro.props.id;
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: { slug: post.id },
     props: post,
   }));
 }
 type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
-const { Content } = await post.render();
-const conclusion = post.data.conclusion;
+const { Content } = await render(post);
+const {conclusion} = post.data;
 
-const plainText = post.body;
+const plainText = post.body ?? "";
 const words = plainText.split(/\s+/).length;
 const readingTime = Math.ceil(words / 200);
 
@@ -34,7 +34,7 @@ const allPosts = (await getCollection("blog")).toSorted(
 );
 
 // Find current post index and adjacent posts
-const currentIndex = allPosts.findIndex(p => p.slug === currentPostSlug);
+const currentIndex = allPosts.findIndex(p => p.id === currentPostSlug);
 const previousPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : undefined;
 const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : undefined;
 
@@ -42,8 +42,8 @@ const postUrl = `https://heristop.github.io/blog/${currentPostSlug}/`;
 
 const postData = {
   ...post.data,
-  readingTime,
   isArticle: true,
+  readingTime,
 };
 
 const breadcrumbItems = [
@@ -110,7 +110,7 @@ const breadcrumbItems = [
       let isInputFocused = false;
 
       function updateInputFocus() {
-        const activeElement = document.activeElement;
+        const {activeElement} = document;
         isInputFocused = activeElement && (
           activeElement.tagName === 'INPUT' ||
           activeElement.tagName === 'TEXTAREA' ||
@@ -127,7 +127,7 @@ const breadcrumbItems = [
         if (targetPost) {
           showNavigationHint(direction);
           setTimeout(() => {
-            window.location.href = `/blog/${targetPost.slug}/`;
+            window.location.href = `/blog/${targetPost.id}/`;
           }, 150);
         }
       }
@@ -243,9 +243,9 @@ const breadcrumbItems = [
         indicatorHTML.push(`
           <button
             class="post-nav-indicator post-nav-indicator--left"
-            title="Previous: ${previousPost.data.title.replaceAll(/"/g, '&quot;')}"
-            aria-label="Previous post: ${previousPost.data.title.replaceAll(/"/g, '&quot;')}"
-            onclick="window.location.href = '/blog/${previousPost.slug}/'"
+            title="Previous: ${previousPost.data.title.replaceAll('"', '&quot;')}"
+            aria-label="Previous post: ${previousPost.data.title.replaceAll('"', '&quot;')}"
+            onclick="window.location.href = '/blog/${previousPost.id}/'"
           >←</button>
         `);
       }
@@ -254,9 +254,9 @@ const breadcrumbItems = [
         indicatorHTML.push(`
           <button
             class="post-nav-indicator post-nav-indicator--right"
-            title="Next: ${nextPost.data.title.replaceAll(/"/g, '&quot;')}"
-            aria-label="Next post: ${nextPost.data.title.replaceAll(/"/g, '&quot;')}"
-            onclick="window.location.href = '/blog/${nextPost.slug}/'"
+            title="Next: ${nextPost.data.title.replaceAll('"', '&quot;')}"
+            aria-label="Next post: ${nextPost.data.title.replaceAll('"', '&quot;')}"
+            onclick="window.location.href = '/blog/${nextPost.id}/'"
           >→</button>
         `);
       }

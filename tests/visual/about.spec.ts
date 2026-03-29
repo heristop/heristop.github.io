@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { testResponsiveScreenshots, waitForPageLoad, waitForImagesLoad } from '../utils/test-helpers';
+import { testResponsiveScreenshots, waitForImagesLoad, waitForPageLoad } from '../utils/test-helpers';
 
 test.describe('About Page Visual Tests', () => {
   test('should match about page layout across all devices', async ({ page }) => {
@@ -16,8 +16,8 @@ test.describe('About Page Visual Tests', () => {
     await socialSection.scrollIntoViewIfNeeded();
 
     await page.screenshot({
-      path: 'test-results/about-social-networks.png',
       clip: await socialSection.boundingBox() || undefined,
+      path: 'test-results/about-social-networks.png',
     });
   });
 });

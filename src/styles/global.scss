@@ -1,28 +1,24 @@
 @import url("katex/dist/katex.min.css");
-@import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&display=swap");
-
-/* Apply Comfortaa font globally */
-body {
-  font-family: Comfortaa, sans-serif;
-}
 
 :root {
-  --primary-color: #9d4261;
-  --primary-bg-color: #f5eee6;
-  --bg-color-rgb: 245, 238, 230;
-  --link-color: #9d4261;
-  --link-hover-color: #b47b84;
-  --link-color-secondary: #a7666f;
-  --link-color-secondary-rgb: 167, 102, 111;
-  --link-color-secondary-hover: #b47b84;
-  --hr-color: #b47b84;
-  --text-secondary: rgb(115 110 105);
-  --banner-bg-color: #ececec;
-  --footer-text-color: rgb(65 60 55);
-  --footer-border-color: rgb(87 83 78 / 15%);
-  --highlight-bg-color: #000;
-  --heading-color: #5a2335;
-  --space-xs: 0.0625rem;
+  --primary-color: oklch(48% 0.13 358deg);
+  --primary-bg-color: oklch(95% 0.02 75deg);
+  --link-color: oklch(48% 0.13 358deg);
+  --link-hover-color: oklch(62% 0.08 10deg);
+  --link-color-secondary: oklch(55% 0.09 5deg);
+  --link-color-secondary-hover: oklch(62% 0.08 10deg);
+  --hr-color: oklch(62% 0.08 10deg);
+  --text-secondary: oklch(52% 0.01 55deg);
+  --banner-bg-color: oklch(94% 0 0deg);
+  --footer-text-color: oklch(38% 0.01 55deg);
+  --footer-border-color: oklch(44% 0.01 55deg / 15%);
+  --highlight-bg-color: oklch(15% 0 0deg);
+  --heading-color: oklch(30% 0.12 355deg);
+  --accent-color: var(--primary-color);
+  --code-bg-color: oklch(30% 0 0deg);
+  --code-text-color: oklch(97% 0.01 75deg);
+  --color-overlay-light: oklch(97% 0 0deg / 50%);
+  --space-xs: 0.125rem;
   --space-sm: 0.25rem;
   --space-md: 0.625rem;
   --space-lg: 1.25rem;
@@ -40,7 +36,7 @@ body {
   --zen-duration-breath: 4000ms;
   --zen-ease-out: cubic-bezier(0.4, 0, 0.2, 1);
   --zen-ease-in-out: cubic-bezier(0.4, 0, 0.6, 1);
-  --zen-ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --zen-ease-spring: cubic-bezier(0.22, 0.61, 0.36, 1);
   --zen-ease-gentle: cubic-bezier(0.25, 0.1, 0.25, 1);
   --zen-ease-elegant: cubic-bezier(0.33, 1, 0.68, 1);
   --zen-ease-smooth: cubic-bezier(0.65, 0, 0.35, 1);
@@ -106,14 +102,11 @@ html {
 
 body {
   height: 100%;
-}
-
-body {
   position: relative;
   font-family: Comfortaa, sans-serif;
   font-size: 0.9rem;
   font-weight: 400;
-  text-align: center;
+  text-align: left;
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -203,10 +196,12 @@ a {
     position: absolute;
     bottom: -2px;
     left: 0;
-    width: 0;
+    width: 100%;
     height: 1px;
     background: var(--link-hover-color);
-    transition: width 320ms var(--zen-ease-out);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 320ms var(--zen-ease-out);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -214,7 +209,7 @@ a {
       color: var(--link-hover-color);
 
       &::after {
-        width: 100%;
+        transform: scaleX(1);
       }
     }
   }
@@ -231,7 +226,7 @@ a {
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgb(157 66 97 / 20%);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary-color) 20%, transparent);
     border-radius: 2px;
     transition: box-shadow 200ms var(--zen-ease-out);
   }
@@ -328,13 +323,184 @@ select:focus {
 /* High contrast mode support */
 @media (prefers-contrast: more) {
   :root {
-    --primary-color: #7a1d3a;
-    --text-secondary: #3d3d3d;
-    --heading-color: #2d1a1a;
+    --primary-color: oklch(36% 0.15 355deg);
+    --text-secondary: oklch(34% 0 0deg);
+    --heading-color: oklch(20% 0.03 20deg);
   }
 
   a {
     text-decoration: underline;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: oklch(68% 0.10 358deg);
+    --primary-bg-color: oklch(15% 0.01 55deg);
+    --link-color: oklch(68% 0.10 358deg);
+    --link-hover-color: oklch(76% 0.08 5deg);
+    --link-color-secondary: oklch(66% 0.08 5deg);
+    --link-color-secondary-hover: oklch(76% 0.08 5deg);
+    --hr-color: oklch(42% 0.08 355deg);
+    --text-secondary: oklch(72% 0.01 55deg);
+    --banner-bg-color: oklch(22% 0.02 55deg);
+    --footer-text-color: oklch(78% 0.01 55deg);
+    --footer-border-color: oklch(48% 0.01 55deg / 25%);
+    --highlight-bg-color: oklch(95% 0.02 75deg);
+    --heading-color: oklch(84% 0.06 355deg);
+    --accent-color: var(--primary-color);
+    --code-bg-color: oklch(22% 0.02 55deg);
+    --code-text-color: oklch(87% 0.04 65deg);
+    --color-overlay-light: oklch(22% 0.01 55deg / 50%);
+    --home-card-shadow: 0 22px 42px -34px rgb(0 0 0 / 40%),
+      0 10px 24px -28px rgb(0 0 0 / 25%);
+    --home-card-shadow-hover: 0 26px 52px -32px rgb(0 0 0 / 50%),
+      0 14px 30px -24px rgb(0 0 0 / 30%);
+    --home-card-shadow-soft: 0 14px 30px -30px rgb(0 0 0 / 35%),
+      0 6px 18px -18px rgb(0 0 0 / 20%);
+  }
+
+  body::before {
+    opacity: 0.15;
+  }
+
+  code {
+    color: var(--code-text-color);
+  }
+
+  img {
+    opacity: 0.9;
+  }
+
+  .site-header-nav {
+    background: rgb(26 22 20 / calc(0.9 + var(--nav-opacity) * 0.1));
+    box-shadow:
+      0 4px 32px rgb(0 0 0 / calc(0.06 + var(--nav-opacity) * 0.12)),
+      0 8px 40px rgb(0 0 0 / calc(0.04 + var(--nav-opacity) * 0.1)),
+      0 1px 3px rgb(0 0 0 / calc(0.1 + var(--nav-opacity) * 0.2));
+  }
+
+  .post-nav-indicator {
+    background: rgb(26 22 20 / 95%);
+    border-color: rgb(212 131 154 / 30%);
+  }
+
+  .post-nav-hint,
+  .global-nav-hint {
+    background: rgb(26 22 20 / 95%);
+    border-color: rgb(212 131 154 / 20%);
+  }
+
+  .navigation-hint {
+    background: rgb(212 131 154 / 95%);
+    color: var(--primary-bg-color);
+  }
+
+  .skip-link:focus {
+    background: var(--primary-color);
+    color: var(--primary-bg-color);
+  }
+
+  table {
+    border-color: rgb(100 95 90 / 30%);
+  }
+
+  th {
+    border-color: rgb(100 95 90 / 30%);
+  }
+
+  td {
+    border-color: rgb(100 95 90 / 20%);
+  }
+
+  /* Search overlay */
+  .search-overlay {
+    background: rgb(26 22 20 / 40%);
+
+    @media (width <= 767px) {
+      background: rgb(26 22 20 / 80%);
+    }
+  }
+
+  .search-input-wrapper {
+    background: rgb(36 30 26 / 95%);
+    border-color: color-mix(in oklch, var(--text-secondary) 20%, transparent);
+    box-shadow:
+      0 4px 20px rgb(0 0 0 / 15%),
+      0 2px 8px rgb(0 0 0 / 10%),
+      inset 0 1px 0 rgb(255 255 255 / 6%);
+
+    &:focus-within {
+      box-shadow:
+        0 6px 25px rgb(0 0 0 / 20%),
+        0 2px 12px rgb(0 0 0 / 12%),
+        inset 0 1px 0 rgb(255 255 255 / 8%);
+    }
+  }
+
+  .search-result {
+    &:hover,
+    &:focus {
+      background: rgb(255 255 255 / 5%);
+    }
+  }
+
+  /* Blog card panels */
+  .latest-posts__panel {
+    background: linear-gradient(155deg, rgb(40 35 30 / 60%), rgb(30 25 22 / 40%));
+    border-color: rgb(255 255 255 / 8%);
+    box-shadow:
+      var(--home-card-shadow),
+      0 1px 0 rgb(255 255 255 / 5%),
+      inset 0 1px 0 rgb(255 255 255 / 6%);
+  }
+
+  /* Footer/about info items */
+  .about-info__item {
+    background: rgb(255 255 255 / 6%);
+  }
+
+  /* Haiku card */
+  .haiku-card {
+    background: linear-gradient(150deg, rgb(40 35 30 / 70%), rgb(30 25 22 / 50%));
+    border-color: rgb(255 255 255 / 8%);
+    box-shadow:
+      var(--home-card-shadow),
+      0 1px 0 rgb(255 255 255 / 5%);
+
+    &::before {
+      background: radial-gradient(circle, rgb(212 131 154 / 20%), transparent 60%);
+    }
+  }
+
+  /* Blog archive zen cards */
+  .zen-card {
+    background: rgb(255 255 255 / 6%);
+    border-color: rgb(255 255 255 / 10%);
+    box-shadow:
+      var(--home-card-shadow-soft),
+      0 1px 0 rgb(255 255 255 / 4%);
+
+    &::after {
+      background: linear-gradient(160deg, rgb(26 22 20 / 52%) 0%, rgb(26 22 20 / 68%) 58%, rgb(26 22 20 / 82%) 100%);
+    }
+  }
+
+  .zen-card:hover,
+  .zen-card:focus-within {
+    background: rgb(255 255 255 / 10%);
+    border-color: rgb(212 131 154 / 20%);
+
+    &::after {
+      background: linear-gradient(160deg, rgb(26 22 20 / 48%) 0%, rgb(26 22 20 / 64%) 55%, rgb(26 22 20 / 78%) 100%);
+    }
+  }
+
+  /* Table borders */
+  td,
+  th {
+    border-bottom-color: rgb(100 95 90 / 20%);
   }
 }
 
@@ -368,7 +534,7 @@ select:focus {
 /* --- View transition styling --- */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  background: rgb(var(--bg-color-rgb));
+  background: var(--primary-bg-color);
   animation: none;
 }
 
@@ -542,8 +708,8 @@ select:focus {
 }
 
 .post-nav-indicator {
-  background: rgb(245 238 230 / 90%);
-  border: 1px solid rgb(157 66 97 / 30%);
+  background: rgb(245 238 230 / 95%);
+  border: 1px solid color-mix(in oklch, var(--primary-color) 30%, transparent);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -552,7 +718,6 @@ select:focus {
   justify-content: center;
   font-size: 18px;
   color: var(--primary-color);
-  backdrop-filter: blur(8px);
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
   transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
   opacity: 0.7;
@@ -569,7 +734,7 @@ select:focus {
   &:hover {
     opacity: 1;
     transform: scale(1.05);
-    box-shadow: 0 4px 12px rgb(157 66 97 / 20%);
+    box-shadow: 0 4px 12px color-mix(in oklch, var(--primary-color) 20%, transparent);
   }
 
   @media (width <= 768px) {
@@ -585,8 +750,7 @@ select:focus {
   background: rgb(245 238 230 / 95%);
   padding: 0.25rem 0.5rem;
   border-radius: var(--radius-sm);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgb(157 66 97 / 20%);
+  border: 1px solid color-mix(in oklch, var(--primary-color) 20%, transparent);
   opacity: 0.8;
   animation: fade-in-up 0.3s ease-out 1s both;
 
@@ -629,8 +793,7 @@ select:focus {
   background: rgb(245 238 230 / 95%);
   padding: 0.25rem 0.5rem;
   border-radius: var(--radius-sm);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgb(157 66 97 / 20%);
+  border: 1px solid color-mix(in oklch, var(--primary-color) 20%, transparent);
   opacity: 0.8;
   animation: fade-in-up 0.3s ease-out 1s both;
 
@@ -644,7 +807,7 @@ select:focus {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) translateY(10px);
-  background: rgb(157 66 97 / 95%);
+  background: color-mix(in oklch, var(--primary-color) 95%, transparent);
   color: var(--primary-bg-color);
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
@@ -653,7 +816,6 @@ select:focus {
   opacity: 0;
   z-index: 1000;
   pointer-events: none;
-  backdrop-filter: blur(12px);
   box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
@@ -1046,7 +1208,7 @@ hr {
 
     &:hover {
       color: var(--link-color-secondary-hover);
-      background: rgb(var(--link-color-secondary-rgb), 0.1);
+      background: color-mix(in oklch, var(--link-color-secondary) 10%, transparent);
     }
 
     &::after {
@@ -1097,7 +1259,7 @@ hr {
     z-index: 1101;
 
     &:hover {
-      background: rgb(var(--link-color-secondary-rgb), 0.12);
+      background: color-mix(in oklch, var(--link-color-secondary) 12%, transparent);
       transform: scale(1.05);
     }
 
@@ -1108,10 +1270,10 @@ hr {
 
     /* Enhanced active state styling */
     &--active {
-      background: rgb(var(--link-color-secondary-rgb), 0.15);
+      background: color-mix(in oklch, var(--link-color-secondary) 15%, transparent);
 
       &:hover {
-        background: rgb(var(--link-color-secondary-rgb), 0.2);
+        background: color-mix(in oklch, var(--link-color-secondary) 20%, transparent);
       }
     }
   }
@@ -1120,7 +1282,7 @@ hr {
     width: 1.5rem;
     height: 2px;
     background: var(--link-color-secondary);
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: all 0.4s var(--zen-ease-elegant);
     border-radius: 2px;
     transform-origin: center;
     position: relative;
@@ -1166,7 +1328,7 @@ hr {
     transform: translateY(-100%);
     opacity: 0;
     transition:
-      transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+      transform 0.4s var(--zen-ease-elegant),
       opacity 0.3s ease;
   }
 
@@ -1174,7 +1336,7 @@ hr {
     display: flex;
     transform: translateY(0);
     opacity: 1;
-    animation: mobile-menu-reveal 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: mobile-menu-reveal 0.4s var(--zen-ease-elegant);
   }
 
   &__link--mobile {
@@ -1202,8 +1364,8 @@ hr {
     &:nth-child(4) { animation: mobile-link-reveal 0.4s 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
     &:hover {
-      border-color: rgb(var(--link-color-secondary-rgb), 0.4);
-      background: rgb(var(--link-color-secondary-rgb), 0.08);
+      border-color: color-mix(in oklch, var(--link-color-secondary) 40%, transparent);
+      background: color-mix(in oklch, var(--link-color-secondary) 8%, transparent);
       transform: translateY(-1px);
       transition: all 0.2s ease;
     }
@@ -1372,7 +1534,7 @@ body.mobile-menu-open {
     color 0.2s ease;
 
   &:hover {
-    background: rgb(var(--link-color-secondary-rgb), 0.12);
+    background: color-mix(in oklch, var(--link-color-secondary) 12%, transparent);
     transform: scale(1.05);
     color: var(--link-color-secondary-hover);
   }
@@ -1383,7 +1545,7 @@ body.mobile-menu-open {
   }
 
   &[aria-expanded="true"] {
-    background: rgb(var(--link-color-secondary-rgb), 0.15);
+    background: color-mix(in oklch, var(--link-color-secondary) 15%, transparent);
     color: var(--accent-color);
   }
 
@@ -1494,7 +1656,7 @@ body.mobile-menu-open {
   display: flex;
   align-items: center;
   background: rgb(250 247 240 / 90%);
-  border: 1px solid rgb(var(--text-secondary-rgb), 0.12);
+  border: 1px solid color-mix(in oklch, var(--text-secondary) 12%, transparent);
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow:
@@ -1506,7 +1668,7 @@ body.mobile-menu-open {
     box-shadow 0.3s ease;
 
   &:focus-within {
-    border-color: rgb(var(--primary-color-rgb), 0.15);
+    border-color: color-mix(in oklch, var(--primary-color) 15%, transparent);
     box-shadow:
       0 6px 25px rgb(0 0 0 / 8%),
       0 2px 12px rgb(0 0 0 / 4%),
@@ -1528,7 +1690,7 @@ body.mobile-menu-open {
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  color: rgb(var(--text-secondary-rgb), 0.6);
+  color: color-mix(in oklch, var(--text-secondary) 60%, transparent);
   transition: color 0.3s ease;
   z-index: 2;
 
@@ -1548,8 +1710,8 @@ body.mobile-menu-open {
       background-color 0.3s ease;
 
     &:hover, &:focus {
-      color: rgb(var(--primary-color-rgb), 0.8);
-      background-color: rgb(var(--text-secondary-rgb), 0.05);
+      color: color-mix(in oklch, var(--primary-color) 80%, transparent);
+      background-color: color-mix(in oklch, var(--text-secondary) 5%, transparent);
       outline: none;
     }
 
@@ -1577,14 +1739,14 @@ body.mobile-menu-open {
   font-size: 1.1rem;
   font-family: inherit;
   font-weight: 400;
-  color: var(--text-primary);
+  color: var(--heading-color);
   outline: none;
   min-width: 0;
   padding: 1rem 3.5rem;
   border-radius: inherit;
 
   &::placeholder {
-    color: rgb(var(--text-secondary-rgb), 0.7);
+    color: color-mix(in oklch, var(--text-secondary) 70%, transparent);
     font-weight: 400;
   }
 
@@ -1607,7 +1769,7 @@ body.mobile-menu-open {
 
 .search-results {
   background: rgb(255 255 255 / 40%);
-  border: 1px solid rgb(var(--text-secondary-rgb), 0.08);
+  border: 1px solid color-mix(in oklch, var(--text-secondary) 8%, transparent);
   border-radius: var(--radius-md);
   box-shadow:
     0 4px 20px rgb(0 0 0 / 4%),
@@ -1620,11 +1782,14 @@ body.mobile-menu-open {
 .search-results-content {
   max-height: 60vh;
   overflow: hidden auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 
   /* Enhanced scrolling behavior */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-  scrollbar-color: rgb(var(--text-secondary-rgb), 0.3) transparent;
+  scrollbar-color: color-mix(in oklch, var(--text-secondary) 30%, transparent) transparent;
 
   /* Custom scrollbar styling */
   &::-webkit-scrollbar {
@@ -1637,11 +1802,11 @@ body.mobile-menu-open {
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgb(var(--text-secondary-rgb), 0.2);
+    background: color-mix(in oklch, var(--text-secondary) 20%, transparent);
     border-radius: var(--radius-sm);
 
     &:hover {
-      background: rgb(var(--text-secondary-rgb), 0.3);
+      background: color-mix(in oklch, var(--text-secondary) 30%, transparent);
     }
   }
 
@@ -1669,12 +1834,12 @@ body.mobile-menu-open {
   justify-content: center;
   padding: 3rem 2rem;
   text-align: center;
-  color: rgb(var(--text-secondary-rgb), 0.8);
+  color: color-mix(in oklch, var(--text-secondary) 80%, transparent);
 
   &-icon {
     margin-bottom: 1rem;
     opacity: 0.4;
-    color: rgb(var(--primary-color-rgb), 0.3);
+    color: color-mix(in oklch, var(--primary-color) 30%, transparent);
   }
 
   p {
@@ -1699,7 +1864,7 @@ body.mobile-menu-open {
   align-items: flex-start;
   justify-content: space-between;
   padding: var(--space-md) var(--space-lg);
-  border-bottom: 1px solid rgb(var(--text-secondary-rgb), 0.06);
+  border-bottom: 1px solid color-mix(in oklch, var(--text-secondary) 6%, transparent);
   text-decoration: none;
   color: inherit;
   transition:
@@ -2183,7 +2348,7 @@ body.mobile-menu-open {
     justify-content: center;
     width: 2.5rem;
     height: 2.5rem;
-    background: rgb(157 66 97 / 10%);
+    background: color-mix(in oklch, var(--primary-color) 10%, transparent);
     border-radius: 50%;
     color: var(--primary-color);
     text-decoration: none;
@@ -2251,8 +2416,8 @@ body.mobile-menu-open {
 code {
   border-radius: var(--radius-md);
   padding: 0.2em 0.4em;
-  color: white;
-  background-color: #333;
+  color: var(--code-text-color);
+  background-color: var(--code-bg-color);
   font-size: 0.9em !important;
 }
 
@@ -2305,23 +2470,19 @@ td {
 }
 
 th {
-  background-color: rgb(249 250 251);
+  background-color: var(--color-overlay-light);
   font-weight: 600;
   color: var(--heading-color);
 }
 
 tbody tr:hover {
-  background-color: rgb(249 250 251 / 50%);
+  background-color: var(--color-overlay-light);
 }
 
-@keyframes fade-in-up-bounce {
+@keyframes fade-in-up-smooth {
   0% {
     opacity: 0;
-    transform: translateY(6.25rem);
-  }
-
-  40% {
-    transform: translateY(-0.375rem);
+    transform: translateY(2rem);
   }
 
   100% {
@@ -2331,7 +2492,7 @@ tbody tr:hover {
 }
 
 .fade-in-up-bounce {
-  animation: fade-in-up-bounce 0.8s ease-in-out forwards;
+  animation: fade-in-up-smooth 0.5s var(--zen-ease-elegant) forwards;
 }
 
 @keyframes slide-down {
@@ -2413,7 +2574,7 @@ tbody tr:hover {
     &:hover,
     &:focus-within {
       background: rgb(255 255 255 / 52%);
-      border-color: rgb(157 66 97 / 28%);
+      border-color: color-mix(in oklch, var(--primary-color) 28%, transparent);
       box-shadow:
         var(--home-card-shadow-hover),
         0 1px 0 rgb(255 255 255 / 65%);
@@ -2615,7 +2776,7 @@ tbody tr:hover {
       position: absolute;
       inset: 0;
       border-radius: inherit;
-      border: 1px solid rgb(157 66 97 / 10%);
+      border: 1px solid color-mix(in oklch, var(--primary-color) 10%, transparent);
       pointer-events: none;
     }
   }
@@ -2633,7 +2794,6 @@ tbody tr:hover {
     align-items: center;
     gap: clamp(0.6rem, 2vw, 1rem);
     margin: 0;
-    margin-left: 0;
     padding: 0.85rem 1rem 0.85rem 1.35rem;
     border-radius: calc(var(--radius-md) + 0.1rem);
     background: rgb(255 255 255 / 32%);
@@ -2655,14 +2815,14 @@ tbody tr:hover {
       bottom: 0.85rem;
       width: 3px;
       border-radius: 999px;
-      background: linear-gradient(180deg, rgb(157 66 97 / 65%), rgb(157 66 97 / 0%));
+      background: linear-gradient(180deg, color-mix(in oklch, var(--primary-color) 65%, transparent), color-mix(in oklch, var(--primary-color) 0%, transparent));
       transition: opacity 0.25s ease;
     }
 
     &:hover,
     &:focus-within {
       background: rgb(255 255 255 / 46%);
-      border-color: rgb(157 66 97 / 24%);
+      border-color: color-mix(in oklch, var(--primary-color) 24%, transparent);
       box-shadow:
         var(--home-card-shadow-hover),
         0 1px 0 rgb(255 255 255 / 45%);
@@ -2724,8 +2884,8 @@ tbody tr:hover {
     margin-top: var(--space-sm);
     padding: 0.55rem 0.95rem;
     border-radius: 999px;
-    border: 1px solid rgb(157 66 97 / 40%);
-    background: rgb(157 66 97 / 12%);
+    border: 1px solid color-mix(in oklch, var(--primary-color) 40%, transparent);
+    background: color-mix(in oklch, var(--primary-color) 12%, transparent);
     color: var(--link-color-secondary);
     text-decoration: none;
     align-self: flex-end;
@@ -2738,7 +2898,7 @@ tbody tr:hover {
       box-shadow:
         var(--home-card-shadow-soft),
         0 1px 0 rgb(255 255 255 / 45%);
-      background: rgb(157 66 97 / 18%);
+      background: color-mix(in oklch, var(--primary-color) 18%, transparent);
     }
 
     .icon {
@@ -2940,7 +3100,7 @@ tbody tr:hover {
   &__divider {
     height: 1px;
     width: 100%;
-    background: linear-gradient(90deg, rgb(157 66 97 / 60%), transparent);
+    background: linear-gradient(90deg, color-mix(in oklch, var(--primary-color) 60%, transparent), transparent);
     border-radius: 999px;
   }
 
@@ -3008,7 +3168,7 @@ tbody tr:hover {
   height: 0.1rem;
   margin-left: 0.75rem;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgb(157 66 97 / 40%), rgb(157 66 97 / 0%));
+  background: linear-gradient(90deg, color-mix(in oklch, var(--primary-color) 40%, transparent), color-mix(in oklch, var(--primary-color) 0%, transparent));
 }
 
 .blog-archive__grid {
@@ -3056,7 +3216,7 @@ tbody tr:hover {
     &:focus-within {
       transform: translateY(-2px) rotate(0.3deg) scale(1.005);
       background: rgb(255 255 255 / 46%);
-      border-color: rgb(157 66 97 / 28%);
+      border-color: color-mix(in oklch, var(--primary-color) 28%, transparent);
       box-shadow:
         0 12px 24px -6px rgb(0 0 0 / 16%),
         0 6px 12px -4px rgb(0 0 0 / 10%),
@@ -3089,7 +3249,7 @@ tbody tr:hover {
     &:hover,
     &:focus-within {
       background: rgb(255 255 255 / 44%);
-      border-color: rgb(157 66 97 / 24%);
+      border-color: color-mix(in oklch, var(--primary-color) 24%, transparent);
 
       .blog-card__cta {
         color: var(--link-hover-color);
@@ -3163,7 +3323,7 @@ tbody tr:hover {
 .blog-card__date-relative::before {
   content: "•";
   margin-right: 0.4rem;
-  color: rgb(157 66 97 / 35%);
+  color: color-mix(in oklch, var(--primary-color) 35%, transparent);
 }
 
 .blog-card__title {
@@ -3192,15 +3352,17 @@ tbody tr:hover {
     position: absolute;
     bottom: -2px;
     left: 0;
-    width: 0;
+    width: calc(100% - 1.5rem);
     height: 1px;
     background: var(--link-hover-color);
-    transition: width 400ms var(--zen-ease-out);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 400ms var(--zen-ease-out);
   }
 
   .zen-card:hover & {
     &::after {
-      width: calc(100% - 1.5rem);
+      transform: scaleX(1);
     }
   }
 }
@@ -3346,7 +3508,7 @@ tbody tr:hover {
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgb(157 66 97 / 10%) 0%,
+    color-mix(in oklch, var(--primary-color) 10%, transparent) 0%,
     rgb(126 47 81 / 6%) 25%,
     transparent 40%,
     transparent 60%,
@@ -3575,7 +3737,7 @@ tbody tr:hover {
       height: 0.1rem;
       margin-left: 0.75rem;
       border-radius: 999px;
-      background: linear-gradient(90deg, rgb(157 66 97 / 40%), rgb(157 66 97 / 0%));
+      background: linear-gradient(90deg, color-mix(in oklch, var(--primary-color) 40%, transparent), color-mix(in oklch, var(--primary-color) 0%, transparent));
     }
   }
 
@@ -3753,7 +3915,7 @@ tbody tr:hover {
   }
 
   &__content {
-    background-color: #f5eee6;
+    background-color: var(--primary-bg-color);
     padding: 1rem;
     padding-top: 1.25rem;
     position: relative;
@@ -3786,13 +3948,13 @@ tbody tr:hover {
     transition: background-color 150ms ease-in-out;
 
     &:hover {
-      background-color: #b47b84;
+      background-color: var(--link-hover-color);
     }
 
     &:focus {
       outline: none;
       box-shadow:
-        0 0 0 2px #b47b84,
+        0 0 0 2px var(--link-hover-color),
         0 0 0 4px rgb(180 123 132 / 50%);
     }
 

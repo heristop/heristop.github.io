@@ -54,7 +54,7 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
     let isInputFocused = false;
 
     function updateInputFocus() {
-      const activeElement = document.activeElement;
+      const {activeElement} = document;
       isInputFocused = activeElement && (
         activeElement.tagName === 'INPUT' ||
         activeElement.tagName === 'TEXTAREA' ||

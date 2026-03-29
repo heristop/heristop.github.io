@@ -10,11 +10,12 @@ import FormattedDate from "../components/FormattedDate.astro";
 import Icon from "../components/Icon.astro";
 import ZenFade from "../components/zen/ZenFade.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
+import ZenHaikuReveal from "../components/client/zen-haiku-reveal";
 
 export interface Post {
   data: {
     title: string;
-    slug: string;
+    id: string;
     pubDate?: Date;
   };
 }
@@ -56,7 +57,7 @@ const haikuDescriptionUrl = "https://raw.githubusercontent.com/heristop/gutenku/
                 {
                   latestPosts.map((post) => (
                     <li class="post-list__item latest-posts__item">
-                      <a class="latest-posts__link zen-hover-lift" href={`/blog/${post.slug}/`}>
+                      <a class="latest-posts__link zen-hover-lift" href={`/blog/${post.id}/`}>
                         {post.data.pubDate && (
                           <span class="post-list__date latest-posts__date">
                             <FormattedDate date={post.data.pubDate} />
@@ -125,7 +126,7 @@ const haikuDescriptionUrl = "https://raw.githubusercontent.com/heristop/gutenku/
                   </figure>
 
                   <div class="haiku-card__content">
-                    <p class="haiku-card__quote" id="haiku-description" data-url={haikuDescriptionUrl}>Loading today's verse...</p>
+                    <ZenHaikuReveal client:visible url={haikuDescriptionUrl} />
 
                     <div class="haiku-card__divider" aria-hidden={true}></div>
 
@@ -198,21 +199,5 @@ const haikuDescriptionUrl = "https://raw.githubusercontent.com/heristop/gutenku/
       </div>
     </div>
 
-    <script>
-      const haikuEl = document.getElementById("haiku-description");
-      if (haikuEl) {
-        const url = haikuEl.dataset.url;
-        if (url) {
-          fetch(`${url}?t=${Date.now()}`)
-            .then((res) => (res.ok ? res.text() : Promise.reject()))
-            .then((text) => {
-              haikuEl.textContent = text;
-            })
-            .catch(() => {
-              haikuEl.textContent = "A fresh haiku will be shared here soon.";
-            });
-        }
-      }
-    </script>
   </body>
 </html>

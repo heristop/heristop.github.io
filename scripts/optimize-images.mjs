@@ -13,21 +13,21 @@
  */
 
 import { readdir, stat, unlink } from 'node:fs/promises';
-import { join, extname, dirname } from 'node:path';
+import { dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
 const IMAGES_DIR = join(ROOT_DIR, 'public/images/posts');
 
-const SUPPORTED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.tiff', '.avif'];
+const SUPPORTED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.tiff', '.avif']);
 const DEFAULT_QUALITY = 85;
 
 async function loadSharp() {
   try {
     const sharp = (await import('sharp')).default;
     return sharp;
-  } catch (error) {
+  } catch {
     console.error('❌ sharp is not installed. Please run:');
     console.error('   pnpm add -D sharp');
     process.exit(1);
@@ -39,7 +39,7 @@ function parseArgs() {
   return {
     dryRun: args.includes('--dry-run'),
     keep: args.includes('--keep'),
-    quality: parseInt(args.find(a => a.startsWith('--quality='))?.split('=')[1] || DEFAULT_QUALITY, 10),
+    quality: Number.parseInt(args.find(a => a.startsWith('--quality='))?.split('=')[1] || DEFAULT_QUALITY, 10),
   };
 }
 
@@ -56,7 +56,7 @@ async function findImages(dir) {
         await walk(fullPath);
       } else if (entry.isFile()) {
         const ext = extname(entry.name).toLowerCase();
-        if (SUPPORTED_EXTENSIONS.includes(ext)) {
+        if (SUPPORTED_EXTENSIONS.has(ext)) {
           images.push(fullPath);
         }
       }
@@ -68,8 +68,8 @@ async function findImages(dir) {
 }
 
 function formatBytes(bytes) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024) {return `${bytes} B`;}
+  if (bytes < 1024 * 1024) {return `${(bytes / 1024).toFixed(1)} KB`;}
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
@@ -78,30 +78,29 @@ async function convertImage(sharp, imagePath, quality, dryRun, keep) {
   const webpPath = imagePath.replace(/\.[^.]+$/, '.webp');
 
   if (ext === '.webp') {
-    return { status: 'skipped', reason: 'already webp' };
+    return { reason: 'already webp', status: 'skipped' };
   }
 
   try {
     await stat(webpPath);
-    return { status: 'skipped', reason: 'webp exists' };
-  } catch {
-  }
+    return { reason: 'webp exists', status: 'skipped' };
+  } catch {}
 
   const originalStats = await stat(imagePath);
   const originalSize = originalStats.size;
 
   if (dryRun) {
     return {
-      status: 'would-convert',
-      originalSize,
       from: imagePath,
+      originalSize,
+      status: 'would-convert',
       to: webpPath,
     };
   }
 
   try {
     await sharp(imagePath)
-      .webp({ quality, effort: 6 })
+      .webp({ effort: 6, quality })
       .toFile(webpPath);
 
     const newStats = await stat(webpPath);
@@ -113,18 +112,18 @@ async function convertImage(sharp, imagePath, quality, dryRun, keep) {
     }
 
     return {
-      status: 'converted',
-      originalSize,
-      newSize,
-      savings: `${savings}%`,
       from: imagePath,
+      newSize,
+      originalSize,
+      savings: `${savings}%`,
+      status: 'converted',
       to: webpPath,
     };
   } catch (error) {
     return {
-      status: 'error',
       error: error.message,
       from: imagePath,
+      status: 'error',
     };
   }
 }
@@ -163,31 +162,35 @@ async function main() {
       const result = await convertImage(sharp, imagePath, args.quality, args.dryRun, args.keep);
 
       switch (result.status) {
-        case 'converted':
+        case 'converted': {
           console.log(`✅ ${relativePath}`);
           console.log(`   ${formatBytes(result.originalSize)} → ${formatBytes(result.newSize)} (${result.savings} saved)`);
           totalOriginal += result.originalSize;
           totalNew += result.newSize;
           converted++;
           break;
+        }
 
-        case 'would-convert':
+        case 'would-convert': {
           console.log(`📝 Would convert: ${relativePath}`);
           console.log(`   Size: ${formatBytes(result.originalSize)}`);
           totalOriginal += result.originalSize;
           converted++;
           break;
+        }
 
-        case 'skipped':
+        case 'skipped': {
           console.log(`⏭️  Skipped: ${relativePath} (${result.reason})`);
           skipped++;
           break;
+        }
 
-        case 'error':
+        case 'error': {
           console.log(`❌ Error: ${relativePath}`);
           console.log(`   ${result.error}`);
           errors++;
           break;
+        }
       }
     }
 
