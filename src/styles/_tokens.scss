@@ -1,0 +1,50 @@
+:root {
+  --primary-color: oklch(48% 0.13 358deg);
+  --primary-bg-color: oklch(95% 0.02 75deg);
+  --link-color: oklch(48% 0.13 358deg);
+  --link-hover-color: oklch(62% 0.08 10deg);
+  --link-color-secondary: oklch(55% 0.09 5deg);
+  --link-color-secondary-hover: oklch(62% 0.08 10deg);
+  --hr-color: oklch(62% 0.08 10deg);
+  --text-secondary: oklch(52% 0.01 55deg);
+  --banner-bg-color: oklch(94% 0 0deg);
+  --footer-text-color: oklch(38% 0.01 55deg);
+  --footer-border-color: oklch(44% 0.01 55deg / 15%);
+  --highlight-bg-color: oklch(15% 0 0deg);
+  --heading-color: oklch(30% 0.12 355deg);
+  --accent-color: var(--primary-color);
+  --code-bg-color: oklch(30% 0 0deg);
+  --code-text-color: oklch(97% 0.01 75deg);
+  --color-overlay-light: oklch(97% 0 0deg / 50%);
+  --space-xs: 0.125rem;
+  --space-sm: 0.25rem;
+  --space-md: 0.625rem;
+  --space-lg: 1.25rem;
+  --space-xl: 2rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.75rem;
+  --zen-transition-duration: 280ms;
+  --zen-transition-timing: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Zen Animation System */
+  --zen-duration-fast: 200ms;
+  --zen-duration-normal: 300ms;
+  --zen-duration-slow: 400ms;
+  --zen-duration-breath: 4000ms;
+  --zen-ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --zen-ease-in-out: cubic-bezier(0.4, 0, 0.6, 1);
+  --zen-ease-spring: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --zen-ease-gentle: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --zen-ease-elegant: cubic-bezier(0.33, 1, 0.68, 1);
+  --zen-ease-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+  --zen-distance-sm: 12px;
+  --zen-distance-md: 20px;
+  --zen-distance-lg: 30px;
+  --home-card-shadow: 0 22px 42px -34px rgb(38 24 28 / 26%),
+    0 10px 24px -28px rgb(38 24 28 / 14%);
+  --home-card-shadow-hover: 0 26px 52px -32px rgb(38 24 28 / 32%),
+    0 14px 30px -24px rgb(38 24 28 / 18%);
+  --home-card-shadow-soft: 0 14px 30px -30px rgb(38 24 28 / 20%),
+    0 6px 18px -18px rgb(38 24 28 / 12%);
+}
