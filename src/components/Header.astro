@@ -161,6 +161,16 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 
       <!-- Search and Mobile Menu Actions -->
       <div class="header__actions">
+        <!-- Theme Toggle -->
+        <button
+          class="header__theme-toggle"
+          aria-label="Switch to dark mode"
+          type="button"
+        >
+          <Icon name="sun" size={20} class="header__theme-icon header__theme-icon--light" aria-hidden={true} />
+          <Icon name="moon" size={20} class="header__theme-icon header__theme-icon--dark" aria-hidden={true} />
+        </button>
+
         <!-- Search Button -->
         <button
           class="header__search-toggle"
