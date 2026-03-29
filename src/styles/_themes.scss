@@ -1,0 +1,183 @@
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+  :root {
+    --primary-color: oklch(36% 0.15 355deg);
+    --text-secondary: oklch(34% 0 0deg);
+    --heading-color: oklch(20% 0.03 20deg);
+  }
+
+  a {
+    text-decoration: underline;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: oklch(68% 0.10 358deg);
+    --primary-bg-color: oklch(15% 0.01 55deg);
+    --link-color: oklch(68% 0.10 358deg);
+    --link-hover-color: oklch(76% 0.08 5deg);
+    --link-color-secondary: oklch(66% 0.08 5deg);
+    --link-color-secondary-hover: oklch(76% 0.08 5deg);
+    --hr-color: oklch(42% 0.08 355deg);
+    --text-secondary: oklch(72% 0.01 55deg);
+    --banner-bg-color: oklch(22% 0.02 55deg);
+    --footer-text-color: oklch(78% 0.01 55deg);
+    --footer-border-color: oklch(48% 0.01 55deg / 25%);
+    --highlight-bg-color: oklch(95% 0.02 75deg);
+    --heading-color: oklch(84% 0.06 355deg);
+    --accent-color: var(--primary-color);
+    --code-bg-color: oklch(22% 0.02 55deg);
+    --code-text-color: oklch(87% 0.04 65deg);
+    --color-overlay-light: oklch(22% 0.01 55deg / 50%);
+    --home-card-shadow: 0 22px 42px -34px rgb(0 0 0 / 40%),
+      0 10px 24px -28px rgb(0 0 0 / 25%);
+    --home-card-shadow-hover: 0 26px 52px -32px rgb(0 0 0 / 50%),
+      0 14px 30px -24px rgb(0 0 0 / 30%);
+    --home-card-shadow-soft: 0 14px 30px -30px rgb(0 0 0 / 35%),
+      0 6px 18px -18px rgb(0 0 0 / 20%);
+  }
+
+  body::before {
+    opacity: 0.15;
+  }
+
+  code {
+    color: var(--code-text-color);
+  }
+
+  img {
+    opacity: 0.9;
+  }
+
+  .site-header-nav {
+    background: rgb(26 22 20 / calc(0.9 + var(--nav-opacity) * 0.1));
+    box-shadow:
+      0 4px 32px rgb(0 0 0 / calc(0.06 + var(--nav-opacity) * 0.12)),
+      0 8px 40px rgb(0 0 0 / calc(0.04 + var(--nav-opacity) * 0.1)),
+      0 1px 3px rgb(0 0 0 / calc(0.1 + var(--nav-opacity) * 0.2));
+  }
+
+  .post-nav-indicator {
+    background: rgb(26 22 20 / 95%);
+    border-color: rgb(212 131 154 / 30%);
+  }
+
+  .post-nav-hint,
+  .global-nav-hint {
+    background: rgb(26 22 20 / 95%);
+    border-color: rgb(212 131 154 / 20%);
+  }
+
+  .navigation-hint {
+    background: rgb(212 131 154 / 95%);
+    color: var(--primary-bg-color);
+  }
+
+  .skip-link:focus {
+    background: var(--primary-color);
+    color: var(--primary-bg-color);
+  }
+
+  table {
+    border-color: rgb(100 95 90 / 30%);
+  }
+
+  th {
+    border-color: rgb(100 95 90 / 30%);
+  }
+
+  td {
+    border-color: rgb(100 95 90 / 20%);
+  }
+
+  /* Search overlay */
+  .search-overlay {
+    background: rgb(26 22 20 / 40%);
+
+    @media (width <= 767px) {
+      background: rgb(26 22 20 / 80%);
+    }
+  }
+
+  .search-input-wrapper {
+    background: rgb(36 30 26 / 95%);
+    border-color: color-mix(in oklch, var(--text-secondary) 20%, transparent);
+    box-shadow:
+      0 4px 20px rgb(0 0 0 / 15%),
+      0 2px 8px rgb(0 0 0 / 10%),
+      inset 0 1px 0 rgb(255 255 255 / 6%);
+
+    &:focus-within {
+      box-shadow:
+        0 6px 25px rgb(0 0 0 / 20%),
+        0 2px 12px rgb(0 0 0 / 12%),
+        inset 0 1px 0 rgb(255 255 255 / 8%);
+    }
+  }
+
+  .search-result {
+    &:hover,
+    &:focus {
+      background: rgb(255 255 255 / 5%);
+    }
+  }
+
+  /* Blog card panels */
+  .latest-posts__panel {
+    background: linear-gradient(155deg, rgb(40 35 30 / 60%), rgb(30 25 22 / 40%));
+    border-color: rgb(255 255 255 / 8%);
+    box-shadow:
+      var(--home-card-shadow),
+      0 1px 0 rgb(255 255 255 / 5%),
+      inset 0 1px 0 rgb(255 255 255 / 6%);
+  }
+
+  /* Footer/about info items */
+  .about-info__item {
+    background: rgb(255 255 255 / 6%);
+  }
+
+  /* Haiku card */
+  .haiku-card {
+    background: linear-gradient(150deg, rgb(40 35 30 / 70%), rgb(30 25 22 / 50%));
+    border-color: rgb(255 255 255 / 8%);
+    box-shadow:
+      var(--home-card-shadow),
+      0 1px 0 rgb(255 255 255 / 5%);
+
+    &::before {
+      background: radial-gradient(circle, rgb(212 131 154 / 20%), transparent 60%);
+    }
+  }
+
+  /* Blog archive zen cards */
+  .zen-card {
+    background: rgb(255 255 255 / 6%);
+    border-color: rgb(255 255 255 / 10%);
+    box-shadow:
+      var(--home-card-shadow-soft),
+      0 1px 0 rgb(255 255 255 / 4%);
+
+    &::after {
+      background: linear-gradient(160deg, rgb(26 22 20 / 52%) 0%, rgb(26 22 20 / 68%) 58%, rgb(26 22 20 / 82%) 100%);
+    }
+  }
+
+  .zen-card:hover,
+  .zen-card:focus-within {
+    background: rgb(255 255 255 / 10%);
+    border-color: rgb(212 131 154 / 20%);
+
+    &::after {
+      background: linear-gradient(160deg, rgb(26 22 20 / 48%) 0%, rgb(26 22 20 / 64%) 55%, rgb(26 22 20 / 78%) 100%);
+    }
+  }
+
+  /* Table borders */
+  td,
+  th {
+    border-bottom-color: rgb(100 95 90 / 20%);
+  }
+}
