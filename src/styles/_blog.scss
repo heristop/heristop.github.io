@@ -156,10 +156,10 @@ pre > code {
 
 blockquote {
   position: relative;
-  background: rgb(255 255 255 / 28%);
+  background: var(--surface-glass);
   box-shadow:
     0 12px 24px -18px rgb(0 0 0 / 20%),
-    0 0 0 1px rgb(255 255 255 / 40%);
+    0 0 0 1px var(--border-glass);
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -190,7 +190,7 @@ th,
 td {
   padding: 0.75rem;
   text-align: left;
-  border-bottom: 1px solid rgb(229 231 235);
+  border-bottom: 1px solid var(--table-border);
 }
 
 th {
@@ -266,11 +266,11 @@ tbody tr:hover {
   gap: 0.75rem;
   padding: 1.25rem;
   border-radius: calc(var(--radius-md) + 0.125rem);
-  background: rgb(255 255 255 / 32%);
-  border: 1px solid rgb(255 255 255 / 48%);
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
   box-shadow:
     var(--home-card-shadow-soft),
-    0 1px 0 rgb(255 255 255 / 60%);
+    0 1px 0 var(--surface-glass-strong);
   transform: translate3d(0, 1.25rem, 0) rotate(0deg);
   opacity: 0;
   transition:
@@ -297,13 +297,13 @@ tbody tr:hover {
     &:hover,
     &:focus-within {
       transform: translateY(-2px) rotate(0.3deg) scale(1.005);
-      background: rgb(255 255 255 / 46%);
+      background: var(--surface-glass-hover);
       border-color: color-mix(in oklch, var(--primary-color) 28%, transparent);
       box-shadow:
         0 12px 24px -6px rgb(0 0 0 / 16%),
         0 6px 12px -4px rgb(0 0 0 / 10%),
         0 2px 6px -2px rgb(0 0 0 / 6%),
-        0 1px 0 rgb(255 255 255 / 55%);
+        0 1px 0 var(--surface-glass-strong);
 
       &::before {
         opacity: 0.32;
@@ -311,7 +311,7 @@ tbody tr:hover {
       }
 
       &::after {
-        background: linear-gradient(160deg, rgb(252 248 244 / 58%) 0%, rgb(252 248 244 / 74%) 55%, rgb(252 248 244 / 88%) 100%);
+        background: var(--surface-overlay-hover);
       }
 
       .blog-card__cta {
@@ -359,7 +359,7 @@ tbody tr:hover {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(160deg, rgb(252 248 244 / 52%) 0%, rgb(252 248 244 / 68%) 58%, rgb(252 248 244 / 82%) 100%);
+    background: var(--surface-overlay);
     pointer-events: none;
     transition: background 420ms var(--zen-ease-out);
     z-index: 1;
@@ -378,7 +378,7 @@ tbody tr:hover {
   gap: 0.35rem;
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
-  background: rgb(245 244 243 / 50%);
+  background: var(--surface-glass-hover);
   color: var(--link-color-secondary);
   font-size: 0.75rem;
   letter-spacing: 0.1em;
@@ -482,7 +482,7 @@ tbody tr:hover {
 
 .blog-card:hover .blog-card__date,
 .blog-card:focus-visible .blog-card__date {
-  background: rgb(247 240 232 / 80%);
+  background: var(--surface-glass-hover);
   color: var(--link-hover-color);
 }
 
