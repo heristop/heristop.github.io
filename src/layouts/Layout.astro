@@ -14,15 +14,17 @@ type Props = Partial<CollectionEntry<"blog">["data"]> & {
   description: string;
   readingTime?: number;
   isArticle?: boolean;
+  headSchema?: Record<string, unknown>;
 };
 
-const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, tags } = Astro.props;
+const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, tags, headSchema } = Astro.props;
 
 ---
 
 <html lang="en">
   <head>
     <BaseHead title={title} metaTitle={metaTitle} description={description} image={image} isArticle={isArticle} pubDate={pubDate} updatedDate={updatedDate} tags={tags} />
+    {headSchema && <script is:inline type="application/ld+json" set:html={JSON.stringify(headSchema)} />}
   </head>
 
   <body>
