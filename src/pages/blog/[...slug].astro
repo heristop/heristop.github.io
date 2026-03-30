@@ -147,23 +147,23 @@ const breadcrumbItems = [
 
       if (previousPost) {
         indicatorHTML.push(`
-          <button
+          <a
             class="post-nav-indicator post-nav-indicator--left"
+            href="/blog/${previousPost.id}/"
             title="Previous: ${previousPost.data.title.replaceAll('"', '&quot;')}"
             aria-label="Previous post: ${previousPost.data.title.replaceAll('"', '&quot;')}"
-            onclick="window.location.href = '/blog/${previousPost.id}/'"
-          >\u2190</button>
+          >\u2190</a>
         `);
       }
 
       if (nextPost) {
         indicatorHTML.push(`
-          <button
+          <a
             class="post-nav-indicator post-nav-indicator--right"
+            href="/blog/${nextPost.id}/"
             title="Next: ${nextPost.data.title.replaceAll('"', '&quot;')}"
             aria-label="Next post: ${nextPost.data.title.replaceAll('"', '&quot;')}"
-            onclick="window.location.href = '/blog/${nextPost.id}/'"
-          >\u2192</button>
+          >\u2192</a>
         `);
       }
 

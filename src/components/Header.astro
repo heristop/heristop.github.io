@@ -5,12 +5,11 @@ import { SITE_TITLE } from '../consts';
 
 const { image } = Astro.props;
 
-const bannerImage = image || '/images/zazen.png';
+const bannerImage = image || '/images/zazen.webp';
+const bannerImageFallback = image || '/images/zazen.png';
 
 const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 ---
-
-<a href="#main-content" class="skip-link">Skip to main content</a>
 
 <!-- Static Header with Banner -->
 <header class="site-header-static">
@@ -31,18 +30,17 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         <div
           class="header__nav header__nav--desktop"
           id="initial-nav"
-          role="menubar"
         >
-          <HeaderLink class="header__link" href="/" role="menuitem"
+          <HeaderLink class="header__link" href="/"
             >Home</HeaderLink
           >
-          <HeaderLink class="header__link" href="/blog" role="menuitem"
+          <HeaderLink class="header__link" href="/blog"
             >Blog</HeaderLink
           >
-          <HeaderLink class="header__link" href="/projects" role="menuitem"
+          <HeaderLink class="header__link" href="/projects"
             >Projects</HeaderLink
           >
-          <HeaderLink class="header__link" href="/about" role="menuitem"
+          <HeaderLink class="header__link" href="/about"
             >About</HeaderLink
           >
         </div>
@@ -77,27 +75,22 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         <div
           class="header__nav header__nav--mobile"
           id="initial-mobile-nav"
-          role="menubar"
         >
           <HeaderLink
             class="header__link header__link--mobile"
-            href="/"
-            role="menuitem">Home</HeaderLink
+            href="/">Home</HeaderLink
           >
           <HeaderLink
             class="header__link header__link--mobile"
-            href="/blog"
-            role="menuitem">Blog</HeaderLink
+            href="/blog">Blog</HeaderLink
           >
           <HeaderLink
             class="header__link header__link--mobile"
-            href="/projects"
-            role="menuitem">Projects</HeaderLink
+            href="/projects">Projects</HeaderLink
           >
           <HeaderLink
             class="header__link header__link--mobile"
-            href="/about"
-            role="menuitem">About</HeaderLink
+            href="/about">About</HeaderLink
           >
         </div>
       </div>
@@ -108,10 +101,14 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
         <picture class="site-header__banner-picture">
           <source
             srcset={bannerImage}
+            type="image/webp"
+          />
+          <source
+            srcset={bannerImageFallback}
             type="image/png"
           />
           <img
-            src={bannerImage}
+            src={bannerImageFallback}
             alt="Zen meditation scene with minimalist aesthetic, featuring serene natural elements that embody the contemplative spirit of zazen practice"
             class="site-header__banner-image"
             loading="eager"
@@ -144,18 +141,17 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       <div
         class="header__nav header__nav--desktop"
         id="header-nav"
-        role="menubar"
       >
-        <HeaderLink class="header__link" href="/" role="menuitem"
+        <HeaderLink class="header__link" href="/"
           >Home</HeaderLink
         >
-        <HeaderLink class="header__link" href="/blog" role="menuitem"
+        <HeaderLink class="header__link" href="/blog"
           >Blog</HeaderLink
         >
-        <HeaderLink class="header__link" href="/projects" role="menuitem"
+        <HeaderLink class="header__link" href="/projects"
           >Projects</HeaderLink
         >
-        <HeaderLink class="header__link" href="/about" role="menuitem"
+        <HeaderLink class="header__link" href="/about"
           >About</HeaderLink
         >
       </div>
@@ -188,26 +184,22 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
     </div>
 
     <!-- Mobile Navigation -->
-    <div class="header__nav header__nav--mobile" id="mobile-nav" role="menubar">
+    <div class="header__nav header__nav--mobile" id="mobile-nav">
       <HeaderLink
         class="header__link header__link--mobile"
-        href="/"
-        role="menuitem">Home</HeaderLink
+        href="/">Home</HeaderLink
       >
       <HeaderLink
         class="header__link header__link--mobile"
-        href="/blog"
-        role="menuitem">Blog</HeaderLink
+        href="/blog">Blog</HeaderLink
       >
       <HeaderLink
         class="header__link header__link--mobile"
-        href="/projects"
-        role="menuitem">Projects</HeaderLink
+        href="/projects">Projects</HeaderLink
       >
       <HeaderLink
         class="header__link header__link--mobile"
-        href="/about"
-        role="menuitem">About</HeaderLink
+        href="/about">About</HeaderLink
       >
     </div>
 
