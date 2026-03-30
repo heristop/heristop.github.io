@@ -1,5 +1,7 @@
-import { buildCharDrifts, getSmokeClass, getSmokeStyle, maxAnimationEnd, useReducedMotion, useTextLayout } from "./use-text-reveal";
 import { useEffect, useMemo, useRef, useState } from "react";
+import textReveal from "./use-text-reveal";
+
+const { buildCharDrifts, getCharClass, getSmokeStyle, maxAnimationEnd, useReducedMotion, useTextLayout } = textReveal;
 
 interface Props {
   text: string;
@@ -52,8 +54,7 @@ const ZenTitleReveal = ({ text }: Props) => {
           {lineChars.map((charDrift) => (
             <span
               key={charDrift.key}
-              // eslint-disable-next-line no-ternary
-              className={settled ? "haiku-char--settled" : getSmokeClass(appeared, reducedMotion)}
+              className={getCharClass(settled, appeared, reducedMotion)}
               style={getSmokeStyle(charDrift, reducedMotion)}
             >
               {charDrift.char === " " && NBSP}

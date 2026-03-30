@@ -490,6 +490,19 @@
     margin-top: auto;
   }
 
+  &__touch-hint {
+    display: none;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    text-align: center;
+    padding-top: 0.5rem;
+
+    @media (hover: none) and (pointer: coarse) {
+      display: block;
+    }
+  }
+
   @media screen and (width >= 48rem) {
     .latest-posts__panel,
     & {
