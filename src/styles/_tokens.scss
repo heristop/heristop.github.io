@@ -6,9 +6,9 @@
   --link-color-secondary: oklch(55% 0.09 5deg);
   --link-color-secondary-hover: oklch(62% 0.08 10deg);
   --hr-color: oklch(62% 0.08 10deg);
-  --text-secondary: oklch(52% 0.01 55deg);
+  --text-secondary: oklch(44% 0.01 55deg);
   --banner-bg-color: oklch(94% 0 0deg);
-  --footer-text-color: oklch(38% 0.01 55deg);
+  --footer-text-color: oklch(28% 0.01 55deg);
   --footer-border-color: oklch(44% 0.01 55deg / 15%);
   --highlight-bg-color: oklch(15% 0 0deg);
   --heading-color: oklch(30% 0.12 355deg);
@@ -47,4 +47,38 @@
     0 14px 30px -24px rgb(38 24 28 / 18%);
   --home-card-shadow-soft: 0 14px 30px -30px rgb(38 24 28 / 20%),
     0 6px 18px -18px rgb(38 24 28 / 12%);
+
+  /* Semantic surface colors */
+  --surface-glass: rgb(255 255 255 / 32%);
+  --surface-glass-hover: rgb(255 255 255 / 46%);
+  --surface-glass-strong: rgb(255 255 255 / 55%);
+  --surface-card: linear-gradient(155deg, rgb(255 255 255 / 48%), rgb(248 241 235 / 32%));
+  --surface-card-content: linear-gradient(160deg, rgb(245 235 226 / 36%) 0%, rgb(245 235 226 / 54%) 55%, rgb(252 248 244 / 68%) 100%);
+  --surface-overlay: linear-gradient(160deg, rgb(252 248 244 / 52%) 0%, rgb(252 248 244 / 68%) 58%, rgb(252 248 244 / 82%) 100%);
+  --surface-overlay-hover: linear-gradient(160deg, rgb(252 248 244 / 58%) 0%, rgb(252 248 244 / 74%) 55%, rgb(252 248 244 / 88%) 100%);
+  --surface-muted: rgb(0 0 0 / 5%);
+  --surface-warm: rgb(245 238 230 / 95%);
+  --surface-warm-light: rgb(245 238 230 / 30%);
+
+  /* Border colors */
+  --border-glass: rgb(255 255 255 / 40%);
+  --border-glass-strong: rgb(255 255 255 / 55%);
+  --border-subtle: rgb(255 255 255 / 30%);
+  --border-image: rgb(255 255 255 / 50%);
+
+  /* Shadow colors */
+  --shadow-color: rgb(0 0 0);
+  --shadow-sm: 0 2px 4px rgb(0 0 0 / 5%);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 10%), 0 2px 4px -2px rgb(0 0 0 / 10%);
+  --shadow-lg: 0 20px 40px rgb(0 0 0 / 15%);
+
+  /* Text on surfaces */
+  --text-on-surface: rgb(87 83 78);
+  --text-on-dark: rgb(255 255 255);
+
+  /* Table */
+  --table-border: rgb(229 231 235);
+
+  /* Backdrop colors */
+  --backdrop-color: rgb(107 114 128 / 75%);
 }
