@@ -5,7 +5,6 @@ import rss from "@astrojs/rss";
 /**
  * @param {{ site: string }} context
  */
-// eslint-disable-next-line no-named-export, prefer-default-export
 export const GET = async (context) => {
   const posts = await getCollection("blog");
   const { site } = context;

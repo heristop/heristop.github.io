@@ -4,15 +4,14 @@ import { getCollection } from 'astro:content';
 
 const { currentPostSlug, conclusion } = Astro.props;
 
-/* eslint-disable import/exports-last, import/no-named-export, import/prefer-default-export */
 export const getRecommendedPosts = async (slug: string) => {
   const MAX_RECOMMENDED_POSTS = 3;
   const RECENT_POSTS_COUNT = -3;
   const posts = await getCollection('blog');
   const currentIndex = posts.findIndex(post => post.id === slug);
 
-  const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : undefined; // eslint-disable-line no-ternary
-  const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : undefined; // eslint-disable-line no-ternary
+  const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : undefined;
+  const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : undefined;
 
   let recommendedPosts = posts.filter(post => post.id !== slug);
   recommendedPosts.sort((postA, postB) => {

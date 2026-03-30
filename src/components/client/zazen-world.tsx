@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unassigned-import
 import "./world.scss";
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from "lucide-react";
 import type { Direction, MapTile, MoveResult } from "./zazen-world-types";

@@ -1,9 +1,7 @@
-/* eslint-disable no-duplicate-imports */
 import { layoutWithLines, prepareWithSegments } from "@chenglou/pretext";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LayoutLine } from "@chenglou/pretext";
 import type { RefObject } from "react";
-/* eslint-enable no-duplicate-imports */
 
 const REVEAL_DELAY_MS = 50;
 const RESIZE_DEBOUNCE_MS = 150;

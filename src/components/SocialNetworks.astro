@@ -27,7 +27,7 @@ const fetchUserConfig = async (): Promise<UserConfig> => {
     return await response.json();
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.warn("Unable to load remote social networks:", error); // eslint-disable-line no-console
+      console.warn("Unable to load remote social networks:", error);
     }
 
     return { socialNetworks: [] };

@@ -16,8 +16,8 @@ const {
 } = Astro.props;
 
 const slideClass = `zen-slide-${direction}`;
-const delayClass = delay > 0 ? `zen-delay-${delay}` : ''; // eslint-disable-line no-ternary
-const durationClass = duration === 'normal' ? '' : `zen-duration-${duration}`; // eslint-disable-line no-ternary
+const delayClass = delay > 0 ? `zen-delay-${delay}` : '';
+const durationClass = duration === 'normal' ? '' : `zen-duration-${duration}`;
 ---
 
 <div

@@ -259,7 +259,5 @@ const textRevealExports = {
   useTextLayout,
 };
 
-/* eslint-disable import/no-named-export */
 export default textRevealExports;
 export type { CharDrift, WordDrift };
-/* eslint-enable import/no-named-export */
