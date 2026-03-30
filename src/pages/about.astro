@@ -76,6 +76,12 @@ const personSchema = {
     animation: wave 1.8s ease-in-out 1;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .about-info__wave {
+      animation: none;
+    }
+  }
+
   .about-info__item--with-icon {
     display: flex;
     flex-direction: column;
