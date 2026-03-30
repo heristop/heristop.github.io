@@ -1,5 +1,5 @@
-import { buildCharDrifts, getSmokeClass, getSmokeStyle, useReducedMotion, useTextLayout } from "./use-text-reveal";
-import { useEffect, useRef, useState } from "react";
+import { buildCharDrifts, getSmokeClass, getSmokeStyle, maxAnimationEnd, useReducedMotion, useTextLayout } from "./use-text-reveal";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface Props {
   className?: string;
@@ -15,11 +15,14 @@ const BASE_PX = 16;
 const DEFAULT_FONT = `400 ${FONT_SIZE}rem Comfortaa, sans-serif`;
 const DEFAULT_LINE_HEIGHT = FONT_SIZE * BODY_LINE_HEIGHT * BASE_PX;
 const APPEAR_DELAY_MS = 80;
+const TEXT_DURATION_MS = 800;
+const SETTLE_BUFFER_MS = 300;
 const NBSP = "\u00A0";
 
 const ZenTextReveal = ({ text, tag: Tag = "span", className, font = DEFAULT_FONT, lineHeight = DEFAULT_LINE_HEIGHT }: Props) => {
   const containerRef = useRef<HTMLElement>(null);
   const [appeared, setAppeared] = useState(false);
+  const [settled, setSettled] = useState(false);
   const reducedMotion = useReducedMotion();
   const { lines, revealed } = useTextLayout(text, font, lineHeight, containerRef);
 
@@ -29,7 +32,14 @@ const ZenTextReveal = ({ text, tag: Tag = "span", className, font = DEFAULT_FONT
     return () => { clearTimeout(timer); };
   }, [revealed, appeared, reducedMotion]);
 
-  const charsByLine = buildCharDrifts(lines);
+  const charsByLine = useMemo(() => buildCharDrifts(lines, TEXT_DURATION_MS), [lines]);
+
+  useEffect(() => {
+    if (!appeared || settled || reducedMotion || charsByLine.length === 0) { return; }
+    const totalMs = maxAnimationEnd(charsByLine) + SETTLE_BUFFER_MS;
+    const timer = setTimeout(() => { setSettled(true); }, totalMs);
+    return () => { clearTimeout(timer); };
+  }, [appeared, settled, reducedMotion, charsByLine]);
 
   return (
     <Tag
@@ -47,7 +57,8 @@ const ZenTextReveal = ({ text, tag: Tag = "span", className, font = DEFAULT_FONT
           {lineChars.map((charDrift) => (
             <span
               key={charDrift.key}
-              className={getSmokeClass(appeared, reducedMotion)}
+              // eslint-disable-next-line no-ternary
+              className={settled ? "haiku-char--settled" : getSmokeClass(appeared, reducedMotion)}
               style={getSmokeStyle(charDrift, reducedMotion)}
             >
               {charDrift.char === " " && NBSP}

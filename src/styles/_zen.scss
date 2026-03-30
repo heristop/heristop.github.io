@@ -1,11 +1,9 @@
-/* Zen Animation System */
-
-/* Base animation classes */
-.zen-animate {
-  will-change: transform, opacity;
+/* Reveal containers: isolate paint and layout */
+.haiku-card__quote,
+[aria-label] > span[aria-hidden="true"] {
+  contain: content;
 }
 
-/* Zen Animation Keyframes */
 @keyframes zen-fade-in {
   from {
     opacity: 0;
@@ -88,7 +86,6 @@
   }
 }
 
-/* Animation Utility Classes */
 .zen-fade {
   animation: zen-fade-in var(--zen-duration-normal) var(--zen-ease-out) both;
 }
@@ -117,7 +114,6 @@
   animation: zen-breathe var(--zen-duration-breath) var(--zen-ease-in-out) infinite;
 }
 
-/* Zen Delay Classes */
 .zen-delay-100 { animation-delay: 100ms; }
 .zen-delay-200 { animation-delay: 200ms; }
 .zen-delay-300 { animation-delay: 300ms; }
@@ -129,12 +125,10 @@
 .zen-delay-900 { animation-delay: 900ms; }
 .zen-delay-1000 { animation-delay: 1000ms; }
 
-/* Zen Duration Classes */
 .zen-duration-fast { animation-duration: var(--zen-duration-fast); }
 .zen-duration-normal { animation-duration: var(--zen-duration-normal); }
 .zen-duration-slow { animation-duration: var(--zen-duration-slow); }
 
-/* Zen Hover Effects */
 .zen-hover-lift {
   transition: transform var(--zen-duration-fast) var(--zen-ease-out);
 }
@@ -237,8 +231,9 @@
 .haiku-char--smoke {
   opacity: 0;
   transform: translate(var(--drift-x, 0), var(--drift-y, -10px)) rotate(var(--drift-r, 0deg));
-  filter: blur(3px);
+  filter: blur(var(--char-blur, 3px));
   transition: none;
+  will-change: transform, opacity, filter;
 }
 
 .haiku-char--appear {
@@ -246,9 +241,18 @@
   transform: translate(0, 0) rotate(0deg);
   filter: blur(0);
   transition:
-    opacity 900ms var(--zen-ease-elegant),
-    transform 900ms var(--zen-ease-elegant),
-    filter 900ms var(--zen-ease-elegant);
+    opacity var(--char-duration, 900ms) var(--zen-ease-elegant) var(--char-delay, 0ms),
+    transform var(--char-duration, 900ms) var(--zen-ease-elegant) var(--char-delay, 0ms),
+    filter var(--char-duration, 900ms) var(--zen-ease-elegant) var(--char-delay, 0ms);
+  will-change: transform, opacity, filter;
+}
+
+.haiku-char--settled {
+  opacity: 1;
+  transform: translate(0, 0) rotate(0deg);
+  filter: blur(0);
+  transition: none;
+  will-change: auto;
 }
 
 .haiku-char--dissolve {
@@ -261,13 +265,30 @@
     filter 800ms var(--zen-ease-out);
 }
 
+@keyframes zen-char-breathe {
+  0%, 100% { opacity: 0.92; }
+  50% { opacity: 1; }
+}
+
+.haiku-char--breathe {
+  animation: zen-char-breathe 4s var(--zen-ease-in-out) infinite;
+  animation-delay: var(--char-delay, 0ms);
+  transform: translate(0, 0) rotate(0deg);
+  filter: blur(0);
+  will-change: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .haiku-char--smoke,
   .haiku-char--appear,
-  .haiku-char--dissolve {
+  .haiku-char--settled,
+  .haiku-char--dissolve,
+  .haiku-char--breathe {
+    animation: none !important;
     transition: none !important;
     transform: none !important;
     filter: none !important;
     opacity: 1 !important;
+    will-change: auto !important;
   }
 }
