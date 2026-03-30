@@ -1,5 +1,3 @@
-/* eslint-disable eslint-plugin-import(no-named-export) */
-
 interface MapTile {
   posX: number;
   posY: number;
@@ -15,4 +13,5 @@ interface MoveResult {
   newPosition: { posX: number; posY: number };
 }
 
+// eslint-disable-next-line import/no-named-export
 export type { MapTile, Direction, MoveResult };

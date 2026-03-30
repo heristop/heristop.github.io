@@ -1,5 +1,4 @@
-/* eslint-disable eslint-plugin-import(no-named-export) */
-
+/* eslint-disable import/no-named-export */
 import type { Direction, MapTile, MoveResult } from "./zazen-world-types";
 
 const CENTER_COORDINATE = 6.5;

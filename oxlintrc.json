@@ -1,0 +1,7 @@
+{
+  "rules": {
+    "no-duplicate-imports": "off",
+    "init-declarations": "off",
+    "import/no-named-export": "off"
+  }
+}
