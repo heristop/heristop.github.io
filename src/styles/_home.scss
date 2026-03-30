@@ -148,15 +148,6 @@
     border-radius: calc(var(--radius-md) + 0.1rem);
     background: var(--surface-glass);
     border: 1px solid var(--border-glass);
-
-    &:first-child {
-      padding: 1.1rem 1.15rem 1.1rem 1.5rem;
-      border-color: color-mix(in oklch, var(--primary-color) 18%, transparent);
-
-      .latest-posts__title {
-        font-size: 1.05em;
-      }
-    }
     box-shadow:
       var(--home-card-shadow-soft),
       0 1px 0 var(--border-image);
@@ -191,7 +182,8 @@
       }
 
       .latest-posts__link-icon {
-        transform: none;
+        transform: translateX(5px);
+        opacity: 1;
       }
 
       .latest-posts__title {
@@ -233,7 +225,8 @@
 
   &__link-icon {
     color: var(--link-color-secondary);
-    transition: transform 0.25s ease;
+    transition: transform 0.35s var(--zen-ease-elegant);
+    opacity: 0.5;
   }
 
   &__cta {

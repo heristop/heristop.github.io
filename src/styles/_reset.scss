@@ -117,6 +117,16 @@ a {
     transition: transform 320ms var(--zen-ease-out);
   }
 
+  /* Suppress underline on button-styled and icon links */
+  &.latest-posts__cta::after,
+  &.site-footer__social-link::after,
+  &.social-share__link::after,
+  &.post-nav-indicator::after,
+  &.header__link::after,
+  &.header__brand-link::after {
+    content: none;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     &:hover {
       color: var(--link-hover-color);
