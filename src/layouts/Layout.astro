@@ -66,16 +66,15 @@ const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, t
         <div class="search-header">
           <h2 id="search-title" class="sr-only">Search reflections</h2>
           <div class="search-input-component">
-            <div class="search-input-wrapper" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+            <div class="search-input-wrapper">
               <div class="search-input-icon search-input-icon--left">
                 <Icon name="search" size={20} aria-hidden={true} />
               </div>
               <input
                 class="search-input"
                 placeholder="Search reflections..."
-                aria-label="Search blog posts"
-                aria-autocomplete="list"
-                aria-controls="search-results"
+                aria-labelledby="search-title"
+                role="searchbox"
                 autocomplete="off"
                 spellcheck="false"
                 inputmode="search"

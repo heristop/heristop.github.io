@@ -5,7 +5,7 @@ import {
   ICON_SIZE, ICON_STROKE_WIDTH, TILE_HALF_HEIGHT, TILE_HALF_WIDTH,
   buildInitialMap, calculateMapDimensions, handleKeyDirection, performMove,
 } from "./zazen-world-helpers";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 interface DirectionButtonProps {
   direction: Direction;
@@ -45,7 +45,7 @@ const DirectionButton = function DirectionButton({ direction, onMove, icon, labe
   );
 };
 
-const TileRenderer = function TileRenderer({ tile }: TileRendererProps) {
+const TileRenderer = React.memo(function TileRenderer({ tile }: TileRendererProps) {
   return (
     <div
       className="zazen-world__tile-image"
@@ -59,7 +59,7 @@ const TileRenderer = function TileRenderer({ tile }: TileRendererProps) {
       )}
     </div>
   );
-};
+});
 
 const northIcon = <ArrowUp size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />;
 const westIcon = <ArrowLeft size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />;
