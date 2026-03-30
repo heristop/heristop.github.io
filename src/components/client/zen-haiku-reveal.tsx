@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dissolve from "./haiku-dissolve";
 import textReveal from "./use-text-reveal";
 import type { CharDrift } from "./use-text-reveal";
@@ -15,7 +15,7 @@ const APPEAR_DELAY_MS = 200;
 const HAIKU_BASE_DURATION_MS = 1000;
 const BREATHE_BUFFER_MS = 300;
 
-const CharSpan = ({ charDrift, charClass, reducedMotion, onRef }: {
+const CharSpan = React.memo(({ charDrift, charClass, reducedMotion, onRef }: {
   charClass: string;
   charDrift: CharDrift;
   onRef: (key: string, el: HTMLSpanElement | null) => void;
@@ -29,9 +29,9 @@ const CharSpan = ({ charDrift, charClass, reducedMotion, onRef }: {
   >
     {charDrift.char}
   </span>
-);
+));
 
-const WordSpan = ({ word, chars, charClass, reducedMotion, onRef }: {
+const WordSpan = React.memo(({ word, chars, charClass, reducedMotion, onRef }: {
   charClass: string;
   chars: CharDrift[];
   onRef: (key: string, el: HTMLSpanElement | null) => void;
@@ -47,7 +47,7 @@ const WordSpan = ({ word, chars, charClass, reducedMotion, onRef }: {
       ))}
     </span>
   );
-};
+});
 
 const useHaikuFetch = (url: string) => {
   const [text, setText] = useState<string | undefined>();
