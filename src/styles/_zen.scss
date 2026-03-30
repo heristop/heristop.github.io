@@ -1,6 +1,5 @@
 /* Reveal containers: isolate paint and layout */
-.haiku-card__quote,
-[aria-label] > span[aria-hidden="true"] {
+.haiku-card__quote {
   contain: content;
 }
 

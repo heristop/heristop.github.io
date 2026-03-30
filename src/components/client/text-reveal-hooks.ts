@@ -68,18 +68,9 @@ interface ComputeLinesDeps {
   text: string | undefined;
 }
 
-const useComputeLines = (deps: ComputeLinesDeps) =>
-  useCallback(() => {
-    const {
-      text,
-      font,
-      containerRef,
-      preparedRef,
-      prevTextRef,
-      prevFontRef,
-      lineHeight,
-      setLines,
-    } = deps;
+const useComputeLines = (deps: ComputeLinesDeps) => {
+  const { text, font, lineHeight, containerRef, preparedRef, prevTextRef, prevFontRef, setLines } = deps;
+  return useCallback(() => {
     if (text === undefined || text === "" || !containerRef.current) {
       return;
     }
@@ -103,7 +94,8 @@ const useComputeLines = (deps: ComputeLinesDeps) =>
     const result = layoutWithLines(prepared, width, lineHeight);
     const rawTexts = result.lines.map((item) => item.text);
     setLines(toLayoutLines(rejoinBrokenWords(rawTexts)));
-  }, [deps]);
+  }, [text, font, lineHeight, containerRef, preparedRef, prevTextRef, prevFontRef, setLines]);
+};
 
 const useTextLayout = (
   text: string | undefined,
