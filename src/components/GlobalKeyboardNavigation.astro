@@ -9,10 +9,11 @@ const navPages = [
   { path: '/about/', title: 'About' }
 ];
 
-const getCurrentPageIndex = (path: string) => {
-  const normalizedPath = path === '/' ? '/' : path.replace(/\/$/, '/');
+const getCurrentPageIndex = (pagePath: string) => {
+  /* eslint-disable-next-line no-ternary */
+  const normalizedPath = pagePath === '/' ? '/' : pagePath.replace(/\/$/, '/');
 
-  if (path === '/blog' || path === '/blog/') {
+  if (pagePath === '/blog' || pagePath === '/blog/') {
     return navPages.findIndex(page => page.path === '/blog/');
   }
 
@@ -21,20 +22,182 @@ const getCurrentPageIndex = (path: string) => {
 
 const currentIndex = getCurrentPageIndex(currentPath);
 
+/* eslint-disable no-ternary */
 const previousIndex = currentIndex > 0 ? currentIndex - 1 : navPages.length - 1;
 const nextIndex = currentIndex < navPages.length - 1 ? currentIndex + 1 : 0;
 
 const previousPage = currentIndex >= 0 ? navPages[previousIndex] : undefined;
 const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
+/* eslint-enable no-ternary */
 ---
 
 <script type="module" is:inline define:vars={{ previousPage, nextPage, currentIndex }}>
-  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  const isMobile = () => window.innerWidth <= 768;
-  const isTablet = () => window.innerWidth > 768 && window.innerWidth <= 1024;
+  const NAVIGATION_DELAY = 150;
+  const HINT_FADE_DELAY = 300;
+  const HINT_DISPLAY_DURATION = 1000;
+  const MOBILE_BREAKPOINT = 768;
+  const TABLET_BREAKPOINT = 1024;
+  const SWIPE_THRESHOLD = 100;
+  const SWIPE_TIMEOUT = 500;
+  const VERTICAL_THRESHOLD = 50;
+  const PAGE_LOAD_DELAY = 100;
+
+  const isTouchDevice = 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
+  const isMobile = () => globalThis.innerWidth <= MOBILE_BREAKPOINT;
+  const isTablet = () => globalThis.innerWidth > MOBILE_BREAKPOINT && globalThis.innerWidth <= TABLET_BREAKPOINT;
   const shouldUseTouchNavigation = () => isTouchDevice && (isMobile() || isTablet());
 
-  function initGlobalKeyboardNavigation() {
+  const showNavigationHint = (direction, pageTitle) => {
+    const hint = document.createElement('div');
+    hint.className = `navigation-hint navigation-hint--${direction}`;
+    /* eslint-disable-next-line no-ternary */
+    hint.textContent = direction === 'previous' ? `\u2190 ${pageTitle}` : `${pageTitle} \u2192`;
+    hint.setAttribute('aria-live', 'polite');
+
+    document.body.append(hint);
+
+    requestAnimationFrame(() => {
+      hint.style.opacity = '1';
+      hint.style.transform = 'translateY(0)';
+    });
+
+    setTimeout(() => {
+      hint.style.opacity = '0';
+      hint.style.transform = 'translateY(-10px)';
+      setTimeout(() => {
+        hint.remove();
+      }, HINT_FADE_DELAY);
+    }, HINT_DISPLAY_DURATION);
+  };
+
+  const buildGlobalIndicatorButtons = (shouldUseTouch) => {
+    const parts = [];
+
+    if (previousPage) {
+      parts.push(`
+        <button
+          class="post-nav-indicator global-nav-indicator global-nav-indicator--left"
+          title="Previous: ${previousPage.title}"
+          aria-label="Previous page: ${previousPage.title}"
+          onclick="window.location.href = '${previousPage.path}'"
+        >\u2190</button>
+      `);
+    }
+
+    if (nextPage) {
+      parts.push(`
+        <button
+          class="post-nav-indicator global-nav-indicator global-nav-indicator--right"
+          title="Next: ${nextPage.title}"
+          aria-label="Next page: ${nextPage.title}"
+          onclick="window.location.href = '${nextPage.path}'"
+        >\u2192</button>
+      `);
+    }
+
+    if (previousPage || nextPage) {
+      /* eslint-disable-next-line no-ternary */
+      const hintText = shouldUseTouch
+        ? 'Swipe left/right to navigate pages'
+        : 'Use \u2190 \u2192 keys to navigate pages';
+
+      parts.push(`
+        <span
+          class="post-nav-hint global-nav-hint"
+          role="status"
+          aria-live="polite"
+        >${hintText}</span>
+      `);
+    }
+
+    return parts;
+  };
+
+  const createGlobalNavigationIndicators = () => {
+    if (document.querySelector('.global-navigation-indicators')) {
+      return;
+    }
+
+    const indicators = document.createElement('div');
+    indicators.className = 'global-navigation-indicators';
+    indicators.setAttribute('role', 'region');
+    indicators.setAttribute('aria-label', 'Page navigation');
+
+    const parts = buildGlobalIndicatorButtons(shouldUseTouchNavigation());
+    indicators.innerHTML = parts.join('');
+    document.body.append(indicators);
+  };
+
+  const setupGlobalKeyboardNavigation = (isInputFocused, navigateToPage) => {
+    document.addEventListener('keydown', (event) => {
+      if (isInputFocused() || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'ArrowLeft': {
+          if (previousPage) {
+            event.preventDefault();
+            navigateToPage('previous');
+          }
+          break;
+        }
+
+        case 'ArrowRight': {
+          if (nextPage) {
+            event.preventDefault();
+            navigateToPage('next');
+          }
+          break;
+        }
+      }
+    });
+  };
+
+  const setupGlobalTouchNavigation = (isInputFocused, navigateToPage) => {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
+    document.addEventListener('touchstart', (event) => {
+      if (isInputFocused()) {return;}
+
+      const touch = event.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      touchStartTime = Date.now();
+    }, { passive: true });
+
+    document.addEventListener('touchend', (event) => {
+      if (isInputFocused() || !touchStartX) {return;}
+
+      const touch = event.changedTouches[0];
+      const touchEndX = touch.clientX;
+      const touchEndY = touch.clientY;
+      const touchEndTime = Date.now();
+
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = Math.abs(touchEndY - touchStartY);
+      const timeDelta = touchEndTime - touchStartTime;
+
+      touchStartX = 0;
+
+      if (Math.abs(deltaX) > SWIPE_THRESHOLD &&
+          deltaY < VERTICAL_THRESHOLD &&
+          timeDelta < SWIPE_TIMEOUT) {
+
+        if (deltaX > 0 && previousPage) {
+          event.preventDefault();
+          navigateToPage('previous');
+        } else if (deltaX < 0 && nextPage) {
+          event.preventDefault();
+          navigateToPage('next');
+        }
+      }
+    }, { passive: false });
+  };
+
+  const initGlobalKeyboardNavigation = () => {
     if (currentIndex < 0) {
       return;
     }
@@ -51,189 +214,52 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
       existingGlobalNav.remove();
     }
 
-    let isInputFocused = false;
+    let inputFocused = false;
 
-    function updateInputFocus() {
+    const updateInputFocus = () => {
       const {activeElement} = document;
-      isInputFocused = activeElement && (
+      inputFocused = activeElement && (
         activeElement.tagName === 'INPUT' ||
         activeElement.tagName === 'TEXTAREA' ||
         activeElement.tagName === 'SELECT' ||
         activeElement.contentEditable === 'true'
       );
-    }
+    };
 
     document.addEventListener('focusin', updateInputFocus);
     document.addEventListener('focusout', updateInputFocus);
 
-    function navigateToPage(direction) {
+    const getInputFocused = () => inputFocused;
+
+    const navigateToPage = (direction) => {
+      /* eslint-disable-next-line no-ternary */
       const targetPage = direction === 'previous' ? previousPage : nextPage;
       if (targetPage) {
         showNavigationHint(direction, targetPage.title);
         setTimeout(() => {
-          window.location.href = targetPage.path;
-        }, 150);
+          globalThis.location.href = targetPage.path;
+        }, NAVIGATION_DELAY);
       }
-    }
+    };
 
     if (!shouldUseTouchNavigation()) {
-      document.addEventListener('keydown', (event) => {
-        if (isInputFocused || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
-          return;
-        }
-
-        switch (event.key) {
-          case 'ArrowLeft': {
-            if (previousPage) {
-              event.preventDefault();
-              navigateToPage('previous');
-            }
-            break;
-          }
-
-          case 'ArrowRight': {
-            if (nextPage) {
-              event.preventDefault();
-              navigateToPage('next');
-            }
-            break;
-          }
-        }
-      });
+      setupGlobalKeyboardNavigation(getInputFocused, navigateToPage);
     }
 
     if (shouldUseTouchNavigation()) {
-      let touchStartX = 0;
-      let touchStartY = 0;
-      let touchStartTime = 0;
-      const swipeThreshold = 100;
-      const swipeTimeout = 500;
-      const verticalThreshold = 50;
-
-      document.addEventListener('touchstart', (event) => {
-        if (isInputFocused) {return;}
-
-        const touch = event.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        touchStartTime = Date.now();
-      }, { passive: true });
-
-      document.addEventListener('touchend', (event) => {
-        if (isInputFocused || !touchStartX) {return;}
-
-        const touch = event.changedTouches[0];
-        const touchEndX = touch.clientX;
-        const touchEndY = touch.clientY;
-        const touchEndTime = Date.now();
-
-        const deltaX = touchEndX - touchStartX;
-        const deltaY = Math.abs(touchEndY - touchStartY);
-        const timeDelta = touchEndTime - touchStartTime;
-
-        touchStartX = 0;
-
-        if (Math.abs(deltaX) > swipeThreshold &&
-            deltaY < verticalThreshold &&
-            timeDelta < swipeTimeout) {
-
-          if (deltaX > 0 && previousPage) {
-            event.preventDefault();
-            navigateToPage('previous');
-          } else if (deltaX < 0 && nextPage) {
-            event.preventDefault();
-            navigateToPage('next');
-          }
-        }
-      }, { passive: false });
-    }
-
-    function showNavigationHint(direction, pageTitle) {
-      const hint = document.createElement('div');
-      hint.className = `navigation-hint navigation-hint--${direction}`;
-      hint.textContent = direction === 'previous' ? `← ${pageTitle}` : `${pageTitle} →`;
-      hint.setAttribute('aria-live', 'polite');
-
-      document.body.append(hint);
-
-      requestAnimationFrame(() => {
-        hint.style.opacity = '1';
-        hint.style.transform = 'translateY(0)';
-      });
-
-      setTimeout(() => {
-        hint.style.opacity = '0';
-        hint.style.transform = 'translateY(-10px)';
-        setTimeout(() => {
-          if (hint.parentNode) {
-            hint.parentNode.removeChild(hint);
-          }
-        }, 300);
-      }, 1000);
+      setupGlobalTouchNavigation(getInputFocused, navigateToPage);
     }
 
     createGlobalNavigationIndicators();
-  }
+  };
 
-  function createGlobalNavigationIndicators() {
-    if (document.querySelector('.global-navigation-indicators')) {
-      return;
-    }
-
-    const indicators = document.createElement('div');
-    indicators.className = 'global-navigation-indicators';
-    indicators.setAttribute('role', 'region');
-    indicators.setAttribute('aria-label', 'Page navigation');
-
-    const indicatorHTML = [];
-
-    if (previousPage) {
-      indicatorHTML.push(`
-        <button
-          class="post-nav-indicator global-nav-indicator global-nav-indicator--left"
-          title="Previous: ${previousPage.title}"
-          aria-label="Previous page: ${previousPage.title}"
-          onclick="window.location.href = '${previousPage.path}'"
-        >←</button>
-      `);
-    }
-
-    if (nextPage) {
-      indicatorHTML.push(`
-        <button
-          class="post-nav-indicator global-nav-indicator global-nav-indicator--right"
-          title="Next: ${nextPage.title}"
-          aria-label="Next page: ${nextPage.title}"
-          onclick="window.location.href = '${nextPage.path}'"
-        >→</button>
-      `);
-    }
-
-    if (previousPage || nextPage) {
-      const hintText = shouldUseTouchNavigation()
-        ? 'Swipe left/right to navigate pages'
-        : 'Use ← → keys to navigate pages';
-
-      indicatorHTML.push(`
-        <span
-          class="post-nav-hint global-nav-hint"
-          role="status"
-          aria-live="polite"
-        >${hintText}</span>
-      `);
-    }
-
-    indicators.innerHTML = indicatorHTML.join('');
-    document.body.append(indicators);
-  }
-
-  function cleanupGlobalNavigation() {
+  const cleanupGlobalNavigation = () => {
     const globalNav = document.querySelector('.global-navigation-indicators');
 
     if (globalNav) {
       globalNav.remove();
     }
-  }
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initGlobalKeyboardNavigation);
@@ -242,14 +268,14 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
   }
 
   document.addEventListener('astro:page-load', () => {
-    const isArticlePage = window.location.pathname.startsWith('/blog/') &&
-                         window.location.pathname !== '/blog/' &&
-                         window.location.pathname !== '/blog';
-    const isExtraPage = window.location.pathname === '/extra/' || window.location.pathname === '/extra';
+    const isArticlePage = globalThis.location.pathname.startsWith('/blog/') &&
+                         globalThis.location.pathname !== '/blog/' &&
+                         globalThis.location.pathname !== '/blog';
+    const isExtraPage = globalThis.location.pathname === '/extra/' || globalThis.location.pathname === '/extra';
 
     if (!isArticlePage && !isExtraPage) {
       cleanupGlobalNavigation();
-      setTimeout(initGlobalKeyboardNavigation, 100);
+      setTimeout(initGlobalKeyboardNavigation, PAGE_LOAD_DELAY);
     }
   });
 </script>

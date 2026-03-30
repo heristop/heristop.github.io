@@ -1,13 +1,13 @@
 ---
-import type { CollectionEntry } from "astro:content";
-import { ClientRouter } from "astro:transitions";
+import "../styles/global.scss"; // eslint-disable-line import/no-unassigned-import
 import BaseHead from "../components/BaseHead.astro";
-import Header from "../components/Header.astro";
+import { ClientRouter } from "astro:transitions";
 import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
 import Icon from "../components/Icon.astro";
 import { SITE_TITLE } from "../consts";
 import ZenTitleReveal from "../components/client/zen-title-reveal";
-import "../styles/global.scss";
+import type { CollectionEntry } from "astro:content"; // eslint-disable-line sort-imports
 
 type Props = Partial<CollectionEntry<"blog">["data"]> & {
   title: string;

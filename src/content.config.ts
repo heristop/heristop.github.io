@@ -1,3 +1,6 @@
+/* eslint-disable eslint-plugin-import(no-named-export) */
+/* eslint-disable eslint-plugin-import(prefer-default-export) */
+
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";

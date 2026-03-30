@@ -1,22 +1,22 @@
 ---
-import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
-import Icon from "../../components/Icon.astro";
+import Icon from "../../components/Icon.astro"; // eslint-disable-line sort-imports -- Multiple syntax must precede Single
+import Layout from "../../layouts/Layout.astro";
 import ZenSlide from "../../components/zen/ZenSlide.astro";
 
 const posts = await getCollection("blog");
 
 // Collect all tags with their counts
 const tagCounts = new Map<string, number>();
-posts.forEach(post => {
+for (const post of posts) {
   const tags = post.data.tags ?? [];
-  tags.forEach(tag => {
+  for (const tag of tags) {
     tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
-  });
-});
+  }
+}
 
 // Sort tags alphabetically
-const sortedTags = [...tagCounts.entries()].toSorted((a, b) => a[0].localeCompare(b[0]));
+const sortedTags = [...tagCounts.entries()].toSorted((entryA, entryB) => entryA[0].localeCompare(entryB[0]));
 
 const delay = 50;
 ---
@@ -58,17 +58,17 @@ const delay = 50;
       const cards = document.querySelectorAll('.zen-card[data-prepared="false"]');
       if (cards.length === 0) {return;}
 
-      cards.forEach((card) => {
+      for (const card of cards) {
         card.dataset.prepared = 'true';
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             card.classList.add('zen-card--visible');
           });
         });
-      });
+      }
     };
 
-    if (typeof window !== 'undefined') {
+    if (typeof globalThis !== 'undefined') {
       revealZenCards();
       document.addEventListener('astro:page-load', revealZenCards);
     }

@@ -1,5 +1,5 @@
-import { getLineStyle, useReducedMotion, useTextLayout } from "./use-text-reveal";
-import { useRef } from "react";
+import { buildCharDrifts, getSmokeClass, getSmokeStyle, useReducedMotion, useTextLayout } from "./use-text-reveal";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
   text: string;
@@ -10,15 +10,22 @@ const FONT_SIZE_EM = 1.25;
 const CSS_LINE_HEIGHT = 1.3;
 const BASE_PX = 16;
 const LINE_HEIGHT = CSS_LINE_HEIGHT * FONT_SIZE_EM * BASE_PX;
-const STAGGER_MS = 200;
-const DURATION_MS = 600;
-const EASING = "cubic-bezier(0.33, 1, 0.68, 1)";
+const APPEAR_DELAY_MS = 80;
+const NBSP = "\u00A0";
 
 const ZenTitleReveal = ({ text }: Props) => {
   const containerRef = useRef<HTMLHeadingElement>(null);
+  const [appeared, setAppeared] = useState(false);
   const reducedMotion = useReducedMotion();
   const { lines, revealed } = useTextLayout(text, FONT, LINE_HEIGHT, containerRef);
-  const showAnimation = revealed && !reducedMotion;
+
+  useEffect(() => {
+    if (!revealed || appeared || reducedMotion) { return; }
+    const timer = setTimeout(() => { setAppeared(true); }, APPEAR_DELAY_MS);
+    return () => { clearTimeout(timer); };
+  }, [revealed, appeared, reducedMotion]);
+
+  const charsByLine = buildCharDrifts(lines);
 
   return (
     <h1
@@ -26,13 +33,22 @@ const ZenTitleReveal = ({ text }: Props) => {
       aria-label={text}
     >
       {lines.length === 0 && text}
-      {lines.map((line, index) => (
+      {charsByLine.map((lineChars, lineIndex) => (
         <span
-          key={`${index}-${line.text}`}
+          key={`line-${lineIndex}-${lines[lineIndex].text}`}
           aria-hidden="true"
-          style={getLineStyle({ durationMs: DURATION_MS, easing: EASING, index, reducedMotion, showAnimation, staggerMs: STAGGER_MS })}
+          style={{ display: "block" }}
         >
-          {line.text}
+          {lineChars.map((charDrift) => (
+            <span
+              key={charDrift.key}
+              className={getSmokeClass(appeared, reducedMotion)}
+              style={getSmokeStyle(charDrift, reducedMotion)}
+            >
+              {charDrift.char === " " && NBSP}
+              {charDrift.char !== " " && charDrift.char}
+            </span>
+          ))}
         </span>
       ))}
     </h1>

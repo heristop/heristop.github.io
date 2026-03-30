@@ -1,27 +1,30 @@
 ---
-import { getCollection } from 'astro:content';
 import Icon from './Icon.astro';
+import { getCollection } from 'astro:content';
 
 const { currentPostSlug, conclusion } = Astro.props;
 
-export async function getRecommendedPosts(currentPostSlug: string) {
+/* eslint-disable import/exports-last, import/no-named-export, import/prefer-default-export */
+export const getRecommendedPosts = async (slug: string) => {
+  const MAX_RECOMMENDED_POSTS = 3;
+  const RECENT_POSTS_COUNT = -3;
   const posts = await getCollection('blog');
-  const currentIndex = posts.findIndex(post => post.id === currentPostSlug);
-  const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : undefined;
-  const nextPost =
-    currentIndex < posts.length - 1 ? posts[currentIndex + 1] : undefined;
+  const currentIndex = posts.findIndex(post => post.id === slug);
 
-  let recommendedPosts = posts.filter(post => post.id !== currentPostSlug);
-  recommendedPosts.sort((a, b) => {
-    if (a.data.pubDate && b.data.pubDate) {
+  const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : undefined; // eslint-disable-line no-ternary
+  const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : undefined; // eslint-disable-line no-ternary
+
+  let recommendedPosts = posts.filter(post => post.id !== slug);
+  recommendedPosts.sort((postA, postB) => {
+    if (postA.data.pubDate && postB.data.pubDate) {
       return (
-        new Date(a.data.pubDate).getTime() - new Date(b.data.pubDate).getTime()
+        new Date(postA.data.pubDate).getTime() - new Date(postB.data.pubDate).getTime()
       );
     }
       return 0;
-    
+
   });
-  recommendedPosts = recommendedPosts.slice(-3);
+  recommendedPosts = recommendedPosts.slice(RECENT_POSTS_COUNT);
 
   if (previousPost) {
     recommendedPosts = [previousPost, ...recommendedPosts];
@@ -31,11 +34,11 @@ export async function getRecommendedPosts(currentPostSlug: string) {
     recommendedPosts = [nextPost, ...recommendedPosts];
   }
 
-  // Remove duplicates and limit to 5 posts
-  recommendedPosts = [...new Set(recommendedPosts)].slice(0, 3);
+  // Remove duplicates and limit to MAX_RECOMMENDED_POSTS
+  recommendedPosts = [...new Set(recommendedPosts)].slice(0, MAX_RECOMMENDED_POSTS);
 
   return recommendedPosts;
-}
+};
 
 const recommendedPosts = await getRecommendedPosts(currentPostSlug);
 ---
