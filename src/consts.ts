@@ -1,5 +1,3 @@
-/* eslint-disable eslint-plugin-import(no-named-export) */
-
 const SITE_TITLE = "Zazen Code";
 const SITE_DESCRIPTION =
   "Zazen Code: Sharing practical tips and the latest trends in JavaScript, TypeScript and PHP";

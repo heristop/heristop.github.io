@@ -1,9 +1,8 @@
 ---
-// eslint-disable-next-line no-unassigned-import
 import "katex/dist/katex.min.css";
-import { getCollection, render } from 'astro:content'; // eslint-disable-line sort-imports
-import type { CollectionEntry } from 'astro:content'; // eslint-disable-line no-duplicate-imports
-import BlogPostSchema from "../../components/BlogPostSchema.astro"; // eslint-disable-line sort-imports
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import BlogPostSchema from "../../components/BlogPostSchema.astro";
 import BreadcrumbSchema from "../../components/BreadcrumbSchema.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import Icon from "../../components/Icon.astro";
@@ -13,7 +12,6 @@ import SocialShare from "../../components/SocialShare.astro";
 
 const currentPostSlug = Astro.props.id;
 
-// eslint-disable-next-line no-named-export, exports-last, prefer-default-export
 export const getStaticPaths = async function getStaticPaths() {
   const posts = await getCollection("blog");
   return posts.map((post) => ({
@@ -41,12 +39,12 @@ const allPosts = allPostsCollection.toSorted(
 // Find current post index and adjacent posts
 const currentIndex = allPosts.findIndex(item => item.id === currentPostSlug);
 
-let previousPost; // eslint-disable-line init-declarations
+let previousPost;
 if (currentIndex < allPosts.length - 1) {
   previousPost = allPosts[currentIndex + 1];
 }
 
-let nextPost; // eslint-disable-line init-declarations
+let nextPost;
 if (currentIndex > 0) {
   nextPost = allPosts[currentIndex - 1];
 }
@@ -124,7 +122,6 @@ const breadcrumbItems = [
     const showNavigationHint = (direction) => {
       const hint = document.createElement('div');
       hint.className = `navigation-hint navigation-hint--${direction}`;
-      /* eslint-disable-next-line no-ternary */
       hint.textContent = direction === 'previous' ? '\u2190 Previous' : 'Next \u2192';
       hint.setAttribute('aria-live', 'polite');
 
@@ -170,7 +167,6 @@ const breadcrumbItems = [
       }
 
       if (previousPost || nextPost) {
-        /* eslint-disable-next-line no-ternary */
         const hintText = shouldUseTouch
           ? 'Swipe left/right to navigate reflections'
           : 'Use \u2190 \u2192 keys to navigate reflections';
@@ -293,7 +289,6 @@ const breadcrumbItems = [
       const getInputFocused = () => inputFocused;
 
       const navigateToPost = (direction) => {
-        /* eslint-disable-next-line no-ternary */
         const targetPost = direction === 'previous' ? previousPost : nextPost;
         if (targetPost) {
           showNavigationHint(direction);

@@ -10,7 +10,6 @@ const navPages = [
 ];
 
 const getCurrentPageIndex = (pagePath: string) => {
-  /* eslint-disable-next-line no-ternary */
   const normalizedPath = pagePath === '/' ? '/' : pagePath.replace(/\/$/, '/');
 
   if (pagePath === '/blog' || pagePath === '/blog/') {
@@ -22,13 +21,11 @@ const getCurrentPageIndex = (pagePath: string) => {
 
 const currentIndex = getCurrentPageIndex(currentPath);
 
-/* eslint-disable no-ternary */
 const previousIndex = currentIndex > 0 ? currentIndex - 1 : navPages.length - 1;
 const nextIndex = currentIndex < navPages.length - 1 ? currentIndex + 1 : 0;
 
 const previousPage = currentIndex >= 0 ? navPages[previousIndex] : undefined;
 const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
-/* eslint-enable no-ternary */
 ---
 
 <script type="module" is:inline define:vars={{ previousPage, nextPage, currentIndex }}>
@@ -50,7 +47,6 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
   const showNavigationHint = (direction, pageTitle) => {
     const hint = document.createElement('div');
     hint.className = `navigation-hint navigation-hint--${direction}`;
-    /* eslint-disable-next-line no-ternary */
     hint.textContent = direction === 'previous' ? `\u2190 ${pageTitle}` : `${pageTitle} \u2192`;
     hint.setAttribute('aria-live', 'polite');
 
@@ -96,7 +92,6 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
     }
 
     if (previousPage || nextPage) {
-      /* eslint-disable-next-line no-ternary */
       const hintText = shouldUseTouch
         ? 'Swipe left/right to navigate pages'
         : 'Use \u2190 \u2192 keys to navigate pages';
@@ -232,7 +227,6 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
     const getInputFocused = () => inputFocused;
 
     const navigateToPage = (direction) => {
-      /* eslint-disable-next-line no-ternary */
       const targetPage = direction === 'previous' ? previousPage : nextPage;
       if (targetPage) {
         showNavigationHint(direction, targetPage.title);

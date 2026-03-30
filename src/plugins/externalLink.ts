@@ -29,7 +29,6 @@ const getUrl = (element: Element) => {
 const isExternal = (url: string, domain: string) =>
   url.startsWith("http") && !url.includes(domain);
 
-/* eslint-disable import/exports-last, import/no-named-export, import/prefer-default-export */
 export const externalLink: RehypePlugin = (options?: Options) => {
   const siteDomain = options?.domain ?? "";
 

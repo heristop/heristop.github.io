@@ -24,7 +24,7 @@ const schema = {
   datePublished: pubDate?.toISOString(),
   description: description,
   headline: title,
-  image: image ? new URL(image, siteUrl).toString() : undefined, // eslint-disable-line no-ternary, unicorn/no-useless-undefined
+  image: image ? new URL(image, siteUrl).toString() : undefined,
   mainEntityOfPage: {
     '@id': url,
     '@type': 'WebPage',

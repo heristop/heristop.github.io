@@ -1,5 +1,4 @@
 ---
-/* eslint-disable sort-imports, max-dependencies */
 import { ClientRouter } from "astro:transitions";
 import { Image } from "astro:assets";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
@@ -13,9 +12,7 @@ import ZenFade from "../components/zen/ZenFade.astro";
 import ZenHaikuReveal from "../components/client/zen-haiku-reveal";
 import ZenSlide from "../components/zen/ZenSlide.astro";
 import ZenTextReveal from "../components/client/zen-text-reveal";
-/* eslint-enable sort-imports, max-dependencies */
 
-// eslint-disable-next-line no-named-export, exports-last
 export interface Post {
   data: {
     title: string;

@@ -6,7 +6,6 @@ import Layout from "../../layouts/Layout.astro";
 import ZenSlide from "../../components/zen/ZenSlide.astro";
 import { getCollection } from "astro:content";
 
-// eslint-disable-next-line no-named-export, exports-last, prefer-default-export
 export const getStaticPaths = async function getStaticPaths() {
   const posts = await getCollection("blog");
 

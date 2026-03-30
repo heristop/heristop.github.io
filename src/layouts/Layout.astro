@@ -1,5 +1,5 @@
 ---
-import "../styles/global.scss"; // eslint-disable-line import/no-unassigned-import
+import "../styles/global.scss";
 import BaseHead from "../components/BaseHead.astro";
 import { ClientRouter } from "astro:transitions";
 import Footer from "../components/Footer.astro";
@@ -7,7 +7,7 @@ import Header from "../components/Header.astro";
 import Icon from "../components/Icon.astro";
 import { SITE_TITLE } from "../consts";
 import ZenTitleReveal from "../components/client/zen-title-reveal";
-import type { CollectionEntry } from "astro:content"; // eslint-disable-line sort-imports
+import type { CollectionEntry } from "astro:content";
 
 type Props = Partial<CollectionEntry<"blog">["data"]> & {
   title: string;

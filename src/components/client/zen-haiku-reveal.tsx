@@ -1,10 +1,8 @@
-/* eslint-disable no-duplicate-imports */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dissolve from "./haiku-dissolve";
 import textReveal from "./use-text-reveal";
-import type { CharDrift } from "./use-text-reveal"; // eslint-disable-line sort-imports
-import type { Point } from "./haiku-dissolve"; // eslint-disable-line sort-imports
-/* eslint-enable no-duplicate-imports */
+import type { CharDrift } from "./use-text-reveal";
+import type { Point } from "./haiku-dissolve";
 
 const { buildWordDrifts, getSmokeStyle, maxAnimationEnd, useReducedMotion } = textReveal;
 const { getHaikuCharClass, processCharEntry, resetElement } = dissolve;

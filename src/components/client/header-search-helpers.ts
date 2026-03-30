@@ -215,7 +215,7 @@ const showEmptyState = (searchResults: HTMLElement): void => {
   const inner = document.createElement("div");
   inner.className = "search-empty";
   /* Static SVG icon (compile-time constant) - safe to set via innerHTML. */
-  inner.innerHTML = SEARCH_EMPTY_SVG; // eslint-disable-line no-unsanitized/property
+  inner.innerHTML = SEARCH_EMPTY_SVG;
   const paragraph = document.createElement("p");
   paragraph.textContent = "Start typing to search reflections...";
   inner.append(paragraph);

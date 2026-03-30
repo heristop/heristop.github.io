@@ -109,7 +109,5 @@ const haikuDissolve = {
   resetElement,
 };
 
-/* eslint-disable import/no-named-export */
 export default haikuDissolve;
 export type { CharEntryContext, Point };
-/* eslint-enable import/no-named-export */
