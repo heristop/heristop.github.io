@@ -1,7 +1,16 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import { Image } from "astro:assets";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import {
+  SITE_DESCRIPTION,
+  SITE_TITLE,
+  SITE_URL,
+  SITE_AUTHOR,
+  GITHUB_URL,
+  LINKEDIN_URL,
+  X_URL,
+  BLUESKY_URL,
+} from "../consts";
 import { getCollection } from "astro:content";
 import BaseHead from "../components/BaseHead.astro";
 import Footer from "../components/Footer.astro";
@@ -33,6 +42,20 @@ const timestamp = Date.now();
 const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/assets/img/daily_haiku_card.jpg?t=${timestamp}`;
 
 const haikuDescriptionUrl = "https://raw.githubusercontent.com/heristop/gutenku/main/assets/description.txt";
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_TITLE,
+  url: SITE_URL,
+  description: SITE_DESCRIPTION,
+  author: {
+    '@type': 'Person',
+    name: SITE_AUTHOR,
+    url: `${SITE_URL}/about`,
+  },
+  sameAs: [GITHUB_URL, LINKEDIN_URL, X_URL, BLUESKY_URL],
+};
 ---
 
 <!doctype html>
@@ -41,6 +64,7 @@ const haikuDescriptionUrl = "https://raw.githubusercontent.com/heristop/gutenku/
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
   <body>
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
     <ClientRouter />
     <main class="site-layout">
       <Header title={SITE_TITLE} />
