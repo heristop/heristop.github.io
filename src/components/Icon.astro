@@ -1,4 +1,5 @@
 ---
+/* eslint-disable import/exports-last, import/no-named-export */
 export interface Props {
   name: string;
   size?: number;
@@ -9,9 +10,11 @@ export interface Props {
   role?: 'img' | 'presentation' | 'none';
 }
 
+const DEFAULT_SIZE = 24;
+
 const {
   name,
-  size = 24,
+  size = DEFAULT_SIZE,
   color = 'var(--primary-color)',
   class: className = '',
   'aria-label': ariaLabel,

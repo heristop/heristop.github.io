@@ -1,14 +1,19 @@
-import rss from "@astrojs/rss";
-import { getCollection } from "astro:content";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import { getCollection } from "astro:content";
+import rss from "@astrojs/rss";
 
-export async function GET(context) {
+/**
+ * @param {{ site: string }} context
+ */
+// eslint-disable-next-line no-named-export, prefer-default-export
+export const GET = async (context) => {
   const posts = await getCollection("blog");
+  const { site } = context;
 
   return rss({
     description: SITE_DESCRIPTION, items: posts.map((post) => ({
       ...post.data,
       link: `/blog/${post.id}/`,
-    })), site: context.site, title: SITE_TITLE,
+    })), site, title: SITE_TITLE,
   });
-}
+};

@@ -1,6 +1,6 @@
 ---
-import { LINKFOLIO_URL } from "../consts";
 import { Image } from "astro:assets";
+import { LINKFOLIO_URL } from "../consts";
 
 type NetworkIcon = { src?: string } | string | undefined;
 
@@ -16,7 +16,7 @@ interface UserConfig {
   socialNetworks?: NetworkType[];
 }
 
-async function fetchUserConfig(): Promise<UserConfig> {
+const fetchUserConfig = async (): Promise<UserConfig> => {
   try {
     const response = await fetch(`${LINKFOLIO_URL}/api/config`);
 
@@ -27,12 +27,12 @@ async function fetchUserConfig(): Promise<UserConfig> {
     return await response.json();
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.warn("Unable to load remote social networks:", error);
+      console.warn("Unable to load remote social networks:", error); // eslint-disable-line no-console
     }
 
     return { socialNetworks: [] };
   }
-}
+};
 
 const { filter } = Astro.props;
 
@@ -97,6 +97,16 @@ const delay = 100;
 
 {networks.length > 0 && (
   <script type="module" is:inline>
+    const reveal = (card) => {
+      requestAnimationFrame(() => {
+        card.classList.add('social-network__card--visible');
+      });
+    };
+
+    const prepare = (card) => {
+      card.dataset.prepared = 'true';
+    };
+
     const revealSocialCards = () => {
       const cards = document.querySelectorAll(
         '.social-network__card[data-prepared="false"]'
@@ -106,26 +116,16 @@ const delay = 100;
         return;
       }
 
-      const reveal = (card) => {
-        requestAnimationFrame(() => {
-          card.classList.add('social-network__card--visible');
-        });
-      };
-
-      const prepare = (card) => {
-        card.dataset.prepared = 'true';
-      };
-
-      if ('IntersectionObserver' in window) {
+      if ('IntersectionObserver' in globalThis) {
         const observer = new IntersectionObserver(
           (entries) => {
-            entries.forEach((entry) => {
+            for (const entry of entries) {
               if (entry.isIntersecting) {
                 const card = entry.target;
                 reveal(card);
                 observer.unobserve(card);
               }
-            });
+            }
           },
           {
             rootMargin: '0px 0px 100px 0px',
@@ -133,19 +133,19 @@ const delay = 100;
           }
         );
 
-        cards.forEach((card) => {
+        for (const card of cards) {
           prepare(card);
           observer.observe(card);
-        });
+        }
       } else {
-        cards.forEach((card) => {
+        for (const card of cards) {
           prepare(card);
           reveal(card);
-        });
+        }
       }
     };
 
-    if (typeof window !== 'undefined') {
+    if (typeof globalThis !== 'undefined') {
       revealSocialCards();
       document.addEventListener('astro:page-load', revealSocialCards);
     }

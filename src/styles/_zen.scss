@@ -231,3 +231,43 @@
     transform: none !important;
   }
 }
+
+/* Smoke apparition system */
+
+.haiku-char--smoke {
+  opacity: 0;
+  transform: translate(var(--drift-x, 0), var(--drift-y, -10px)) rotate(var(--drift-r, 0deg));
+  filter: blur(3px);
+  transition: none;
+}
+
+.haiku-char--appear {
+  opacity: 1;
+  transform: translate(0, 0) rotate(0deg);
+  filter: blur(0);
+  transition:
+    opacity 900ms var(--zen-ease-elegant),
+    transform 900ms var(--zen-ease-elegant),
+    filter 900ms var(--zen-ease-elegant);
+}
+
+.haiku-char--dissolve {
+  opacity: 0;
+  transform: translate(var(--drift-x, 0), var(--drift-y, -10px)) rotate(var(--drift-r, 0deg));
+  filter: blur(2px);
+  transition:
+    opacity 800ms var(--zen-ease-out),
+    transform 800ms var(--zen-ease-out),
+    filter 800ms var(--zen-ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .haiku-char--smoke,
+  .haiku-char--appear,
+  .haiku-char--dissolve {
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+}

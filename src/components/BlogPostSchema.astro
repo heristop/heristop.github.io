@@ -24,7 +24,7 @@ const schema = {
   datePublished: pubDate?.toISOString(),
   description: description,
   headline: title,
-  image: image ? new URL(image, siteUrl).toString() : undefined,
+  image: image ? new URL(image, siteUrl).toString() : undefined, // eslint-disable-line no-ternary, unicorn/no-useless-undefined
   mainEntityOfPage: {
     '@id': url,
     '@type': 'WebPage',
@@ -42,7 +42,7 @@ const schema = {
 };
 
 // Remove undefined values
-const cleanSchema = JSON.parse(JSON.stringify(schema));
+const cleanSchema = structuredClone(schema);
 ---
 
 <script is:inline type="application/ld+json" set:html={JSON.stringify(cleanSchema)} />

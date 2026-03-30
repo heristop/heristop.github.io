@@ -1,24 +1,26 @@
 ---
-import { getCollection, render } from 'astro:content';
-import type { CollectionEntry } from 'astro:content';
-import Layout from "../../layouts/Layout.astro";
-import SocialShare from "../../components/SocialShare.astro";
-import RecommendedPosts from "../../components/RecommendedPosts.astro";
+// eslint-disable-next-line no-unassigned-import
+import "katex/dist/katex.min.css";
+import { getCollection, render } from 'astro:content'; // eslint-disable-line sort-imports
+import type { CollectionEntry } from 'astro:content'; // eslint-disable-line no-duplicate-imports
+import BlogPostSchema from "../../components/BlogPostSchema.astro"; // eslint-disable-line sort-imports
+import BreadcrumbSchema from "../../components/BreadcrumbSchema.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import Icon from "../../components/Icon.astro";
-import BlogPostSchema from "../../components/BlogPostSchema.astro";
-import BreadcrumbSchema from "../../components/BreadcrumbSchema.astro";
-import "katex/dist/katex.min.css";
+import Layout from "../../layouts/Layout.astro";
+import RecommendedPosts from "../../components/RecommendedPosts.astro";
+import SocialShare from "../../components/SocialShare.astro";
 
 const currentPostSlug = Astro.props.id;
 
-export async function getStaticPaths() {
+// eslint-disable-next-line no-named-export, exports-last, prefer-default-export
+export const getStaticPaths = async function getStaticPaths() {
   const posts = await getCollection("blog");
   return posts.map((post) => ({
     params: { slug: post.id },
     props: post,
   }));
-}
+};
 type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
@@ -26,18 +28,28 @@ const { Content } = await render(post);
 const {conclusion} = post.data;
 
 const plainText = post.body ?? "";
+const WORDS_PER_MINUTE = 200;
 const words = plainText.split(/\s+/).length;
-const readingTime = Math.ceil(words / 200);
+const readingTime = Math.ceil(words / WORDS_PER_MINUTE);
 
 // Get all posts for navigation
-const allPosts = (await getCollection("blog")).toSorted(
-  (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0)
+const allPostsCollection = await getCollection("blog");
+const allPosts = allPostsCollection.toSorted(
+  (postA, postB) => (postB.data.pubDate?.valueOf() ?? 0) - (postA.data.pubDate?.valueOf() ?? 0)
 );
 
 // Find current post index and adjacent posts
-const currentIndex = allPosts.findIndex(p => p.id === currentPostSlug);
-const previousPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : undefined;
-const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : undefined;
+const currentIndex = allPosts.findIndex(item => item.id === currentPostSlug);
+
+let previousPost; // eslint-disable-line init-declarations
+if (currentIndex < allPosts.length - 1) {
+  previousPost = allPosts[currentIndex + 1];
+}
+
+let nextPost; // eslint-disable-line init-declarations
+if (currentIndex > 0) {
+  nextPost = allPosts[currentIndex - 1];
+}
 
 const postUrl = `https://heristop.github.io/blog/${currentPostSlug}/`;
 
@@ -95,149 +107,44 @@ const breadcrumbItems = [
   </div>
 
   <script type="module" is:inline define:vars={{ previousPost, nextPost }}>
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    const isMobile = () => window.innerWidth <= 768;
-    const isTablet = () => window.innerWidth > 768 && window.innerWidth <= 1024;
+    const NAVIGATION_DELAY = 150;
+    const HINT_FADE_DELAY = 300;
+    const HINT_DISPLAY_DURATION = 1000;
+    const MOBILE_BREAKPOINT = 768;
+    const TABLET_BREAKPOINT = 1024;
+    const SWIPE_THRESHOLD = 100;
+    const SWIPE_TIMEOUT = 500;
+    const VERTICAL_THRESHOLD = 50;
+
+    const isTouchDevice = 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
+    const isMobile = () => globalThis.innerWidth <= MOBILE_BREAKPOINT;
+    const isTablet = () => globalThis.innerWidth > MOBILE_BREAKPOINT && globalThis.innerWidth <= TABLET_BREAKPOINT;
     const shouldUseTouchNavigation = () => isTouchDevice && (isMobile() || isTablet());
 
-    function initKeyboardNavigation() {
-      const existingGlobalNav = document.querySelector('.global-navigation-indicators');
-      if (existingGlobalNav) {
-        existingGlobalNav.remove();
-      }
+    const showNavigationHint = (direction) => {
+      const hint = document.createElement('div');
+      hint.className = `navigation-hint navigation-hint--${direction}`;
+      /* eslint-disable-next-line no-ternary */
+      hint.textContent = direction === 'previous' ? '\u2190 Previous' : 'Next \u2192';
+      hint.setAttribute('aria-live', 'polite');
 
-      if (!previousPost && !nextPost) {return;}
+      document.body.append(hint);
 
-      let isInputFocused = false;
+      requestAnimationFrame(() => {
+        hint.style.opacity = '1';
+        hint.style.transform = 'translateY(0)';
+      });
 
-      function updateInputFocus() {
-        const {activeElement} = document;
-        isInputFocused = activeElement && (
-          activeElement.tagName === 'INPUT' ||
-          activeElement.tagName === 'TEXTAREA' ||
-          activeElement.tagName === 'SELECT' ||
-          activeElement.contentEditable === 'true'
-        );
-      }
-
-      document.addEventListener('focusin', updateInputFocus);
-      document.addEventListener('focusout', updateInputFocus);
-
-      function navigateToPost(direction) {
-        const targetPost = direction === 'previous' ? previousPost : nextPost;
-        if (targetPost) {
-          showNavigationHint(direction);
-          setTimeout(() => {
-            window.location.href = `/blog/${targetPost.id}/`;
-          }, 150);
-        }
-      }
-
-      if (!shouldUseTouchNavigation()) {
-        document.addEventListener('keydown', (event) => {
-          if (isInputFocused || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
-            return;
-          }
-
-          switch (event.key) {
-            case 'ArrowLeft': {
-              if (previousPost) {
-                event.preventDefault();
-                navigateToPost('previous');
-              }
-              break;
-            }
-
-            case 'ArrowRight': {
-              if (nextPost) {
-                event.preventDefault();
-                navigateToPost('next');
-              }
-              break;
-            }
-          }
-        });
-      }
-
-      if (shouldUseTouchNavigation()) {
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchStartTime = 0;
-        const swipeThreshold = 100;
-        const swipeTimeout = 500;
-        const verticalThreshold = 50;
-
-        document.addEventListener('touchstart', (event) => {
-          if (isInputFocused) {return;}
-
-          const touch = event.touches[0];
-          touchStartX = touch.clientX;
-          touchStartY = touch.clientY;
-          touchStartTime = Date.now();
-        }, { passive: true });
-
-        document.addEventListener('touchend', (event) => {
-          if (isInputFocused || !touchStartX) {return;}
-
-          const touch = event.changedTouches[0];
-          const touchEndX = touch.clientX;
-          const touchEndY = touch.clientY;
-          const touchEndTime = Date.now();
-
-          const deltaX = touchEndX - touchStartX;
-          const deltaY = Math.abs(touchEndY - touchStartY);
-          const timeDelta = touchEndTime - touchStartTime;
-
-          touchStartX = 0;
-
-          if (Math.abs(deltaX) > swipeThreshold &&
-              deltaY < verticalThreshold &&
-              timeDelta < swipeTimeout) {
-
-            if (deltaX > 0 && previousPost) {
-              event.preventDefault();
-              navigateToPost('previous');
-            } else if (deltaX < 0 && nextPost) {
-              event.preventDefault();
-              navigateToPost('next');
-            }
-          }
-        }, { passive: false });
-      }
-
-      function showNavigationHint(direction) {
-        const hint = document.createElement('div');
-        hint.className = `navigation-hint navigation-hint--${direction}`;
-        hint.textContent = direction === 'previous' ? '← Previous' : 'Next →';
-        hint.setAttribute('aria-live', 'polite');
-
-        document.body.append(hint);
-
-        requestAnimationFrame(() => {
-          hint.style.opacity = '1';
-          hint.style.transform = 'translateY(0)';
-        });
-
+      setTimeout(() => {
+        hint.style.opacity = '0';
+        hint.style.transform = 'translateY(-10px)';
         setTimeout(() => {
-          hint.style.opacity = '0';
-          hint.style.transform = 'translateY(-10px)';
-          setTimeout(() => {
-            if (hint.parentNode) {
-              hint.parentNode.removeChild(hint);
-            }
-          }, 300);
-        }, 1000);
-      }
+          hint.remove();
+        }, HINT_FADE_DELAY);
+      }, HINT_DISPLAY_DURATION);
+    };
 
-      createNavigationIndicators();
-    }
-
-    function createNavigationIndicators() {
-      const indicators = document.createElement('div');
-      indicators.className = 'post-navigation-indicators';
-      indicators.setAttribute('role', 'region');
-      indicators.setAttribute('aria-label', 'Blog post navigation');
-
+    const buildIndicatorButtons = (shouldUseTouch) => {
       const indicatorHTML = [];
 
       if (previousPost) {
@@ -247,7 +154,7 @@ const breadcrumbItems = [
             title="Previous: ${previousPost.data.title.replaceAll('"', '&quot;')}"
             aria-label="Previous post: ${previousPost.data.title.replaceAll('"', '&quot;')}"
             onclick="window.location.href = '/blog/${previousPost.id}/'"
-          >←</button>
+          >\u2190</button>
         `);
       }
 
@@ -258,14 +165,15 @@ const breadcrumbItems = [
             title="Next: ${nextPost.data.title.replaceAll('"', '&quot;')}"
             aria-label="Next post: ${nextPost.data.title.replaceAll('"', '&quot;')}"
             onclick="window.location.href = '/blog/${nextPost.id}/'"
-          >→</button>
+          >\u2192</button>
         `);
       }
 
       if (previousPost || nextPost) {
-        const hintText = shouldUseTouchNavigation()
+        /* eslint-disable-next-line no-ternary */
+        const hintText = shouldUseTouch
           ? 'Swipe left/right to navigate reflections'
-          : 'Use ← → keys to navigate reflections';
+          : 'Use \u2190 \u2192 keys to navigate reflections';
 
         indicatorHTML.push(`
           <span
@@ -276,9 +184,135 @@ const breadcrumbItems = [
         `);
       }
 
+      return indicatorHTML;
+    };
+
+    const createNavigationIndicators = () => {
+      const indicators = document.createElement('div');
+      indicators.className = 'post-navigation-indicators';
+      indicators.setAttribute('role', 'region');
+      indicators.setAttribute('aria-label', 'Blog post navigation');
+
+      const indicatorHTML = buildIndicatorButtons(shouldUseTouchNavigation());
       indicators.innerHTML = indicatorHTML.join('');
       document.body.append(indicators);
-    }
+    };
+
+    const setupKeyboardNavigation = (isInputFocused, navigateToPost) => {
+      document.addEventListener('keydown', (event) => {
+        if (isInputFocused() || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+          return;
+        }
+
+        switch (event.key) {
+          case 'ArrowLeft': {
+            if (previousPost) {
+              event.preventDefault();
+              navigateToPost('previous');
+            }
+            break;
+          }
+
+          case 'ArrowRight': {
+            if (nextPost) {
+              event.preventDefault();
+              navigateToPost('next');
+            }
+            break;
+          }
+        }
+      });
+    };
+
+    const setupTouchNavigation = (isInputFocused, navigateToPost) => {
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchStartTime = 0;
+
+      document.addEventListener('touchstart', (event) => {
+        if (isInputFocused()) {return;}
+
+        const touch = event.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchStartTime = Date.now();
+      }, { passive: true });
+
+      document.addEventListener('touchend', (event) => {
+        if (isInputFocused() || !touchStartX) {return;}
+
+        const touch = event.changedTouches[0];
+        const touchEndX = touch.clientX;
+        const touchEndY = touch.clientY;
+        const touchEndTime = Date.now();
+
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = Math.abs(touchEndY - touchStartY);
+        const timeDelta = touchEndTime - touchStartTime;
+
+        touchStartX = 0;
+
+        if (Math.abs(deltaX) > SWIPE_THRESHOLD &&
+            deltaY < VERTICAL_THRESHOLD &&
+            timeDelta < SWIPE_TIMEOUT) {
+
+          if (deltaX > 0 && previousPost) {
+            event.preventDefault();
+            navigateToPost('previous');
+          } else if (deltaX < 0 && nextPost) {
+            event.preventDefault();
+            navigateToPost('next');
+          }
+        }
+      }, { passive: false });
+    };
+
+    const initKeyboardNavigation = () => {
+      const existingGlobalNav = document.querySelector('.global-navigation-indicators');
+      if (existingGlobalNav) {
+        existingGlobalNav.remove();
+      }
+
+      if (!previousPost && !nextPost) {return;}
+
+      let inputFocused = false;
+
+      const updateInputFocus = () => {
+        const {activeElement} = document;
+        inputFocused = activeElement && (
+          activeElement.tagName === 'INPUT' ||
+          activeElement.tagName === 'TEXTAREA' ||
+          activeElement.tagName === 'SELECT' ||
+          activeElement.contentEditable === 'true'
+        );
+      };
+
+      document.addEventListener('focusin', updateInputFocus);
+      document.addEventListener('focusout', updateInputFocus);
+
+      const getInputFocused = () => inputFocused;
+
+      const navigateToPost = (direction) => {
+        /* eslint-disable-next-line no-ternary */
+        const targetPost = direction === 'previous' ? previousPost : nextPost;
+        if (targetPost) {
+          showNavigationHint(direction);
+          setTimeout(() => {
+            globalThis.location.href = `/blog/${targetPost.id}/`;
+          }, NAVIGATION_DELAY);
+        }
+      };
+
+      if (!shouldUseTouchNavigation()) {
+        setupKeyboardNavigation(getInputFocused, navigateToPost);
+      }
+
+      if (shouldUseTouchNavigation()) {
+        setupTouchNavigation(getInputFocused, navigateToPost);
+      }
+
+      createNavigationIndicators();
+    };
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initKeyboardNavigation);

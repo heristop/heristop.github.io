@@ -17,7 +17,7 @@ const schema = {
   '@type': 'BreadcrumbList',
   itemListElement: items.map((item, index) => ({
     '@type': 'ListItem',
-    item: item.url.startsWith('http') ? item.url : `${siteUrl}${item.url}`,
+    item: (() => { if (item.url.startsWith('http')) { return item.url; } return `${siteUrl}${item.url}`; })(),
     name: item.name,
     position: index + 1,
   })),

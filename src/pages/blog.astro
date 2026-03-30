@@ -1,81 +1,89 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { getCollection } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import Icon from "../components/Icon.astro";
+import Layout from "../layouts/Layout.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
+import { getCollection } from "astro:content";
 
+// eslint-disable-next-line no-named-export, exports-last
 export interface Post {
+  id: string;
   data: {
     pubDate?: Date;
     title: string;
-    id: string;
+    image?: string;
   };
 }
 
-const posts = (await getCollection("blog")).toSorted(
-  (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0)
+const SECONDS_PER_MINUTE = 60;
+const MINUTES_PER_HOUR = 60;
+const HOURS_PER_DAY = 24;
+const DAYS_PER_MONTH = 30;
+const DAYS_PER_YEAR = 365;
+
+const allPosts = await getCollection("blog");
+const posts = allPosts.toSorted(
+  (postA, postB) => (postB.data.pubDate?.valueOf() ?? 0) - (postA.data.pubDate?.valueOf() ?? 0)
 );
 
-function groupPostsByYear(posts: any) {
-  return posts.reduce(
-    (
-      acc: Record<string, any[]>,
-      post: { data: { pubDate?: { getFullYear: () => any } } }
-    ) => {
-      const year = post.data.pubDate?.getFullYear();
+const groupPostsByYear = (postList: Post[]) => postList.reduce(
+  (
+    acc: Record<string, Post[]>,
+    post: Post
+  ) => {
+    const year = String(post.data.pubDate?.getFullYear() ?? "unknown");
 
-      if (!acc[year]) {
-        acc[year] = [] as Post[];
-      }
+    if (acc[year] === undefined) {
+      acc[year] = [];
+    }
 
-      acc[year].push(post);
-      return acc;
-    },
-    {}
-  );
-}
+    acc[year].push(post);
+    return acc;
+  },
+  {} as Record<string, Post[]>
+);
 
 const postsByYear = groupPostsByYear(posts);
 const sortedYears = Object.keys(postsByYear).toSorted(
-  (a, b) => Number(b) - Number(a)
+  (yearA, yearB) => Number(yearB) - Number(yearA)
 );
 
 const delay = 10;
 
-function timeAgo(date: Date) {
+const formatTimeUnit = (value: number, unit: string) => {
+  if (value === 1) {
+    return `1 ${unit} ago`;
+  }
+  return `${value} ${unit}s ago`;
+};
+
+const timeAgo = (date: Date) => {
   const now = new Date();
   const diff = now.getTime() - date.getTime();
 
   const seconds = Math.max(Math.floor(diff / 1000), 1);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  const months = Math.floor(days / 30);
-  const years = Math.floor(days / 365);
+  const minutes = Math.floor(seconds / SECONDS_PER_MINUTE);
+  const hours = Math.floor(minutes / MINUTES_PER_HOUR);
+  const days = Math.floor(hours / HOURS_PER_DAY);
+  const months = Math.floor(days / DAYS_PER_MONTH);
+  const years = Math.floor(days / DAYS_PER_YEAR);
 
-  if (years >= 1) {
-    return years === 1 ? "1 year ago" : `${years} years ago`;
-  }
+  const timeUnits: [number, string][] = [
+    [years, "year"],
+    [months, "month"],
+    [days, "day"],
+    [hours, "hour"],
+    [minutes, "minute"],
+  ];
 
-  if (months >= 1) {
-    return months === 1 ? "1 month ago" : `${months} months ago`;
-  }
-
-  if (days >= 1) {
-    return days === 1 ? "1 day ago" : `${days} days ago`;
-  }
-
-  if (hours >= 1) {
-    return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
-  }
-
-  if (minutes >= 1) {
-    return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
+  for (const [value, unit] of timeUnits) {
+    if (value >= 1) {
+      return formatTimeUnit(value, unit);
+    }
   }
 
   return "Just now";
-}
+};
 ---
 
 <Layout title="All Posts" description="Blog">
@@ -102,11 +110,7 @@ function timeAgo(date: Date) {
           <div class="blog-archive__grid">
             {postsByYear[year].map(
               (
-                post: {
-                  url: string;
-                  data: { pubDate?: Date; title: string; image?: string };
-                  id: string;
-                },
+                post: Post,
                 index: number
               ) => {
                 const isoDate = post.data.pubDate?.toISOString();
@@ -146,6 +150,29 @@ function timeAgo(date: Date) {
   </div>
 
   <script type="module" is:inline>
+    const INTERSECTION_THRESHOLD = 0.1;
+
+    const assignBackgroundAndReveal = (card) => {
+      const {bg} = card.dataset;
+      if (bg) {
+        card.style.setProperty('--zen-card-image', `url("${bg}")`);
+        card.dataset.bg = '';
+      }
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          card.classList.add('zen-card--visible');
+        });
+      });
+    };
+
+    const prepareCard = (card) => {
+      card.dataset.prepared = 'true';
+      if (!card.style.getPropertyValue('--zen-card-image')) {
+        card.style.setProperty('--zen-card-image', 'none');
+      }
+    };
+
     const revealZenCards = () => {
       const cards = document.querySelectorAll(
         '.zen-card[data-prepared="false"]'
@@ -155,57 +182,36 @@ function timeAgo(date: Date) {
         return;
       }
 
-      const assignBackgroundAndReveal = (card) => {
-        const {bg} = card.dataset;
-        if (bg) {
-          card.style.setProperty('--zen-card-image', `url("${bg}")`);
-          card.dataset.bg = '';
-        }
-
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            card.classList.add('zen-card--visible');
-          });
-        });
-      };
-
-      const prepareCard = (card) => {
-        card.dataset.prepared = 'true';
-        if (!card.style.getPropertyValue('--zen-card-image')) {
-          card.style.setProperty('--zen-card-image', 'none');
-        }
-      };
-
-      if ('IntersectionObserver' in window) {
+      if ('IntersectionObserver' in globalThis) {
         const observer = new IntersectionObserver(
           (entries) => {
-            entries.forEach((entry) => {
+            for (const entry of entries) {
               if (entry.isIntersecting) {
                 const card = entry.target;
                 assignBackgroundAndReveal(card);
                 observer.unobserve(card);
               }
-            });
+            }
           },
           {
             rootMargin: '0px 0px 50px 0px',
-            threshold: 0.1,
+            threshold: INTERSECTION_THRESHOLD,
           }
         );
 
-        cards.forEach((card) => {
+        for (const card of cards) {
           prepareCard(card);
           observer.observe(card);
-        });
+        }
       } else {
-        cards.forEach((card) => {
+        for (const card of cards) {
           prepareCard(card);
           assignBackgroundAndReveal(card);
-        });
+        }
       }
     };
 
-    if (typeof window !== 'undefined') {
+    if (typeof globalThis !== 'undefined') {
       revealZenCards();
       document.addEventListener('astro:page-load', revealZenCards);
     }
