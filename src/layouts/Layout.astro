@@ -16,13 +16,13 @@ type Props = Partial<CollectionEntry<"blog">["data"]> & {
   isArticle?: boolean;
 };
 
-const { title, metaTitle, description, image, isArticle, pubDate, updatedDate } = Astro.props;
+const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, tags } = Astro.props;
 
 ---
 
 <html lang="en">
   <head>
-    <BaseHead title={title} metaTitle={metaTitle} description={description} image={image} isArticle={isArticle} pubDate={pubDate} updatedDate={updatedDate} />
+    <BaseHead title={title} metaTitle={metaTitle} description={description} image={image} isArticle={isArticle} pubDate={pubDate} updatedDate={updatedDate} tags={tags} />
   </head>
 
   <body>
