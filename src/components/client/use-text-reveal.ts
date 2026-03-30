@@ -1,4 +1,4 @@
-/* eslint-disable no-duplicate-imports */
+/* eslint-disable no-duplicate-imports, max-lines */
 import { layoutWithLines, prepareWithSegments } from "@chenglou/pretext";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LayoutLine } from "@chenglou/pretext";
@@ -25,6 +25,15 @@ const SEED_OFFSET_R = 200;
 
 const HALF = 0.5;
 const CHARS_PER_LINE = 20;
+const WAVE_FREQUENCY = 0.8;
+const WAVE_AMPLITUDE = 0.3;
+const DURATION_VARIATION = 0.15;
+const SEED_OFFSET_DUR = 300;
+const BLUR_MIN = 2;
+const BLUR_EDGE_EXTRA = 3;
+const DEFAULT_BASE_DURATION_MS = 900;
+
+const segmenter = new Intl.Segmenter();
 
 interface LineStyleOptions {
   durationMs: number;
@@ -36,10 +45,12 @@ interface LineStyleOptions {
 }
 
 interface CharDrift {
+  blur: number;
   char: string;
   delay: number;
   driftX: number;
   driftY: number;
+  duration: number;
   key: string;
   rotation: number;
 }
@@ -54,22 +65,39 @@ const seededRandom = (seed: number): number => {
   return val - Math.floor(val);
 };
 
-const createCharDrift = (
-  seed: number,
-  delay: number,
-  char: string,
-  key: string,
-): CharDrift => ({
+interface CharDriftParams {
+  baseDuration: number;
+  blur: number;
+  char: string;
+  delay: number;
+  key: string;
+  seed: number;
+}
+
+const createCharDrift = ({
+  baseDuration,
+  blur,
   char,
   delay,
-  driftX: (seededRandom(seed) - HALF) * DRIFT_X_RANGE,
-  driftY: -(seededRandom(seed + SEED_OFFSET_Y) * DRIFT_Y_RANGE + DRIFT_Y_MIN),
   key,
-  rotation: (seededRandom(seed + SEED_OFFSET_R) - HALF) * DRIFT_ROTATION_RANGE,
-});
+  seed,
+}: CharDriftParams): CharDrift => {
+  const durationVar =
+    (seededRandom(seed + SEED_OFFSET_DUR) - HALF) * 2 * DURATION_VARIATION;
+  return {
+    blur,
+    char,
+    delay,
+    driftX: (seededRandom(seed) - HALF) * DRIFT_X_RANGE,
+    driftY: -(seededRandom(seed + SEED_OFFSET_Y) * DRIFT_Y_RANGE + DRIFT_Y_MIN),
+    duration: Math.round(baseDuration * (1 + durationVar)),
+    key,
+    rotation:
+      (seededRandom(seed + SEED_OFFSET_R) - HALF) * DRIFT_ROTATION_RANGE,
+  };
+};
 
-// --- Word rejoin: fix pretext splitting words mid-character ---
-
+// Pretext can split a word across lines at a non-space boundary; merge the orphan back
 const rejoinBrokenWords = (rawLines: string[]): string[] => {
   const rejoined: string[] = [];
   let carry = "";
@@ -102,8 +130,6 @@ const toLayoutLines = (texts: string[]): LayoutLine[] => {
   }));
 };
 
-// --- Hooks ---
-
 const useReducedMotion = (): boolean => {
   const [reduced, setReduced] = useState(false);
 
@@ -122,6 +148,7 @@ const useReducedMotion = (): boolean => {
   return reduced;
 };
 
+// eslint-disable-next-line max-lines-per-function
 const useTextLayout = (
   text: string | undefined,
   font: string,
@@ -132,16 +159,35 @@ const useTextLayout = (
   const [revealed, setRevealed] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const preparedRef = useRef<ReturnType<typeof prepareWithSegments> | null>(
+    null,
+  );
+  // eslint-disable-next-line unicorn/no-useless-undefined
+  const prevTextRef = useRef<string | undefined>(undefined);
+  // eslint-disable-next-line unicorn/no-useless-undefined
+  const prevFontRef = useRef<string | undefined>(undefined);
+
   const computeLines = useCallback(() => {
     if (text === undefined || text === "" || !containerRef.current) {
       return;
     }
+
+    if (prevTextRef.current !== text || prevFontRef.current !== font) {
+      preparedRef.current = prepareWithSegments(text, font);
+      prevTextRef.current = text;
+      prevFontRef.current = font;
+    }
+
+    const prepared = preparedRef.current;
+    if (!prepared) {
+      return;
+    }
+
     const width = containerRef.current.offsetWidth;
     if (width <= 0) {
       return;
     }
 
-    const prepared = prepareWithSegments(text, font);
     const result = layoutWithLines(prepared, width, lineHeight);
     const rawTexts = result.lines.map((item) => item.text);
     setLines(toLayoutLines(rejoinBrokenWords(rawTexts)));
@@ -176,8 +222,6 @@ const useTextLayout = (
   return { lines, revealed };
 };
 
-// --- Style helpers ---
-
 const getLineStyle = ({
   durationMs,
   easing,
@@ -206,49 +250,63 @@ const getLineStyle = ({
   };
 };
 
-// --- Char drift builders ---
-
-const buildCharDrifts = (lines: LayoutLine[]): CharDrift[][] =>
-  lines.map((line, lineIndex) =>
-    Array.from(
-      new Intl.Segmenter().segment(line.text),
+const buildCharDrifts = (
+  lines: LayoutLine[],
+  baseDuration = DEFAULT_BASE_DURATION_MS,
+): CharDrift[][] =>
+  lines.map((line, lineIndex) => {
+    const chars = Array.from(
+      segmenter.segment(line.text),
       (seg) => seg.segment,
-    ).map((char, charIndex) => {
+    );
+    const lineLen = Math.max(chars.length - 1, 1);
+    return chars.map((char, charIndex) => {
       const seed = lineIndex * CHARS_PER_LINE + charIndex + 1;
-      const delay = lineIndex * LINE_STAGGER_MS + charIndex * CHAR_STAGGER_MS;
-      return createCharDrift(
-        seed,
-        delay,
+      const baseDelay =
+        lineIndex * LINE_STAGGER_MS + charIndex * CHAR_STAGGER_MS;
+      const wave = Math.sin(charIndex * WAVE_FREQUENCY) * WAVE_AMPLITUDE;
+      const delay = Math.round(baseDelay * (1 + wave));
+      const edgeness = Math.abs(charIndex / lineLen - HALF) * 2;
+      const blur = BLUR_MIN + edgeness * BLUR_EDGE_EXTRA;
+      return createCharDrift({
+        baseDuration,
+        blur,
         char,
-        `${lineIndex}-${charIndex}-${char}`,
-      );
-    }),
-  );
+        delay,
+        key: `${lineIndex}-${charIndex}-${char}`,
+        seed,
+      });
+    });
+  });
 
-const buildWordDrifts = (inputText: string): WordDrift[] => {
+const buildWordDrifts = (
+  inputText: string,
+  baseDuration = DEFAULT_BASE_DURATION_MS,
+): WordDrift[] => {
   const words = inputText.split(/(\s+)/);
   let globalIndex = 0;
   return words.map((word, wordIndex) => {
-    const chars = Array.from(
-      new Intl.Segmenter().segment(word),
-      (seg) => seg.segment,
-    ).map((char, charIndex) => {
+    const wordChars = Array.from(segmenter.segment(word), (seg) => seg.segment);
+    const chars = wordChars.map((char, charIndex) => {
       const seed = globalIndex + 1;
       globalIndex += 1;
-      const delay =
+      const baseDelay =
         wordIndex * WORD_STAGGER_MS + charIndex * WORD_CHAR_STAGGER_MS;
-      return createCharDrift(
-        seed,
-        delay,
+      const wave = Math.sin(globalIndex * WAVE_FREQUENCY) * WAVE_AMPLITUDE;
+      const delay = Math.round(baseDelay * (1 + wave));
+      const blur = BLUR_MIN + BLUR_EDGE_EXTRA * HALF;
+      return createCharDrift({
+        baseDuration,
+        blur,
         char,
-        `w${wordIndex}-c${charIndex}-${char}`,
-      );
+        delay,
+        key: `w${wordIndex}-c${charIndex}-${char}`,
+        seed,
+      });
     });
     return { chars, word };
   });
 };
-
-// --- Smoke animation helpers ---
 
 const getSmokeClass = (appeared: boolean, reducedMotion: boolean): string => {
   if (reducedMotion) {
@@ -268,12 +326,43 @@ const getSmokeStyle = (
     return { display: "inline-block" };
   }
   return {
+    "--char-blur": `${charDrift.blur}px`,
+    "--char-delay": `${charDrift.delay}ms`,
+    "--char-duration": `${charDrift.duration}ms`,
     "--drift-r": `${charDrift.rotation}deg`,
     "--drift-x": `${charDrift.driftX}px`,
     "--drift-y": `${charDrift.driftY}px`,
     display: "inline-block",
-    transitionDelay: `${charDrift.delay}ms`,
   } as React.CSSProperties;
+};
+
+const isWordDrifts = (
+  drifts: CharDrift[][] | WordDrift[],
+): drifts is WordDrift[] => drifts.length > 0 && "word" in drifts[0];
+
+const maxAnimationEnd = (drifts: CharDrift[][] | WordDrift[]): number => {
+  let max = 0;
+
+  if (isWordDrifts(drifts)) {
+    for (const wordDrift of drifts) {
+      for (const charDrift of wordDrift.chars) {
+        const end = charDrift.delay + charDrift.duration;
+        if (end > max) {
+          max = end;
+        }
+      }
+    }
+  } else {
+    for (const line of drifts) {
+      for (const charDrift of line) {
+        const end = charDrift.delay + charDrift.duration;
+        if (end > max) {
+          max = end;
+        }
+      }
+    }
+  }
+  return max;
 };
 
 // eslint-disable-next-line no-named-export
@@ -283,6 +372,7 @@ export {
   getLineStyle,
   getSmokeClass,
   getSmokeStyle,
+  maxAnimationEnd,
   seededRandom,
   useReducedMotion,
   useTextLayout,

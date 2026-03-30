@@ -1,5 +1,5 @@
-import { buildCharDrifts, getSmokeClass, getSmokeStyle, useReducedMotion, useTextLayout } from "./use-text-reveal";
-import { useEffect, useRef, useState } from "react";
+import { buildCharDrifts, getSmokeClass, getSmokeStyle, maxAnimationEnd, useReducedMotion, useTextLayout } from "./use-text-reveal";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface Props {
   text: string;
@@ -11,11 +11,14 @@ const CSS_LINE_HEIGHT = 1.3;
 const BASE_PX = 16;
 const LINE_HEIGHT = CSS_LINE_HEIGHT * FONT_SIZE_EM * BASE_PX;
 const APPEAR_DELAY_MS = 80;
+const TITLE_DURATION_MS = 700;
+const SETTLE_BUFFER_MS = 300;
 const NBSP = "\u00A0";
 
 const ZenTitleReveal = ({ text }: Props) => {
   const containerRef = useRef<HTMLHeadingElement>(null);
   const [appeared, setAppeared] = useState(false);
+  const [settled, setSettled] = useState(false);
   const reducedMotion = useReducedMotion();
   const { lines, revealed } = useTextLayout(text, FONT, LINE_HEIGHT, containerRef);
 
@@ -25,7 +28,14 @@ const ZenTitleReveal = ({ text }: Props) => {
     return () => { clearTimeout(timer); };
   }, [revealed, appeared, reducedMotion]);
 
-  const charsByLine = buildCharDrifts(lines);
+  const charsByLine = useMemo(() => buildCharDrifts(lines, TITLE_DURATION_MS), [lines]);
+
+  useEffect(() => {
+    if (!appeared || settled || reducedMotion || charsByLine.length === 0) { return; }
+    const totalMs = maxAnimationEnd(charsByLine) + SETTLE_BUFFER_MS;
+    const timer = setTimeout(() => { setSettled(true); }, totalMs);
+    return () => { clearTimeout(timer); };
+  }, [appeared, settled, reducedMotion, charsByLine]);
 
   return (
     <h1
@@ -42,7 +52,8 @@ const ZenTitleReveal = ({ text }: Props) => {
           {lineChars.map((charDrift) => (
             <span
               key={charDrift.key}
-              className={getSmokeClass(appeared, reducedMotion)}
+              // eslint-disable-next-line no-ternary
+              className={settled ? "haiku-char--settled" : getSmokeClass(appeared, reducedMotion)}
               style={getSmokeStyle(charDrift, reducedMotion)}
             >
               {charDrift.char === " " && NBSP}
