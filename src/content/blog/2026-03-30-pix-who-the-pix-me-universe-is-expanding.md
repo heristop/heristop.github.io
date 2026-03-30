@@ -2,7 +2,6 @@
 title: "Pix Who? The Pix Me universe is expanding"
 description: "I asked my Vibe Code Assist to build me the most addictive game in the universe. The result: Pix Who? — a daily guessing game with degraded photos, sprays, and 7 questions max."
 pubDate: "2026-03-30"
-conclusion: "When you think about it... maybe they're the real audience. And I'm just here to entertain them. 🙈"
 image: "/images/posts/2026-03-30-pix-who/poster.webp"
 ---
 
@@ -12,7 +11,7 @@ It said yes.
 
 Obviously it always says yes.
 
-So I had to get serious. Load the right SKILLS, use the right APIs, plan things out with "superpowers" like Neo in Matrix. A lot of iterations. And a lot of credits to generate the avatars, and I still don't know Kung-fu. 💸
+So I had to get serious. Load the right skills, use the right APIs, plan things out with superpowers like Neo in Matrix. A lot of iterations. And a lot of credits to generate the avatars 💸, and I still don't know Kung-fu.
 
 ## The result: Pix Who? 👨
 
@@ -22,12 +21,14 @@ So I had to get serious. Load the right SKILLS, use the right APIs, plan things 
   <source src="/videos/pix-who.mp4" type="video/mp4" />
 </video>
 
-**[Try Pix Who!](https://pix-me.studio/who)**
-
 ## The Pix Me universe is expanding
 
 Long story short, the Pix Me universe is expanding, and I'm just the conductor.
 
-Finding the right balance between fun and challenge is not easy. And I'm not sure I've nailed it yet. So I launched QA agents to play the game for me and test the mechanics.
+But finding the right balance between fun and challenge is not easy. And I'm not sure I've nailed it yet. So I launched QA agents to play the game for me and test the mechanics.
 
-AIs playing a game made by an AI, piloted by a human watching the results.
+AIs playing a game made by an AI... piloted by a human watching the results.
+
+When you think about it... maybe they're the real audience. And I'm just here to entertain them. 🙈
+
+👉 **[Try Pix Who!](https://pix-me.studio/who)**
