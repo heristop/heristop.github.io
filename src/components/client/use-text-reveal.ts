@@ -1,12 +1,7 @@
-/* eslint-disable no-duplicate-imports, max-lines */
-import { layoutWithLines, prepareWithSegments } from "@chenglou/pretext";
-import { useCallback, useEffect, useRef, useState } from "react";
 import type { LayoutLine } from "@chenglou/pretext";
-import type { RefObject } from "react";
-/* eslint-enable no-duplicate-imports */
+import textRevealHooks from "./text-reveal-hooks";
 
-const REVEAL_DELAY_MS = 50;
-const RESIZE_DEBOUNCE_MS = 150;
+const { useReducedMotion, useTextLayout } = textRevealHooks;
 
 const DRIFT_X_RANGE = 40;
 const DRIFT_Y_MIN = 10;
@@ -60,11 +55,6 @@ interface WordDrift {
   word: string;
 }
 
-const seededRandom = (seed: number): number => {
-  const val = Math.sin(seed * SEED_FACTOR_A + SEED_FACTOR_B) * SEED_MULTIPLIER;
-  return val - Math.floor(val);
-};
-
 interface CharDriftParams {
   baseDuration: number;
   blur: number;
@@ -73,6 +63,11 @@ interface CharDriftParams {
   key: string;
   seed: number;
 }
+
+const seededRandom = (seed: number): number => {
+  const val = Math.sin(seed * SEED_FACTOR_A + SEED_FACTOR_B) * SEED_MULTIPLIER;
+  return val - Math.floor(val);
+};
 
 const createCharDrift = ({
   baseDuration,
@@ -95,131 +90,6 @@ const createCharDrift = ({
     rotation:
       (seededRandom(seed + SEED_OFFSET_R) - HALF) * DRIFT_ROTATION_RANGE,
   };
-};
-
-// Pretext can split a word across lines at a non-space boundary; merge the orphan back
-const rejoinBrokenWords = (rawLines: string[]): string[] => {
-  const rejoined: string[] = [];
-  let carry = "";
-  for (let idx = 0; idx < rawLines.length; idx++) {
-    let line = carry + rawLines[idx];
-    carry = "";
-    const next = rawLines[idx + 1];
-    if (next !== undefined && !line.endsWith(" ") && !next.startsWith(" ")) {
-      const lastSpace = line.lastIndexOf(" ");
-      if (lastSpace > 0) {
-        carry = line.slice(lastSpace + 1);
-        line = line.slice(0, lastSpace);
-      }
-    }
-    rejoined.push(line);
-  }
-  if (carry) {
-    rejoined[rejoined.length - 1] += ` ${carry}`;
-  }
-  return rejoined;
-};
-
-const toLayoutLines = (texts: string[]): LayoutLine[] => {
-  const emptyPos = { graphemeIndex: 0, segmentIndex: 0 };
-  return texts.map((text) => ({
-    end: emptyPos,
-    start: emptyPos,
-    text,
-    width: 0,
-  }));
-};
-
-const useReducedMotion = (): boolean => {
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mq = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const handler = (event: MediaQueryListEvent) => {
-      setReduced(event.matches);
-    };
-    mq.addEventListener("change", handler);
-    return () => {
-      mq.removeEventListener("change", handler);
-    };
-  }, []);
-
-  return reduced;
-};
-
-// eslint-disable-next-line max-lines-per-function
-const useTextLayout = (
-  text: string | undefined,
-  font: string,
-  lineHeight: number,
-  containerRef: RefObject<HTMLElement | null>,
-) => {
-  const [lines, setLines] = useState<LayoutLine[]>([]);
-  const [revealed, setRevealed] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const preparedRef = useRef<ReturnType<typeof prepareWithSegments> | null>(
-    null,
-  );
-  // eslint-disable-next-line unicorn/no-useless-undefined
-  const prevTextRef = useRef<string | undefined>(undefined);
-  // eslint-disable-next-line unicorn/no-useless-undefined
-  const prevFontRef = useRef<string | undefined>(undefined);
-
-  const computeLines = useCallback(() => {
-    if (text === undefined || text === "" || !containerRef.current) {
-      return;
-    }
-
-    if (prevTextRef.current !== text || prevFontRef.current !== font) {
-      preparedRef.current = prepareWithSegments(text, font);
-      prevTextRef.current = text;
-      prevFontRef.current = font;
-    }
-
-    const prepared = preparedRef.current;
-    if (!prepared) {
-      return;
-    }
-
-    const width = containerRef.current.offsetWidth;
-    if (width <= 0) {
-      return;
-    }
-
-    const result = layoutWithLines(prepared, width, lineHeight);
-    const rawTexts = result.lines.map((item) => item.text);
-    setLines(toLayoutLines(rejoinBrokenWords(rawTexts)));
-  }, [text, font, lineHeight, containerRef]);
-
-  useEffect(() => {
-    computeLines();
-    const timer = setTimeout(() => {
-      setRevealed(true);
-    }, REVEAL_DELAY_MS);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [computeLines]);
-
-  useEffect(() => {
-    const onResize = () => {
-      if (timeoutRef.current !== null) {
-        clearTimeout(timeoutRef.current);
-      }
-      timeoutRef.current = setTimeout(computeLines, RESIZE_DEBOUNCE_MS);
-    };
-    globalThis.addEventListener("resize", onResize);
-    return () => {
-      if (timeoutRef.current !== null) {
-        clearTimeout(timeoutRef.current);
-      }
-      globalThis.removeEventListener("resize", onResize);
-    };
-  }, [computeLines]);
-
-  return { lines, revealed };
 };
 
 const getLineStyle = ({
@@ -318,6 +188,17 @@ const getSmokeClass = (appeared: boolean, reducedMotion: boolean): string => {
   return "haiku-char--smoke";
 };
 
+const getCharClass = (
+  settled: boolean,
+  appeared: boolean,
+  reducedMotion: boolean,
+): string => {
+  if (settled) {
+    return "haiku-char--settled";
+  }
+  return getSmokeClass(appeared, reducedMotion);
+};
+
 const getSmokeStyle = (
   charDrift: CharDrift,
   reducedMotion: boolean,
@@ -365,10 +246,10 @@ const maxAnimationEnd = (drifts: CharDrift[][] | WordDrift[]): number => {
   return max;
 };
 
-// eslint-disable-next-line no-named-export
-export {
+const textRevealExports = {
   buildCharDrifts,
   buildWordDrifts,
+  getCharClass,
   getLineStyle,
   getSmokeClass,
   getSmokeStyle,
@@ -376,6 +257,9 @@ export {
   seededRandom,
   useReducedMotion,
   useTextLayout,
-  type CharDrift,
-  type WordDrift,
 };
+
+/* eslint-disable import/no-named-export */
+export default textRevealExports;
+export type { CharDrift, WordDrift };
+/* eslint-enable import/no-named-export */
