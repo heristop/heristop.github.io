@@ -62,9 +62,9 @@ const websiteSchema = {
 <html lang="en">
   <head>
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
   </head>
   <body>
-    <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
     <ClientRouter />
     <main class="site-layout">
       <Header title={SITE_TITLE} />
