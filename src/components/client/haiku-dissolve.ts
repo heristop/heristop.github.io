@@ -13,6 +13,7 @@ const RECOVER_TRANSITION =
 const ACCENT_COLOR = "#c2185b";
 const DISSOLVE_COLOR_PCT_MAX = 60;
 const COLOR_FULL = 100;
+const COLOR_CACHE = new Map<number, string>();
 
 interface Point {
   px: number;
@@ -27,10 +28,16 @@ const applyDissolveToElement = (el: HTMLSpanElement, intensity: number) => {
   const scale = 1 - eased * DISSOLVE_SCALE_FACTOR;
   const colorPct = Math.round(eased * DISSOLVE_COLOR_PCT_MAX);
 
+  let cachedColor = COLOR_CACHE.get(colorPct);
+  if (!cachedColor) {
+    cachedColor = `color-mix(in oklch, currentColor ${COLOR_FULL - colorPct}%, ${ACCENT_COLOR} ${colorPct}%)`;
+    COLOR_CACHE.set(colorPct, cachedColor);
+  }
+
   el.style.opacity = `${1 - eased * DISSOLVE_OPACITY_FACTOR}`;
   el.style.transform = `translate(${driftX * eased * DISSOLVE_DRIFT_FACTOR}px, ${driftY * eased * DISSOLVE_DRIFT_FACTOR}px) rotate(${driftR * eased * DISSOLVE_ROTATION_FACTOR}deg) scale(${scale})`;
   el.style.filter = `blur(${eased * DISSOLVE_BLUR_MAX}px)`;
-  el.style.color = `color-mix(in oklch, currentColor ${COLOR_FULL - colorPct}%, ${ACCENT_COLOR} ${colorPct}%)`;
+  el.style.color = cachedColor;
   el.style.transition = DISSOLVE_TRANSITION;
 };
 
