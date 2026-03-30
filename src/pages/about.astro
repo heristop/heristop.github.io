@@ -5,9 +5,32 @@ import SocialNetworks from "../components/SocialNetworks.astro";
 import ZenFade from "../components/zen/ZenFade.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
 import ZenStagger from "../components/zen/ZenStagger.astro";
+import {
+  SITE_URL,
+  GITHUB_URL,
+  LINKEDIN_URL,
+  X_URL,
+  BLUESKY_URL,
+} from "../consts";
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Alexandre Mogere',
+  url: `${SITE_URL}/about`,
+  jobTitle: 'Chapter Lead',
+  worksFor: {
+    '@type': 'Organization',
+    name: 'Carrefour SI',
+  },
+  knowsAbout: ['JavaScript', 'TypeScript', 'Vue', 'React', 'Node.js', 'PHP', 'Symfony'],
+  sameAs: [GITHUB_URL, LINKEDIN_URL, X_URL, BLUESKY_URL],
+};
 ---
 
-<Layout title="About" description="About page">
+<script is:inline type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+
+<Layout title="About" description="Alexandre Mogere - Chapter Lead at Carrefour SI. JavaScript, TypeScript, Vue, React, Node.js, PHP, and Symfony.">
   <ZenSlide direction="up" delay={200}>
     <blockquote>
       Hello, I'm <b>heristop</b>! <span class="about-info__wave">👋</span> I'm a Chapter Lead &
