@@ -28,9 +28,7 @@ const personSchema = {
 };
 ---
 
-<script is:inline type="application/ld+json" set:html={JSON.stringify(personSchema)} />
-
-<Layout title="About" description="Alexandre Mogere - Chapter Lead at Carrefour SI. JavaScript, TypeScript, Vue, React, Node.js, PHP, and Symfony.">
+<Layout title="About" description="Alexandre Mogere - Chapter Lead at Carrefour SI. JavaScript, TypeScript, Vue, React, Node.js, PHP, and Symfony." headSchema={personSchema}>
   <ZenSlide direction="up" delay={200}>
     <blockquote>
       Hello, I'm <b>heristop</b>! <span class="about-info__wave">👋</span> I'm a Chapter Lead &
