@@ -27,7 +27,7 @@ interface CompassPanelProps {
 
 interface GameMapProps {
   map: MapTile[];
-  mapDimensions: { height: number; width: number };
+  mapDimensions: { height: number; width: number; offsetX: number; offsetY: number };
   characterPosition: { posX: number; posY: number } | undefined;
 }
 
@@ -97,8 +97,8 @@ const GameMap = function GameMap({ map, mapDimensions, characterPosition }: Game
           className="zazen-world__tile"
           key={index}
           style={{
-            left: `${(tile.posX - tile.posY) * TILE_HALF_WIDTH}px`,
-            top: `${(tile.posX + tile.posY) * TILE_HALF_HEIGHT}px`,
+            left: `${(tile.posX - tile.posY) * TILE_HALF_WIDTH - mapDimensions.offsetX}px`,
+            top: `${(tile.posX + tile.posY) * TILE_HALF_HEIGHT - mapDimensions.offsetY}px`,
           }}
         >
           <TileRenderer tile={tile} />
@@ -113,7 +113,7 @@ const initialMap = buildInitialMap();
 export default function ZazenWorld() {
   const [map, setMap] = useState<MapTile[]>(initialMap);
   const [characterPosition, setCharacterPosition] = useState<{ posX: number; posY: number }>();
-  const [mapDimensions, setMapDimensions] = useState({ height: 0, width: 0 });
+  const [mapDimensions, setMapDimensions] = useState({ height: 0, width: 0, offsetX: 0, offsetY: 0 });
 
   useEffect(() => { setMapDimensions(calculateMapDimensions(map)); }, [map]);
 

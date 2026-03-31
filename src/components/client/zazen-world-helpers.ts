@@ -149,7 +149,7 @@ const buildInitialMap = function buildInitialMap(): MapTile[] {
 
 const calculateMapDimensions = function calculateMapDimensions(
   map: MapTile[],
-): { height: number; width: number } {
+): { height: number; width: number; offsetX: number; offsetY: number } {
   let maxX = -Infinity;
   let maxY = -Infinity;
   let minX = Infinity;
@@ -176,7 +176,7 @@ const calculateMapDimensions = function calculateMapDimensions(
   const width = maxX - minX + TILE_FULL_WIDTH;
   const height = maxY - minY + TILE_FULL_HEIGHT_WITH_PADDING;
 
-  return { height, width };
+  return { height, width, offsetX: minX, offsetY: minY };
 };
 
 const applyDirectionOffset = function applyDirectionOffset(

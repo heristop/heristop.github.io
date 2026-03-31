@@ -4,7 +4,6 @@
   align-items: center;
   justify-content: center;
   padding: 0.5rem 2rem 2rem;
-  overflow: hidden auto;
   view-transition-name: zazen-world;
 
   @media (width <= 768px) {
@@ -16,21 +15,18 @@
 .zazen-world__map {
   position: relative;
   margin: 2rem auto;
-  left: 84%;
-  transform: translateX(-50%);
+  max-width: 100%;
   transform-origin: center;
   opacity: 0;
   animation: zazen-map-fade-in 0.8s ease-out 0.3s forwards;
 
   @media (width <= 768px) {
-    left: 100%;
     margin: 1rem auto;
-    transform: translateX(-50%) scale(0.8);
+    transform: scale(0.8);
   }
 
   @media (width <= 480px) {
-    left: 110%;
-    transform: translateX(-50%) scale(0.6);
+    transform: scale(0.6);
     margin: 0.5rem auto;
   }
 }
@@ -38,12 +34,12 @@
 @keyframes zazen-map-fade-in {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(20px) scale(var(--zazen-scale, 1));
+    transform: translateY(20px) scale(var(--zazen-scale, 1));
   }
 
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(var(--zazen-scale, 1));
+    transform: translateY(0) scale(var(--zazen-scale, 1));
   }
 }
 
