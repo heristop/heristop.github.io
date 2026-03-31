@@ -43,7 +43,7 @@ const networks = (userConfig.socialNetworks ?? []).filter(
 
 // In compact variant, reorder for bento: row1=BlueSky,Instagram,X  row2=GitHub,LinkedIn
 if (variant === 'compact') {
-  const order = ['BlueSky', 'Instagram', 'X', 'GitHub', 'LinkedIn'];
+  const order = ['X', 'Instagram', 'BlueSky', 'GitHub', 'LinkedIn'];
   networks.sort((a: NetworkType, b: NetworkType) => {
     const ai = order.indexOf(a.title);
     const bi = order.indexOf(b.title);
