@@ -159,7 +159,8 @@ a {
   &.post-nav-indicator::after,
   &.header__link::after,
   &.header__brand-link::after,
-  &.social-network__link::after {
+  &.social-network__link::after,
+  &.qr-code::after {
     content: none;
   }
 
