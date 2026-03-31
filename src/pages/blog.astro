@@ -90,8 +90,31 @@ const timeAgo = (date: Date) => {
     <blockquote class="blog-archive__subscribe">
       <Icon name="rss" size={32} class="blog-archive__subscribe-icon" aria-hidden={true} />
 
-      <span>Subscribe to <a href="/rss.xml">RSS</a>.</span>
+      <span>Subscribe to <button type="button" class="blog-archive__rss-copy" data-url="/rss.xml">RSS</button>.</span>
     </blockquote>
+
+    <script is:inline>
+      const initRssCopy = () => {
+        for (const el of document.querySelectorAll('.blog-archive__rss-copy')) {
+          const btn = /** @type {HTMLButtonElement} */ (el);
+          if (btn.dataset.initialized === 'true') continue;
+          btn.dataset.initialized = 'true';
+          btn.addEventListener('click', async () => {
+            const url = new URL(btn.dataset.url ?? '/rss.xml', globalThis.location.origin).href;
+            await navigator.clipboard.writeText(url);
+            const original = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.classList.add('blog-archive__rss-copy--copied');
+            setTimeout(() => {
+              btn.textContent = original;
+              btn.classList.remove('blog-archive__rss-copy--copied');
+            }, 2000);
+          });
+        }
+      };
+      initRssCopy();
+      document.addEventListener('astro:page-load', initRssCopy);
+    </script>
   </ZenSlide>
 
   <div class="blog-archive">
