@@ -13,6 +13,37 @@
     gap: 0.85rem;
   }
 
+  /* Compact variant — all cards horizontal, bento grid */
+  &--compact {
+    @media screen and (width >= 48rem) {
+      grid-template-columns: repeat(6, 1fr);
+    }
+
+    .social-network__card--standard {
+      @media screen and (width >= 48rem) {
+        grid-column: span 2;
+      }
+    }
+
+    /* Last row with 2 remaining cards: widen to span 3 each, bigger logo */
+    &:has(:nth-child(5)) .social-network__card--standard:nth-child(n + 4) {
+      @media screen and (width >= 48rem) {
+        grid-column: span 3;
+
+        .social-network__image-shell {
+          flex: 0 0 8rem;
+        }
+      }
+    }
+
+    /* Last row with 1 remaining card: widen to full */
+    &:has(:nth-child(4)):not(:has(:nth-child(5))) .social-network__card--standard:nth-child(4) {
+      @media screen and (width >= 48rem) {
+        grid-column: span 6;
+      }
+    }
+  }
+
   /* Bento spans when 3+ cards */
   &:has(:nth-child(3)) {
     .social-network__card--featured:nth-child(1) {
