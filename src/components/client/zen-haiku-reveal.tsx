@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import dissolve from "./haiku-dissolve";
 import textReveal from "./use-text-reveal";
 import type { CharDrift } from "./use-text-reveal";
-import type { Point } from "./haiku-dissolve";
+import type { CharCacheEntry, Point } from "./haiku-dissolve";
 
 const { buildWordDrifts, getSmokeStyle, maxAnimationEnd, useReducedMotion } = textReveal;
 const { getHaikuCharClass, processCharEntry, resetElement } = dissolve;
@@ -14,6 +14,15 @@ interface Props {
 const APPEAR_DELAY_MS = 200;
 const HAIKU_BASE_DURATION_MS = 1000;
 const BREATHE_BUFFER_MS = 300;
+const BREATHE_TIMEOUT_MS = 12_000;
+const DISSOLVE_RADIUS = 80;
+
+interface ContainerBox {
+  bottom: number;
+  left: number;
+  right: number;
+  top: number;
+}
 
 const CharSpan = React.memo(({ charDrift, charClass, reducedMotion, onRef }: {
   charClass: string;
@@ -70,8 +79,10 @@ const useHaikuFetch = (url: string) => {
 };
 
 const useProximityDissolve = (charElsRef: React.RefObject<Map<string, HTMLSpanElement>>) => {
-  const cachedCenters = useRef<Map<string, Point>>(new Map());
+  const cachedEntries = useRef<Map<string, CharCacheEntry>>(new Map());
+  const containerBox = useRef<ContainerBox | null>(null);
   const dissolvedKeys = useRef<Set<string>>(new Set());
+  const nextDissolved = useRef<Set<string>>(new Set());
   const cacheValid = useRef(false);
 
   useEffect(() => {
@@ -88,25 +99,56 @@ const useProximityDissolve = (charElsRef: React.RefObject<Map<string, HTMLSpanEl
     if (cacheValid.current) {
       return;
     }
-    cachedCenters.current.clear();
+    cachedEntries.current.clear();
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
     for (const [key, el] of charElsRef.current.entries()) {
       const rect = el.getBoundingClientRect();
-      cachedCenters.current.set(key, {
-        px: rect.left + rect.width / 2,
-        py: rect.top + rect.height / 2,
+      const px = rect.left + rect.width / 2;
+      const py = rect.top + rect.height / 2;
+      if (px < minX) { minX = px; }
+      if (py < minY) { minY = py; }
+      if (px > maxX) { maxX = px; }
+      if (py > maxY) { maxY = py; }
+      cachedEntries.current.set(key, {
+        driftR: Number.parseFloat(el.style.getPropertyValue("--drift-r")) || 0,
+        driftX: Number.parseFloat(el.style.getPropertyValue("--drift-x")) || 0,
+        driftY: Number.parseFloat(el.style.getPropertyValue("--drift-y")) || 0,
+        px,
+        py,
       });
     }
+    containerBox.current = cachedEntries.current.size > 0
+      ? { bottom: maxY, left: minX, right: maxX, top: minY }
+      : null;
     cacheValid.current = true;
   }, [charElsRef]);
 
   const apply = useCallback((mouseX: number, mouseY: number) => {
     ensureCache();
-    const nextDissolved = new Set<string>();
-
-    for (const [key, center] of cachedCenters.current.entries()) {
-      processCharEntry({ center, charElsRef, dissolvedKeys, key, mouseX, mouseY, nextDissolved });
+    const box = containerBox.current;
+    if (box &&
+      (mouseX < box.left - DISSOLVE_RADIUS ||
+       mouseX > box.right + DISSOLVE_RADIUS ||
+       mouseY < box.top - DISSOLVE_RADIUS ||
+       mouseY > box.bottom + DISSOLVE_RADIUS)) {
+      for (const key of dissolvedKeys.current) {
+        const el = charElsRef.current.get(key);
+        if (el) { resetElement(el); }
+      }
+      dissolvedKeys.current.clear();
+      return;
     }
-    dissolvedKeys.current = nextDissolved;
+
+    nextDissolved.current.clear();
+    for (const [key, cached] of cachedEntries.current.entries()) {
+      processCharEntry({ cached, charElsRef, dissolvedKeys, key, mouseX, mouseY, nextDissolved: nextDissolved.current });
+    }
+    const prev = dissolvedKeys.current;
+    dissolvedKeys.current = nextDissolved.current;
+    nextDissolved.current = prev;
   }, [charElsRef, ensureCache]);
 
   const reset = useCallback(() => {
@@ -228,6 +270,7 @@ const ZenHaikuReveal = ({ url }: Props) => {
   const charElsRef = useRef<Map<string, HTMLSpanElement>>(new Map());
   const [appeared, setAppeared] = useState(false);
   const [breathing, setBreathing] = useState(false);
+  const [autoSettled, setAutoSettled] = useState(false);
   const reducedMotion = useReducedMotion();
   const text = useHaikuFetch(url);
   const { apply, reset } = useProximityDissolve(charElsRef);
@@ -251,28 +294,42 @@ const ZenHaikuReveal = ({ url }: Props) => {
     return () => { clearTimeout(timer); };
   }, [appeared, breathing, reducedMotion, words]);
 
+  useEffect(() => {
+    if (!breathing || autoSettled || reducedMotion) { return; }
+    const timer = setTimeout(() => { setAutoSettled(true); }, BREATHE_TIMEOUT_MS);
+    return () => { clearTimeout(timer); };
+  }, [breathing, autoSettled, reducedMotion]);
+
   const setCharRef = useCallback((key: string, el: HTMLSpanElement | null) => {
     if (el) { charElsRef.current.set(key, el); }
     else { charElsRef.current.delete(key); }
   }, []);
 
-  const charClass = getHaikuCharClass(reducedMotion, breathing, appeared);
+  const charClass = autoSettled
+    ? "haiku-char--settled"
+    : getHaikuCharClass(reducedMotion, breathing, appeared);
+
+  const collapsed = autoSettled || reducedMotion;
 
   return (
     <div
       ref={containerRef}
       className="haiku-card__quote"
       aria-label={text ?? "Loading today's verse..."}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onLeave}
+      onMouseMove={collapsed ? undefined : onMouseMove}
+      onMouseLeave={collapsed ? undefined : onLeave}
     >
       {text === undefined && "Loading today's verse..."}
       {text !== undefined && words.length > 0 && (
-        <span aria-hidden="true">
-          {words.map(({ word, chars }) => (
-            <WordSpan key={chars[0]?.key ?? word} word={word} chars={chars} charClass={charClass} reducedMotion={reducedMotion} onRef={setCharRef} />
-          ))}
-        </span>
+        collapsed ? (
+          <span aria-hidden="true">{text}</span>
+        ) : (
+          <span aria-hidden="true">
+            {words.map(({ word, chars }) => (
+              <WordSpan key={chars[0]?.key ?? word} word={word} chars={chars} charClass={charClass} reducedMotion={reducedMotion} onRef={setCharRef} />
+            ))}
+          </span>
+        )
       )}
     </div>
   );
