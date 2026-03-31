@@ -223,6 +223,61 @@ const initializeStickyNav = (): void => {
   };
 };
 
+/* ── Magnetic nav highlight ── */
+
+const setupNavHighlight = (navContainer: Element | null): void => {
+  if (!(navContainer instanceof HTMLElement)) return;
+  if (navContainer.dataset.highlightInit === "true") return;
+  navContainer.dataset.highlightInit = "true";
+
+  const highlight = navContainer.querySelector(
+    ".header__nav-highlight",
+  ) as HTMLElement | null;
+  if (!highlight) return;
+
+  const links = navContainer.querySelectorAll(".header__link");
+  const activeLink = navContainer.querySelector(
+    ".header__link.active",
+  ) as HTMLElement | null;
+
+  const moveHighlight = (target: HTMLElement) => {
+    const navRect = navContainer.getBoundingClientRect();
+    const linkRect = target.getBoundingClientRect();
+    const offsetX = linkRect.left - navRect.left;
+
+    highlight.style.width = `${linkRect.width}px`;
+    highlight.style.transform = `translateX(${offsetX}px)`;
+    highlight.style.opacity = "1";
+  };
+
+  /* Set initial position on the active link */
+  if (activeLink) {
+    requestAnimationFrame(() => {
+      moveHighlight(activeLink);
+      highlight.classList.add("header__nav-highlight--active");
+    });
+  }
+
+  for (const link of links) {
+    link.addEventListener("mouseenter", () => {
+      moveHighlight(link as HTMLElement);
+    });
+  }
+
+  navContainer.addEventListener("mouseleave", () => {
+    if (activeLink) {
+      moveHighlight(activeLink);
+    } else {
+      highlight.style.opacity = "0";
+    }
+  });
+};
+
+const initializeNavHighlights = (): void => {
+  setupNavHighlight(document.querySelector("#initial-nav"));
+  setupNavHighlight(document.querySelector("#header-nav"));
+};
+
 /* ── Init ── */
 
 const initializeHeader = (): void => {
@@ -239,6 +294,7 @@ const initializeHeader = (): void => {
   setupEscapeListener();
   initializeStickyNav();
   initializeSearch();
+  initializeNavHighlights();
   document.body.classList.remove("mobile-menu-open");
 };
 

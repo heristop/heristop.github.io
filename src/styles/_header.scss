@@ -113,8 +113,60 @@
 
   &__nav--desktop {
     display: none;
-    gap: var(--space-lg);
+    gap: 0.25rem;
     align-items: center;
+    position: relative;
+  }
+
+  /* Magnetic sliding highlight */
+  &__nav-highlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: var(--radius-md);
+    background: color-mix(in oklch, var(--primary-color) 8%, transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      transform 400ms var(--zen-ease-elegant),
+      width 400ms var(--zen-ease-elegant),
+      opacity 300ms var(--zen-ease-gentle);
+    will-change: transform, width;
+    z-index: 0;
+
+    /* Ink brush underline accent */
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 20%;
+      right: 20%;
+      height: 1.5px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in oklch, var(--primary-color) 50%, transparent),
+        transparent
+      );
+      border-radius: 1px;
+      opacity: 0;
+      transition: opacity 300ms var(--zen-ease-gentle);
+    }
+  }
+
+  &__nav--desktop:hover &__nav-highlight,
+  &__nav--desktop:focus-within &__nav-highlight {
+    opacity: 1;
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  /* Active state highlight — always visible */
+  &__nav-highlight--active {
+    opacity: 1;
   }
 
   &__link {
@@ -123,41 +175,23 @@
     text-decoration: none;
     font-size: 1rem;
     color: var(--link-color-secondary);
-    padding: var(--space-xs) var(--space-sm);
-    border-radius: var(--radius-sm);
-    transition: all 0.2s ease;
-    overflow: hidden;
+    padding: 0.45rem 0.75rem;
+    border-radius: var(--radius-md);
+    transition: color 300ms var(--zen-ease-gentle);
+    z-index: 1;
 
     &:hover {
-      color: var(--link-color-secondary-hover);
-      background: color-mix(in oklch, var(--link-color-secondary) 10%, transparent);
+      color: var(--heading-color);
     }
 
+    /* Remove the old underline pseudo-element */
     &::after {
-      content: "";
-      position: absolute;
-      width: 100%;
-      transform: scaleX(0);
-      height: 2px;
-      bottom: 0;
-      left: 0;
-      background: linear-gradient(
-        90deg,
-        var(--link-color-secondary),
-        var(--link-color-secondary-hover)
-      );
-      transform-origin: bottom right;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      content: none;
     }
 
-    &:hover::after {
-      transform: scaleX(1);
-      transform-origin: bottom left;
-    }
-
-    &.active::after {
-      transform: scaleX(1);
-      background: var(--link-color-secondary);
+    &.active {
+      color: var(--heading-color);
+      font-weight: 600;
     }
   }
 
