@@ -94,6 +94,41 @@ h4 {
   margin: var(--space-md) 0 var(--space-xs) 0;
 }
 
+/* Heading anchor deeplinks */
+h1[id],
+h2[id],
+h3[id],
+h4[id] {
+  scroll-margin-top: 5rem;
+}
+
+.heading-anchor {
+  color: var(--text-secondary);
+  text-decoration: none;
+  opacity: 0;
+  font-weight: 400;
+  margin-right: 0.25em;
+  transition: opacity 200ms ease;
+}
+
+h1:hover > .heading-anchor,
+h2:hover > .heading-anchor,
+h3:hover > .heading-anchor,
+h4:hover > .heading-anchor,
+.heading-anchor:focus-visible {
+  opacity: 0.6;
+}
+
+.heading-anchor:hover {
+  opacity: 1 !important;
+}
+
+.heading-anchor:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 p {
   margin: 0.8em 0;
 }
