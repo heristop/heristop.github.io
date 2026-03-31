@@ -33,6 +33,29 @@
   flex-shrink: 0;
 }
 
+.blog-archive__rss-copy {
+  background: none;
+  border: none;
+  color: var(--link-color);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  transition: color 280ms var(--zen-ease-out);
+
+  &:hover {
+    color: var(--link-hover-color);
+  }
+
+  &--copied {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+}
+
 .blog-archive__year-heading::after {
   content: "";
   display: block;
