@@ -296,7 +296,7 @@ tbody tr:hover {
   @media (prefers-reduced-motion: no-preference) {
     &:hover,
     &:focus-within {
-      transform: translateY(-2px) rotate(0.3deg) scale(1.005);
+      transform: translateY(-2px);
       background: var(--surface-glass-hover);
       border-color: color-mix(in oklch, var(--primary-color) 28%, transparent);
       box-shadow:
@@ -337,6 +337,11 @@ tbody tr:hover {
         color: var(--link-hover-color);
       }
     }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
   }
 
   &::before {
@@ -534,6 +539,14 @@ tbody tr:hover {
   li {
     margin: 0.5rem 0;
     margin-left: 2rem;
+
+    a {
+      transition: color 280ms var(--zen-ease-out);
+
+      &:hover {
+        color: var(--link-hover-color);
+      }
+    }
   }
 }
 
