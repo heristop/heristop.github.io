@@ -389,6 +389,12 @@
     &:hover {
       color: var(--link-hover-color);
     }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
   }
 
   &__social-links {
@@ -422,6 +428,11 @@
       img {
         filter: brightness(0) invert(1);
       }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
     }
   }
 
