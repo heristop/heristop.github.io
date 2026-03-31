@@ -54,7 +54,7 @@ h4 {
   color: var(--heading-color);
   line-height: 1.3;
   letter-spacing: -0.02em;
-  text-shadow: 0 1px 2px rgb(90 35 53 / 8%);
+  text-shadow: 0 1px 2px oklch(30% 0.08 355deg / 8%);
   transition: color 320ms var(--zen-ease-out);
 }
 
@@ -62,14 +62,14 @@ h1 {
   font-size: 1.25em;
   font-weight: 700;
   margin: 0 0 var(--space-md) 0;
-  text-shadow: 0 1px 0 rgb(0 0 0 / 8%);
+  text-shadow: 0 1px 0 oklch(0% 0 0 / 8%);
 }
 
 h2 {
   font-size: 1.15em;
   font-weight: 600;
   margin: var(--space-lg) 0 var(--space-md) 0;
-  text-shadow: 0 1px 0 rgb(0 0 0 / 8%);
+  text-shadow: 0 1px 0 oklch(0% 0 0 / 8%);
 }
 
 .icon-heading {
@@ -103,12 +103,15 @@ h4[id] {
 }
 
 .heading-anchor {
-  color: var(--text-secondary);
+  color: var(--primary-color);
   text-decoration: none;
   opacity: 0;
   font-weight: 400;
   margin-right: 0.25em;
-  transition: opacity 200ms ease;
+  text-shadow: none;
+  transition:
+    opacity var(--zen-duration-fast) var(--zen-ease-out),
+    text-shadow var(--zen-duration-normal) var(--zen-ease-out);
 }
 
 h1:hover > .heading-anchor,
@@ -117,16 +120,24 @@ h3:hover > .heading-anchor,
 h4:hover > .heading-anchor,
 .heading-anchor:focus-visible {
   opacity: 0.6;
+  text-shadow: 0 0 12px color-mix(in oklch, var(--primary-color) 30%, transparent);
 }
 
 .heading-anchor:hover {
   opacity: 1 !important;
+  text-shadow: 0 0 18px color-mix(in oklch, var(--primary-color) 50%, transparent);
 }
 
 .heading-anchor:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+/* Global active press feedback */
+button:active:not(:disabled),
+[role="button"]:active {
+  transform: scale(0.97);
 }
 
 p {

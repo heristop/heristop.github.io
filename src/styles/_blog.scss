@@ -181,7 +181,7 @@ blockquote {
   position: relative;
   background: var(--surface-glass);
   box-shadow:
-    0 12px 24px -18px rgb(0 0 0 / 20%),
+    0 12px 24px -18px oklch(0% 0 0 / 20%),
     0 0 0 1px var(--border-glass);
   display: flex;
   flex-wrap: wrap;
@@ -220,6 +220,10 @@ th {
   background-color: var(--color-overlay-light);
   font-weight: 600;
   color: var(--heading-color);
+}
+
+tbody tr {
+  transition: background-color var(--zen-duration-fast) var(--zen-ease-out);
 }
 
 tbody tr:hover {
@@ -323,9 +327,9 @@ tbody tr:hover {
       background: var(--surface-glass-hover);
       border-color: color-mix(in oklch, var(--primary-color) 28%, transparent);
       box-shadow:
-        0 12px 24px -6px rgb(0 0 0 / 16%),
-        0 6px 12px -4px rgb(0 0 0 / 10%),
-        0 2px 6px -2px rgb(0 0 0 / 6%),
+        0 12px 24px -6px oklch(0% 0 0 / 16%),
+        0 6px 12px -4px oklch(0% 0 0 / 10%),
+        0 2px 6px -2px oklch(0% 0 0 / 6%),
         0 1px 0 var(--surface-glass-strong);
 
       &::before {
@@ -353,7 +357,7 @@ tbody tr:hover {
   @media (prefers-reduced-motion: reduce) {
     &:hover,
     &:focus-within {
-      background: rgb(255 255 255 / 44%);
+      background: oklch(100% 0 0 / 44%);
       border-color: color-mix(in oklch, var(--primary-color) 24%, transparent);
 
       .blog-card__cta {
@@ -412,7 +416,7 @@ tbody tr:hover {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-weight: 600;
-  box-shadow: 0 6px 12px -10px rgb(0 0 0 / 18%);
+  box-shadow: 0 6px 12px -10px oklch(0% 0 0 / 18%);
   transition: background 200ms ease, color 200ms ease;
   pointer-events: none;
 }

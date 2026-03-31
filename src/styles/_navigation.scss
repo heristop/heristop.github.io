@@ -28,7 +28,7 @@
   font-size: 18px;
   color: var(--primary-color);
   box-shadow: var(--shadow-sm);
-  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: all var(--zen-duration-fast) var(--zen-ease-elegant);
   opacity: 0.85;
   cursor: pointer;
 
@@ -40,6 +40,10 @@
     opacity: 1;
     transform: scale(1.08);
     box-shadow: 0 4px 16px color-mix(in oklch, var(--primary-color) 25%, transparent);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 
   &:focus-visible {
@@ -63,7 +67,7 @@
   border-radius: var(--radius-sm);
   border: 1px solid color-mix(in oklch, var(--primary-color) 20%, transparent);
   opacity: 0.8;
-  animation: fade-in-up 0.3s ease-out 1s both;
+  animation: fade-in-up var(--zen-duration-normal) var(--zen-ease-out) 1s both;
 
   @media (width <= 768px) {
     font-size: 0.7rem;
@@ -106,7 +110,7 @@
   border-radius: var(--radius-sm);
   border: 1px solid color-mix(in oklch, var(--primary-color) 20%, transparent);
   opacity: 0.8;
-  animation: fade-in-up 0.3s ease-out 1s both;
+  animation: fade-in-up var(--zen-duration-normal) var(--zen-ease-out) 1s both;
 
   @media (width <= 768px) {
     font-size: 0.7rem;
@@ -127,15 +131,15 @@
   opacity: 0;
   z-index: 1000;
   pointer-events: none;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 8px 24px oklch(0% 0 0 / 20%);
+  transition: all var(--zen-duration-normal) var(--zen-ease-elegant);
 
   &--previous {
-    animation: slide-in-from-left 0.3s ease-out;
+    animation: slide-in-from-left var(--zen-duration-normal) var(--zen-ease-out);
   }
 
   &--next {
-    animation: slide-in-from-right 0.3s ease-out;
+    animation: slide-in-from-right var(--zen-duration-normal) var(--zen-ease-out);
   }
 }
 
@@ -172,5 +176,23 @@
   to {
     transform: translate(-50%, -50%) translateY(0);
     opacity: 1;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .post-nav-hint,
+  .global-nav-hint {
+    animation: none;
+    opacity: 0.8;
+  }
+
+  .navigation-hint--previous,
+  .navigation-hint--next {
+    animation: none;
+  }
+
+  .post-nav-indicator:hover {
+    transform: none;
   }
 }
