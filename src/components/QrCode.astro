@@ -1,0 +1,173 @@
+---
+import QRCode from 'qrcode';
+
+interface Props {
+  url: string;
+  size?: number;
+  label?: string;
+}
+
+const { url, size = 72, label = 'Scan to connect' } = Astro.props;
+
+const svg = await QRCode.toString(url, {
+  type: 'svg',
+  width: size,
+  margin: 0,
+  color: {
+    dark: '#000',
+    light: '#0000',
+  },
+});
+
+// Replace hardcoded stroke with currentColor so CSS can control the dot color
+const themedSvg = svg.replaceAll('stroke="#000000"', 'stroke="currentColor"');
+---
+
+<a href={url} target="_blank" rel="noopener noreferrer" class="qr-code" aria-label={`${label} — ${url}`}>
+  <div class="qr-code__ring" aria-hidden="true"></div>
+  <div class="qr-code__card">
+    <div class="qr-code__shimmer" aria-hidden="true"></div>
+    <div class="qr-code__image" set:html={themedSvg} />
+    <span class="qr-code__label">{label}</span>
+  </div>
+</a>
+
+<style>
+  .qr-code {
+    position: relative;
+    width: fit-content;
+    text-decoration: none;
+    display: block;
+    outline: none;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  /* Soft animated ring behind the card */
+  .qr-code__ring {
+    position: absolute;
+    inset: -6px;
+    border-radius: calc(var(--radius-lg) + 6px);
+    border: 1.5px solid color-mix(in oklch, var(--primary-color) 15%, transparent);
+    opacity: 0;
+    transition: all var(--zen-duration-slow) var(--zen-ease-spring);
+    animation: zen-qr-ring-breathe var(--zen-duration-breath) var(--zen-ease-in-out) infinite;
+  }
+
+  .qr-code:hover .qr-code__ring {
+    inset: -8px;
+    border-radius: calc(var(--radius-lg) + 8px);
+    opacity: 1;
+    border-color: color-mix(in oklch, var(--primary-color) 30%, transparent);
+  }
+
+  .qr-code__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: var(--surface-card);
+    border: 1px solid var(--surface-glass-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition:
+      transform var(--zen-duration-normal) var(--zen-ease-spring),
+      box-shadow var(--zen-duration-slow) var(--zen-ease-spring),
+      border-color var(--zen-duration-normal) var(--zen-ease-out);
+  }
+
+  .qr-code:hover .qr-code__card {
+    transform: scale(1.04) translateY(-2px);
+    box-shadow:
+      var(--shadow-md),
+      0 8px 24px color-mix(in oklch, var(--primary-color) 12%, transparent);
+    border-color: color-mix(in oklch, var(--primary-color) 25%, transparent);
+  }
+
+  .qr-code:focus-visible .qr-code__card {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 3px;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Diagonal shimmer on hover */
+  .qr-code__shimmer {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 30%,
+      color-mix(in oklch, var(--primary-color) 8%, transparent) 50%,
+      transparent 70%
+    );
+    transform: translateX(-100%);
+    transition: none;
+    pointer-events: none;
+  }
+
+  .qr-code:hover .qr-code__shimmer {
+    transform: translateX(100%);
+    transition: transform 600ms var(--zen-ease-elegant);
+  }
+
+  .qr-code__image {
+    line-height: 0;
+    color: var(--primary-color);
+    transition: color var(--zen-duration-normal) var(--zen-ease-out);
+  }
+
+  .qr-code:hover .qr-code__image {
+    color: var(--heading-color);
+  }
+
+  .qr-code__image :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .qr-code__label {
+    font-family: Comfortaa, sans-serif;
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: color var(--zen-duration-normal) var(--zen-ease-out);
+  }
+
+  .qr-code:hover .qr-code__label {
+    color: var(--heading-color);
+  }
+
+  @keyframes zen-qr-ring-breathe {
+    0%, 100% {
+      opacity: 0;
+      border-color: color-mix(in oklch, var(--primary-color) 8%, transparent);
+    }
+    50% {
+      opacity: 0.5;
+      border-color: color-mix(in oklch, var(--primary-color) 20%, transparent);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qr-code__ring {
+      animation: none;
+    }
+
+    .qr-code:hover .qr-code__card {
+      transform: none;
+    }
+
+    .qr-code:hover .qr-code__shimmer {
+      transition: none;
+      transform: translateX(-100%);
+    }
+  }
+</style>
