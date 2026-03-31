@@ -451,6 +451,11 @@
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s ease;
+    background: none;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+    padding: 0;
 
     &:hover {
       color: var(--link-hover-color);

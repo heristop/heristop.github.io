@@ -126,10 +126,10 @@ import Icon from './Icon.astro';
           <Icon name="external-link" size={16} aria-hidden={true} />
           Linkfolio
         </a>
-        <a href="/rss.xml" class="site-footer__link">
+        <button type="button" class="site-footer__link site-footer__rss-copy" data-url="/rss.xml">
           <Icon name="rss" size={16} aria-hidden={true} />
-          RSS Feed
-        </a>
+          <span>RSS Feed</span>
+        </button>
       </div>
     </section>
   </div>
@@ -142,3 +142,24 @@ import Icon from './Icon.astro';
     </p>
   </div>
 </footer>
+
+<script is:inline>
+  const initFooterRssCopy = () => {
+    for (const el of document.querySelectorAll('.site-footer__rss-copy')) {
+      const btn = el;
+      if (btn.dataset.initialized === 'true') return;
+      btn.dataset.initialized = 'true';
+      btn.addEventListener('click', async () => {
+        const url = new URL(btn.dataset.url || '/rss.xml', globalThis.location.origin).href;
+        await navigator.clipboard.writeText(url);
+        const label = btn.querySelector('span');
+        if (!label) return;
+        const original = label.textContent;
+        label.textContent = 'Copied!';
+        setTimeout(() => { label.textContent = original; }, 2000);
+      });
+    }
+  };
+  initFooterRssCopy();
+  document.addEventListener('astro:page-load', initFooterRssCopy);
+</script>
