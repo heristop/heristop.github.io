@@ -112,6 +112,20 @@ const websiteSchema = {
               </a>
             </ZenSlide>
           </div>
+
+          <script type="module" is:inline>
+            const initPanelGlow = () => {
+              const panel = document.querySelector('.latest-posts__panel');
+              if (!panel) return;
+              panel.addEventListener('mousemove', (e) => {
+                const rect = panel.getBoundingClientRect();
+                panel.style.setProperty('--glow-x', `${e.clientX - rect.left}px`);
+                panel.style.setProperty('--glow-y', `${e.clientY - rect.top}px`);
+              });
+            };
+            initPanelGlow();
+            document.addEventListener('astro:page-load', initPanelGlow);
+          </script>
         </section>
 
         <section class="haiku-card-section" aria-labelledby="haiku-heading">
