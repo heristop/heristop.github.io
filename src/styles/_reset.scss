@@ -123,7 +123,8 @@ a {
   &.social-share__link::after,
   &.post-nav-indicator::after,
   &.header__link::after,
-  &.header__brand-link::after {
+  &.header__brand-link::after,
+  &.social-network__link::after {
     content: none;
   }
 

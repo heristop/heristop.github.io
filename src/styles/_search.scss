@@ -42,7 +42,6 @@
     pointer-events: none;
   }
 
-  /* Enhanced mobile backdrop */
   @media (width <= 767px) {
     background: rgb(255 255 255 / 70%);
     backdrop-filter: blur(10px) saturate(1.1);
@@ -62,7 +61,6 @@
     transform: scale(1) translateY(0);
   }
 
-  /* Responsive container adjustments */
   @media (width <= 768px) {
     max-width: 100%;
   }
@@ -71,12 +69,10 @@
     max-width: calc(100% - 2rem);
   }
 
-  /* Tablet landscape optimization */
   @media (width >= 768px) and (width <= 1024px) {
     max-width: 520px;
   }
 
-  /* Large screen optimization */
   @media (width >= 1200px) {
     max-width: 700px;
   }
@@ -115,7 +111,6 @@
       inset 0 1px 0 rgb(255 255 255 / 90%);
   }
 
-  /* Responsive input wrapper */
   @media (width <= 480px) {
     border-radius: var(--radius-md);
   }
@@ -157,7 +152,6 @@
 
   }
 
-  /* Responsive icon sizing */
   @media (width <= 480px) {
     width: 2.75rem;
     height: 2.75rem;
@@ -192,7 +186,6 @@
     font-weight: 400;
   }
 
-  /* Responsive font sizing */
   @media (width <= 480px) {
     font-size: 1rem;
   }
@@ -201,7 +194,7 @@
     font-size: 1.2rem;
   }
 
-  /* iOS specific fixes */
+  /* iOS input appearance reset */
   @supports (-webkit-touch-callout: none) {
     appearance: none;
     border-radius: 0;
@@ -228,12 +221,10 @@
   padding: 0;
   margin: 0;
 
-  /* Enhanced scrolling behavior */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklch, var(--text-secondary) 30%, transparent) transparent;
 
-  /* Custom scrollbar styling */
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -252,10 +243,8 @@
     }
   }
 
-  /* Smooth scrolling on all browsers */
   scroll-behavior: smooth;
 
-  /* Responsive max height adjustments */
   @media (height <= 600px) {
     max-height: 50vh;
   }
@@ -354,7 +343,6 @@
     color: var(--heading-color);
     line-height: 1.4;
 
-    /* Text overflow handling */
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -383,13 +371,12 @@
     transform: translateX(4px);
   }
 
-  /* Responsive result item adjustments */
   @media (width <= 480px) {
     padding: var(--space-sm) var(--space-md);
 
     &-title {
       font-size: 0.9rem;
-      -webkit-line-clamp: 1; /* Single line on very small screens */
+      -webkit-line-clamp: 1;
       line-clamp: 1;
     }
 
@@ -403,12 +390,10 @@
     }
   }
 
-  /* Tablet adjustments */
   @media (width >= 768px) and (width <= 1024px) {
     padding: var(--space-md) var(--space-lg);
   }
 
-  /* Large screen adjustments */
   @media (width >= 1200px) {
     padding: var(--space-lg);
 
@@ -418,7 +403,6 @@
   }
 }
 
-/* Landscape orientation optimizations */
 @media screen and (orientation: landscape) and (height <= 500px) {
   .header__search-container {
     margin-top: 0;
@@ -434,7 +418,6 @@
   }
 }
 
-/* Ultra-wide screen optimizations */
 @media screen and (width >= 1600px) {
   .header__search-container {
     max-width: 800px;
@@ -451,15 +434,14 @@
   }
 }
 
-/* High DPI / Retina display optimizations */
 @media (resolution >= 192dpi) {
   .header__search-input-wrapper {
-    border-width: 1px; /* Thinner borders on high DPI */
+    border-width: 1px;
   }
 
   .search-results {
     &::-webkit-scrollbar {
-      width: 8px; /* Slightly wider scrollbar on high DPI */
+      width: 8px;
     }
   }
 }
@@ -474,7 +456,7 @@
 
   .search-result {
     &:hover, &:focus {
-      transform: none; /* Remove transform animations */
+      transform: none;
     }
 
     svg {
