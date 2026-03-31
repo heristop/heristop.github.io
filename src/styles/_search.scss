@@ -3,7 +3,7 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
-  background: rgb(250 247 240 / 25%);
+  background: oklch(98% 0.008 75deg / 25%);
   backdrop-filter: blur(0) saturate(1);
   z-index: 999999;
   opacity: 0;
@@ -43,7 +43,7 @@
   }
 
   @media (width <= 767px) {
-    background: rgb(255 255 255 / 70%);
+    background: oklch(100% 0 0 / 70%);
     backdrop-filter: blur(10px) saturate(1.1);
     padding: var(--space-lg);
     padding-top: 8vh;
@@ -96,19 +96,40 @@
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow:
-    0 4px 20px rgb(0 0 0 / 6%),
-    0 2px 8px rgb(0 0 0 / 3%),
-    inset 0 1px 0 rgb(255 255 255 / 80%);
+    0 4px 20px oklch(0% 0 0 / 6%),
+    0 2px 8px oklch(0% 0 0 / 3%),
+    inset 0 1px 0 oklch(100% 0 0 / 80%);
   transition:
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
+    border-color var(--zen-duration-normal) var(--zen-ease-out),
+    box-shadow var(--zen-duration-normal) var(--zen-ease-out);
+
+  /* Focus shimmer sweep */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 30%,
+      color-mix(in oklch, var(--primary-color) 6%, transparent) 50%,
+      transparent 70%
+    );
+    transform: translateX(-100%);
+    z-index: 1;
+    pointer-events: none;
+  }
 
   &:focus-within {
     border-color: color-mix(in oklch, var(--primary-color) 15%, transparent);
     box-shadow:
-      0 6px 25px rgb(0 0 0 / 8%),
-      0 2px 12px rgb(0 0 0 / 4%),
-      inset 0 1px 0 rgb(255 255 255 / 90%);
+      0 6px 25px oklch(0% 0 0 / 8%),
+      0 2px 12px oklch(0% 0 0 / 4%),
+      inset 0 1px 0 oklch(100% 0 0 / 90%);
+
+    &::before {
+      transform: translateX(100%);
+      transition: transform 600ms var(--zen-ease-elegant);
+    }
   }
 
   @media (width <= 480px) {
@@ -207,8 +228,8 @@
   border: 1px solid color-mix(in oklch, var(--text-secondary) 8%, transparent);
   border-radius: var(--radius-md);
   box-shadow:
-    0 4px 20px rgb(0 0 0 / 4%),
-    0 1px 3px rgb(0 0 0 / 2%);
+    0 4px 20px oklch(0% 0 0 / 4%),
+    0 1px 3px oklch(0% 0 0 / 2%);
   max-height: 60vh;
   overflow: hidden;
   margin-top: var(--space-lg);
@@ -269,7 +290,7 @@
 
   &-icon {
     margin-bottom: 1rem;
-    opacity: 0.4;
+    opacity: 0.5;
     color: color-mix(in oklch, var(--primary-color) 30%, transparent);
   }
 
@@ -299,8 +320,9 @@
   text-decoration: none;
   color: inherit;
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+    background-color var(--zen-duration-fast) var(--zen-ease-out),
+    border-color var(--zen-duration-fast) var(--zen-ease-out),
+    transform var(--zen-duration-fast) var(--zen-ease-out);
   min-height: 60px;
   gap: var(--space-md);
   position: relative;
@@ -315,6 +337,8 @@
 
   &:hover, &:focus {
     outline: none;
+    background-color: var(--surface-glass);
+    transform: translateX(4px);
 
     .search-result-title {
       color: var(--link-color-secondary);
