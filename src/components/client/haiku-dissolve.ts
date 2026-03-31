@@ -20,10 +20,15 @@ interface Point {
   py: number;
 }
 
-const applyDissolveToElement = (el: HTMLSpanElement, intensity: number) => {
-  const driftX = Number.parseFloat(el.style.getPropertyValue("--drift-x")) || 0;
-  const driftY = Number.parseFloat(el.style.getPropertyValue("--drift-y")) || 0;
-  const driftR = Number.parseFloat(el.style.getPropertyValue("--drift-r")) || 0;
+interface CharCacheEntry {
+  driftR: number;
+  driftX: number;
+  driftY: number;
+  px: number;
+  py: number;
+}
+
+const applyDissolveToElement = (el: HTMLSpanElement, intensity: number, driftX: number, driftY: number, driftR: number) => {
   const eased = intensity ** DISSOLVE_EASE_POWER;
   const scale = 1 - eased * DISSOLVE_SCALE_FACTOR;
   const colorPct = Math.round(eased * DISSOLVE_COLOR_PCT_MAX);
@@ -50,7 +55,7 @@ const resetElement = (el: HTMLSpanElement) => {
 };
 
 interface CharEntryContext {
-  center: Point;
+  cached: CharCacheEntry;
   charElsRef: React.RefObject<Map<string, HTMLSpanElement>>;
   dissolvedKeys: React.RefObject<Set<string>>;
   key: string;
@@ -62,15 +67,15 @@ interface CharEntryContext {
 const processCharEntry = (ctx: CharEntryContext) => {
   const {
     key,
-    center,
+    cached,
     mouseX,
     mouseY,
     charElsRef,
     dissolvedKeys,
     nextDissolved,
   } = ctx;
-  const deltaX = mouseX - center.px;
-  const deltaY = mouseY - center.py;
+  const deltaX = mouseX - cached.px;
+  const deltaY = mouseY - cached.py;
   const distSq = deltaX * deltaX + deltaY * deltaY;
 
   if (distSq >= DISSOLVE_RADIUS_SQ) {
@@ -88,7 +93,7 @@ const processCharEntry = (ctx: CharEntryContext) => {
     return;
   }
   const intensity = 1 - Math.sqrt(distSq) / DISSOLVE_RADIUS;
-  applyDissolveToElement(el, intensity);
+  applyDissolveToElement(el, intensity, cached.driftX, cached.driftY, cached.driftR);
   nextDissolved.add(key);
 };
 
@@ -117,4 +122,4 @@ const haikuDissolve = {
 };
 
 export default haikuDissolve;
-export type { CharEntryContext, Point };
+export type { CharCacheEntry, CharEntryContext, Point };

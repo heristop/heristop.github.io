@@ -45,24 +45,28 @@ const ZenTitleReveal = ({ text }: Props) => {
       aria-label={text}
     >
       {lines.length === 0 && text}
-      {charsByLine.map((lineChars, lineIndex) => (
-        <span
-          key={`line-${lineIndex}-${lines[lineIndex].text}`}
-          aria-hidden="true"
-          style={{ display: "block" }}
-        >
-          {lineChars.map((charDrift) => (
-            <span
-              key={charDrift.key}
-              className={getCharClass(settled, appeared, reducedMotion)}
-              style={getSmokeStyle(charDrift, reducedMotion)}
-            >
-              {charDrift.char === " " && NBSP}
-              {charDrift.char !== " " && charDrift.char}
-            </span>
-          ))}
-        </span>
-      ))}
+      {settled ? (
+        <span aria-hidden="true">{text}</span>
+      ) : (
+        charsByLine.map((lineChars, lineIndex) => (
+          <span
+            key={`line-${lineIndex}-${lines[lineIndex].text}`}
+            aria-hidden="true"
+            style={{ display: "block" }}
+          >
+            {lineChars.map((charDrift) => (
+              <span
+                key={charDrift.key}
+                className={getCharClass(settled, appeared, reducedMotion)}
+                style={getSmokeStyle(charDrift, reducedMotion)}
+              >
+                {charDrift.char === " " && NBSP}
+                {charDrift.char !== " " && charDrift.char}
+              </span>
+            ))}
+          </span>
+        ))
+      )}
     </h1>
   );
 };
