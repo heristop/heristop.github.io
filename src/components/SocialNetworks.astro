@@ -61,34 +61,40 @@ const delay = 100;
 
 ---
 
-<section class="social-network">
+<section class={`social-network ${filter === 'project' ? 'social-network--projects' : ''}`} style={`--social-count: ${networks.length}`}>
   {
     networks.length > 0 ? (
-      networks.map((network: NetworkType, index: number) => (
-        <div
-          class="social-network__card"
-          style={`--social-card-stagger: ${delay * index}ms`}
-          data-prepared="false"
-        >
-          <a href={network.url} target="_blank" class="social-network__link">
-            <div class="social-network__image-shell">
-              <Image
-                src={resolveIconSrc(network.iconSrc)}
-                alt={network.description}
-                width={300}
-                height={100}
-                class="social-network__image"
-                loading="lazy"
-              />
-            </div>
+      networks.map((network: NetworkType, index: number) => {
+        const isFeatured = index < 2;
+        const modifier = isFeatured ? 'social-network__card--featured' : 'social-network__card--standard';
+        const imgWidth = isFeatured ? 400 : 300;
+        const imgHeight = isFeatured ? 200 : 100;
+        return (
+          <div
+            class={`social-network__card ${modifier}`}
+            style={`--social-card-stagger: ${delay * index}ms`}
+            data-prepared="false"
+          >
+            <a href={network.url} target="_blank" rel="noopener noreferrer" class="social-network__link">
+              <div class="social-network__image-shell">
+                <Image
+                  src={resolveIconSrc(network.iconSrc)}
+                  alt={network.description}
+                  width={imgWidth}
+                  height={imgHeight}
+                  class="social-network__image"
+                  loading="lazy"
+                />
+              </div>
 
-            <div class="social-network__content">
-              <h3 class="social-network__title">{network.title}</h3>
-              <p class="social-network__description">{network.description}</p>
-            </div>
-          </a>
-        </div>
-      ))
+              <div class="social-network__content">
+                <h3 class="social-network__title">{network.title}</h3>
+                <p class="social-network__description">{network.description}</p>
+              </div>
+            </a>
+          </div>
+        );
+      })
     ) : (
       <p class="social-network__empty">Currently meditating on new links. Please check back soon.</p>
     )
@@ -145,9 +151,51 @@ const delay = 100;
       }
     };
 
+    const TILT_MAX = 6;
+    const GLOW_SIZE = 250;
+
+    const setupCardInteractions = () => {
+      const cards = document.querySelectorAll('.social-network__card');
+
+      for (const card of cards) {
+        if (card.dataset.interactive === 'true') continue;
+        card.dataset.interactive = 'true';
+
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+
+          /* Glow position */
+          card.style.setProperty('--glow-x', `${x}px`);
+          card.style.setProperty('--glow-y', `${y}px`);
+
+          /* 3D tilt */
+          const rotateX = ((y - centerY) / centerY) * -TILT_MAX;
+          const rotateY = ((x - centerX) / centerX) * TILT_MAX;
+          card.style.setProperty('--tilt-x', `${rotateX}deg`);
+          card.style.setProperty('--tilt-y', `${rotateY}deg`);
+
+          card.classList.add('social-network__card--hover');
+        });
+
+        card.addEventListener('mouseleave', () => {
+          card.classList.remove('social-network__card--hover');
+          card.style.setProperty('--tilt-x', '0deg');
+          card.style.setProperty('--tilt-y', '0deg');
+        });
+      }
+    };
+
     if (typeof globalThis !== 'undefined') {
       revealSocialCards();
-      document.addEventListener('astro:page-load', revealSocialCards);
+      setupCardInteractions();
+      document.addEventListener('astro:page-load', () => {
+        revealSocialCards();
+        setupCardInteractions();
+      });
     }
   </script>
 )}
