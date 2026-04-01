@@ -30,13 +30,11 @@ const WORDS_PER_MINUTE = 200;
 const words = plainText.split(/\s+/).length;
 const readingTime = Math.ceil(words / WORDS_PER_MINUTE);
 
-// Get all posts for navigation
 const allPostsCollection = await getCollection("blog");
 const allPosts = allPostsCollection.toSorted(
   (postA, postB) => (postB.data.pubDate?.valueOf() ?? 0) - (postA.data.pubDate?.valueOf() ?? 0)
 );
 
-// Find current post index and adjacent posts
 const currentIndex = allPosts.findIndex(item => item.id === currentPostSlug);
 
 let previousPost;
@@ -124,6 +122,7 @@ const breadcrumbItems = [
       const hint = document.createElement('div');
       hint.className = `navigation-hint navigation-hint--${direction}`;
       hint.textContent = direction === 'previous' ? '\u2190 Previous' : 'Next \u2192';
+      hint.setAttribute('role', 'status');
       hint.setAttribute('aria-live', 'polite');
 
       document.body.append(hint);

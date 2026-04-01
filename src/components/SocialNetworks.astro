@@ -41,9 +41,8 @@ const networks = (userConfig.socialNetworks ?? []).filter(
   (network: NetworkType) => network.group === filter
 );
 
-// In compact variant, reorder for bento: row1=BlueSky,Instagram,X  row2=GitHub,LinkedIn
 if (variant === 'compact') {
-  const order = ['X', 'Instagram', 'BlueSky', 'GitHub', 'LinkedIn'];
+  const order = ['X', 'BlueSky', 'Instagram', 'GitHub', 'LinkedIn'];
   networks.sort((a: NetworkType, b: NetworkType) => {
     const ai = order.indexOf(a.title);
     const bi = order.indexOf(b.title);
@@ -106,7 +105,7 @@ const delay = 100;
         );
       })
     ) : (
-      <p class="social-network__empty">Currently meditating on new links. Please check back soon.</p>
+      <p class="social-network__empty">No links available yet.</p>
     )
   }
 </section>

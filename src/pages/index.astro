@@ -20,6 +20,7 @@ import Icon from "../components/Icon.astro";
 import ZenFade from "../components/zen/ZenFade.astro";
 import ZenHaikuReveal from "../components/client/zen-haiku-reveal";
 import ZenSlide from "../components/zen/ZenSlide.astro";
+import SakuraPetals from "../components/SakuraPetals.astro";
 import ZenTextReveal from "../components/client/zen-text-reveal";
 
 export interface Post {
@@ -72,7 +73,7 @@ const websiteSchema = {
       <div class="site-layout__content site-layout__content--home" id="main-content">
         <section class="latest-posts" aria-labelledby="latest-posts-heading">
           <ZenSlide direction="up" delay={200}>
-            <h2 id="latest-posts-heading" class="section-heading">
+            <h2 id="latest-posts-heading" class="section-heading zen-focus-reveal">
               <Icon name="book" size={24} class="section-heading__icon" aria-hidden={true} />
               Latest Reflections
             </h2>
@@ -241,5 +242,6 @@ const websiteSchema = {
       </div>
     </div>
 
+    <SakuraPetals />
   </body>
 </html>
