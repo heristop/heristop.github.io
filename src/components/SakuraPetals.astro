@@ -1,0 +1,124 @@
+---
+---
+
+<div id="sakura-container" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;" transition:persist="sakura"></div>
+
+<script is:inline>
+  (function() {
+    var PETAL_COUNT_MIN = 6;
+    var PETAL_COUNT_MAX = 10;
+    var DURATION = 1400;
+    var THROTTLE = 120;
+    var lastBurst = 0;
+    var bound = false;
+
+    var prefersReduced = globalThis.matchMedia && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function randomBetween(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function getContainer() {
+      var el = document.getElementById('sakura-container');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'sakura-container';
+        el.setAttribute('aria-hidden', 'true');
+        el.style.viewTransitionName = 'sakura';
+        el.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;view-transition-name:sakura;';
+        document.body.appendChild(el);
+      }
+      return el;
+    }
+
+    function createPetal(x, y) {
+      var petal = document.createElement('span');
+      var spreadX = randomBetween(-60, 60);
+      var fallY = randomBetween(80, 180);
+      var rotation = randomBetween(180, 540);
+      var size = randomBetween(8, 16);
+      var hueShift = randomBetween(-15, 15);
+      var delay = randomBetween(0, 200);
+      var sway = randomBetween(-30, 30);
+
+      petal.style.cssText = 'position:fixed;left:' + x + 'px;top:' + y + 'px;width:' + size + 'px;height:' + (size * 0.65) + 'px;border-radius:50% 0 50% 0;pointer-events:none;will-change:transform,opacity;z-index:9999;';
+      petal.style.background = 'oklch(75% 0.12 ' + (355 + hueShift) + 'deg / 80%)';
+      petal.style.boxShadow = '0 0 ' + (size * 0.4) + 'px oklch(75% 0.1 355deg / 35%)';
+
+      petal.animate([
+        {
+          opacity: 0.9,
+          transform: 'translate(0, 0) rotate(0deg) scale(1)'
+        },
+        {
+          opacity: 0.7,
+          transform: 'translate(' + (spreadX * 0.4 + sway) + 'px, ' + (fallY * 0.3) + 'px) rotate(' + (rotation * 0.3) + 'deg) scale(0.9)',
+          offset: 0.3
+        },
+        {
+          opacity: 0.4,
+          transform: 'translate(' + (spreadX * 0.7 - sway * 0.5) + 'px, ' + (fallY * 0.7) + 'px) rotate(' + (rotation * 0.7) + 'deg) scale(0.7)',
+          offset: 0.7
+        },
+        {
+          opacity: 0,
+          transform: 'translate(' + spreadX + 'px, ' + fallY + 'px) rotate(' + rotation + 'deg) scale(0.3)'
+        }
+      ], {
+        duration: DURATION + randomBetween(-200, 200),
+        delay: delay,
+        easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+        fill: 'forwards'
+      });
+
+      return petal;
+    }
+
+    function burst(x, y) {
+      var now = Date.now();
+      if (now - lastBurst < THROTTLE) return;
+      lastBurst = now;
+
+      var container = getContainer();
+      var count = Math.floor(randomBetween(PETAL_COUNT_MIN, PETAL_COUNT_MAX + 1));
+      var fragment = document.createDocumentFragment();
+
+      for (var i = 0; i < count; i++) {
+        fragment.appendChild(createPetal(x, y));
+      }
+
+      container.appendChild(fragment);
+
+      setTimeout(function() {
+        while (container.children.length > count * 3) {
+          if (container.firstChild) container.firstChild.remove();
+        }
+      }, DURATION + 300);
+    }
+
+    function init() {
+      getContainer();
+
+      if (bound || prefersReduced) return;
+      bound = true;
+
+      document.addEventListener('click', function(e) {
+        burst(e.clientX, e.clientY);
+      });
+
+      document.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 1) {
+          burst(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: true });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+    document.addEventListener('astro:page-load', init);
+  })();
+</script>
