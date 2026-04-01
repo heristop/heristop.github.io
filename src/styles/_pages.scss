@@ -422,6 +422,7 @@
 
       .social-share__icon {
         transform: scale(1.1);
+        filter: brightness(0) invert(1);
       }
     }
 

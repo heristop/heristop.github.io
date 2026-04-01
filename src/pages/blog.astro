@@ -122,7 +122,7 @@ const timeAgo = (date: Date) => {
       sortedYears.map((year, yearIndex) => (
         <section class="blog-archive__year" aria-labelledby={`year-${year}`}>
           <ZenSlide direction="up" delay={400 + yearIndex * 200}>
-            <h2 id={`year-${year}`} class="blog-archive__year-heading zen-focus-reveal">
+            <h2 id={`year-${year}`} class="blog-archive__year-heading">
               <Icon name="archive" size={20} class="blog-archive__year-icon" aria-hidden={true} />
 
               {year}
