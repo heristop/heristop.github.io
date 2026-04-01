@@ -9,7 +9,6 @@ import { getCollection } from "astro:content";
 export const getStaticPaths = async function getStaticPaths() {
   const posts = await getCollection("blog");
 
-  // Collect all unique tags
   const tags = new Set<string>();
   for (const post of posts) {
     const postTags = post.data.tags ?? [];
@@ -18,7 +17,6 @@ export const getStaticPaths = async function getStaticPaths() {
     }
   }
 
-  // Generate paths for each tag
   return [...tags].map(tag => ({
     params: { tag },
     props: { tag },
@@ -116,6 +114,7 @@ const timeAgo = (date: Date) => {
             data-bg={imageSrc ?? ""}
             data-prepared="false"
           >
+            <div class="zen-card__wash" aria-hidden="true"></div>
             {isoDate && post.data.pubDate && (
               <time class="blog-card__date" datetime={isoDate}>
                 <Icon name="calendar" size={14} class="blog-card__date-icon" aria-hidden={true} />
