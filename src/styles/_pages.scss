@@ -13,7 +13,6 @@
     gap: 0.85rem;
   }
 
-  /* Compact variant — all cards horizontal, bento grid */
   &--compact {
     @media screen and (width >= 48rem) {
       grid-template-columns: repeat(6, 1fr);
@@ -25,7 +24,7 @@
       }
     }
 
-    /* Last row with 2 remaining cards: widen to span 3 each, bigger logo */
+    /* span 3 each when 2 cards remain in the last row */
     &:has(:nth-child(5)) .social-network__card--standard:nth-child(n + 4) {
       @media screen and (width >= 48rem) {
         grid-column: span 3;
@@ -36,7 +35,7 @@
       }
     }
 
-    /* Last row with 1 remaining card: widen to full */
+    /* full-width when only 1 card remains in the last row */
     &:has(:nth-child(4)):not(:has(:nth-child(5))) .social-network__card--standard:nth-child(4) {
       @media screen and (width >= 48rem) {
         grid-column: span 6;
@@ -44,7 +43,6 @@
     }
   }
 
-  /* Bento spans when 3+ cards */
   &:has(:nth-child(3)) {
     .social-network__card--featured:nth-child(1) {
       @media screen and (width >= 48rem) {
@@ -64,7 +62,6 @@
     }
   }
 
-  /* --- Card base --- */
   &__card {
     --glow-x: 50%;
     --glow-y: 50%;
@@ -84,7 +81,6 @@
       box-shadow 500ms var(--zen-ease-gentle);
     transition-delay: var(--social-card-stagger, 0ms);
 
-    /* Mouse-tracking radial glow on surface */
     &::after {
       content: '';
       position: absolute;
@@ -101,11 +97,9 @@
       border-radius: inherit;
     }
 
-    /* Mouse-tracking warm edge glow */
     border: 1px solid transparent;
     background-clip: padding-box;
 
-    /* 3D tilt + glow active */
     &--hover {
       transform: perspective(800px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translate3d(0, 0, 0);
       border-color: color-mix(in oklch, var(--primary-color) 15%, transparent);
@@ -141,7 +135,6 @@
       }
     }
 
-    /* --- Featured card --- */
     &--featured {
       flex-direction: column;
       background: var(--surface-card-solid);
@@ -201,7 +194,6 @@
       }
     }
 
-    /* --- Standard card --- */
     &--standard {
       flex-direction: column;
       background: var(--surface-card-solid);
@@ -209,7 +201,6 @@
         0 1px 2px oklch(0% 0 0 / 5%),
         0 4px 12px -4px oklch(18% 0.03 350deg / 8%);
 
-      /* Left accent bar — ink brush stroke */
       &::before {
         content: '';
         position: absolute;
@@ -285,7 +276,6 @@
     }
   }
 
-  /* --- Shared sub-elements --- */
   &__link {
     display: flex;
     flex-direction: column;
@@ -347,7 +337,6 @@
         var(--zen-transition-timing) both;
   }
 
-  /* --- Projects variant: all cards get generous image space --- */
   &--projects {
     .social-network__card--standard {
       .social-network__link {
@@ -400,14 +389,12 @@
   }
 }
 
-/* Projects Page */
 .projects-page__heading {
   margin-top: 1.5rem;
   margin-bottom: 1rem;
 }
 
 
-/* SocialShare Component */
 .social-share {
   display: flex;
   flex-wrap: wrap;
@@ -476,7 +463,6 @@
 }
 
 
-/* ZazenWorld Component */
 .zazen-modal {
   position: fixed;
   z-index: 10;
@@ -587,7 +573,6 @@
 }
 
 
-/* Image container classes */
 .img-container {
   display: flex;
   width: 100%;
@@ -601,50 +586,49 @@
   gap: 0.5rem;
 }
 
-/* Image size variants */
 .img-responsive {
-  width: 66.67%; /* w-2/3 */
+  width: 66.67%;
   border: 2px solid var(--border-image);
 }
 
 .img-small {
-  width: 33.33%; /* w-1/3 */
+  width: 33.33%;
   border: 2px solid var(--border-image);
 }
 
 .img-large {
-  width: 80%; /* w-4/5 */
+  width: 80%;
   border: 2px solid var(--border-image);
 }
 
 .img-fixed-height {
-  height: 16rem; /* h-64 */
+  height: 16rem;
   border: 2px solid var(--border-image);
 }
 
 .img-medium {
-  width: 18rem; /* w-72 */
+  width: 18rem;
   border: 2px solid var(--border-image);
 }
 
 .img-half {
-  width: 50%; /* w-1/2 */
+  width: 50%;
   border: 2px solid var(--border-image);
 }
 
 .img-three-quarter {
-  width: 75%; /* w-3/4 */
+  width: 75%;
   border: 2px solid var(--border-image);
 }
 
 .img-rounded {
-  border-radius: 0.5rem; /* rounded-lg */
+  border-radius: 0.5rem;
 }
 
 .img-caption {
-  font-size: 0.75rem; /* text-xs */
+  font-size: 0.75rem;
   text-align: center;
-  color: var(--text-on-surface); /* text-gray-600 */
+  color: var(--text-on-surface);
 }
 
 .img-margin {
@@ -686,7 +670,6 @@
   margin-top: 0.25rem;
 }
 
-/* Avatar tooltip for Extra page */
 .site-footer__profile {
   position: relative;
 }
@@ -705,7 +688,10 @@
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.2s ease;
+  transition:
+    opacity var(--zen-duration-fast) var(--zen-ease-out),
+    transform var(--zen-duration-fast) var(--zen-ease-out),
+    visibility var(--zen-duration-fast);
   pointer-events: none;
   z-index: 10;
 
@@ -730,14 +716,12 @@
   transform: translateX(-50%) translateY(-2px);
 }
 
-/* Hide tooltip on mobile */
 @media (width <= 768px) {
   .site-footer__profile-tooltip {
     display: none;
   }
 }
 
-/* Extra link positioning under avatar */
 .site-footer__extra-link {
   position: absolute;
   bottom: -0.5rem;
@@ -759,7 +743,6 @@
   }
 }
 
-/* Make sure the about section has relative positioning for the absolute icon */
 .site-footer__about {
   position: relative;
 }

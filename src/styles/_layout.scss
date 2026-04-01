@@ -32,11 +32,20 @@
   view-transition-name: header-sticky;
 }
 
-/* --- View transition styling --- */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   background: var(--primary-bg-color);
   animation: none;
+}
+
+::view-transition-group(sakura) {
+  animation: none;
+}
+
+::view-transition-old(sakura),
+::view-transition-new(sakura) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 ::view-transition-group(layout-shell),
@@ -124,7 +133,6 @@
   }
 }
 
-/* Custom view transitions for ZazenWorld */
 ::view-transition-group(zazen-world) {
   animation-duration: calc(var(--zen-transition-duration) * 1.2);
   animation-timing-function: var(--zen-transition-timing);
@@ -263,7 +271,6 @@
   min-height: 18.75rem;
 }
 
-/* Body lock when search is open */
 .search-open {
   overflow: hidden;
 
@@ -274,7 +281,6 @@
   }
 }
 
-/* Mobile menu backdrop overlay */
 .mobile-menu-open {
   overflow: hidden;
 }
@@ -408,8 +414,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
     background: color-mix(in oklch, var(--primary-color) 10%, transparent);
     border-radius: 50%;
     color: var(--primary-color);
@@ -485,7 +491,6 @@
   }
 }
 
-/* Footer Responsive Design */
 @media screen and (width >= 640px) {
   .site-footer__container {
     grid-template-columns: 1fr 1fr;

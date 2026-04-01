@@ -285,8 +285,8 @@
 
   &__link-icon {
     color: var(--link-color-secondary);
-    transition: transform 0.35s var(--zen-ease-elegant);
-    opacity: 0.5;
+    transition: transform var(--zen-duration-normal) var(--zen-ease-elegant);
+    opacity: 0.6;
   }
 
   &__cta {

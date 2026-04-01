@@ -103,7 +103,6 @@
     border-color var(--zen-duration-normal) var(--zen-ease-out),
     box-shadow var(--zen-duration-normal) var(--zen-ease-out);
 
-  /* Focus shimmer sweep */
   &::before {
     content: '';
     position: absolute;
@@ -161,9 +160,11 @@
     border: none;
     cursor: pointer;
     border-radius: 50%;
+    min-width: 44px;
+    min-height: 44px;
     transition:
-      color 0.3s ease,
-      background-color 0.3s ease;
+      color var(--zen-duration-normal) var(--zen-ease-out),
+      background-color var(--zen-duration-normal) var(--zen-ease-out);
 
     &:hover, &:focus {
       color: color-mix(in oklch, var(--primary-color) 80%, transparent);
@@ -301,7 +302,6 @@
     line-height: 1.5;
   }
 
-  /* Responsive empty state */
   @media (width <= 480px) {
     padding: 2rem 1.5rem;
 
@@ -470,7 +470,6 @@
   }
 }
 
-/* Reduce motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .header__search-overlay,
   .header__search-container,
