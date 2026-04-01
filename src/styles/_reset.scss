@@ -99,15 +99,17 @@ h1[id],
 h2[id],
 h3[id],
 h4[id] {
+  position: relative;
   scroll-margin-top: 5rem;
 }
 
 .heading-anchor {
+  position: absolute;
+  left: -1.25em;
   color: var(--primary-color);
   text-decoration: none;
   opacity: 0;
   font-weight: 400;
-  margin-right: 0.25em;
   text-shadow: none;
   transition:
     opacity var(--zen-duration-fast) var(--zen-ease-out),
@@ -134,7 +136,6 @@ h4:hover > .heading-anchor,
   border-radius: 2px;
 }
 
-/* Global active press feedback */
 button:active:not(:disabled),
 [role="button"]:active {
   transform: scale(0.97);
@@ -250,7 +251,6 @@ hr {
   color: var(--text-secondary);
 }
 
-/* Reduced motion respect */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

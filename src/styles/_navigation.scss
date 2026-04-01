@@ -1,4 +1,3 @@
-/* Blog post keyboard navigation styles */
 .post-navigation-indicators {
   position: fixed;
   bottom: 2rem;
@@ -74,7 +73,6 @@
   }
 }
 
-/* Global Navigation Indicators */
 .global-navigation-indicators {
   position: fixed;
   bottom: 2rem;
@@ -179,7 +177,6 @@
   }
 }
 
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .post-nav-hint,
   .global-nav-hint {

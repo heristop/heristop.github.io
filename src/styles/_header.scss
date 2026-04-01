@@ -1,4 +1,3 @@
-/* Static Header Section */
 .site-header-static {
   position: relative;
   background: transparent;
@@ -19,7 +18,6 @@
   padding: var(--space-lg) 0 var(--space-md);
 }
 
-/* Initial Navigation (always visible) */
 .header__nav-initial {
   margin-bottom: var(--space-lg);
 }
@@ -32,7 +30,6 @@
   padding: var(--space-md) 0;
 }
 
-/* Sticky Navigation Bar */
 .site-header-nav {
   position: fixed;
   visibility: hidden;
@@ -46,7 +43,7 @@
     pointer-events: all;
   }
 
-  /* CSS custom properties driven by scroll JS */
+  /* driven by scroll JS */
   --nav-opacity: 0;
   --nav-translate: -100%;
   --nav-blur: 0px;
@@ -118,7 +115,6 @@
     position: relative;
   }
 
-  /* Magnetic sliding highlight */
   &__nav-highlight {
     position: absolute;
     top: 0;
@@ -135,7 +131,6 @@
     will-change: transform, width;
     z-index: 0;
 
-    /* Ink brush underline accent */
     &::after {
       content: '';
       position: absolute;
@@ -164,7 +159,6 @@
     }
   }
 
-  /* Active state highlight — always visible */
   &__nav-highlight--active {
     opacity: 1;
   }
@@ -184,7 +178,6 @@
       color: var(--heading-color);
     }
 
-    /* Remove the old underline pseudo-element */
     &::after {
       content: none;
     }
@@ -245,7 +238,6 @@
     box-shadow: var(--shadow-sm);
   }
 
-  /* Hamburger to X animation */
   &__mobile-toggle--active &__hamburger:nth-child(1) {
     transform: rotate(45deg) translate(5px, 5px);
     background: var(--accent-color);
@@ -374,7 +366,6 @@
 }
 
 
-/* Banner Styles */
 .banner {
   width: 100%;
   margin: var(--space-lg) 0;
@@ -403,12 +394,10 @@
   transform: scale(1.02);
 }
 
-/* Body lock when mobile menu is open */
 body.mobile-menu-open {
   overflow: hidden;
 }
 
-/* Animations */
 @keyframes slide-down {
   from {
     opacity: 0;
@@ -449,14 +438,12 @@ body.mobile-menu-open {
   }
 }
 
-/* Search functionality */
 .header__actions {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
 }
 
-/* Screen reader only class */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -501,8 +488,7 @@ body.mobile-menu-open {
     color: var(--accent-color);
   }
 
-  /* Enhanced touch targets for mobile */
-  @media (width <= 767px) {
+  @media (width < 48rem) {
     width: 3rem;
     height: 3rem;
     min-width: 44px;
@@ -516,7 +502,6 @@ body.mobile-menu-open {
   }
 }
 
-/* Header Component */
 .site-header__banner {
   position: relative;
   margin: 0 auto;
@@ -532,7 +517,6 @@ body.mobile-menu-open {
     box-shadow 600ms var(--zen-ease-out),
     transform 600ms var(--zen-ease-out);
 
-  /* Responsive height */
   height: clamp(90px, 12vh, 160px);
 
   @media screen and (width >= 768px) {
@@ -543,7 +527,6 @@ body.mobile-menu-open {
     height: clamp(180px, 20vh, 230px);
   }
 
-  /* Initial page load animation */
   animation: banner-reveal 1200ms var(--zen-ease-out) backwards;
 
   @media (prefers-reduced-motion: no-preference) {
@@ -598,7 +581,7 @@ body.mobile-menu-open {
   object-position: center;
   border-radius: var(--radius-lg);
 
-  /* --scroll-y set by JS on scroll */
+  /* --scroll-y set by JS */
   transform: translateY(calc(var(--scroll-y, 0px) * -0.1)) scale(1);
   will-change: transform;
   transition: transform 600ms var(--zen-ease-out);
@@ -636,7 +619,6 @@ body.mobile-menu-open {
     }
   }
 
-  /* Vignette */
   &::before {
     content: '';
     position: absolute;
@@ -652,25 +634,12 @@ body.mobile-menu-open {
 }
 
 
-/* Ken Burns animation keyframes */
-@keyframes zen-ken-burns {
-  0% {
-    transform: scale(1) translateX(0);
-  }
-
-  100% {
-    transform: scale(1.01) translateX(-0.5px);
-  }
-}
-
-/* Parallax effect on scroll */
 @media (prefers-reduced-motion: no-preference) {
   .site-header__banner-image {
     transform-origin: center bottom;
   }
 }
 
-/* Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .site-header__banner-image {
     animation: none !important;
@@ -706,9 +675,12 @@ body.mobile-menu-open {
   .header__hamburger {
     transition: none;
   }
+
+  .header__mobile-toggle--active .header__hamburger {
+    transform: none;
+  }
 }
 
-/* Responsive Design */
 @media screen and (width >= 768px) {
   .header__mobile-toggle {
     display: none;
@@ -743,13 +715,12 @@ body.mobile-menu-open {
   }
 }
 
-@media screen and (width <= 767px) {
-  /* Hide initial navigation completely on mobile */
+@media screen and (width < 48rem) {
   .header__nav-initial {
     display: none;
   }
 
-  /* Show sticky nav immediately on mobile - no background */
+  /* sticky nav on mobile has no background — it only wraps the hamburger */
   .site-header-nav {
     position: fixed;
     top: 0;
@@ -774,12 +745,10 @@ body.mobile-menu-open {
     display: none;
   }
 
-  /* Hide brand text on mobile - show only hamburger */
   .header__brand-mini {
     display: none;
   }
 
-  /* Position hamburger to the right */
   .header__nav-content {
     justify-content: flex-end;
   }
@@ -788,7 +757,6 @@ body.mobile-menu-open {
     padding: 0 var(--space-md);
   }
 
-  /* Ensure main title is properly sized and clickable on mobile */
   .title {
     font-size: 1.3rem;
     line-height: 1.2;
@@ -829,14 +797,12 @@ body.mobile-menu-open {
     line-height: 1.3;
   }
 
-  /* Additional mobile-specific search adjustments */
   .header__search-header {
     margin-bottom: var(--space-md);
   }
 
-  /* Ensure search appears above mobile navigation */
   .header__search-overlay {
-    /* Higher z-index to appear above mobile menu */
+    /* above mobile menu */
     z-index: 9999 !important;
     padding-top: 1rem;
   }
