@@ -48,6 +48,7 @@ const ZenTextReveal = ({ text, tag: Tag = "span", className, font = DEFAULT_FONT
       ref={(el: HTMLElement | null) => { containerRef.current = el; }}
       className={className}
       aria-label={text}
+      style={settled ? undefined : { contain: "content" as const }}
     >
       {lines.length === 0 && text}
       {settled ? (

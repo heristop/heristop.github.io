@@ -50,16 +50,13 @@
 
   opacity: 1;
   transform: translateY(var(--nav-translate));
-
   background: oklch(95% 0.01 75deg / calc(0.94 + var(--nav-opacity) * 0.06));
   backdrop-filter: blur(calc(8px + var(--nav-blur))) saturate(calc(1.1 + var(--nav-opacity) * 0.2));
   border-bottom: none;
-
   box-shadow:
-    0 4px 32px oklch(0% 0 0 / calc(0.02 + var(--nav-opacity) * 0.08)),
+    0 4px 32px oklch(0% 0 0deg / calc(0.02 + var(--nav-opacity) * 0.08)),
     0 8px 40px oklch(95% 0.01 75deg / calc(0.1 + var(--nav-opacity) * 0.15)),
-    0 1px 3px oklch(0% 0 0 / calc(0.05 + var(--nav-opacity) * 0.15));
-
+    0 1px 3px oklch(0% 0 0deg / calc(0.05 + var(--nav-opacity) * 0.15));
   transition:
     opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
     transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
@@ -67,7 +64,6 @@
     backdrop-filter 0.3s ease,
     border-color 0.3s ease,
     box-shadow 0.3s ease;
-
   will-change: transform, opacity;
 
   &--active {
@@ -234,7 +230,6 @@
     border-radius: 2px;
     transform-origin: center;
     position: relative;
-
     box-shadow: var(--shadow-sm);
   }
 
@@ -262,7 +257,7 @@
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     box-shadow:
-      0 20px 40px oklch(0% 0 0 / 15%),
+      0 20px 40px oklch(0% 0 0deg / 15%),
       0 1px 0 var(--border-glass) inset;
     backdrop-filter: none;
     position: fixed;
@@ -378,8 +373,8 @@
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow:
-    0 4px 6px -1px oklch(0% 0 0 / 10%),
-    0 2px 4px -2px oklch(0% 0 0 / 10%);
+    0 4px 6px -1px oklch(0% 0 0deg / 10%),
+    0 2px 4px -2px oklch(0% 0 0deg / 10%);
 }
 
 .banner .img {
@@ -509,14 +504,13 @@ body.mobile-menu-open {
   overflow: hidden;
   border-radius: var(--radius-lg);
   box-shadow:
-    0 20px 40px -12px oklch(0% 0 0 / 18%),
-    0 8px 16px -8px oklch(0% 0 0 / 12%),
-    0 4px 8px -4px oklch(0% 0 0 / 8%),
+    0 20px 40px -12px oklch(0% 0 0deg / 18%),
+    0 8px 16px -8px oklch(0% 0 0deg / 12%),
+    0 4px 8px -4px oklch(0% 0 0deg / 8%),
     inset 0 1px 0 var(--border-glass);
   transition:
     box-shadow 600ms var(--zen-ease-out),
     transform 600ms var(--zen-ease-out);
-
   height: clamp(90px, 12vh, 160px);
 
   @media screen and (width >= 768px) {
@@ -532,9 +526,9 @@ body.mobile-menu-open {
   @media (prefers-reduced-motion: no-preference) {
     &:hover {
       box-shadow:
-        0 30px 60px -15px oklch(0% 0 0 / 25%),
-        0 15px 30px -10px oklch(0% 0 0 / 18%),
-        0 8px 16px -6px oklch(0% 0 0 / 12%),
+        0 30px 60px -15px oklch(0% 0 0deg / 25%),
+        0 15px 30px -10px oklch(0% 0 0deg / 18%),
+        0 8px 16px -6px oklch(0% 0 0deg / 12%),
         inset 0 1px 0 var(--border-subtle);
       transform: translateY(-2px);
     }
@@ -585,7 +579,6 @@ body.mobile-menu-open {
   transform: translateY(calc(var(--scroll-y, 0px) * -0.1)) scale(1);
   will-change: transform;
   transition: transform 600ms var(--zen-ease-out);
-
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 
@@ -593,6 +586,11 @@ body.mobile-menu-open {
     .site-header__banner:hover & {
       transform: translateY(calc(var(--scroll-y, 0px) * -0.1)) scale(1.03);
     }
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    transition: none;
+    will-change: auto;
   }
 }
 
@@ -626,8 +624,8 @@ body.mobile-menu-open {
     background: radial-gradient(
       ellipse at center,
       transparent 20%,
-      oklch(0% 0 0 / 4%) 70%,
-      oklch(0% 0 0 / 8%) 100%
+      oklch(0% 0 0deg / 4%) 70%,
+      oklch(0% 0 0deg / 8%) 100%
     );
     border-radius: var(--radius-lg);
   }

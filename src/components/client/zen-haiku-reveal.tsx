@@ -1,20 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import dissolve from "./haiku-dissolve";
 import textReveal from "./use-text-reveal";
+import useHaikuAnimation from "./use-haiku-animation";
 import type { CharDrift } from "./use-text-reveal";
-import type { CharCacheEntry, Point } from "./haiku-dissolve";
+import type { CharCacheEntry } from "./haiku-dissolve";
 
-const { buildWordDrifts, getSmokeStyle, maxAnimationEnd, useReducedMotion } = textReveal;
-const { getHaikuCharClass, processCharEntry, resetElement } = dissolve;
+const { getSmokeStyle } = textReveal;
+const { processCharEntry, resetElement } = dissolve;
 
 interface Props {
   url: string;
 }
 
-const APPEAR_DELAY_MS = 200;
-const HAIKU_BASE_DURATION_MS = 1000;
-const BREATHE_BUFFER_MS = 300;
-const BREATHE_TIMEOUT_MS = 12_000;
 const DISSOLVE_RADIUS = 80;
 
 interface ContainerBox {
@@ -201,7 +198,7 @@ const useTouchEvents = (
     const el = containerRef.current;
     if (!el) { return; }
 
-    let touchStart: Point | undefined = undefined;
+    let touchStart: { px: number; py: number } | undefined;
     let touchActive = false;
 
     const onTouchStart = (event: TouchEvent) => {
@@ -268,46 +265,15 @@ const useCardPointer = (opts: CardPointerOptions) => {
 const ZenHaikuReveal = ({ url }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const charElsRef = useRef<Map<string, HTMLSpanElement>>(new Map());
-  const [appeared, setAppeared] = useState(false);
-  const [breathing, setBreathing] = useState(false);
-  const [autoSettled, setAutoSettled] = useState(false);
-  const reducedMotion = useReducedMotion();
   const text = useHaikuFetch(url);
+  const { appeared, autoSettled, charClass, reducedMotion, words } = useHaikuAnimation(text);
   const { apply, reset } = useProximityDissolve(charElsRef);
   const { onLeave, onMouseMove } = useCardPointer({ appeared, apply, containerRef, reducedMotion, reset });
-
-  useEffect(() => {
-    if (text === undefined || appeared || reducedMotion) { return; }
-    const timer = setTimeout(() => { setAppeared(true); }, APPEAR_DELAY_MS);
-    return () => { clearTimeout(timer); };
-  }, [text, appeared, reducedMotion]);
-
-  const words = useMemo(() => {
-    if (text !== undefined && text !== "") { return buildWordDrifts(text, HAIKU_BASE_DURATION_MS); }
-    return [];
-  }, [text]);
-
-  useEffect(() => {
-    if (!appeared || breathing || reducedMotion || words.length === 0) { return; }
-    const totalMs = maxAnimationEnd(words) + BREATHE_BUFFER_MS;
-    const timer = setTimeout(() => { setBreathing(true); }, totalMs);
-    return () => { clearTimeout(timer); };
-  }, [appeared, breathing, reducedMotion, words]);
-
-  useEffect(() => {
-    if (!breathing || autoSettled || reducedMotion) { return; }
-    const timer = setTimeout(() => { setAutoSettled(true); }, BREATHE_TIMEOUT_MS);
-    return () => { clearTimeout(timer); };
-  }, [breathing, autoSettled, reducedMotion]);
 
   const setCharRef = useCallback((key: string, el: HTMLSpanElement | null) => {
     if (el) { charElsRef.current.set(key, el); }
     else { charElsRef.current.delete(key); }
   }, []);
-
-  const charClass = autoSettled
-    ? "haiku-char--settled"
-    : getHaikuCharClass(reducedMotion, breathing, appeared);
 
   const collapsed = autoSettled || reducedMotion;
 
