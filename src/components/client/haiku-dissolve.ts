@@ -6,11 +6,19 @@ const DISSOLVE_ROTATION_FACTOR = 0.4;
 const DISSOLVE_SCALE_FACTOR = 0.08;
 const DISSOLVE_BLUR_MAX = 0.6;
 const DISSOLVE_EASE_POWER = 1.5;
-const DISSOLVE_TRANSITION =
+const DISSOLVE_TRANSITION_FULL =
   "opacity 120ms ease, transform 120ms ease, filter 120ms ease, color 120ms ease";
-const RECOVER_TRANSITION =
+const DISSOLVE_TRANSITION_LIGHT =
+  "opacity 120ms ease, transform 120ms ease, color 120ms ease";
+const RECOVER_TRANSITION_FULL =
   "opacity 650ms var(--zen-ease-spring), transform 650ms var(--zen-ease-spring), filter 650ms var(--zen-ease-spring), color 650ms var(--zen-ease-spring)";
+const RECOVER_TRANSITION_LIGHT =
+  "opacity 650ms var(--zen-ease-spring), transform 650ms var(--zen-ease-spring), color 650ms var(--zen-ease-spring)";
 const ACCENT_COLOR = "#c2185b";
+
+const touchDevice =
+  typeof globalThis.matchMedia === "function" &&
+  globalThis.matchMedia("(hover: none) and (pointer: coarse)").matches;
 const DISSOLVE_COLOR_PCT_MAX = 60;
 const COLOR_FULL = 100;
 const COLOR_CACHE = new Map<number, string>();
@@ -28,7 +36,13 @@ interface CharCacheEntry {
   py: number;
 }
 
-const applyDissolveToElement = (el: HTMLSpanElement, intensity: number, driftX: number, driftY: number, driftR: number) => {
+const applyDissolveToElement = (
+  el: HTMLSpanElement,
+  intensity: number,
+  driftX: number,
+  driftY: number,
+  driftR: number,
+) => {
   const eased = intensity ** DISSOLVE_EASE_POWER;
   const scale = 1 - eased * DISSOLVE_SCALE_FACTOR;
   const colorPct = Math.round(eased * DISSOLVE_COLOR_PCT_MAX);
@@ -41,17 +55,23 @@ const applyDissolveToElement = (el: HTMLSpanElement, intensity: number, driftX: 
 
   el.style.opacity = `${1 - eased * DISSOLVE_OPACITY_FACTOR}`;
   el.style.transform = `translate(${driftX * eased * DISSOLVE_DRIFT_FACTOR}px, ${driftY * eased * DISSOLVE_DRIFT_FACTOR}px) rotate(${driftR * eased * DISSOLVE_ROTATION_FACTOR}deg) scale(${scale})`;
-  el.style.filter = `blur(${eased * DISSOLVE_BLUR_MAX}px)`;
+  el.style.filter = touchDevice
+    ? "none"
+    : `blur(${eased * DISSOLVE_BLUR_MAX}px)`;
   el.style.color = cachedColor;
-  el.style.transition = DISSOLVE_TRANSITION;
+  el.style.transition = touchDevice
+    ? DISSOLVE_TRANSITION_LIGHT
+    : DISSOLVE_TRANSITION_FULL;
 };
 
 const resetElement = (el: HTMLSpanElement) => {
   el.style.opacity = "1";
   el.style.transform = "translate(0, 0) rotate(0deg) scale(1)";
-  el.style.filter = "blur(0)";
+  el.style.filter = touchDevice ? "" : "blur(0)";
   el.style.color = "";
-  el.style.transition = RECOVER_TRANSITION;
+  el.style.transition = touchDevice
+    ? RECOVER_TRANSITION_LIGHT
+    : RECOVER_TRANSITION_FULL;
 };
 
 interface CharEntryContext {
@@ -93,7 +113,13 @@ const processCharEntry = (ctx: CharEntryContext) => {
     return;
   }
   const intensity = 1 - Math.sqrt(distSq) / DISSOLVE_RADIUS;
-  applyDissolveToElement(el, intensity, cached.driftX, cached.driftY, cached.driftR);
+  applyDissolveToElement(
+    el,
+    intensity,
+    cached.driftX,
+    cached.driftY,
+    cached.driftR,
+  );
   nextDissolved.add(key);
 };
 

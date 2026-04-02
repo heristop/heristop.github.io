@@ -333,3 +333,34 @@
     will-change: auto !important;
   }
 }
+
+@media (hover: none) and (pointer: coarse) {
+  .haiku-char--smoke {
+    filter: none;
+    will-change: transform, opacity;
+  }
+
+  .haiku-char--appear {
+    filter: none;
+    transition:
+      opacity var(--char-duration, 900ms) var(--zen-ease-elegant) var(--char-delay, 0ms),
+      transform var(--char-duration, 900ms) var(--zen-ease-elegant) var(--char-delay, 0ms);
+    will-change: transform, opacity;
+  }
+
+  .haiku-char--dissolve {
+    filter: none;
+    transition:
+      opacity 800ms var(--zen-ease-out),
+      transform 800ms var(--zen-ease-out);
+  }
+
+  .haiku-char--breathe {
+    animation: none;
+  }
+
+  .zen-focus-reveal {
+    filter: none;
+    will-change: transform, opacity;
+  }
+}

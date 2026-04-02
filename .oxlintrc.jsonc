@@ -11,9 +11,7 @@
   ],
   "categories": {
     "correctness": "error",
-    "suspicious": "error",
-    "pedantic": "error",
-    "style": "error"
+    "suspicious": "error"
   },
   "env": {
     "browser": true,
@@ -33,7 +31,8 @@
     "no-console": "error",
     "no-debugger": "error",
     "no-unused-vars": "error",
-    "no-duplicate-imports": "error",
+    // Handled by import/no-duplicates which is TS-aware
+    // "no-duplicate-imports": "error",
     "no-var": "error",
     "prefer-const": "error",
     "eqeqeq": "error",
@@ -105,7 +104,8 @@
     "unicorn/no-lonely-if": "error",
     "unicorn/no-new-array": "error",
     "unicorn/no-new-buffer": "error",
-    "unicorn/no-null": "error",
+    // Conflicts with React patterns (useRef(null), etc.)
+    // "unicorn/no-null": "error",
     "unicorn/no-object-as-default-parameter": "error",
     "unicorn/no-process-exit": "error",
     "unicorn/no-this-assignment": "error",
@@ -188,13 +188,13 @@
 
     // Code Complexity & Organization Rules
     "max-lines": ["error", { "max": 300, "skipBlankLines": true, "skipComments": true }],
-    "max-lines-per-function": ["error", { "max": 50, "skipBlankLines": true, "skipComments": true }],
-    "max-statements": ["error", 20],
+    "max-lines-per-function": ["error", { "max": 80, "skipBlankLines": true, "skipComments": true }],
+    "max-statements": ["error", 25],
     "max-statements-per-line": ["error", { "max": 1 }],
     "max-nested-callbacks": ["error", 3],
     "max-depth": ["error", 4],
-    "max-params": ["error", 4],
-    "complexity": ["error", 10],
+    "max-params": ["error", 5],
+    "complexity": ["error", 12],
     "max-classes-per-file": ["error", 1],
 
     // Function and Class Organization

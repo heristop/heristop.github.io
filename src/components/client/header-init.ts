@@ -226,14 +226,20 @@ const initializeStickyNav = (): void => {
 /* ── Magnetic nav highlight ── */
 
 const setupNavHighlight = (navContainer: Element | null): void => {
-  if (!(navContainer instanceof HTMLElement)) return;
-  if (navContainer.dataset.highlightInit === "true") return;
+  if (!(navContainer instanceof HTMLElement)) {
+    return;
+  }
+  if (navContainer.dataset.highlightInit === "true") {
+    return;
+  }
   navContainer.dataset.highlightInit = "true";
 
   const highlight = navContainer.querySelector(
     ".header__nav-highlight",
   ) as HTMLElement | null;
-  if (!highlight) return;
+  if (!highlight) {
+    return;
+  }
 
   const links = navContainer.querySelectorAll(".header__link");
   const activeLink = navContainer.querySelector(
@@ -309,6 +315,9 @@ const updateParallax = (): void => {
 };
 
 const initializeParallax = (): void => {
+  if (isMobile()) {
+    return;
+  }
   globalThis.addEventListener("scroll", updateParallax, { passive: true });
   updateParallax();
 };
