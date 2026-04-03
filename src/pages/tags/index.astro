@@ -96,11 +96,42 @@ const delay = 50;
     padding: var(--space-xs) var(--space-sm);
     border-radius: var(--radius-md);
     text-decoration: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    transition:
+      transform 280ms var(--zen-ease-elegant),
+      color 250ms,
+      border-color 250ms;
+  }
+
+  .tags-page__tag::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: color-mix(in oklch, var(--primary-color) 10%, transparent);
+    transform: translateX(-101%);
+    transition: transform 350ms var(--zen-ease-elegant);
+    pointer-events: none;
+    border-radius: inherit;
   }
 
   .tags-page__tag:hover {
     transform: translateY(-2px);
+    color: var(--primary-color);
+  }
+
+  .tags-page__tag:hover::before {
+    transform: translateX(0);
+  }
+
+  .tags-page__tag:active {
+    transform: scale(0.97);
+    transition: transform 80ms;
+  }
+
+  .tags-page__tag:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 3px;
   }
 
   .tags-page__tag-icon {

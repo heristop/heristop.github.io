@@ -88,7 +88,9 @@ const websiteSchema = {
                       <a class="latest-posts__link zen-hover-lift" href={`/blog/${post.id}/`}>
                         {post.data.pubDate && (
                           <span class="post-list__date latest-posts__date">
-                            <FormattedDate date={post.data.pubDate} />
+                            <span class="latest-posts__date-pill">
+                              <FormattedDate date={post.data.pubDate} />
+                            </span>
                           </span>
                         )}
                         <ZenTextReveal client:visible text={post.data.title} className="latest-posts__title" />
@@ -117,7 +119,7 @@ const websiteSchema = {
           <script type="module" is:inline>
             const initPanelGlow = () => {
               const panel = document.querySelector('.latest-posts__panel');
-              if (!panel) return;
+              if (!panel) {return;}
               panel.addEventListener('mousemove', (e) => {
                 const rect = panel.getBoundingClientRect();
                 panel.style.setProperty('--glow-x', `${e.clientX - rect.left}px`);
