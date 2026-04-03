@@ -62,14 +62,14 @@ h1 {
   font-size: 1.25em;
   font-weight: 700;
   margin: 0 0 var(--space-md) 0;
-  text-shadow: 0 1px 0 oklch(0% 0 0 / 8%);
+  text-shadow: 0 1px 0 oklch(0% 0 0deg / 8%);
 }
 
 h2 {
   font-size: 1.15em;
   font-weight: 600;
   margin: var(--space-lg) 0 var(--space-md) 0;
-  text-shadow: 0 1px 0 oklch(0% 0 0 / 8%);
+  text-shadow: 0 1px 0 oklch(0% 0 0deg / 8%);
 }
 
 .icon-heading {
@@ -165,6 +165,7 @@ a {
   }
 
   /* Suppress underline on button-styled and icon links */
+  &.latest-posts__link::after,
   &.latest-posts__cta::after,
   &.site-footer__social-link::after,
   &.social-share__link::after,

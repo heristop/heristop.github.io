@@ -71,6 +71,18 @@
     pointer-events: all;
   }
 
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--primary-color) 30%, transparent), transparent);
+    opacity: var(--nav-opacity, 0);
+    pointer-events: none;
+  }
+
   &__container {
     width: 100%;
     padding: 0 var(--space-md);
@@ -97,10 +109,13 @@
   &__brand-link {
     color: var(--primary-color);
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition:
+      color 0.2s ease,
+      letter-spacing 600ms var(--zen-ease-elegant);
 
     &:hover {
       color: var(--link-color-secondary-hover);
+      letter-spacing: 0.03em;
     }
   }
 
@@ -181,6 +196,31 @@
     &.active {
       color: var(--heading-color);
       font-weight: 600;
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        animation: dot-appear 300ms var(--zen-ease-elegant) both;
+      }
+    }
+  }
+
+  @keyframes dot-appear {
+    from {
+      transform: translateX(-50%) scale(0);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(-50%) scale(1);
+      opacity: 1;
     }
   }
 
@@ -462,10 +502,38 @@ body.mobile-menu-open {
   cursor: pointer;
   border-radius: var(--radius-md);
   color: var(--link-color-secondary);
+  position: relative;
   transition:
     background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     color 0.2s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    border: 2px solid color-mix(in oklch, var(--primary-color) 40%, transparent);
+    opacity: 0;
+    animation: search-pulse 2s var(--zen-ease-elegant) 1.5s 2 both;
+    pointer-events: none;
+  }
+
+  @keyframes search-pulse {
+    0% {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+
+    30% {
+      opacity: 1;
+    }
+
+    100% {
+      transform: scale(1.2);
+      opacity: 0;
+    }
+  }
 
   &:hover {
     background: color-mix(in oklch, var(--link-color-secondary) 12%, transparent);
@@ -488,6 +556,17 @@ body.mobile-menu-open {
     height: 3rem;
     min-width: 44px;
     min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header__search-toggle::before {
+    animation: none;
+    display: none;
+  }
+
+  .header__link.active::after {
+    animation: none;
   }
 }
 
