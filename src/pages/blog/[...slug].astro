@@ -98,6 +98,14 @@ const breadcrumbItems = [
 
     <Content />
 
+    <div class="post-page__share-bottom">
+      <SocialShare
+        class="post-page__share-links"
+        title={post.data.title}
+        slug={currentPostSlug}
+      />
+    </div>
+
     <blockquote class="post-page__endquote">
       <RecommendedPosts {currentPostSlug} {conclusion} />
     </blockquote>
