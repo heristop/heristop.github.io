@@ -106,19 +106,26 @@ const shareLinks = [
         } catch {
           // Ignore share errors (e.g. user cancelled)
         }
-      } else if (canCopy) {
-        await navigator.clipboard.writeText(url);
-        const icon = btn.querySelector('.social-share__icon') as HTMLElement | null;
-        if (icon) {
-          const originalSrc = icon.getAttribute('src');
-          icon.setAttribute('src', '/icons/feather.svg#check');
-          icon.style.filter = 'none';
-          setTimeout(() => {
-            icon.setAttribute('src', originalSrc ?? '/icons/share.svg');
-            icon.style.filter = '';
-          }, SHARE_FEEDBACK_DURATION);
-        }
+        return;
       }
+
+      if (!canCopy) {
+        return;
+      }
+
+      await navigator.clipboard.writeText(url);
+      const icon = btn.querySelector('.social-share__icon') as HTMLElement | null;
+      if (!icon) {
+        return;
+      }
+
+      const originalSrc = icon.getAttribute('src');
+      icon.setAttribute('src', '/icons/feather.svg#check');
+      icon.style.filter = 'none';
+      setTimeout(() => {
+        icon.setAttribute('src', originalSrc ?? '/icons/share.svg');
+        icon.style.filter = '';
+      }, SHARE_FEEDBACK_DURATION);
     });
   }
 </script>
