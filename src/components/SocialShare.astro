@@ -56,4 +56,69 @@ const shareLinks = [
       </a>
     ))
   }
+  <button
+    class:list={[
+      'social-share__link',
+      'social-share__native-btn',
+      minimal ? 'social-share__link--minimal' : 'social-share__link--full',
+    ]}
+    data-share-title={title}
+    data-share-url={url}
+    aria-label="Share"
+    hidden
+  >
+    <img
+      src="/icons/share.svg"
+      alt="Share"
+      width="20"
+      height="20"
+      class:list={[
+        'social-share__icon',
+        { 'social-share__icon--with-text': !minimal },
+      ]}
+    />
+    {!minimal && (
+      <span class="social-share__text">Share</span>
+    )}
+  </button>
 </div>
+
+<script>
+  const SHARE_FEEDBACK_DURATION = 1500;
+  const shareButtons = document.querySelectorAll('.social-share__native-btn');
+
+  for (const el of shareButtons) {
+    const btn = el as HTMLElement;
+    const canShare = typeof navigator.share !== 'undefined';
+    const canCopy = typeof navigator.clipboard !== 'undefined' && typeof navigator.clipboard.writeText !== 'undefined';
+
+    if (canShare || canCopy) {
+      btn.removeAttribute('hidden');
+    }
+
+    btn.addEventListener('click', async () => {
+      const title = btn.getAttribute('data-share-title') ?? '';
+      const url = btn.getAttribute('data-share-url') ?? '';
+
+      if (canShare) {
+        try {
+          await navigator.share({ title, url });
+        } catch {
+          // Ignore share errors (e.g. user cancelled)
+        }
+      } else if (canCopy) {
+        await navigator.clipboard.writeText(url);
+        const icon = btn.querySelector('.social-share__icon') as HTMLElement | null;
+        if (icon) {
+          const originalSrc = icon.getAttribute('src');
+          icon.setAttribute('src', '/icons/feather.svg#check');
+          icon.style.filter = 'none';
+          setTimeout(() => {
+            icon.setAttribute('src', originalSrc ?? '/icons/share.svg');
+            icon.style.filter = '';
+          }, SHARE_FEEDBACK_DURATION);
+        }
+      }
+    });
+  }
+</script>
