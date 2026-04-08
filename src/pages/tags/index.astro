@@ -1,12 +1,10 @@
 ---
 import { getCollection } from "astro:content";
-import Icon from "../../components/Icon.astro";
 import Layout from "../../layouts/Layout.astro";
 import ZenSlide from "../../components/zen/ZenSlide.astro";
 
 const posts = await getCollection("blog");
 
-// Collect all tags with their counts
 const tagCounts = new Map<string, number>();
 for (const post of posts) {
   const tags = post.data.tags ?? [];
@@ -15,10 +13,8 @@ for (const post of posts) {
   }
 }
 
-// Sort tags alphabetically
 const sortedTags = [...tagCounts.entries()].toSorted((entryA, entryB) => entryA[0].localeCompare(entryB[0]));
-
-const delay = 50;
+const maxCount = Math.max(...tagCounts.values());
 ---
 
 <Layout title="Tags" description="Browse blog posts by tag">
@@ -30,122 +26,111 @@ const delay = 50;
 
   <div class="tags-page">
     <ZenSlide direction="up" delay={400}>
-      <div class="tags-page__grid">
-        {sortedTags.map(([tag, count], index) => (
-          <a
-            class="zen-card tags-page__tag"
-            href={`/tags/${tag}/`}
-            style={`--zen-card-stagger: ${delay * index}ms`}
-            data-prepared="false"
-          >
-            <Icon name="tag" size={18} class="tags-page__tag-icon" aria-hidden={true} />
-            <span class="tags-page__tag-name">{tag}</span>
-            <span class="tags-page__tag-count">{count} {count === 1 ? 'post' : 'posts'}</span>
-          </a>
-        ))}
+      <div class="tags-page__cloud">
+        {sortedTags.map(([tag, count]) => {
+          const weight = Math.min(count / maxCount, 1);
+          const sizeClass = weight > 0.6 ? "tags-page__pill--lg" : weight > 0.25 ? "tags-page__pill--md" : "";
+          return (
+            <a
+              class={`tags-page__pill ${sizeClass}`}
+              href={`/tags/${tag}/`}
+            >
+              <span class="tags-page__pill-name">{tag}</span>
+              <span class="tags-page__pill-count">{count}</span>
+            </a>
+          );
+        })}
       </div>
     </ZenSlide>
 
     {sortedTags.length === 0 && (
       <ZenSlide direction="up" delay={400}>
-        <p class="tags-page__empty">No tags found. Start adding tags to your blog posts!</p>
+        <p class="tags-page__empty">No tags found.</p>
       </ZenSlide>
     )}
   </div>
-
-  <script type="module" is:inline>
-    const revealZenCards = () => {
-      const cards = document.querySelectorAll('.zen-card[data-prepared="false"]');
-      if (cards.length === 0) {return;}
-
-      for (const card of cards) {
-        card.dataset.prepared = 'true';
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            card.classList.add('zen-card--visible');
-          });
-        });
-      }
-    };
-
-    if (typeof globalThis !== 'undefined') {
-      revealZenCards();
-      document.addEventListener('astro:page-load', revealZenCards);
-    }
-  </script>
 </Layout>
 
 <style>
   .tags-page__intro {
     text-align: center;
     color: var(--text-secondary);
-    margin-bottom: var(--space-lg);
+    margin-bottom: 2rem;
   }
 
-  .tags-page__grid {
+  .tags-page__cloud {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-sm);
+    gap: 0.5rem;
     justify-content: center;
+    max-width: 50rem;
+    margin: 0 auto;
   }
 
-  .tags-page__tag {
+  .tags-page__pill {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-xs);
-    padding: var(--space-xs) var(--space-sm);
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    position: relative;
-    overflow: hidden;
-    transition:
-      transform 280ms var(--zen-ease-elegant),
-      color 250ms,
-      border-color 250ms;
-  }
-
-  .tags-page__tag::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: color-mix(in oklch, var(--primary-color) 10%, transparent);
-    transform: translateX(-101%);
-    transition: transform 350ms var(--zen-ease-elegant);
-    pointer-events: none;
-    border-radius: inherit;
-  }
-
-  .tags-page__tag:hover {
-    transform: translateY(-2px);
-    color: var(--primary-color);
-  }
-
-  .tags-page__tag:hover::before {
-    transform: translateX(0);
-  }
-
-  .tags-page__tag:active {
-    transform: scale(0.97);
-    transition: transform 80ms;
-  }
-
-  .tags-page__tag:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 3px;
-  }
-
-  .tags-page__tag-icon {
-    opacity: 0.6;
-  }
-
-  .tags-page__tag-name {
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--primary-color) 8%, transparent);
+    border: 1px solid color-mix(in oklch, var(--primary-color) 12%, transparent);
+    color: var(--link-color-secondary);
+    font-size: 0.85rem;
     font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transition:
+      background-color var(--zen-duration-fast) var(--zen-ease-out),
+      border-color var(--zen-duration-fast) var(--zen-ease-out),
+      color var(--zen-duration-fast) var(--zen-ease-out),
+      transform var(--zen-duration-fast) var(--zen-ease-out);
+
+    &::after {
+      content: none;
+    }
+
+    &:hover {
+      background: color-mix(in oklch, var(--primary-color) 16%, transparent);
+      border-color: color-mix(in oklch, var(--primary-color) 28%, transparent);
+      color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: scale(0.97);
+      transition-duration: 80ms;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
   }
 
-  .tags-page__tag-count {
-    font-size: 0.875rem;
+  .tags-page__pill--md {
+    font-size: 0.95rem;
+    padding: 0.4rem 1rem;
+    font-weight: 600;
+  }
+
+  .tags-page__pill--lg {
+    font-size: 1.05rem;
+    padding: 0.45rem 1.15rem;
+    font-weight: 600;
+    background: color-mix(in oklch, var(--primary-color) 12%, transparent);
+    border-color: color-mix(in oklch, var(--primary-color) 18%, transparent);
+  }
+
+  .tags-page__pill-count {
+    font-size: 0.7em;
+    padding: 0.1rem 0.35rem;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--primary-color) 10%, transparent);
     color: var(--text-secondary);
-    margin-left: var(--space-xs);
+    font-weight: 500;
+    min-width: 1.2em;
+    text-align: center;
   }
 
   .tags-page__empty {
