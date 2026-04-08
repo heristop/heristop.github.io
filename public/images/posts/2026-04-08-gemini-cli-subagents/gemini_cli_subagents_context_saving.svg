@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 680 490" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .title { font-size: 18px; font-weight: 500; fill: #2C2C2A; }
+      .label { font-size: 14px; font-weight: 500; }
+      .sub { font-size: 12px; font-weight: 400; }
+      .caption { font-size: 12px; font-weight: 400; fill: #5F5E5A; }
+      .arr { stroke-width: 1.5; fill: none; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text class="title" x="340" y="28" text-anchor="middle">How Gemini CLI sub-agents save your context</text>
+
+  <!-- Main agent -->
+  <rect x="220" y="52" width="240" height="62" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+  <text class="label" x="340" y="76" text-anchor="middle" fill="#3C3489">Main agent</text>
+  <text class="sub" x="340" y="96" text-anchor="middle" fill="#534AB7">Context stays lean</text>
+
+  <!-- Delegation arrows -->
+  <line x1="290" y1="116" x2="140" y2="170" class="arr" stroke="#534AB7" marker-end="url(#arrow)"/>
+  <line x1="340" y1="116" x2="340" y2="170" class="arr" stroke="#534AB7" marker-end="url(#arrow)"/>
+  <line x1="390" y1="116" x2="540" y2="170" class="arr" stroke="#534AB7" marker-end="url(#arrow)"/>
+  <text class="caption" x="205" y="145" text-anchor="middle">delegates task</text>
+
+  <!-- Sub-agent 1: investigator -->
+  <rect x="40" y="176" width="200" height="190" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8" stroke-dasharray="4 3"/>
+  <text class="label" x="140" y="198" text-anchor="middle" fill="#085041">codebase-investigator</text>
+  <text class="sub" x="140" y="216" text-anchor="middle" fill="#0F6E56">Isolated context loop</text>
+  <rect x="58" y="232" width="164" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="140" y="247" text-anchor="middle" fill="#04342C">read_file, grep</text>
+  <rect x="58" y="260" width="164" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="140" y="275" text-anchor="middle" fill="#04342C">~50k tokens burned</text>
+  <rect x="58" y="288" width="164" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="140" y="303" text-anchor="middle" fill="#04342C">multi-turn reasoning</text>
+  <rect x="58" y="316" width="164" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="140" y="331" text-anchor="middle" fill="#04342C">model: flash, temp 0.2</text>
+
+  <!-- Sub-agent 2: security-auditor -->
+  <rect x="250" y="176" width="180" height="190" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8" stroke-dasharray="4 3"/>
+  <text class="label" x="340" y="198" text-anchor="middle" fill="#085041">security-auditor</text>
+  <text class="sub" x="340" y="216" text-anchor="middle" fill="#0F6E56">Isolated context loop</text>
+  <rect x="268" y="232" width="144" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="340" y="247" text-anchor="middle" fill="#04342C">read-only tools</text>
+  <rect x="268" y="260" width="144" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="340" y="275" text-anchor="middle" fill="#04342C">~30k tokens burned</text>
+  <rect x="268" y="288" width="144" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="340" y="303" text-anchor="middle" fill="#04342C">vulnerability scan</text>
+  <rect x="268" y="316" width="144" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="340" y="331" text-anchor="middle" fill="#04342C">model: pro, temp 0.2</text>
+
+  <!-- Sub-agent 3: docs-writer -->
+  <rect x="440" y="176" width="200" height="190" rx="12" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8" stroke-dasharray="4 3"/>
+  <text class="label" x="540" y="198" text-anchor="middle" fill="#085041">docs-writer</text>
+  <text class="sub" x="540" y="216" text-anchor="middle" fill="#0F6E56">Isolated context loop</text>
+  <rect x="458" y="232" width="164" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="540" y="247" text-anchor="middle" fill="#04342C">write_file</text>
+  <rect x="458" y="260" width="164" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="540" y="275" text-anchor="middle" fill="#04342C">~20k tokens burned</text>
+  <rect x="458" y="288" width="164" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="540" y="303" text-anchor="middle" fill="#04342C">drafts output</text>
+  <rect x="458" y="316" width="164" height="22" rx="4" fill="#9FE1CB"/>
+  <text class="sub" x="540" y="331" text-anchor="middle" fill="#04342C">model: pro, temp 0.9</text>
+
+  <!-- Return arrows -->
+  <line x1="140" y1="372" x2="290" y2="424" class="arr" stroke="#0F6E56" marker-end="url(#arrow)"/>
+  <line x1="340" y1="372" x2="340" y2="424" class="arr" stroke="#0F6E56" marker-end="url(#arrow)"/>
+  <line x1="540" y1="372" x2="390" y2="424" class="arr" stroke="#0F6E56" marker-end="url(#arrow)"/>
+  <text class="caption" x="475" y="400" text-anchor="middle" fill="#0F6E56">returns summary</text>
+
+  <!-- Final consolidated summary -->
+  <rect x="220" y="424" width="240" height="52" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+  <text class="label" x="340" y="446" text-anchor="middle" fill="#633806">One consolidated report</text>
+  <text class="sub" x="340" y="464" text-anchor="middle" fill="#854F0B">~2k tokens hit main context</text>
+</svg>
