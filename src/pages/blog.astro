@@ -11,6 +11,7 @@ export interface Post {
     pubDate?: Date;
     title: string;
     image?: string;
+    tags?: string[];
   };
 }
 
@@ -67,12 +68,14 @@ const timeAgo = (date: Date) => {
   const months = Math.floor(days / DAYS_PER_MONTH);
   const years = Math.floor(days / DAYS_PER_YEAR);
 
+  if (days < 1) {
+    return "Today";
+  }
+
   const timeUnits: [number, string][] = [
     [years, "year"],
     [months, "month"],
     [days, "day"],
-    [hours, "hour"],
-    [minutes, "minute"],
   ];
 
   for (const [value, unit] of timeUnits) {
@@ -81,7 +84,7 @@ const timeAgo = (date: Date) => {
     }
   }
 
-  return "Just now";
+  return "Today";
 };
 ---
 
@@ -154,6 +157,14 @@ const timeAgo = (date: Date) => {
                         <FormattedDate date={post.data.pubDate} />
                         <span class="blog-card__date-relative">{timeAgo(post.data.pubDate)}</span>
                       </time>
+                    )}
+
+                    {post.data.tags && post.data.tags.length > 0 && (
+                      <div class="blog-card__tags">
+                        {post.data.tags.slice(0, 2).map((tag: string) => (
+                          <span class="blog-card__tag">{tag}</span>
+                        ))}
+                      </div>
                     )}
 
                     <h3 class="blog-card__title">{post.data.title}</h3>
