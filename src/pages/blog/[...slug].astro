@@ -357,6 +357,14 @@ const breadcrumbItems = [
       const scrollBtn = document.querySelector('.scroll-to-top');
       if (!bar || !scrollBtn) return;
 
+      const stickyNav = document.querySelector('#sticky-nav');
+      if (stickyNav) {
+        stickyNav.append(bar);
+      }
+      if (!stickyNav) {
+        bar.classList.add('reading-progress--fixed');
+      }
+
       const updateProgress = () => {
         const scrollTop = globalThis.scrollY;
         const docHeight = document.documentElement.scrollHeight - globalThis.innerHeight;

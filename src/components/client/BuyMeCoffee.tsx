@@ -272,7 +272,7 @@ export default function BuyMeCoffee({ url }: { url: string }) {
         .bmc {
           display: flex;
           justify-content: center;
-          margin: 1.5rem auto;
+          margin: 1.5rem auto 0;
         }
 
         .bmc__link {
