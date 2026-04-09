@@ -6,17 +6,17 @@
   view-transition-name: page-body;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.75rem, 2vw, 1.25rem);
-  padding-block: clamp(0.8rem, 2.5vw, 1.5rem);
+  gap: clamp(0.6rem, 1.8vw, 1rem);
+  padding-block: clamp(0.6rem, 2vw, 1.25rem);
 
   &--home {
-    gap: clamp(1.25rem, 3.5vw, 2.25rem);
-    padding-block: clamp(1rem, 3vw, 2rem);
+    gap: clamp(1rem, 3vw, 1.75rem);
+    padding-block: clamp(0.75rem, 2.5vw, 1.5rem);
   }
 
   @media screen and (width >= 48rem) {
-    gap: clamp(1rem, 2.5vw, 1.75rem);
-    padding-block: clamp(1.25rem, 3vw, 2rem);
+    gap: clamp(0.75rem, 2vw, 1.25rem);
+    padding-block: clamp(1rem, 2.5vw, 1.5rem);
   }
 }
 
@@ -202,7 +202,7 @@
   text-align: left;
   max-width: 65em;
   width: 100%;
-  margin: 1.5em auto 2em;
+  margin: 1.25em auto 1.5em;
   line-height: 1.5em;
 
   &__pre-content {
@@ -223,7 +223,7 @@
   }
 
   &__meta-title {
-    margin-top: 2rem;
+    margin-top: var(--space-lg);
     width: 100%;
 
     @media screen and (width >= 40rem) {
@@ -287,9 +287,9 @@
 
 .site-footer {
   color: var(--footer-text-color);
-  margin-top: 2rem;
+  margin-top: var(--space-lg);
   position: relative;
-  padding: 2rem 0 1rem;
+  padding: 1.5rem 0 0.75rem;
   font-size: 0.875rem;
   background: var(--surface-warm-light);
   border-radius: 1rem 1rem 0 0;
@@ -313,7 +313,7 @@
   &__container {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 1rem;
@@ -337,7 +337,7 @@
     height: 7rem;
     border-radius: 0.5rem;
     transition: transform 0.3s ease;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 
     &:hover {
       transform: scale(1.05);
@@ -423,7 +423,7 @@
     display: flex;
     justify-content: center;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
   }
 
   &__social-link {
@@ -507,8 +507,8 @@
   }
 
   &__bottom {
-    margin-top: 2rem;
-    padding-top: 1rem;
+    margin-top: 1.25rem;
+    padding-top: 0.75rem;
     border-top: 1px solid var(--footer-border-color);
     text-align: center;
   }
@@ -561,7 +561,7 @@
 @media screen and (width >= 640px) {
   .site-footer__container {
     grid-template-columns: 1fr 1fr;
-    gap: 3rem;
+    gap: 2rem;
   }
 
   .site-footer__about {
@@ -584,7 +584,7 @@
 @media screen and (width >= 1024px) {
   .site-footer__container {
     grid-template-columns: 2fr 1fr 1fr;
-    gap: 4rem;
+    gap: 2.5rem;
   }
 
   .site-footer__about {
@@ -592,7 +592,7 @@
     flex-direction: row;
     align-items: flex-start;
     text-align: left;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 
   .site-footer__profile {
