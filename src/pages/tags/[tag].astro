@@ -66,12 +66,14 @@ const timeAgo = (date: Date) => {
   const months = Math.floor(days / DAYS_PER_MONTH);
   const years = Math.floor(days / DAYS_PER_YEAR);
 
+  if (days < 1) {
+    return "Today";
+  }
+
   const timeUnits: [number, string][] = [
     [years, "year"],
     [months, "month"],
     [days, "day"],
-    [hours, "hour"],
-    [minutes, "minute"],
   ];
 
   for (const [value, unit] of timeUnits) {
@@ -80,22 +82,28 @@ const timeAgo = (date: Date) => {
     }
   }
 
-  return "Just now";
+  return "Today";
 };
 ---
 
 <BreadcrumbSchema items={breadcrumbItems} />
 
-<Layout title={`Posts tagged "${tag}"`} description={`All blog posts tagged with ${tag}`}>
+<Layout title={`Posts tagged ${tag}`} description={`All blog posts tagged with ${tag}`}>
   <ZenSlide direction="up" delay={200}>
     <div class="tag-archive__header">
       <a href="/tags" class="tag-archive__back">
-        <Icon name="arrow-left" size={16} aria-hidden={true} />
+        <Icon name="arrow-left" size={14} aria-hidden={true} />
         All tags
       </a>
-      <p class="tag-archive__count">
-        {posts.length} {posts.length === 1 ? 'post' : 'posts'} tagged with <strong>"{tag}"</strong>
-      </p>
+      <div class="tag-archive__title-row">
+        <span class="tag-archive__pill">
+          <Icon name="tag" size={16} aria-hidden={true} />
+          {tag}
+        </span>
+        <span class="tag-archive__count">
+          {posts.length} {posts.length === 1 ? 'post' : 'posts'}
+        </span>
+      </div>
     </div>
   </ZenSlide>
 
@@ -201,30 +209,50 @@ const timeAgo = (date: Date) => {
 
 <style>
   .tag-archive__header {
-    text-align: center;
-    margin-bottom: var(--space-lg);
+    margin-bottom: 1.5rem;
   }
 
   .tag-archive__back {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-xs);
+    gap: 0.3rem;
     color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 0.875rem;
-    margin-bottom: var(--space-sm);
-    transition: color 0.2s ease;
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+    transition: color var(--zen-duration-fast) var(--zen-ease-out);
+
+    &::after {
+      content: none;
+    }
+
+    &:hover {
+      color: var(--primary-color);
+    }
   }
 
-  .tag-archive__back:hover {
-    color: var(--heading-color);
+  .tag-archive__title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .tag-archive__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--primary-color) 12%, transparent);
+    border: 1px solid color-mix(in oklch, var(--primary-color) 18%, transparent);
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
   }
 
   .tag-archive__count {
     color: var(--text-secondary);
-  }
-
-  .tag-archive__count strong {
-    color: var(--heading-color);
+    font-size: 0.9rem;
   }
 </style>
