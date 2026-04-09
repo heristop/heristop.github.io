@@ -140,22 +140,34 @@ const breadcrumbItems = [
     const shouldUseTouchNavigation = () => isTouchDevice && (isMobile() || isTablet());
 
     const showNavigationHint = (direction) => {
+      const targetPost = direction === 'previous' ? previousPost : nextPost;
       const hint = document.createElement('div');
       hint.className = `navigation-hint navigation-hint--${direction}`;
-      hint.textContent = direction === 'previous' ? '\u2190 Previous' : 'Next \u2192';
       hint.setAttribute('role', 'status');
       hint.setAttribute('aria-live', 'polite');
+
+      const label = document.createElement('span');
+      label.className = 'navigation-hint__label';
+      label.textContent = direction === 'previous' ? '\u2190 Previous' : 'Next \u2192';
+      hint.append(label);
+
+      if (targetPost) {
+        const title = document.createElement('span');
+        title.className = 'navigation-hint__title';
+        title.textContent = targetPost.data.title;
+        hint.append(title);
+      }
 
       document.body.append(hint);
 
       requestAnimationFrame(() => {
-        hint.style.opacity = '1';
-        hint.style.transform = 'translateY(0)';
+        hint.style.opacity = '0.88';
+        hint.style.transform = 'translate(-50%, -50%)';
       });
 
       setTimeout(() => {
         hint.style.opacity = '0';
-        hint.style.transform = 'translateY(-10px)';
+        hint.style.transform = 'translate(-50%, -50%) translateY(-10px)';
         setTimeout(() => {
           hint.remove();
         }, HINT_FADE_DELAY);
@@ -218,7 +230,9 @@ const breadcrumbItems = [
       document.body.append(indicators);
     };
 
-    const setupKeyboardNavigation = (isInputFocused, navigateToPost) => {
+    let navAbortController = null;
+
+    const setupKeyboardNavigation = (isInputFocused, navigateToPost, signal) => {
       document.addEventListener('keydown', (event) => {
         if (isInputFocused() || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
           return;
@@ -241,10 +255,10 @@ const breadcrumbItems = [
             break;
           }
         }
-      });
+      }, { signal });
     };
 
-    const setupTouchNavigation = (isInputFocused, navigateToPost) => {
+    const setupTouchNavigation = (isInputFocused, navigateToPost, signal) => {
       let touchStartX = 0;
       let touchStartY = 0;
       let touchStartTime = 0;
@@ -256,7 +270,7 @@ const breadcrumbItems = [
         touchStartX = touch.clientX;
         touchStartY = touch.clientY;
         touchStartTime = Date.now();
-      }, { passive: true });
+      }, { passive: true, signal });
 
       document.addEventListener('touchend', (event) => {
         if (isInputFocused() || !touchStartX) {return;}
@@ -284,10 +298,21 @@ const breadcrumbItems = [
             navigateToPost('next');
           }
         }
-      }, { passive: false });
+      }, { passive: false, signal });
     };
 
     const initKeyboardNavigation = () => {
+      if (navAbortController) {
+        navAbortController.abort();
+      }
+      navAbortController = new AbortController();
+      const { signal } = navAbortController;
+
+      const existingPostNav = document.querySelector('.post-navigation-indicators');
+      if (existingPostNav) {
+        existingPostNav.remove();
+      }
+
       const existingGlobalNav = document.querySelector('.global-navigation-indicators');
       if (existingGlobalNav) {
         existingGlobalNav.remove();
@@ -307,8 +332,8 @@ const breadcrumbItems = [
         );
       };
 
-      document.addEventListener('focusin', updateInputFocus);
-      document.addEventListener('focusout', updateInputFocus);
+      document.addEventListener('focusin', updateInputFocus, { signal });
+      document.addEventListener('focusout', updateInputFocus, { signal });
 
       const getInputFocused = () => inputFocused;
 
@@ -323,11 +348,11 @@ const breadcrumbItems = [
       };
 
       if (!shouldUseTouchNavigation()) {
-        setupKeyboardNavigation(getInputFocused, navigateToPost);
+        setupKeyboardNavigation(getInputFocused, navigateToPost, signal);
       }
 
       if (shouldUseTouchNavigation()) {
-        setupTouchNavigation(getInputFocused, navigateToPost);
+        setupTouchNavigation(getInputFocused, navigateToPost, signal);
       }
 
       createNavigationIndicators();
