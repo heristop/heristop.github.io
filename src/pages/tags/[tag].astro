@@ -215,11 +215,17 @@ const timeAgo = (date: Date) => {
   .tag-archive__back {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.4rem;
     color: var(--text-secondary);
     font-size: 0.8rem;
+    padding: 0.3rem 0.65rem 0.3rem 0.5rem;
     margin-bottom: 0.75rem;
-    transition: color var(--zen-duration-fast) var(--zen-ease-out);
+    margin-left: -0.5rem;
+    border-radius: var(--radius-md);
+    transition:
+      color var(--zen-duration-fast) var(--zen-ease-out),
+      background var(--zen-duration-fast) var(--zen-ease-out),
+      gap var(--zen-duration-fast) var(--zen-ease-out);
 
     &::after {
       content: none;
@@ -227,6 +233,8 @@ const timeAgo = (date: Date) => {
 
     &:hover {
       color: var(--primary-color);
+      background: color-mix(in oklch, var(--primary-color) 6%, transparent);
+      gap: 0.55rem;
     }
   }
 
