@@ -4,7 +4,7 @@ const SITE_DESCRIPTION =
 const SITE_URL = "https://heristop.github.io";
 const SITE_PSEUDO = "heristop";
 const SITE_AUTHOR = "Alexandre Mogère";
-const SITE_THEME = "JS & PHP Coding";
+const SITE_THEME = "Coding & AI";
 const LINKFOLIO_URL = "https://heristop.vercel.app";
 
 // Social Media Links

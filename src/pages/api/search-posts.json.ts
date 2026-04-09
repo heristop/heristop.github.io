@@ -10,6 +10,7 @@ export const GET: APIRoute = async () => {
     body: (post.body ?? "").slice(0, BODY_PREVIEW_LENGTH),
     pubDate: post.data.pubDate,
     slug: post.id,
+    tags: post.data.tags ?? [],
     title: post.data.title,
   }));
 

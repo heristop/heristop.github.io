@@ -12,6 +12,7 @@ interface BlogPost {
   body?: string;
   pubDate?: string | Date;
   slug: string;
+  tags?: string[];
   title: string;
 }
 
@@ -71,6 +72,17 @@ const createSearchResultLink = (post: BlogPost): HTMLAnchorElement => {
     time.className = "search-result-date";
     time.textContent = formatDate(post.pubDate);
     contentDiv.append(time);
+  }
+  if (post.tags !== undefined && post.tags.length > 0) {
+    const tagsDiv = document.createElement("div");
+    tagsDiv.className = "search-result-tags";
+    for (const tag of post.tags.slice(0, 3)) {
+      const tagSpan = document.createElement("span");
+      tagSpan.className = "search-result-tag";
+      tagSpan.textContent = tag;
+      tagsDiv.append(tagSpan);
+    }
+    contentDiv.append(tagsDiv);
   }
   link.append(contentDiv);
   return link;
