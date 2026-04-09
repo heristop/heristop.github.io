@@ -21,7 +21,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(🔥) [Svelte 5 is Alive](https://svelte.dev/blog/svelte-5-is-alive?ref=heristop.github.io)**
 
-  Svelte 5 introduces innovative features like "runes" for enhanced reactivity, native TypeScript support, and refined component composition. It aims to simplify state management, making development more efficient and performant.
+  Svelte 5 introduces innovative features like "runes" for a reworked reactivity model, native TypeScript support, and refined component composition. It aims to simplify state management, making development more efficient and performant.
 
 - **(⚙️) [@import is Deprecated](https://sass-lang.com/blog/import-is-deprecated?ref=heristop.github.io)**
 
@@ -35,7 +35,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(🛠) [4 Tips for Software Testing with Playwright](https://spin.atomicobject.com/tips-testing-playwright?ref=heristop.github.io)**
 
-  This guide covers essential tips for improving Playwright tests, such as handling flaky tests, replacing deprecated methods, and using `describe` blocks for organized test structures to enhance testing reliability.
+  This guide covers essential tips for improving Playwright tests, such as handling flaky tests, replacing deprecated methods, and using `describe` blocks for organized test structures to keep your tests consistent and reliable.
 
 - **(📊) [Understanding and Using Javascript Console API](https://dev.to/sonaykara/understanding-and-using-javascript-console-api-in-detail-25a9?ref=heristop.github.io)**
 
@@ -51,7 +51,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(⚡️) [Optimizing Node.js Performance: Tips and Tricks](https://medium.com/javarevisited/optimizing-node-js-performance-tips-and-tricks-4052a0d43f88?ref=heristop.github.io)**
 
-  This article provides a deep dive into optimizing Node.js performance, offering tips on reducing latency, managing memory, and leveraging asynchronous programming to enhance the efficiency of Node applications in production environments.
+  This article provides a deep dive into optimizing Node.js performance, offering tips on reducing latency, managing memory, and leveraging asynchronous programming to squeeze more out of Node applications in production environments.
 
 - **(📈) [Caching API Requests in Angular: Better, Faster, Stronger](https://mohanbyte.medium.com/caching-api-requests-in-angular-better-faster-and-stronger-b3aa7c675be4?ref=heristop.github.io)**
 

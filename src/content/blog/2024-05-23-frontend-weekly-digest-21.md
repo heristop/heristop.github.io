@@ -15,7 +15,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(📈) [37 Tips from a Senior Frontend Developer](https://dev.to/_ndeyefatoudiop/37-tips-from-a-senior-frontend-developer-251b?ref=heristop.github.io)**
 
-  Gain valuable insights and practical advice from an experienced frontend developer to enhance your skills and workflow.
+  Gain valuable insights and practical advice from an experienced frontend developer to sharpen your skills and workflow.
 
 - **(📰) [10 Engineering Blogs to Become a System Design Hero for Free](https://dev.to/kumarkalyan/10-engineering-blogs-to-become-a-system-design-hero-for-free-20ee?ref=heristop.github.io)**
 

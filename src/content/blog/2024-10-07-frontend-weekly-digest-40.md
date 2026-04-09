@@ -31,7 +31,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(🌱) [10 Practical Tips for Better Vue Apps](https://vueschool.io/articles/vuejs-tutorials/10-practical-tips-for-better-vue-apps/?ref=heristop.github.io)**
 
-  Ten actionable tips for Vue developers to enhance app performance and maintainability. Topics include `defineProps`, `watchEffect`, and `shallowRef`. A great resource for boosting your Vue skills.
+  Ten actionable tips for Vue developers to improve app performance and maintainability. Topics include `defineProps`, `watchEffect`, and `shallowRef`. A great resource for boosting your Vue skills.
 
 - **(📦) [Clean React with TypeScript](https://weser.io/blog/clean-react-with-typescript?ref=heristop.github.io)**
 

@@ -29,7 +29,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(🚀) [What’s New in Next.js 15 RC?](https://www.syncfusion.com/blogs/post/whats-new-in-next-js-15-rc?ref=heristop.github.io)**
 
-  Next.js 15 RC introduces cutting-edge features like server components, middleware improvements, and enhanced performance. This release marks a major leap in React-based frameworks.
+  Next.js 15 RC introduces cutting-edge features like server components, middleware improvements, and meaningful performance gains. This release marks a major leap in React-based frameworks.
 
 - **(🔥) [Announcing Vue 3.5](https://blog.vuejs.org/posts/vue-3-5?ref=heristop.github.io)**
 

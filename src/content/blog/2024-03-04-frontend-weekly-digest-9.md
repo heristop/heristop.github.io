@@ -11,7 +11,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(📘) [React 19 Will Be Compiled](https://reacttraining.com/blog/react-19-will-be-compiled?ref=heristop.github.io)**
 
-  Explores the shift towards a compiled version of React, aiming to enhance performance and development efficiency.
+  Explores the shift towards a compiled version of React, aiming to boost performance and development efficiency.
 
 - **(📗) [Angular 17 Best Practices](https://blog.stackademic.com/angular-best-practices-for-2023-148885fb4ccc?ref=heristop.github.io)**
 
@@ -33,7 +33,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(💡) [SVG Tutorial](https://svg-tutorial.com/?ref=heristop.github.io)**
 
-  Offers comprehensive tutorials on SVG, from basic to complex animations, to enhance web design with scalable vector graphics.
+  Offers comprehensive tutorials on SVG, from basic to complex animations, for leveling up your web design with scalable vector graphics.
 
 - **(🖥) [Amazon Light NodeJs Runtime in Rust](https://github.com/awslabs/llrt?ref=heristop.github.io)**
 

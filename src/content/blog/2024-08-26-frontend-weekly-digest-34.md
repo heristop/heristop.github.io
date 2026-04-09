@@ -25,7 +25,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(📱) [React Native goes stable](https://bytes.dev/archives/315?ref=heristop.github.io)**
 
-  React Native just leveled up with its stable release! With enhanced performance and cross-platform magic, it’s ready to rock your mobile development world.
+  React Native just leveled up with its stable release! With solid performance gains and cross-platform magic, it’s ready to rock your mobile development world.
 
 ## 🛠 Tools & Resources
 

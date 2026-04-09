@@ -25,7 +25,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(📚) [Typographic Hierarchy in Print, Web & App Design](https://pimpmytype.com?ref=heristop.github.io)**
 
-  An insightful article on achieving better typographic hierarchy to enhance important parts of a UI.
+  An insightful article on achieving better typographic hierarchy to draw attention to important parts of a UI.
 
 - **(🌟) [Building a Vue.js Composable for Handling Feature Flags](https://dev.to/jacobandrewsky/building-a-vuejs-composable-for-handling-feature-flags-47l0?ref=heristop.github.io)**
 

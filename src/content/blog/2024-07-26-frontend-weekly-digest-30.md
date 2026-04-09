@@ -31,7 +31,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(🛠) [Exploring the magic of runes in Svelte 5](https://blog.logrocket.com/exploring-runes-svelte-5/?ref=heristop.github.io)**
 
-  Svelte 5 introduces 'runes'—no, not the kind you read to predict your future, but they might just predict a future of easier coding. Learn how these magical new features can enhance your development. 🔮
+  Svelte 5 introduces 'runes'—no, not the kind you read to predict your future, but they might just predict a future of easier coding. Learn how these magical new features can level up your development. 🔮
 
 - **(🖥️) [What's the Difference Between the useMemo and useCallback Hooks?](https://www.freecodecamp.org/news/difference-between-usememo-and-usecallback-hooks/?ref=heristop.github.io)**
 
