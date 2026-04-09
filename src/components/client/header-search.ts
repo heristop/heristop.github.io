@@ -4,6 +4,7 @@ interface BlogPost {
   body?: string;
   pubDate?: string | Date;
   slug: string;
+  tags?: string[];
   title: string;
 }
 
@@ -60,11 +61,13 @@ const performSearchQuery = (
     helpers.showEmptyState(searchResults);
     return;
   }
+  const lowerQuery = query.toLowerCase();
   const results = blogPosts
     .filter(
       (post) =>
-        post.title.toLowerCase().includes(query.toLowerCase()) ||
-        post.body?.toLowerCase().includes(query.toLowerCase()) === true,
+        post.title.toLowerCase().includes(lowerQuery) ||
+        post.body?.toLowerCase().includes(lowerQuery) === true ||
+        post.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery)) === true,
     )
     .slice(0, helpers.MAX_SEARCH_RESULTS);
   if (results.length === 0) {
