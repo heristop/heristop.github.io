@@ -61,14 +61,14 @@ h4 {
 h1 {
   font-size: 1.25em;
   font-weight: 700;
-  margin: 0 0 var(--space-md) 0;
+  margin: 0 0 var(--space-sm) 0;
   text-shadow: 0 1px 0 oklch(0% 0 0deg / 8%);
 }
 
 h2 {
   font-size: 1.15em;
   font-weight: 600;
-  margin: var(--space-lg) 0 var(--space-md) 0;
+  margin: var(--space-ml) 0 var(--space-sm) 0;
   text-shadow: 0 1px 0 oklch(0% 0 0deg / 8%);
 }
 
@@ -85,7 +85,7 @@ h2 {
 h3 {
   font-size: 1.05em;
   font-weight: 500;
-  margin: var(--space-md) 0 var(--space-sm) 0;
+  margin: var(--space-md) 0 var(--space-xs) 0;
 }
 
 h4 {
@@ -142,7 +142,7 @@ button:active:not(:disabled),
 }
 
 p {
-  margin: 0.8em 0;
+  margin: 0.6em 0;
 }
 
 a {
@@ -173,7 +173,10 @@ a {
   &.header__link::after,
   &.header__brand-link::after,
   &.social-network__link::after,
-  &.qr-code::after {
+  &.qr-code::after,
+  &.post-page__tag::after,
+  &.tags-page__pill::after,
+  &.blog-card__tag::after {
     content: none;
   }
 
@@ -245,7 +248,7 @@ hr {
   color: var(--hr-color);
   text-align: center;
   border: var(--space-xs) solid;
-  margin: var(--space-lg) 0;
+  margin: var(--space-ml) 0;
 }
 
 .u-text-muted {

@@ -388,6 +388,22 @@
     opacity: 0.9;
   }
 
+  &-tags {
+    display: flex;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+  }
+
+  &-tag {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--primary-color) 12%, transparent);
+    color: var(--link-color-secondary);
+    letter-spacing: 0.03em;
+    font-weight: 500;
+  }
+
   .search-result-icon {
     color: var(--text-secondary);
     transition: transform 0.2s ease;

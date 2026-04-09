@@ -15,11 +15,11 @@
 
 .header__brand-section {
   text-align: center;
-  padding: var(--space-lg) 0 var(--space-md);
+  padding: var(--space-md) 0 var(--space-sm);
 }
 
 .header__nav-initial {
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
 }
 
 .header__nav-links {
@@ -349,6 +349,13 @@
       transform: translateY(-1px);
       transition: all 0.2s ease;
     }
+
+    &.active {
+      border-left: 3px solid var(--primary-color);
+      background: color-mix(in oklch, var(--primary-color) 6%, transparent);
+      color: var(--heading-color);
+      font-weight: 600;
+    }
   }
 }
 
@@ -403,7 +410,7 @@
 
 .banner {
   width: 100%;
-  margin: var(--space-lg) 0;
+  margin: var(--space-md) 0;
   border-width: var(--space-xs);
   border-style: solid;
   border-color: var(--border-glass);
@@ -590,7 +597,7 @@ body.mobile-menu-open {
   transition:
     box-shadow 600ms var(--zen-ease-out),
     transform 600ms var(--zen-ease-out);
-  height: clamp(90px, 12vh, 160px);
+  height: clamp(120px, 16vh, 180px);
 
   @media screen and (width >= 768px) {
     height: clamp(180px, 20vh, 250px);
