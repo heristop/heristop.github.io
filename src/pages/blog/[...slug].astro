@@ -96,6 +96,14 @@ const breadcrumbItems = [
       </div>
     </div>
 
+    {post.data.tags && post.data.tags.length > 0 && (
+      <div class="post-page__tags">
+        {post.data.tags.map((tag: string) => (
+          <a href={`/tags/${tag}/`} class="post-page__tag">{tag}</a>
+        ))}
+      </div>
+    )}
+
     <Content />
 
     <div class="post-page__share-bottom">
@@ -110,6 +118,11 @@ const breadcrumbItems = [
       <RecommendedPosts {currentPostSlug} {conclusion} />
     </blockquote>
   </div>
+
+  <div class="reading-progress" aria-hidden="true"></div>
+  <button class="scroll-to-top" aria-label="Scroll to top" hidden>
+    <Icon name="arrow-up" size={18} aria-hidden={true} />
+  </button>
 
   <script type="module" is:inline define:vars={{ previousPost, nextPost }}>
     const NAVIGATION_DELAY = 150;
@@ -336,5 +349,36 @@ const breadcrumbItems = [
         }
       }
     });
+
+    const SCROLL_TOP_THRESHOLD = 400;
+
+    const initReadingProgress = () => {
+      const bar = document.querySelector('.reading-progress');
+      const scrollBtn = document.querySelector('.scroll-to-top');
+      if (!bar || !scrollBtn) return;
+
+      const updateProgress = () => {
+        const scrollTop = globalThis.scrollY;
+        const docHeight = document.documentElement.scrollHeight - globalThis.innerHeight;
+        const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+        bar.style.transform = `scaleX(${progress})`;
+
+        scrollBtn.toggleAttribute('hidden', scrollTop <= SCROLL_TOP_THRESHOLD);
+      };
+
+      globalThis.addEventListener('scroll', updateProgress, { passive: true });
+      updateProgress();
+
+      scrollBtn.addEventListener('click', () => {
+        globalThis.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initReadingProgress);
+    } else {
+      initReadingProgress();
+    }
+    document.addEventListener('astro:page-load', initReadingProgress);
   </script>
 </Layout>
