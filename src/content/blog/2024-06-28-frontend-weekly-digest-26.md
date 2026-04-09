@@ -15,7 +15,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(📉) [How to reduce unused JavaScript in your code?](https://dev.to/syketb/how-to-reduce-unused-javascript-in-your-code-mh7?ref=heristop.github.io)**
 
-  Learn effective strategies to minimize unused JavaScript and enhance your website’s performance. Trim the fat, boost the speed!
+  Learn effective strategies to minimize unused JavaScript and speed up your website. Trim the fat, boost the speed!
 
 - **(🌐) [Server Islands](https://astro.build/blog/future-of-astro-server-islands/?ref=heristop.github.io)**
 
@@ -31,7 +31,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(💥) [New CSS media queries syntax](https://dev.to/perisicnikola37/new-css-media-queries-syntax-45og?ref=heristop.github.io)**
 
-  Explore the new CSS media queries syntax and how it can enhance your responsive design. CSS just got a little more magical.
+  Explore the new CSS media queries syntax and how it can sharpen your responsive design. CSS just got a little more magical.
 
 ## 🆕 Releases & Updates
 
@@ -93,7 +93,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(🚀) [Boosting Angular App Performance Using NgOptimizedImage](https://dev.to/this-is-angular/boosting-angular-app-performance-using-ngoptimizedimage-153m?ref=heristop.github.io)**
 
-  Techniques to enhance the performance of your Angular apps using the NgOptimizedImage directive. Optimize and watch your app soar!
+  Techniques to speed up your Angular apps using the NgOptimizedImage directive. Optimize and watch your app soar!
 
 - **(🌟) [Nuxt 3 Server Components Rock](https://www.telerik.com/blogs/nuxt-3-server-components-rock?ref=heristop.github.io)**
 

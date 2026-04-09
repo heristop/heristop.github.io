@@ -11,7 +11,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(🌟) [Announcing TypeScript 5.6](https://devblogs.microsoft.com/typescript/announcing-typescript-5-6?ref=heristop.github.io)**
 
-  TypeScript 5.6 introduces new features and performance improvements, including better type-checking and enhanced build speeds, solidifying its place as a must-use tool for JavaScript developers.
+  TypeScript 5.6 introduces new features and performance improvements, including better type-checking and faster build speeds, solidifying its place as a must-use tool for JavaScript developers.
 
 - **(🔥) [Vue JavaScript framework boosts reactivity system](https://www.infoworld.com/article/3506994/vue-javascript-framework-improves-reactivity-system.html?ref=heristop.github.io)**
 
@@ -19,7 +19,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(🚀) [HTMX 2.0 Is Here: Everything You Must Know About It](https://blog.openreplay.com/htmx-2-0-is-here/?ref=heristop.github.io)**
 
-  HTMX 2.0 offers new enhancements that improve server-driven interactivity without the need for heavy JavaScript, making web apps faster and more interactive.
+  HTMX 2.0 brings new features that improve server-driven interactivity without the need for heavy JavaScript, making web apps faster and more interactive.
 
 ## 🛠 Tools & Resources
 
@@ -33,7 +33,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(🔧) [Advanced Typescript Types, explanations and Cheatsheet](https://behind.flatspot.pictures/advanced-typescript-cheatsheet-pt-1/?ref=heristop.github.io)**
 
-  A deep dive into advanced TypeScript types, featuring a handy cheatsheet to help you navigate complex type structures and enhance your TypeScript knowledge.
+  A deep dive into advanced TypeScript types, featuring a handy cheatsheet to help you navigate complex type structures and sharpen your TypeScript knowledge.
 
 - **(🧩) [The Undeniable Utility Of CSS :has](https://www.joshwcomeau.com/css/has/?ref=heristop.github.io)**
 
@@ -65,7 +65,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(🧱) [CSS @property and the New Style](https://ryanmulligan.dev/blog/css-property-new-style/?ref=heristop.github.io)**
 
-  This post introduces the CSS `@property` rule, which allows developers to define custom properties with enhanced dynamic behavior, enabling more sophisticated styles.
+  This post introduces the CSS `@property` rule, which allows developers to define custom properties with richer dynamic behavior, enabling more sophisticated styles.
 
 ## 🪐 Explore More
 

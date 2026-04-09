@@ -33,11 +33,11 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(📚) [Storybook 8.2](https://storybook.js.org/blog/storybook-8-2/?ref=heristop.github.io)**
 
-  The latest release of Storybook, version 8.2, brings enhanced capabilities for building and testing UI components. Discover the new features and improvements.
+  The latest release of Storybook, version 8.2, brings expanded capabilities for building and testing UI components. Discover the new features and improvements.
 
 - **(🔥) [Exciting New Features In TypeScript 5.5](https://blog.openreplay.com/exciting-new-features-in-typescript-5-5/?ref=heristop.github.io)**
 
-  TypeScript 5.5 introduces several new features that streamline development and enhance the language’s capabilities. This article breaks down the most impactful changes.
+  TypeScript 5.5 introduces several new features that streamline development and extend what the language can do. This article breaks down the most impactful changes.
 
 - **(🛠️) [What's Coming Next for ESLint](https://eslint.org/blog/2024/07/whats-coming-next-for-eslint/?ref=heristop.github.io)**
 

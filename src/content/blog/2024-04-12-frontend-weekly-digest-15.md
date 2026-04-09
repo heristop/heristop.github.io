@@ -21,11 +21,11 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(🚀) [Server-only with NextJS](https://www.builder.io/blog/server-only-next-app-router?ref=heristop.github.io)**
 
-  This article explains how to implement server-only code in a Next.js application using a package called `server-only`. It discusses how to ensure that certain functions run only on the server side, preventing them from being included in client-side bundles to enhance application security and integrity.
+  This article explains how to implement server-only code in a Next.js application using a package called `server-only`. It discusses how to ensure that certain functions run only on the server side, preventing them from being included in client-side bundles to tighten application security and integrity.
 
 - **(🎨) [Bun 1.1](https://bun.sh/blog/bun-v1.1?ref=heristop.github.io)**
 
-  Bun has released version 1.1, introducing new features and improvements that enhance its performance and developer experience. This version solidifies Bun as a formidable contender in the JavaScript runtime environment.
+  Bun has released version 1.1, introducing new features and improvements that boost its performance and developer experience. This version solidifies Bun as a formidable contender in the JavaScript runtime environment.
 
 ## 🛠 Tools & Resources
 

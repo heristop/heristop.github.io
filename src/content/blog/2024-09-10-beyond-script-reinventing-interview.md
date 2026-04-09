@@ -34,7 +34,7 @@ This experience illustrates how an open dialogue can sometimes transform an inte
 
 To foster an authentic exchange, here are some strategies I can advise, on my humble scale:
 
-1. **Encourage concept explanation**: Invite candidates to delve into subjects they master.
+1. **Encourage concept explanation**: Invite candidates to dig into subjects they master.
 2. **Avoid cliché questions**: Prefer open-ended questions that stimulate discussion.
 3. **Be ready to learn**: Show interest in the candidate's unique experiences.
 4. **Value depth over breadth**: Focus on a few subjects in depth.

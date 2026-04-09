@@ -43,7 +43,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **(📚) [Comprehensive Guide to Debouncing in JavaScript: Improve Your Code Efficiency](https://dev.to/dipakahirav/understanding-debouncing-in-javascript-5g30?ref=heristop.github.io)**
 
-  Learn how to implement debouncing in JavaScript to enhance your code efficiency.
+  Learn how to implement debouncing in JavaScript to cut down on unnecessary calls and tighten up code efficiency.
 
 - **(🛡️) [How To Write API Response Types with TypeScript](https://itnext.io/how-to-write-api-response-types-with-typescript-f8152ddd43dd?ref=heristop.github.io)**
 

@@ -7,7 +7,7 @@ image: "/images/posts/2024-07-09-conventional-commit-jira/banner.webp"
 tags: ["git", "jira", "tooling", "developer-experience", "tutorial"]
 ---
 
-**TL;DR:** This guide demonstrates how to set up conventional commits with a customizable Jira ticket prefix for JavaScript projects. It covers configuring commit message validation using git hook, ensuring better commit practices and issue tracking. The guide also briefly touches on Jira-GitLab integration to enhance traceability in your development workflow.
+**TL;DR:** This guide demonstrates how to set up conventional commits with a customizable Jira ticket prefix for JavaScript projects. It covers configuring commit message validation using git hook, ensuring better commit practices and issue tracking. The guide also briefly touches on Jira-GitLab integration to improve traceability in your development workflow.
 
 <div class="img-container">
   <img src="/images/posts/2024-07-09-conventional-commit-jira/gitmessage.webp" alt="git message" class="img-responsive" />
@@ -338,7 +338,7 @@ git commit -m 'chore: update dependencies'
 
 ## Step 5: Integrating with GitLab
 
-As a final step, integrating GitLab with Jira can further enhance your development workflow by linking commits directly to Jira tickets.
+As a final step, integrating GitLab with Jira can further improve your development workflow by linking commits directly to Jira tickets.
 
 ### Setting up the Integration
 

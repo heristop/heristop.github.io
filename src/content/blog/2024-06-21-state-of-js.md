@@ -9,7 +9,7 @@ tags: ["javascript", "frontend", "opinion"]
 
 ## Introduction
 
-The **[State of JS 2023](https://2023.stateofjs.com/)** is an annual survey that delves into the opinions and trends among JavaScript developers worldwide. It provides an overview of the most popular and appreciated technologies, libraries, and tools, offering valuable insights into the evolution of developer preferences and highlighting emerging trends and declining technologies. 🌟
+The **[State of JS 2023](https://2023.stateofjs.com/)** is an annual survey covering opinions and trends among JavaScript developers worldwide. It provides an overview of the most popular and appreciated technologies, libraries, and tools, with insights into the evolution of developer preferences and emerging or declining technologies. 🌟
 
 ## Library Tier List
 
