@@ -164,9 +164,10 @@ const breadcrumbItems = [
 
     const buildIndicatorButtons = (shouldUseTouch) => {
       const indicatorHTML = [];
+      const arrows = [];
 
       if (previousPost) {
-        indicatorHTML.push(`
+        arrows.push(`
           <a
             class="post-nav-indicator post-nav-indicator--left"
             href="/blog/${previousPost.id}/"
@@ -177,7 +178,7 @@ const breadcrumbItems = [
       }
 
       if (nextPost) {
-        indicatorHTML.push(`
+        arrows.push(`
           <a
             class="post-nav-indicator post-nav-indicator--right"
             href="/blog/${nextPost.id}/"
@@ -187,7 +188,9 @@ const breadcrumbItems = [
         `);
       }
 
-      if (previousPost || nextPost) {
+      if (arrows.length > 0) {
+        indicatorHTML.push(`<div class="post-nav-arrows">${arrows.join('')}</div>`);
+
         const hintText = shouldUseTouch
           ? 'Swipe left/right to navigate reflections'
           : 'Use \u2190 \u2192 keys to navigate reflections';
