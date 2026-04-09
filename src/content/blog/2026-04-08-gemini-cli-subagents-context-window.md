@@ -11,7 +11,7 @@ tags: ["ai", "tooling", "gemini-cli", "agents", "context-window", "llm"]
 
 You know that moment, around turn 15 of an agentic session, when your CLI starts giving weirdly vague answers? It "forgets" a file it read ten minutes ago, repeats a grep it already ran, asks you something it should already know. That's the context window filling up with cruft — tool outputs, intermediate reasoning, half-useful file reads — and every new decision is being made on a messier and messier slate.
 
-Gemini CLI's **sub-agents** feature is the cleanest solution I've seen to this problem. Worth a post.
+Gemini CLI's **sub-agents** feature is the cleanest solution I've seen to this problem. As of [v0.37.0](https://geminicli.com/docs/changelogs/latest/) (April 8, 2026), sub-agents are no longer experimental — they're a fully supported, production-ready feature. Worth a post.
 
 ## The basic idea
 
@@ -19,7 +19,7 @@ A sub-agent is, from the main agent's point of view, just a tool. You call it wi
 
 Which means: a sub-agent can chew through 50k tokens investigating your codebase, and the main agent will only see the 2k-token summary it returns. The other 48k never touch your main context.
 
-The official docs call it an "independent context window", and it's exactly that. Google describes the pattern as a *strategic orchestrator*: the main agent treats its own context as its most precious resource, and delegates anything context-heavy to specialists.
+The official docs call it an "independent context window", and it's exactly that. The pattern works best when the main agent acts as an orchestrator: it treats its own context as its most precious resource, and delegates anything context-heavy to specialists.
 
 <div class="img-container">
   <img src="/images/posts/2026-04-08-gemini-cli-subagents/gemini_cli_subagents_context_saving.svg" alt="Diagram showing how sub-agents isolate context from the main agent" class="img-responsive" />
@@ -56,7 +56,7 @@ bypasses, and insecure deserialization. When you find an issue,
 explain it clearly and suggest a fix. Do not fix the code yourself.
 ```
 
-The body becomes the sub-agent's system prompt. The `tools` list is a hard restriction — this auditor can only read and grep, it literally cannot touch a file. That's not just a safety thing, it's a focus thing: with fewer options the model stops wandering.
+The body becomes the sub-agent's system prompt. The `tools` list is a hard restriction — this auditor can only read and grep, it literally cannot touch a file. If omitted, the sub-agent inherits all tools from the parent session. That's not just a safety thing, it's a focus thing: with fewer options the model stops wandering.
 
 ### The underrated tip: different models per agent
 
@@ -68,7 +68,7 @@ This is genuinely underused. A few patterns that work well:
 - **Writers and designers** (docs-writer, API-designer, refactor-planner) can run at `0.8–1.0` where a bit of variation actually helps.
 - **Cheap model for the grind, strong model for the thinking.** Pin your investigator to a faster, cheaper model and reserve `gemini-2.5-pro` for the agent that actually writes code. Your main agent orchestrates both. You save tokens *and* money without losing quality where it matters.
 
-There's also `max_turns` (default 30) and `max_time_minutes` (default 10) — budgets for the sub-agent. Worth tuning if you've got one that tends to spiral.
+There's also `max_turns` (default 30) and `timeout_mins` (default 10) — budgets for the sub-agent. Worth tuning if you've got one that tends to spiral.
 
 ## A concrete example
 
@@ -80,9 +80,9 @@ With sub-agents, the main agent delegates. `codebase-investigator` goes and maps
 
 ## A few things to watch out for
 
-Sub-agents run in YOLO mode by default — they execute tools without asking for confirmation. A misconfigured one with `write_file` and `run_shell_command` can do real damage before you notice. So be deliberate about the `tools` list. "Read-only for investigators" is a good default rule.
+Sub-agents can run in YOLO mode — executing tools without asking for confirmation. A misconfigured one with `write_file` and `run_shell_command` can do real damage before you notice. So be deliberate about the `tools` list. "Read-only for investigators" is a good default rule.
 
-Don't parallelize sub-agents that write to the same files. Read-only work parallelizes fine; mutations create race conditions. The docs are explicit about this.
+Be careful when parallelizing sub-agents that write to the same files. Read-only work parallelizes fine; mutations can create race conditions.
 
 And don't reach for a sub-agent for every little thing. There's a real round-trip cost to spinning one up. For a two-turn question, just answer it in the main context. Sub-agents pay off when the task is heavy *and* independent — the kind of work where the main agent would otherwise waste a lot of tokens on intermediate state it doesn't actually need to remember.
 
