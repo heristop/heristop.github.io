@@ -285,7 +285,13 @@ const ZenHaikuReveal = ({ url }: Props) => {
       onMouseMove={collapsed ? undefined : onMouseMove}
       onMouseLeave={collapsed ? undefined : onLeave}
     >
-      {text === undefined && "Loading today's verse..."}
+      {text === undefined && (
+        <div className="haiku-skeleton" aria-hidden="true">
+          <span className="haiku-skeleton__line" style={{ width: '75%' }} />
+          <span className="haiku-skeleton__line" style={{ width: '60%' }} />
+          <span className="haiku-skeleton__line" style={{ width: '45%' }} />
+        </div>
+      )}
       {text !== undefined && words.length > 0 && (
         collapsed ? (
           <span aria-hidden="true">{text}</span>
