@@ -4,6 +4,7 @@ description: "Explore the magic of AI-powered image transformation with Pix Me!,
 pubDate: "2025-03-23"
 conclusion: "Remember, in the world of Pix Me!, your face is not just your face - it's a canvas for a thousand fantastic facets of yourself. What will you discover?"
 image: "/images/posts/2025-03-23-gemini-flash-next-gen-img-pix-me/blog_gemini_keyword_header.width-2200.format-webp.webp"
+tags: ["ai", "gemini", "pix-me", "case-study"]
 ---
 
 Pix Me! has integrated the experimental Gemini 2.0 Flash native image generation model into the avatar pipeline. This multimodal AI model from Google changes how we generate and process user avatars. Web and AI developers using Pix Me! can now use Gemini 2.0 Flash to create and edit avatar images faster and with higher fidelity.

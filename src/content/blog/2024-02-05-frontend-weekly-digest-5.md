@@ -4,6 +4,7 @@ description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-02-05"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.webp"
+tags: ["frontend", "weekly-digest", "javascript", "css"]
 ---
 
 ## 📢 News & Trends

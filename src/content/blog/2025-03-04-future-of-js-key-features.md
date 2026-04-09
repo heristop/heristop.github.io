@@ -4,6 +4,7 @@ pubDate: "2025-03-07"
 description: "Discover four major JavaScript features arriving in 2025: Temporal API for better date handling, Records & Tuples for immutable data, the Pipeline Operator for cleaner function chaining, and Decorators for extending class behavior effortlessly."
 conclusion: "JavaScript continues to evolve with features that make it more expressive and robust. These innovations enhance readability, maintainability, and security without relying on external frameworks."
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
+tags: ["javascript", "frontend", "tutorial"]
 ---
 
 ## Introduction

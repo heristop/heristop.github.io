@@ -4,6 +4,7 @@ description: "Learn how to set up and configure conventional commits with a cust
 pubDate: "2024-07-09"
 conclusion: 'Remember, clear commit messages make everyone''s life easier, and linking commits to Jira tickets keeps your project organized and your team informed. And please, try to avoid being the "last commit" developer - your team will thank you! Now go forth and commit with style! 💪'
 image: "/images/posts/2024-07-09-conventional-commit-jira/banner.webp"
+tags: ["git", "jira", "tooling", "developer-experience", "tutorial"]
 ---
 
 **TL;DR:** This guide demonstrates how to set up conventional commits with a customizable Jira ticket prefix for JavaScript projects. It covers configuring commit message validation using git hook, ensuring better commit practices and issue tracking. The guide also briefly touches on Jira-GitLab integration to enhance traceability in your development workflow.

@@ -4,6 +4,7 @@ description: "Measuring Design System adoption, accessibility compliance, and te
 pubDate: "2025-11-28"
 conclusion: "☝ A Design System without measurement is a blind investment. With our Frontend Observatory, we now have a 360° view: from the tech ecosystem down to every component and accessibility attribute. If you can't measure it, you can't improve it."
 image: "/images/posts/2025-11-28-frontend-observatory/observatory-header.webp"
+tags: ["design-system", "frontend", "tooling", "case-study"]
 ---
 
 Picture this: you're responsible for frontend architecture across a large organization. Hundreds of active projects. Multiple teams. Different frameworks. Various coding standards.

@@ -3,6 +3,7 @@ title: 'Use Sencha ExtJS with Symfony 2, The Viewport'
 description: 'How to use Sencha ExtJS with Symfony 2, The Viewport'
 pubDate: '2014-02-04'
 conclusion: '💃 Happy Coding!'
+tags: ["extjs", "symfony", "php", "tutorial"]
 ---
 
 Sencha ExtJS is a javascript framework which allows to create some RIA (Rich Internet Application).

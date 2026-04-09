@@ -4,6 +4,7 @@ description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2025-06-10"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.webp"
+tags: ["frontend", "weekly-digest", "javascript", "css"]
 ---
 
 A packed couple of weeks covering mid-May through early June 2025. Major framework drops, tool upgrades, and some drama in the meta-framework world. Let's dive in!

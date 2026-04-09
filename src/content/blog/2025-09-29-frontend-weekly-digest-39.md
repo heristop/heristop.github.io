@@ -4,6 +4,7 @@ description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2025-09-29"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
+tags: ["frontend", "weekly-digest", "javascript", "css"]
 ---
 
 Two weeks of frontend goodness packed into one digest. Framework updates, shiny new tools, and the State of JS survey is live. Let's go!

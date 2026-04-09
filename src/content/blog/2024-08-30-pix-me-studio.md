@@ -4,6 +4,7 @@ description: "AI-powered image transformation with Pix Me!, a free app that conv
 pubDate: "2024-08-30"
 conclusion: "Pix Me! transforms your selfies into different styles using AI. Try it for free to see the results."
 image: "/images/posts/og-pix-me.webp"
+tags: ["ai", "pix-me", "case-study"]
 ---
 
 **Pix Me!** is an app I developed to explore AI capabilities in image transformation. It converts selfies into different pop culture styles.

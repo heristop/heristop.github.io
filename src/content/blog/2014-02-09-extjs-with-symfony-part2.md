@@ -3,6 +3,7 @@ title: 'Use Sencha ExtJS with Symfony 2, The Proxy'
 description: 'How to use Sencha ExtJS with Symfony 2, The Proxy'
 pubDate: '2014-02-09'
 conclusion: '💃 Happy Coding!'
+tags: ["extjs", "symfony", "php", "tutorial"]
 ---
 
 In the [previous article](../2014-02-04-extjs-with-symfony-part1) we explored how to include an ExtJS application inside of Symfony 2.

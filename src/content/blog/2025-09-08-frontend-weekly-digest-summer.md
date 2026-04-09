@@ -4,6 +4,7 @@ description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2025-09-08"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.webp"
+tags: ["frontend", "weekly-digest", "javascript", "css"]
 ---
 
 Summer 2025 was hot — and not just the weather. Major framework updates, new tools, and hot takes on frontend architecture. Here's what you might have missed while touching grass.

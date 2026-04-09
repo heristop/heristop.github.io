@@ -4,6 +4,7 @@ description: "When human curation and algorithmic selection both claim to create
 pubDate: "2026-01-27"
 conclusion: "Perhaps poetry was never in the words themselves, but in the space between text and reader."
 image: "/images/posts/2026-01-27-when-two-frauds-make-a-truth/article-header.webp"
+tags: ["ai", "opinion", "game"]
 ---
 
 **TL;DR:** I built an algorithm that finds accidental haikus in old books. Some of them are weirdly good. This made me question who the real author is — the code, the original writer, or the reader.
