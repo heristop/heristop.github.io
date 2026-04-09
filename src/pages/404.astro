@@ -1,22 +1,94 @@
-<script is:inline type="text/javascript">
-  (function redirectLegacyPath() {
-    const REDIRECTS = {
-      "/frontend/2023/11/11/frontend-weekly-digest-45.html": "/blog/2023-11-11-frontend-weekly-digest-45/",
-      "/frontend/2023/11/17/frontend-weekly-digest-46.html": "/blog/2023-11-17-frontend-weekly-digest-46/",
-      "/frontend/2023/11/24/frontend-weekly-digest-47.html": "/blog/2023-11-24-frontend-weekly-digest-47/",
-      "/frontend/2023/12/01/frontend-weekly-digest-48.html": "/blog/2023-12-01-frontend-weekly-digest-48/",
-      "/frontend/2023/12/08/frontend-weekly-digest-49.html": "/blog/2023-12-08-frontend-weekly-digest-49/",
-      "/frontend/2023/12/15/frontend-weekly-digest-50.html": "/blog/2023-12-15-frontend-weekly-digest-50/",
-      "/frontend/2024/01/04/frontend-weekly-digest-1.html": "/blog/2024-01-04-frontend-weekly-digest-1/",
-      "/frontend/2024/01/12/frontend-weekly-digest-2.html": "/blog/2024-01-12-frontend-weekly-digest-2/",
-      "/frontend/2024/02/05/frontend-weekly-digest-5.html": "/blog/2024-02-05-frontend-weekly-digest-5/",
-      "/frontend/2024/02/19/frontend-weekly-digest-7.html": "/blog/2024-02-19-frontend-weekly-digest-7/",
-      "/frontend/2024/03/04/frontend-weekly-digest-9.html": "/blog/2024-03-04-frontend-weekly-digest-9/",
-      "/frontend/2024/03/15/frontend-weekly-digest-11.html": "/blog/2024-03-15-frontend-weekly-digest-11/",
-      "/frontend/2024/03/29/frontend-weekly-digest-13.html": "/blog/2024-03-29-frontend-weekly-digest-13/",
-      "/hr/2023/12/18/curiosity-beyond-technical-expertise.html": "/blog/2023-12-18-curiosity-beyond-technical-expertise/"
-    };
+---
+import Layout from "../layouts/Layout.astro";
+import Icon from "../components/Icon.astro";
+
+const REDIRECTS: Record<string, string> = {
+  "/frontend/2023/11/11/frontend-weekly-digest-45.html": "/blog/2023-11-11-frontend-weekly-digest-45/",
+  "/frontend/2023/11/17/frontend-weekly-digest-46.html": "/blog/2023-11-17-frontend-weekly-digest-46/",
+  "/frontend/2023/11/24/frontend-weekly-digest-47.html": "/blog/2023-11-24-frontend-weekly-digest-47/",
+  "/frontend/2023/12/01/frontend-weekly-digest-48.html": "/blog/2023-12-01-frontend-weekly-digest-48/",
+  "/frontend/2023/12/08/frontend-weekly-digest-49.html": "/blog/2023-12-08-frontend-weekly-digest-49/",
+  "/frontend/2023/12/15/frontend-weekly-digest-50.html": "/blog/2023-12-15-frontend-weekly-digest-50/",
+  "/frontend/2024/01/04/frontend-weekly-digest-1.html": "/blog/2024-01-04-frontend-weekly-digest-1/",
+  "/frontend/2024/01/12/frontend-weekly-digest-2.html": "/blog/2024-01-12-frontend-weekly-digest-2/",
+  "/frontend/2024/02/05/frontend-weekly-digest-5.html": "/blog/2024-02-05-frontend-weekly-digest-5/",
+  "/frontend/2024/02/19/frontend-weekly-digest-7.html": "/blog/2024-02-19-frontend-weekly-digest-7/",
+  "/frontend/2024/03/04/frontend-weekly-digest-9.html": "/blog/2024-03-04-frontend-weekly-digest-9/",
+  "/frontend/2024/03/15/frontend-weekly-digest-11.html": "/blog/2024-03-15-frontend-weekly-digest-11/",
+  "/frontend/2024/03/29/frontend-weekly-digest-13.html": "/blog/2024-03-29-frontend-weekly-digest-13/",
+  "/hr/2023/12/18/curiosity-beyond-technical-expertise.html": "/blog/2023-12-18-curiosity-beyond-technical-expertise/",
+};
+---
+
+<Layout title="404 — Page not found" description="The page you're looking for doesn't exist.">
+  <div class="not-found">
+    <p class="not-found__code">404</p>
+    <h1 class="not-found__title">The path you seek does not exist</h1>
+    <p class="not-found__message">Like a stone garden raked clean, this page holds nothing — yet the journey here was not wasted.</p>
+    <a href="/" class="not-found__link">
+      <Icon name="home" size={16} aria-hidden={true} />
+      Return home
+    </a>
+  </div>
+
+  <script is:inline define:vars={{ REDIRECTS }}>
     const path = globalThis.location.pathname;
-    globalThis.location.href = REDIRECTS[path] || "/";
-  })();
-</script>
+    if (REDIRECTS[path]) {
+      globalThis.location.href = REDIRECTS[path];
+    }
+  </script>
+</Layout>
+
+<style>
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 50vh;
+    gap: 1rem;
+    padding: 2rem;
+  }
+
+  .not-found__code {
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    opacity: 0.2;
+    line-height: 1;
+    margin: 0;
+  }
+
+  .not-found__title {
+    font-size: 1.4rem;
+    color: var(--heading-color);
+    margin: 0;
+  }
+
+  .not-found__message {
+    color: var(--text-secondary);
+    max-width: 28rem;
+    line-height: 1.6;
+  }
+
+  .not-found__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 999px;
+    background: var(--primary-color);
+    color: var(--text-on-dark);
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: transform var(--zen-duration-fast) var(--zen-ease-out),
+      box-shadow var(--zen-duration-fast) var(--zen-ease-out);
+  }
+
+  .not-found__link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px oklch(0% 0 0deg / 15%);
+  }
+</style>
