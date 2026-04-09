@@ -1,8 +1,8 @@
 ---
 title: "Why sub-agents save your context window"
 description: "Sub-agents run in isolated context windows, keeping your main session clean and focused. Here's how they work and why they matter for large codebases."
-pubDate: "2026-04-08"
-image: "/images/posts/2026-04-08-gemini-cli-subagents/poster.webp"
+pubDate: "2026-04-09"
+image: "/images/posts/2026-04-09-gemini-cli-subagents/poster.webp"
 conclusion: "Sub-agents are independent context loops. Heavy work happens somewhere else, only the summary comes back, and you can pick a different model and temperature for each one depending on whether it's doing creative work or mechanical scanning. If you're regularly hitting context limits on big codebases, this is the lever to pull."
 tags: ["ai", "tooling", "gemini-cli", "agents", "context-window", "llm"]
 ---
@@ -22,7 +22,7 @@ Which means: a sub-agent can chew through 50k tokens investigating your codebase
 The official docs call it an "independent context window", and it's exactly that. The pattern works best when the main agent acts as an orchestrator: it treats its own context as its most precious resource, and delegates anything context-heavy to specialists.
 
 <div class="img-container">
-  <img src="/images/posts/2026-04-08-gemini-cli-subagents/gemini_cli_subagents_context_saving.svg" alt="Diagram showing how sub-agents isolate context from the main agent" class="img-responsive" />
+  <img src="/images/posts/2026-04-09-gemini-cli-subagents/gemini_cli_subagents_context_saving.svg" alt="Diagram showing how sub-agents isolate context from the main agent" class="img-responsive" />
 </div>
 
 ## Why this beats "just have a bigger context window"
