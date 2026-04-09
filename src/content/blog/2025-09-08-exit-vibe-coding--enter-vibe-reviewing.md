@@ -4,6 +4,7 @@ description: "As a Chapter Lead at Carrefour France, I audit projects across dif
 pubDate: "2025-09-08"
 conclusion: "👉 Eighth Lesson* (which will serve as a conclusion): A good audit doesn't end, it transforms into ongoing support."
 image: "/images/posts/2025-09-08-exit-vibe-coding--enter-vibe-reviewing/1751634589187.webp"
+tags: ["ai", "tooling", "developer-experience", "opinion"]
 ---
 
 **TL;DR**: As a Chapter Lead at Carrefour France, I audit projects across different technical stacks (frontend, backend, mobile, etc.) as part of my role. Recently, I've been experimenting with AI agents for these audits. **After several audited projects**: time reduced by 3x, but not without challenges.

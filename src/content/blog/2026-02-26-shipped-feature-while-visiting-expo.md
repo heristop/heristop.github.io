@@ -4,6 +4,7 @@ description: "I shipped a feature to production from my phone while visiting a p
 pubDate: "2026-02-26"
 conclusion: "The natural difficulty of development served as a regulator. It forced us to prioritize, to simplify, to let go. Today, that brake is gone.\nThe real question may no longer be 'what can we build?' but 'what framework do we set for ourselves so we don't break everything?'"
 image: "/images/posts/2026-02-26-shipped-feature-while-visiting-expo/josé-manuel-infante.webp"
+tags: ["ai", "claude", "developer-experience", "opinion"]
 ---
 
 > *Next article might be called "I scaled a Postgres database while skydiving."*

@@ -4,6 +4,7 @@ description: "At Carrefour, in the Design System Tech Team, we built an MCP serv
 pubDate: "2025-09-10"
 conclusion: "👉 Interested in implementing MCP for your Design System? The protocol is open source and the community is growing. Feel free to reach out with questions!"
 image: "/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/c4-kit.webp"
+tags: ["mcp", "design-system", "ai", "tooling", "case-study"]
 ---
 
 ## TL;DR

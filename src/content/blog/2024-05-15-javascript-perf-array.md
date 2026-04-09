@@ -4,6 +4,7 @@ description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-05-15"
 conclusion: "☝ Using a Set to check if an element belongs to a list is often much more performant than using an array, especially when the list is long. This reduces the time complexity, significantly improving code performance. For frequent lookup operations, prefer optimized data structures like Set."
 image: "/images/posts/greg-rakozy-vw3Ahg4x1tY-unsplash.webp"
+tags: ["javascript", "performance", "tutorial"]
 ---
 
 In dev, choosing the appropriate data structure is often crucial for optimizing your code's performance. Here is a practical example illustrating this concept by comparing two methods of checking if an element belongs to an admin list within a user list.

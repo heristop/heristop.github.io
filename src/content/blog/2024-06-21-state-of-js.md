@@ -4,6 +4,7 @@ description: Sharing practical tips and the latest trends in JavaScript
 pubDate: "2024-06-21"
 conclusion: "The State of JavaScript 2023 provides a valuable overview of the current JavaScript ecosystem, illustrating the most popular technologies and emerging trends. While based on developer opinions, these insights help better understand JavaScript development dynamics. See you next year to track these trends and discover new technologies shaping the future of JavaScript development. 🚀✨"
 image: /images/posts/2024-06-21-state-of-js/state_of_js.webp
+tags: ["javascript", "frontend", "opinion"]
 ---
 
 ## Introduction
