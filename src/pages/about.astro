@@ -6,6 +6,7 @@ import SocialNetworks from "../components/SocialNetworks.astro";
 import ZenFade from "../components/zen/ZenFade.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
 import ZenStagger from "../components/zen/ZenStagger.astro";
+import BuyMeCoffee from "../components/client/BuyMeCoffee";
 import {
   SITE_URL,
   GITHUB_URL,
@@ -13,6 +14,7 @@ import {
   X_URL,
   BLUESKY_URL,
   LINKFOLIO_URL,
+  BUY_ME_COFFEE_URL,
 } from "../consts";
 
 const personSchema = {
@@ -70,6 +72,10 @@ const personSchema = {
 
   <ZenFade delay={1000}>
     <SocialNetworks filter="socialnetwork" variant="compact" />
+  </ZenFade>
+
+  <ZenFade delay={1200}>
+    <BuyMeCoffee client:visible url={BUY_ME_COFFEE_URL} />
   </ZenFade>
 </Layout>
 

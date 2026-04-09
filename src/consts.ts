@@ -12,6 +12,7 @@ const GITHUB_URL = "https://github.com/heristop";
 const LINKEDIN_URL = "https://linkedin.com/in/alexandre-mogere";
 const X_URL = "https://x.com/heristop";
 const BLUESKY_URL = "https://bsky.app/profile/heristop.bsky.social";
+const BUY_ME_COFFEE_URL = "https://buymeacoffee.com/heristop";
 
 export {
   SITE_TITLE,
@@ -25,4 +26,5 @@ export {
   LINKEDIN_URL,
   X_URL,
   BLUESKY_URL,
+  BUY_ME_COFFEE_URL,
 };
