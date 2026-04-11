@@ -27,7 +27,6 @@
   --radius-lg: 0.75rem;
   --zen-transition-duration: 280ms;
   --zen-transition-timing: cubic-bezier(0.22, 0.61, 0.36, 1);
-
   --zen-duration-fast: 200ms;
   --zen-duration-normal: 300ms;
   --zen-duration-slow: 400ms;
@@ -49,33 +48,33 @@
     0 6px 18px -18px oklch(18% 0.03 350deg / 12%);
 
   /* Semantic surface colors */
-  --surface-glass: oklch(100% 0 0 / 32%);
-  --surface-glass-hover: oklch(100% 0 0 / 46%);
-  --surface-glass-strong: oklch(100% 0 0 / 55%);
-  --surface-card: linear-gradient(155deg, oklch(100% 0 0 / 48%), oklch(96% 0.012 75deg / 32%));
+  --surface-glass: oklch(100% 0 0deg / 32%);
+  --surface-glass-hover: oklch(100% 0 0deg / 46%);
+  --surface-glass-strong: oklch(100% 0 0deg / 55%);
+  --surface-card: linear-gradient(155deg, oklch(100% 0 0deg / 48%), oklch(96% 0.012 75deg / 32%));
   --surface-card-content: linear-gradient(160deg, oklch(94.5% 0.015 75deg / 36%) 0%, oklch(94.5% 0.015 75deg / 54%) 55%, oklch(98% 0.008 75deg / 68%) 100%);
   --surface-overlay: linear-gradient(160deg, oklch(98% 0.008 75deg / 52%) 0%, oklch(98% 0.008 75deg / 68%) 58%, oklch(98% 0.008 75deg / 82%) 100%);
   --surface-overlay-hover: linear-gradient(160deg, oklch(98% 0.008 75deg / 58%) 0%, oklch(98% 0.008 75deg / 74%) 55%, oklch(98% 0.008 75deg / 88%) 100%);
-  --surface-muted: oklch(0% 0 0 / 5%);
+  --surface-muted: oklch(0% 0 0deg / 5%);
   --surface-warm: oklch(95% 0.01 75deg / 95%);
   --surface-warm-light: oklch(95% 0.01 75deg / 30%);
   --surface-card-solid: oklch(98.5% 0.005 75deg);
 
   /* Border colors */
-  --border-glass: oklch(100% 0 0 / 40%);
-  --border-glass-strong: oklch(100% 0 0 / 55%);
-  --border-subtle: oklch(100% 0 0 / 30%);
-  --border-image: oklch(100% 0 0 / 50%);
+  --border-glass: oklch(100% 0 0deg / 40%);
+  --border-glass-strong: oklch(100% 0 0deg / 55%);
+  --border-subtle: oklch(100% 0 0deg / 30%);
+  --border-image: oklch(100% 0 0deg / 50%);
 
   /* Shadow colors */
-  --shadow-color: oklch(0% 0 0);
-  --shadow-sm: 0 2px 4px oklch(0% 0 0 / 5%);
-  --shadow-md: 0 4px 6px -1px oklch(0% 0 0 / 10%), 0 2px 4px -2px oklch(0% 0 0 / 10%);
-  --shadow-lg: 0 20px 40px oklch(0% 0 0 / 15%);
+  --shadow-color: oklch(0% 0 0deg);
+  --shadow-sm: 0 2px 4px oklch(0% 0 0deg / 5%);
+  --shadow-md: 0 4px 6px -1px oklch(0% 0 0deg / 10%), 0 2px 4px -2px oklch(0% 0 0deg / 10%);
+  --shadow-lg: 0 20px 40px oklch(0% 0 0deg / 15%);
 
   /* Text on surfaces */
   --text-on-surface: oklch(42% 0.01 60deg);
-  --text-on-dark: oklch(100% 0 0);
+  --text-on-dark: oklch(100% 0 0deg);
 
   /* Table */
   --table-border: oklch(92% 0.005 250deg);

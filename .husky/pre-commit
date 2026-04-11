@@ -1,5 +1,8 @@
 pnpm build
 
+# Run unit tests
+pnpm test
+
 # Format the code
 pnpm format
 
