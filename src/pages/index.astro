@@ -88,12 +88,25 @@ const websiteSchema = {
                       <a class="latest-posts__link zen-hover-lift" href={`/blog/${post.id}/`}>
                         {post.data.pubDate && (
                           <span class="post-list__date latest-posts__date">
-                            <span class="latest-posts__date-pill">
+                            <span
+                              class="latest-posts__date-pill"
+                              transition:name={`post-date-${post.id}`}
+                            >
                               <FormattedDate date={post.data.pubDate} />
                             </span>
                           </span>
                         )}
                         <ZenTextReveal client:visible text={post.data.title} className="latest-posts__title" />
+                        {post.data.tags && post.data.tags.length > 0 && (
+                          <div
+                            class="latest-posts__tags"
+                            transition:name={`post-tags-${post.id}`}
+                          >
+                            {post.data.tags.slice(0, 2).map((tag: string) => (
+                              <span class="latest-posts__tag">{tag}</span>
+                            ))}
+                          </div>
+                        )}
                         <Icon
                           name="arrow-right"
                           size={18}
