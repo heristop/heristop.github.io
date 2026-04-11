@@ -7,6 +7,7 @@ import BreadcrumbSchema from "../../components/BreadcrumbSchema.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import Icon from "../../components/Icon.astro";
 import Layout from "../../layouts/Layout.astro";
+import PostTags from "../../components/client/PostTags";
 import RecommendedPosts from "../../components/RecommendedPosts.astro";
 import SocialShare from "../../components/SocialShare.astro";
 
@@ -79,7 +80,14 @@ const breadcrumbItems = [
       <div class="post-page__meta-info">
         <div class="post-page__date">
           <Icon name="calendar" size={16} class="post-page__date-icon" aria-hidden={true} />
-          {post.data.pubDate && <FormattedDate date={post.data.pubDate} showYear />}
+          {post.data.pubDate && (
+            <span
+              class="post-page__date-text"
+              transition:name={`post-date-${post.id}`}
+            >
+              <FormattedDate date={post.data.pubDate} showYear />
+            </span>
+          )}
         </div>
         <div class="post-page__reading-time">
           <Icon name="book" size={16} class="post-page__reading-icon" aria-hidden={true} />
@@ -97,10 +105,8 @@ const breadcrumbItems = [
     </div>
 
     {post.data.tags && post.data.tags.length > 0 && (
-      <div class="post-page__tags">
-        {post.data.tags.map((tag: string) => (
-          <a href={`/tags/${tag}/`} class="post-page__tag">{tag}</a>
-        ))}
+      <div class="post-page__tags-slot" transition:name={`post-tags-${post.id}`}>
+        <PostTags client:load tags={post.data.tags} />
       </div>
     )}
 

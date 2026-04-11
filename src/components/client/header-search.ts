@@ -96,9 +96,7 @@ const openSearchOverlay = (elems: SearchElements): void => {
   if (inputWrapper !== null) {
     inputWrapper.setAttribute("aria-expanded", "true");
   }
-  for (const element of elems.searchOverlay.querySelectorAll(
-    'input, button, [tabindex="-1"]',
-  )) {
+  for (const element of elems.searchOverlay.querySelectorAll('input, button, [tabindex="-1"]')) {
     element.removeAttribute("tabindex");
   }
   document.body.classList.add("search-open");
@@ -124,9 +122,7 @@ const closeSearchOverlay = (elems: SearchElements): void => {
   if (inputWrapper !== null) {
     inputWrapper.setAttribute("aria-expanded", "false");
   }
-  for (const element of elems.searchOverlay.querySelectorAll(
-    "input, button, [tabindex]",
-  )) {
+  for (const element of elems.searchOverlay.querySelectorAll("input, button, [tabindex]")) {
     element.setAttribute("tabindex", "-1");
   }
   document.body.classList.remove("search-open");
@@ -137,10 +133,7 @@ const closeSearchOverlay = (elems: SearchElements): void => {
 /* ── Event binding ── */
 
 const bindSearchEvents = (opts: BindSearchEventsOptions): void => {
-  let searchTimeout: ReturnType<typeof setTimeout> = setTimeout(
-    helpers.noopFn,
-    0,
-  );
+  let searchTimeout: ReturnType<typeof setTimeout> = setTimeout(helpers.noopFn, 0);
   for (const toggleBtn of opts.elems.searchToggles) {
     toggleBtn.addEventListener("click", opts.openSearch);
   }

@@ -69,16 +69,8 @@ interface ComputeLinesDeps {
 }
 
 const useComputeLines = (deps: ComputeLinesDeps) => {
-  const {
-    text,
-    font,
-    lineHeight,
-    containerRef,
-    preparedRef,
-    prevTextRef,
-    prevFontRef,
-    setLines,
-  } = deps;
+  const { text, font, lineHeight, containerRef, preparedRef, prevTextRef, prevFontRef, setLines } =
+    deps;
   return useCallback(() => {
     if (text === undefined || text === "" || !containerRef.current) {
       return;
@@ -103,16 +95,7 @@ const useComputeLines = (deps: ComputeLinesDeps) => {
     const result = layoutWithLines(prepared, width, lineHeight);
     const rawTexts = result.lines.map((item) => item.text);
     setLines(toLayoutLines(rejoinBrokenWords(rawTexts)));
-  }, [
-    text,
-    font,
-    lineHeight,
-    containerRef,
-    preparedRef,
-    prevTextRef,
-    prevFontRef,
-    setLines,
-  ]);
+  }, [text, font, lineHeight, containerRef, preparedRef, prevTextRef, prevFontRef, setLines]);
 };
 
 const useTextLayout = (
@@ -124,9 +107,7 @@ const useTextLayout = (
   const [lines, setLines] = useState<LayoutLine[]>([]);
   const [revealed, setRevealed] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const preparedRef = useRef<ReturnType<typeof prepareWithSegments> | null>(
-    null,
-  );
+  const preparedRef = useRef<ReturnType<typeof prepareWithSegments> | null>(null);
   const prevTextRef = useRef<string | null>(null);
   const prevFontRef = useRef<string | null>(null);
 

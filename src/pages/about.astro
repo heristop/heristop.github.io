@@ -5,7 +5,6 @@ import QrCode from "../components/QrCode.astro";
 import SocialNetworks from "../components/SocialNetworks.astro";
 import ZenFade from "../components/zen/ZenFade.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
-import ZenStagger from "../components/zen/ZenStagger.astro";
 import BuyMeCoffee from "../components/client/BuyMeCoffee";
 import {
   SITE_URL,
@@ -44,24 +43,26 @@ const personSchema = {
 
   <section class="about-info" aria-labelledby="personal-info-heading">
     <h2 class="sr-only" id="personal-info-heading">Personal Information</h2>
-    <ZenStagger>
-      <div class="about-info__grid">
-        <ul class="about-info__list">
-          <li class="about-info__item about-info__item--with-icon">
-            <Icon name="briefcase" size={20} aria-hidden={true} />
-            <div class="about-info__content">
-              <div class="about-info__role">Chapter Lead</div>
-              <span class="about-info__subtitle">@Carrefour SI</span>
-            </div>
-          </li>
-          <li class="about-info__item"><Icon name="calendar" size={20} aria-hidden={true} /> 4 November</li>
-          <li class="about-info__item"><Icon name="map-pin" size={20} aria-hidden={true} /> Paris, France</li>
-        </ul>
-        <div class="about-info__qr">
-          <QrCode url={LINKFOLIO_URL} label="Link in bio" />
-        </div>
+    <div class="about-info__grid">
+      <ul class="about-info__list zen-slide-up zen-delay-300">
+        <li class="about-info__item about-info__item--with-icon zen-slide-up zen-delay-500">
+          <Icon name="briefcase" size={20} aria-hidden={true} class="about-info__icon" />
+          <div class="about-info__content">
+            <div class="about-info__role">Chapter Lead</div>
+            <span class="about-info__subtitle">@Carrefour SI</span>
+          </div>
+        </li>
+        <li class="about-info__item zen-slide-up zen-delay-600">
+          <Icon name="calendar" size={20} aria-hidden={true} class="about-info__icon" /> 4 November
+        </li>
+        <li class="about-info__item zen-slide-up zen-delay-700">
+          <Icon name="map-pin" size={20} aria-hidden={true} class="about-info__icon" /> Paris, France
+        </li>
+      </ul>
+      <div class="about-info__qr zen-slide-up zen-delay-900">
+        <QrCode url={LINKFOLIO_URL} label="Link in bio" />
       </div>
-    </ZenStagger>
+    </div>
   </section>
 
   <ZenSlide direction="up" delay={800}>
@@ -70,9 +71,7 @@ const personSchema = {
     </h2>
   </ZenSlide>
 
-  <ZenFade delay={1000}>
-    <SocialNetworks filter="socialnetwork" variant="compact" />
-  </ZenFade>
+  <SocialNetworks filter="socialnetwork" variant="compact" baseDelay={1000} />
 
   <ZenFade delay={1200}>
     <BuyMeCoffee client:visible url={BUY_ME_COFFEE_URL} />

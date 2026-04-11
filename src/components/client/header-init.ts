@@ -34,9 +34,7 @@ const handleEscapeKey = (event: KeyboardEvent): void => {
   if (event.key !== "Escape") {
     return;
   }
-  const openMenus = document.querySelectorAll(
-    ".header__nav--mobile.header__nav--mobile-open",
-  );
+  const openMenus = document.querySelectorAll(".header__nav--mobile.header__nav--mobile-open");
   for (const menuNav of openMenus) {
     const menuToggle = menuNav
       .closest(".site-header-static, .site-header-nav")
@@ -54,10 +52,7 @@ const handleEscapeKey = (event: KeyboardEvent): void => {
 
 /* ── Mobile menu ── */
 
-const setupMobileMenu = (
-  toggle: Element | undefined,
-  nav: Element | undefined,
-): void => {
+const setupMobileMenu = (toggle: Element | undefined, nav: Element | undefined): void => {
   if (toggle === undefined || nav === undefined) {
     return;
   }
@@ -84,10 +79,7 @@ const setupMobileMenu = (
     }
   });
   for (const link of nav.querySelectorAll(".header__link--mobile")) {
-    if (
-      link instanceof HTMLElement &&
-      link.dataset.menuLinkInitialized !== "true"
-    ) {
+    if (link instanceof HTMLElement && link.dataset.menuLinkInitialized !== "true") {
       link.dataset.menuLinkInitialized = "true";
       link.addEventListener("click", () => {
         toggle.setAttribute("aria-expanded", "false");
@@ -101,13 +93,11 @@ const setupMobileMenu = (
 
 const initializeMobileMenus = (): void => {
   setupMobileMenu(
-    document.querySelector(".header__nav-initial .header__mobile-toggle") ??
-      undefined,
+    document.querySelector(".header__nav-initial .header__mobile-toggle") ?? undefined,
     document.querySelector("#initial-mobile-nav") ?? undefined,
   );
   setupMobileMenu(
-    document.querySelector(".site-header-nav .header__mobile-toggle") ??
-      undefined,
+    document.querySelector(".site-header-nav .header__mobile-toggle") ?? undefined,
     document.querySelector("#mobile-nav") ?? undefined,
   );
 };
@@ -161,15 +151,9 @@ const computeNavVisibility = (
   const opacity = Math.max(0, Math.min(1, 1 - progress));
   const translateY = Math.max(
     TRANSLATE_Y_MIN,
-    Math.min(
-      0,
-      (progress - TRANSLATE_Y_PROGRESS_OFFSET) * TRANSLATE_Y_MULTIPLIER,
-    ),
+    Math.min(0, (progress - TRANSLATE_Y_PROGRESS_OFFSET) * TRANSLATE_Y_MULTIPLIER),
   );
-  const backdropBlur = Math.max(
-    0,
-    Math.min(MAX_BACKDROP_BLUR, (1 - progress) * MAX_BACKDROP_BLUR),
-  );
+  const backdropBlur = Math.max(0, Math.min(MAX_BACKDROP_BLUR, (1 - progress) * MAX_BACKDROP_BLUR));
   stickyNav.style.setProperty("--nav-opacity", opacity.toString());
   stickyNav.style.setProperty("--nav-translate", `${translateY}%`);
   stickyNav.style.setProperty("--nav-blur", `${backdropBlur}px`);
@@ -234,17 +218,13 @@ const setupNavHighlight = (navContainer: Element | null): void => {
   }
   navContainer.dataset.highlightInit = "true";
 
-  const highlight = navContainer.querySelector(
-    ".header__nav-highlight",
-  ) as HTMLElement | null;
+  const highlight = navContainer.querySelector(".header__nav-highlight") as HTMLElement | null;
   if (!highlight) {
     return;
   }
 
   const links = navContainer.querySelectorAll(".header__link");
-  const activeLink = navContainer.querySelector(
-    ".header__link.active",
-  ) as HTMLElement | null;
+  const activeLink = navContainer.querySelector(".header__link.active") as HTMLElement | null;
 
   const moveHighlight = (target: HTMLElement) => {
     const navRect = navContainer.getBoundingClientRect();

@@ -48,7 +48,8 @@ const sortedYears = Object.keys(postsByYear).toSorted(
   (yearA, yearB) => Number(yearB) - Number(yearA)
 );
 
-const delay = 10;
+const STAGGER_STEP_MS = 60;
+const STAGGER_MAX_INDEX = 5;
 
 const formatTimeUnit = (value: number, unit: string) => {
   if (value === 1) {
@@ -89,11 +90,25 @@ const timeAgo = (date: Date) => {
 ---
 
 <Layout title="All Posts" description="Articles on JavaScript, TypeScript, PHP, and web development by Alexandre Mogere.">
+  <noscript>
+    <style>
+      .zen-card {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+      }
+    </style>
+  </noscript>
+
   <ZenSlide direction="up" delay={200}>
     <blockquote class="blog-archive__subscribe">
       <Icon name="rss" size={32} class="blog-archive__subscribe-icon" aria-hidden={true} />
 
-      <span>Subscribe to <button type="button" class="blog-archive__rss-copy" data-url="/rss.xml">RSS</button>.</span>
+      <span>
+        Subscribe to <button type="button" class="blog-archive__rss-copy" data-url="/rss.xml">RSS</button>
+        <span class="blog-archive__subscribe-sep" aria-hidden="true"> · </span>
+        or <a class="blog-archive__tags-link" href="/tags/">browse by tag</a>.
+      </span>
     </blockquote>
 
     <script is:inline>
@@ -140,7 +155,7 @@ const timeAgo = (date: Date) => {
               ) => {
                 const isoDate = post.data.pubDate?.toISOString();
                 const imageSrc = post.data.image;
-                const cardStyle = `--zen-card-stagger: ${delay * index}ms`;
+                const cardStyle = `--zen-card-stagger: ${STAGGER_STEP_MS * Math.min(index, STAGGER_MAX_INDEX)}ms`;
 
                 return (
                   <a
@@ -154,13 +169,21 @@ const timeAgo = (date: Date) => {
                     {isoDate && post.data.pubDate && (
                       <time class="blog-card__date" datetime={isoDate}>
                         <Icon name="calendar" size={14} class="blog-card__date-icon" aria-hidden={true} />
-                        <FormattedDate date={post.data.pubDate} />
+                        <span
+                          class="blog-card__date-text"
+                          transition:name={`post-date-${post.id}`}
+                        >
+                          <FormattedDate date={post.data.pubDate} />
+                        </span>
                         <span class="blog-card__date-relative">{timeAgo(post.data.pubDate)}</span>
                       </time>
                     )}
 
                     {post.data.tags && post.data.tags.length > 0 && (
-                      <div class="blog-card__tags">
+                      <div
+                        class="blog-card__tags"
+                        transition:name={`post-tags-${post.id}`}
+                      >
                         {post.data.tags.slice(0, 2).map((tag: string) => (
                           <span class="blog-card__tag">{tag}</span>
                         ))}
