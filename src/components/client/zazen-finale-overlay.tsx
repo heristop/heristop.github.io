@@ -84,6 +84,19 @@ const ZazenFinaleOverlay = ({ lines, onReturn }: Props) => {
     };
   }, []);
 
+  useEffect(() => {
+    const body = document.body;
+    const root = document.documentElement;
+    const prevBodyOverflow = body.style.overflow;
+    const prevRootOverflow = root.style.overflow;
+    body.style.overflow = "hidden";
+    root.style.overflow = "hidden";
+    return () => {
+      body.style.overflow = prevBodyOverflow;
+      root.style.overflow = prevRootOverflow;
+    };
+  }, []);
+
   return (
     <div
       className="path-stones__finale"
