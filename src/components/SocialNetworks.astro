@@ -34,7 +34,7 @@ const fetchUserConfig = async (): Promise<UserConfig> => {
   }
 };
 
-const { filter, variant = 'default' } = Astro.props;
+const { filter, variant = 'default', baseDelay = 0 } = Astro.props;
 
 const userConfig = await fetchUserConfig();
 const networks = (userConfig.socialNetworks ?? []).filter(
@@ -66,7 +66,8 @@ const resolveIconSrc = (iconSrc: NetworkIcon) => {
   return "";
 };
 
-const delay = 100;
+const STAGGER_STEP_MS = 120;
+const STAGGER_MAX_INDEX = 5;
 
 ---
 
@@ -81,7 +82,7 @@ const delay = 100;
         return (
           <div
             class={`social-network__card ${modifier}`}
-            style={`--social-card-stagger: ${delay * index}ms`}
+            style={`--social-card-stagger: ${baseDelay + STAGGER_STEP_MS * Math.min(index, STAGGER_MAX_INDEX)}ms`}
             data-prepared="false"
           >
             <a href={network.url} target="_blank" rel="noopener noreferrer" class="social-network__link">
