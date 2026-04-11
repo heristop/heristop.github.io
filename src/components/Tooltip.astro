@@ -1,0 +1,47 @@
+---
+/**
+ * Tooltip — wraps a single interactive element (or any content) and attaches
+ * a design-system tooltip that appears on `:hover` and `:focus-visible`.
+ *
+ * The visual styling lives in `src/styles/_components.scss` under the
+ * `[data-tooltip]` attribute selector, so you can also apply it directly to
+ * an element via `data-tooltip="Label"` when a wrapper would break layout
+ * (e.g. absolutely-positioned buttons).
+ *
+ * @example
+ * ```astro
+ * <Tooltip label="Scroll to top">
+ *   <button class="scroll-to-top" aria-label="Scroll to top">
+ *     <Icon name="arrow-up" />
+ *   </button>
+ * </Tooltip>
+ * ```
+ */
+
+interface Props {
+  /** Text shown inside the tooltip. */
+  label: string;
+  /** Where to place the tooltip relative to the host. */
+  placement?: "top" | "bottom";
+  /** Optional extra class on the wrapper. */
+  class?: string;
+}
+
+const { label, placement = "top", class: className } = Astro.props;
+---
+
+<span
+  class:list={["zen-tooltip", className]}
+  data-tooltip={label}
+  data-tooltip-placement={placement}
+>
+  <slot />
+</span>
+
+<style>
+  .zen-tooltip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
