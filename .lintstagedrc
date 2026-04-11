@@ -7,6 +7,6 @@
         "pnpm stylelint"
     ],
     "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,astro}": [
-        "oxlint --fix"
+        "oxlint --fix -c oxlintrc.json"
     ]
 }

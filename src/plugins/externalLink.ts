@@ -26,8 +26,7 @@ const getUrl = (element: Element) => {
   return url.toString();
 };
 
-const isExternal = (url: string, domain: string) =>
-  url.startsWith("http") && !url.includes(domain);
+const isExternal = (url: string, domain: string) => url.startsWith("http") && !url.includes(domain);
 
 export const externalLink: RehypePlugin = (options?: Options) => {
   const siteDomain = options?.domain ?? "";

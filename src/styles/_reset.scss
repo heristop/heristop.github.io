@@ -168,6 +168,8 @@ a {
   &.latest-posts__link::after,
   &.latest-posts__cta::after,
   &.site-footer__social-link::after,
+  &.site-footer__nav-link::after,
+  &.site-footer__link::after,
   &.social-share__link::after,
   &.post-nav-indicator::after,
   &.header__link::after,
@@ -176,6 +178,7 @@ a {
   &.qr-code::after,
   &.post-page__tag::after,
   &.tags-page__pill::after,
+  &.blog-archive__tags-link::after,
   &.blog-card__tag::after {
     content: none;
   }
