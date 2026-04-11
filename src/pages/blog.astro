@@ -105,7 +105,12 @@ const timeAgo = (date: Date) => {
       <Icon name="rss" size={32} class="blog-archive__subscribe-icon" aria-hidden={true} />
 
       <span>
-        Subscribe to <button type="button" class="blog-archive__rss-copy" data-url="/rss.xml">RSS</button>
+        Subscribe to <button
+          type="button"
+          class="blog-archive__rss-copy"
+          data-url="/rss.xml"
+          data-tooltip="Click to copy feed URL"
+        >RSS</button>
         <span class="blog-archive__subscribe-sep" aria-hidden="true"> · </span>
         or <a class="blog-archive__tags-link" href="/tags/">browse by tag</a>.
       </span>

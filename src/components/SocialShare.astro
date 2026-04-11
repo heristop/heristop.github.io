@@ -38,11 +38,12 @@ const shareLinks = [
           'social-share__link',
           minimal ? 'social-share__link--minimal' : 'social-share__link--full',
         ]}
-        aria-label={`Share on ${link.name}`}
+        aria-label={minimal ? `Share on ${link.name}` : undefined}
+        data-tooltip={minimal ? `Share on ${link.name}` : "Opens in new tab"}
       >
         <img
           src={`/icons/${link.icon}.svg`}
-          alt={link.name}
+          alt=""
           width="20"
           height="20"
           class:list={[
@@ -57,6 +58,7 @@ const shareLinks = [
     ))
   }
   <button
+    type="button"
     class:list={[
       'social-share__link',
       'social-share__native-btn',
@@ -64,12 +66,13 @@ const shareLinks = [
     ]}
     data-share-title={title}
     data-share-url={url}
-    aria-label="Share"
+    aria-label={minimal ? 'Share' : undefined}
+    data-tooltip={minimal ? 'Share' : 'Share via system dialog or copy link'}
     hidden
   >
     <img
       src="/icons/share.svg"
-      alt="Share"
+      alt=""
       width="20"
       height="20"
       class:list={[
