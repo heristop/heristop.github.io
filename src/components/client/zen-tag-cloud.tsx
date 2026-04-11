@@ -50,10 +50,15 @@ interface PillProps {
 }
 
 const TagPill = ({ item, index, reducedMotion }: PillProps) => {
+  const [mounted, setMounted] = useState(false);
   const [appeared, setAppeared] = useState(reducedMotion);
   const [settled, setSettled] = useState(reducedMotion);
   const [textWidth, setTextWidth] = useState<number | null>(null);
   const measuredRef = useRef(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const charsByLine = useMemo(
     () => buildCharDrifts(makeSingleLine(item.tag), TAG_DURATION_MS),
@@ -116,10 +121,12 @@ const TagPill = ({ item, index, reducedMotion }: PillProps) => {
     .filter(Boolean)
     .join(" ");
 
+  const showPlainText = !mounted || settled;
+
   return (
     <a className={pillClass} href={`/tags/${item.tag}/`} style={style}>
       <span className="tags-page__pill-name" aria-label={item.tag}>
-        {settled ? (
+        {showPlainText ? (
           <span aria-hidden="true">{item.tag}</span>
         ) : (
           charsByLine.map((lineChars, lineIndex) => (

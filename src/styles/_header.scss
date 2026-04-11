@@ -229,8 +229,8 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
     background: none;
     border: none;
     cursor: pointer;
@@ -510,8 +510,8 @@ body.mobile-menu-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   background: none;
   border: none;
   cursor: pointer;
@@ -822,9 +822,8 @@ body.mobile-menu-open {
     opacity: 1 !important;
     transform: translateY(0) !important;
     pointer-events: all;
-    background: oklch(95% 0.01 75deg / 0.86);
+    background: oklch(95% 0.01 75deg / 86%);
     backdrop-filter: blur(12px) saturate(1.15);
-    -webkit-backdrop-filter: blur(12px) saturate(1.15);
     border-bottom: 1px solid color-mix(in oklch, var(--primary-color) 12%, transparent);
     box-shadow: 0 6px 20px -12px color-mix(in oklch, var(--primary-color) 22%, transparent);
   }

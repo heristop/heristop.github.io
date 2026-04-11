@@ -387,3 +387,18 @@
     will-change: transform, opacity;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  [class*="zen-"],
+  [class*="haiku-"],
+  [class*="sakura"] {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .haiku-skeleton__line {
+    animation: none !important;
+    opacity: 0.6;
+  }
+}
