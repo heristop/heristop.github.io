@@ -196,7 +196,8 @@ const breadcrumbItems = [
           <a
             class="post-nav-indicator post-nav-indicator--left"
             href="/blog/${previousPost.id}/"
-            title="Previous: ${previousPost.data.title.replaceAll('"', '&quot;')}"
+            data-tooltip="\u2190 ${previousPost.data.title.replaceAll('"', '&quot;')}"
+            data-tooltip-placement="left"
             aria-label="Previous post: ${previousPost.data.title.replaceAll('"', '&quot;')}"
           >\u2190</a>
         `);
@@ -207,7 +208,8 @@ const breadcrumbItems = [
           <a
             class="post-nav-indicator post-nav-indicator--right"
             href="/blog/${nextPost.id}/"
-            title="Next: ${nextPost.data.title.replaceAll('"', '&quot;')}"
+            data-tooltip="${nextPost.data.title.replaceAll('"', '&quot;')} \u2192"
+            data-tooltip-placement="left"
             aria-label="Next post: ${nextPost.data.title.replaceAll('"', '&quot;')}"
           >\u2192</a>
         `);

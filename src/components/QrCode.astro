@@ -5,9 +5,11 @@ interface Props {
   url: string;
   size?: number;
   label?: string;
+  tooltip?: string;
 }
 
-const { url, size = 72, label = 'Scan to connect' } = Astro.props;
+const { url, size = 72, label = 'Scan to connect', tooltip } = Astro.props;
+const tooltipText = tooltip ?? `Scan or click to open ${label}`;
 
 const svg = await QRCode.toString(url, {
   type: 'svg',
@@ -23,7 +25,15 @@ const svg = await QRCode.toString(url, {
 const themedSvg = svg.replaceAll('stroke="#000000"', 'stroke="currentColor"');
 ---
 
-<a href={url} target="_blank" rel="noopener noreferrer" class="qr-code" aria-label={`${label} — ${url}`}>
+<a
+  href={url}
+  target="_blank"
+  rel="noopener noreferrer"
+  class="qr-code"
+  aria-label={`${label} — ${url}`}
+  data-tooltip={tooltipText}
+  data-tooltip-placement="top"
+>
   <div class="qr-code__ring" aria-hidden="true"></div>
   <div class="qr-code__card">
     <div class="qr-code__shimmer" aria-hidden="true"></div>

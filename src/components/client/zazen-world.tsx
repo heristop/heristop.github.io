@@ -29,7 +29,8 @@ interface DirectionButtonProps {
   label: string;
   modifier: string;
   onMove: (dir: Direction) => void;
-  title: string;
+  tooltip: string;
+  tooltipPlacement?: "top" | "bottom" | "left" | "right";
 }
 
 interface TileRendererProps {
@@ -53,7 +54,8 @@ const DirectionButton = ({
   onMove,
   icon,
   label,
-  title,
+  tooltip,
+  tooltipPlacement = "top",
   keyLabel,
   modifier,
 }: DirectionButtonProps) => (
@@ -64,7 +66,8 @@ const DirectionButton = ({
       onMove(direction);
     }}
     aria-label={label}
-    title={title}
+    data-tooltip={tooltip}
+    data-tooltip-placement={tooltipPlacement}
   >
     {icon}
     <span>{keyLabel}</span>
@@ -123,7 +126,8 @@ const CompassPanel = ({ onMove }: CompassPanelProps) => (
         onMove={onMove}
         icon={northIcon}
         label="Move North (W/up arrow)"
-        title="Press W or up arrow"
+        tooltip="Press W or ↑"
+        tooltipPlacement="top"
         keyLabel="W"
         modifier="north"
       />
@@ -132,7 +136,8 @@ const CompassPanel = ({ onMove }: CompassPanelProps) => (
         onMove={onMove}
         icon={westIcon}
         label="Move West (A/left arrow)"
-        title="Press A or left arrow"
+        tooltip="Press A or ←"
+        tooltipPlacement="left"
         keyLabel="A"
         modifier="west"
       />
@@ -141,7 +146,8 @@ const CompassPanel = ({ onMove }: CompassPanelProps) => (
         onMove={onMove}
         icon={eastIcon}
         label="Move East (D/right arrow)"
-        title="Press D or right arrow"
+        tooltip="Press D or →"
+        tooltipPlacement="right"
         keyLabel="D"
         modifier="east"
       />
@@ -150,7 +156,8 @@ const CompassPanel = ({ onMove }: CompassPanelProps) => (
         onMove={onMove}
         icon={southIcon}
         label="Move South (S/down arrow)"
-        title="Press S or down arrow"
+        tooltip="Press S or ↓"
+        tooltipPlacement="bottom"
         keyLabel="S"
         modifier="south"
       />

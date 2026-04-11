@@ -117,6 +117,7 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
           rel="noopener noreferrer"
           class="site-footer__social-link"
           aria-label="GitHub Profile"
+          data-tooltip="GitHub"
         >
           <img src="/icons/github.svg" alt="GitHub" width="20" height="20" />
         </a>
@@ -126,6 +127,7 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
           rel="noopener noreferrer"
           class="site-footer__social-link"
           aria-label="LinkedIn Profile"
+          data-tooltip="LinkedIn"
         >
           <img
             src="/icons/linkedin.svg"
@@ -140,6 +142,7 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
           rel="noopener noreferrer"
           class="site-footer__social-link"
           aria-label="X (Twitter) Profile"
+          data-tooltip="X (Twitter)"
         >
           <img src="/icons/x-twitter.svg" alt="X" width="20" height="20" />
         </a>
@@ -149,6 +152,7 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
           rel="noopener noreferrer"
           class="site-footer__social-link"
           aria-label="Bluesky Profile"
+          data-tooltip="Bluesky"
         >
           <img src="/icons/bluesky.svg" alt="Bluesky" width="20" height="20" />
         </a>
@@ -161,6 +165,8 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
           target="_blank"
           rel="noopener noreferrer"
           class="site-footer__link"
+          data-tooltip="All my socials on one page (opens in new tab)"
+          data-tooltip-placement="top"
         >
           <span class="site-footer__link-icon" aria-hidden="true">
             <Icon name="external-link" size={14} aria-hidden={true} />
@@ -168,7 +174,13 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
           <span class="site-footer__link-label">Link in Bio</span>
           <Icon name="arrow-up-right" size={14} class="site-footer__link-arrow" aria-hidden={true} />
         </a>
-        <button type="button" class="site-footer__link site-footer__rss-copy" data-url="/rss.xml">
+        <button
+          type="button"
+          class="site-footer__link site-footer__rss-copy"
+          data-url="/rss.xml"
+          data-tooltip="Click to copy feed URL"
+          data-tooltip-placement="top"
+        >
           <span class="site-footer__link-icon" aria-hidden="true">
             <Icon name="rss" size={14} aria-hidden={true} />
           </span>
