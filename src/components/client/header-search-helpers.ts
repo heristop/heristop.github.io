@@ -31,10 +31,7 @@ const isBlogPostArray = (value: unknown): value is BlogPost[] =>
   Array.isArray(value) &&
   value.every(
     (item: unknown) =>
-      typeof item === "object" &&
-      item !== null &&
-      "slug" in item &&
-      "title" in item,
+      typeof item === "object" && item !== null && "slug" in item && "title" in item,
   );
 
 const formatDate = (date: string | Date): string => {
@@ -102,10 +99,7 @@ const handleSearchShortcuts = (
   openSearch: () => void,
   closeSearch: () => void,
 ): void => {
-  if (
-    event.key === "Escape" &&
-    searchOverlay.classList.contains("search-overlay--open")
-  ) {
+  if (event.key === "Escape" && searchOverlay.classList.contains("search-overlay--open")) {
     closeSearch();
   }
   if ((event.metaKey || event.ctrlKey) && event.key === "k") {
@@ -194,10 +188,7 @@ const createNoResultsSvg = (): SVGSVGElement => {
   svg.setAttribute("stroke-linejoin", "round");
   svg.setAttribute("class", "search-empty-icon");
   svg.setAttribute("aria-hidden", "true");
-  const circle = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "circle",
-  );
+  const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
   circle.setAttribute("cx", "11");
   circle.setAttribute("cy", "11");
   circle.setAttribute("r", "8");

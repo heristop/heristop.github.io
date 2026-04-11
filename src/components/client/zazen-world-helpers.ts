@@ -86,11 +86,7 @@ const isWaterRow = function isWaterRow(posY: number): boolean {
   return posY >= WATER_ROW_START && posY <= WATER_ROW_END;
 };
 
-const isOuterEdge = function isOuterEdge(
-  posX: number,
-  posY: number,
-  distance: number,
-): boolean {
+const isOuterEdge = function isOuterEdge(posX: number, posY: number, distance: number): boolean {
   return (
     distance > DISTANCE_THRESHOLD ||
     posX <= OUTER_EDGE_LOW ||
@@ -125,10 +121,7 @@ const getProceduralTerrain = function getProceduralTerrain(
   return { decors, img, perso: 0 };
 };
 
-const generateTerrain = function generateTerrain(
-  posX: number,
-  posY: number,
-): TerrainResult {
+const generateTerrain = function generateTerrain(posX: number, posY: number): TerrainResult {
   const key = `${posX}-${posY}`;
   if (ORIGINAL_CONTENT[key] !== undefined) {
     return ORIGINAL_CONTENT[key];
@@ -147,9 +140,12 @@ const buildInitialMap = function buildInitialMap(): MapTile[] {
   return result;
 };
 
-const calculateMapDimensions = function calculateMapDimensions(
-  map: MapTile[],
-): { height: number; width: number; offsetX: number; offsetY: number } {
+const calculateMapDimensions = function calculateMapDimensions(map: MapTile[]): {
+  height: number;
+  width: number;
+  offsetX: number;
+  offsetY: number;
+} {
   let maxX = -Infinity;
   let maxY = -Infinity;
   let minX = Infinity;
@@ -207,11 +203,7 @@ const applyDirectionOffset = function applyDirectionOffset(
   return { newX, newY };
 };
 
-const findTargetTile = function findTargetTile(
-  map: MapTile[],
-  newX: number,
-  newY: number,
-): number {
+const findTargetTile = function findTargetTile(map: MapTile[], newX: number, newY: number): number {
   return map.findIndex(
     (tile) =>
       tile.posX === newX &&
@@ -240,9 +232,7 @@ const performMove = function performMove(
 
   const newMap = [...map];
   const currentIndex = map.findIndex(
-    (tile) =>
-      tile.posX === characterPosition.posX &&
-      tile.posY === characterPosition.posY,
+    (tile) => tile.posX === characterPosition.posX && tile.posY === characterPosition.posY,
   );
 
   if (currentIndex === -1) {

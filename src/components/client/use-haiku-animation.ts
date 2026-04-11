@@ -37,11 +37,7 @@ const useAppearTimer = (text: string | undefined, reducedMotion: boolean) => {
   return appeared;
 };
 
-const useBreathePhase = (
-  appeared: boolean,
-  reducedMotion: boolean,
-  words: WordDrift[],
-) => {
+const useBreathePhase = (appeared: boolean, reducedMotion: boolean, words: WordDrift[]) => {
   const [breathing, setBreathing] = useState(false);
   const [autoSettled, setAutoSettled] = useState(false);
 
@@ -49,9 +45,7 @@ const useBreathePhase = (
     if (!appeared || breathing || reducedMotion || words.length === 0) {
       return;
     }
-    const isMobileTouch = globalThis.matchMedia(
-      "(hover: none) and (pointer: coarse)",
-    ).matches;
+    const isMobileTouch = globalThis.matchMedia("(hover: none) and (pointer: coarse)").matches;
     const totalMs = maxAnimationEnd(words) + BREATHE_BUFFER_MS;
     if (isMobileTouch) {
       const timer = setTimeout(() => {
@@ -95,11 +89,7 @@ const useHaikuAnimation = (text: string | undefined): HaikuAnimationResult => {
     return [];
   }, [text]);
 
-  const { autoSettled, breathing } = useBreathePhase(
-    appeared,
-    reducedMotion,
-    words,
-  );
+  const { autoSettled, breathing } = useBreathePhase(appeared, reducedMotion, words);
 
   let charClass = "haiku-char--settled";
   if (!autoSettled) {

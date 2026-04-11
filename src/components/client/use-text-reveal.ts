@@ -77,8 +77,7 @@ const createCharDrift = ({
   key,
   seed,
 }: CharDriftParams): CharDrift => {
-  const durationVar =
-    (seededRandom(seed + SEED_OFFSET_DUR) - HALF) * 2 * DURATION_VARIATION;
+  const durationVar = (seededRandom(seed + SEED_OFFSET_DUR) - HALF) * 2 * DURATION_VARIATION;
   return {
     blur,
     char,
@@ -87,8 +86,7 @@ const createCharDrift = ({
     driftY: -(seededRandom(seed + SEED_OFFSET_Y) * DRIFT_Y_RANGE + DRIFT_Y_MIN),
     duration: Math.round(baseDuration * (1 + durationVar)),
     key,
-    rotation:
-      (seededRandom(seed + SEED_OFFSET_R) - HALF) * DRIFT_ROTATION_RANGE,
+    rotation: (seededRandom(seed + SEED_OFFSET_R) - HALF) * DRIFT_ROTATION_RANGE,
   };
 };
 
@@ -125,15 +123,11 @@ const buildCharDrifts = (
   baseDuration = DEFAULT_BASE_DURATION_MS,
 ): CharDrift[][] =>
   lines.map((line, lineIndex) => {
-    const chars = Array.from(
-      segmenter.segment(line.text),
-      (seg) => seg.segment,
-    );
+    const chars = Array.from(segmenter.segment(line.text), (seg) => seg.segment);
     const lineLen = Math.max(chars.length - 1, 1);
     return chars.map((char, charIndex) => {
       const seed = lineIndex * CHARS_PER_LINE + charIndex + 1;
-      const baseDelay =
-        lineIndex * LINE_STAGGER_MS + charIndex * CHAR_STAGGER_MS;
+      const baseDelay = lineIndex * LINE_STAGGER_MS + charIndex * CHAR_STAGGER_MS;
       const wave = Math.sin(charIndex * WAVE_FREQUENCY) * WAVE_AMPLITUDE;
       const delay = Math.round(baseDelay * (1 + wave));
       const edgeness = Math.abs(charIndex / lineLen - HALF) * 2;
@@ -160,8 +154,7 @@ const buildWordDrifts = (
     const chars = wordChars.map((char, charIndex) => {
       const seed = globalIndex + 1;
       globalIndex += 1;
-      const baseDelay =
-        wordIndex * WORD_STAGGER_MS + charIndex * WORD_CHAR_STAGGER_MS;
+      const baseDelay = wordIndex * WORD_STAGGER_MS + charIndex * WORD_CHAR_STAGGER_MS;
       const wave = Math.sin(globalIndex * WAVE_FREQUENCY) * WAVE_AMPLITUDE;
       const delay = Math.round(baseDelay * (1 + wave));
       const blur = BLUR_MIN + BLUR_EDGE_EXTRA * HALF;
@@ -188,21 +181,14 @@ const getSmokeClass = (appeared: boolean, reducedMotion: boolean): string => {
   return "haiku-char--smoke";
 };
 
-const getCharClass = (
-  settled: boolean,
-  appeared: boolean,
-  reducedMotion: boolean,
-): string => {
+const getCharClass = (settled: boolean, appeared: boolean, reducedMotion: boolean): string => {
   if (settled) {
     return "haiku-char--settled";
   }
   return getSmokeClass(appeared, reducedMotion);
 };
 
-const getSmokeStyle = (
-  charDrift: CharDrift,
-  reducedMotion: boolean,
-): React.CSSProperties => {
+const getSmokeStyle = (charDrift: CharDrift, reducedMotion: boolean): React.CSSProperties => {
   if (reducedMotion) {
     return { display: "inline-block" };
   }
@@ -217,9 +203,8 @@ const getSmokeStyle = (
   } as React.CSSProperties;
 };
 
-const isWordDrifts = (
-  drifts: CharDrift[][] | WordDrift[],
-): drifts is WordDrift[] => drifts.length > 0 && "word" in drifts[0];
+const isWordDrifts = (drifts: CharDrift[][] | WordDrift[]): drifts is WordDrift[] =>
+  drifts.length > 0 && "word" in drifts[0];
 
 const maxAnimationEnd = (drifts: CharDrift[][] | WordDrift[]): number => {
   let max = 0;

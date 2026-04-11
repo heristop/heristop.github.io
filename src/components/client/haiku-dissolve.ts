@@ -8,8 +8,7 @@ const DISSOLVE_BLUR_MAX = 0.6;
 const DISSOLVE_EASE_POWER = 1.5;
 const DISSOLVE_TRANSITION_FULL =
   "opacity 120ms ease, transform 120ms ease, filter 120ms ease, color 120ms ease";
-const DISSOLVE_TRANSITION_LIGHT =
-  "opacity 120ms ease, transform 120ms ease, color 120ms ease";
+const DISSOLVE_TRANSITION_LIGHT = "opacity 120ms ease, transform 120ms ease, color 120ms ease";
 const RECOVER_TRANSITION_FULL =
   "opacity 650ms var(--zen-ease-spring), transform 650ms var(--zen-ease-spring), filter 650ms var(--zen-ease-spring), color 650ms var(--zen-ease-spring)";
 const RECOVER_TRANSITION_LIGHT =
@@ -55,13 +54,9 @@ const applyDissolveToElement = (
 
   el.style.opacity = `${1 - eased * DISSOLVE_OPACITY_FACTOR}`;
   el.style.transform = `translate(${driftX * eased * DISSOLVE_DRIFT_FACTOR}px, ${driftY * eased * DISSOLVE_DRIFT_FACTOR}px) rotate(${driftR * eased * DISSOLVE_ROTATION_FACTOR}deg) scale(${scale})`;
-  el.style.filter = touchDevice
-    ? "none"
-    : `blur(${eased * DISSOLVE_BLUR_MAX}px)`;
+  el.style.filter = touchDevice ? "none" : `blur(${eased * DISSOLVE_BLUR_MAX}px)`;
   el.style.color = cachedColor;
-  el.style.transition = touchDevice
-    ? DISSOLVE_TRANSITION_LIGHT
-    : DISSOLVE_TRANSITION_FULL;
+  el.style.transition = touchDevice ? DISSOLVE_TRANSITION_LIGHT : DISSOLVE_TRANSITION_FULL;
 };
 
 const resetElement = (el: HTMLSpanElement) => {
@@ -69,9 +64,7 @@ const resetElement = (el: HTMLSpanElement) => {
   el.style.transform = "translate(0, 0) rotate(0deg) scale(1)";
   el.style.filter = touchDevice ? "" : "blur(0)";
   el.style.color = "";
-  el.style.transition = touchDevice
-    ? RECOVER_TRANSITION_LIGHT
-    : RECOVER_TRANSITION_FULL;
+  el.style.transition = touchDevice ? RECOVER_TRANSITION_LIGHT : RECOVER_TRANSITION_FULL;
 };
 
 interface CharEntryContext {
@@ -85,15 +78,7 @@ interface CharEntryContext {
 }
 
 const processCharEntry = (ctx: CharEntryContext) => {
-  const {
-    key,
-    cached,
-    mouseX,
-    mouseY,
-    charElsRef,
-    dissolvedKeys,
-    nextDissolved,
-  } = ctx;
+  const { key, cached, mouseX, mouseY, charElsRef, dissolvedKeys, nextDissolved } = ctx;
   const deltaX = mouseX - cached.px;
   const deltaY = mouseY - cached.py;
   const distSq = deltaX * deltaX + deltaY * deltaY;
@@ -113,13 +98,7 @@ const processCharEntry = (ctx: CharEntryContext) => {
     return;
   }
   const intensity = 1 - Math.sqrt(distSq) / DISSOLVE_RADIUS;
-  applyDissolveToElement(
-    el,
-    intensity,
-    cached.driftX,
-    cached.driftY,
-    cached.driftR,
-  );
+  applyDissolveToElement(el, intensity, cached.driftX, cached.driftY, cached.driftR);
   nextDissolved.add(key);
 };
 
