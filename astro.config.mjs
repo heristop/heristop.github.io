@@ -5,7 +5,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import sitemap from "@astrojs/sitemap";
-import { externalLink } from "./src/plugins/externalLink";
+import { externalLink } from "./src/plugins/external-link";
 import react from "@astrojs/react";
 import icon from "astro-icon";
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Element, Root } from "hast";
-import { externalLink } from "../../src/plugins/externalLink";
+import { externalLink } from "../../src/plugins/external-link";
 
 type Transformer = (tree: Root, file: unknown, next: () => void) => void;
 
