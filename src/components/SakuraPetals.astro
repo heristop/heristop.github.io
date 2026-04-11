@@ -111,6 +111,13 @@
           burst(e.touches[0].clientX, e.touches[0].clientY);
         }
       }, { passive: true });
+
+      document.addEventListener('sakura:burst', function(e) {
+        var detail = e.detail;
+        if (detail && typeof detail.x === 'number' && typeof detail.y === 'number') {
+          burst(detail.x, detail.y);
+        }
+      });
     }
 
     if (document.readyState === 'loading') {

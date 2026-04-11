@@ -1,0 +1,179 @@
+/*
+ * Design-system primitives.
+ *
+ * Tooltip — add `data-tooltip="Label"` to any element to show a hover tooltip
+ * with an arrow. Default placement is "top"; override with
+ * `data-tooltip-placement="bottom"`.
+ *
+ * The host must establish a positioning context. As a zero-specificity
+ * convenience we default to `position: relative`, but any class-level
+ * positioning rule on the host will override it (including `absolute`,
+ * `fixed`, `sticky`).
+ *
+ * Tokens consumed: --primary-color, --code-bg-color, --font-mono,
+ * --zen-duration-normal, --zen-ease-out.
+ */
+:where([data-tooltip]) {
+  position: relative;
+}
+
+[data-tooltip] {
+  &::before,
+  &::after {
+    position: absolute;
+    left: 50%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 100;
+    transition:
+      opacity var(--zen-duration-normal) var(--zen-ease-out),
+      transform var(--zen-duration-normal) var(--zen-ease-out);
+  }
+
+  &::before {
+    content: attr(data-tooltip);
+    bottom: calc(100% + 0.75rem);
+    padding: 0.4rem 0.7rem;
+    border-radius: 0.5rem;
+    background: var(--code-bg-color);
+    color: color-mix(in oklch, var(--primary-color) 30%, oklch(96% 0.025 30deg));
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    font-style: normal;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-align: center;
+    text-transform: none;
+    white-space: nowrap;
+    transform: translate(-50%, 6px);
+    border: 1px solid color-mix(in oklch, var(--primary-color) 22%, transparent);
+    box-shadow:
+      0 1px 0 oklch(100% 0 0deg / 10%) inset,
+      0 6px 18px -12px oklch(18% 0.04 350deg / 42%);
+    backdrop-filter: blur(4px);
+  }
+
+  &::after {
+    content: "";
+    bottom: calc(100% + 0.25rem);
+    width: 0;
+    height: 0;
+    border-width: 5px 5px 0;
+    border-style: solid;
+    border-color: var(--code-bg-color) transparent transparent;
+    transform: translate(-50%, 6px);
+    filter: drop-shadow(0 2px 2px oklch(18% 0.04 350deg / 20%));
+  }
+
+  &:hover::before,
+  &:hover::after,
+  &:focus-visible::before,
+  &:focus-visible::after {
+    opacity: 0.95;
+    transform: translate(-50%, 0);
+  }
+}
+
+[data-tooltip][data-tooltip-placement="bottom"] {
+  &::before {
+    bottom: auto;
+    top: calc(100% + 0.75rem);
+    transform: translate(-50%, -6px);
+  }
+
+  &::after {
+    bottom: auto;
+    top: calc(100% + 0.25rem);
+    border-width: 0 5px 5px;
+    border-color: transparent transparent var(--code-bg-color);
+    transform: translate(-50%, -6px);
+  }
+
+  &:hover::before,
+  &:hover::after,
+  &:focus-visible::before,
+  &:focus-visible::after {
+    transform: translate(-50%, 0);
+  }
+}
+
+[data-tooltip][data-tooltip-placement="left"] {
+  &::before {
+    bottom: auto;
+    left: auto;
+    right: calc(100% + 0.75rem);
+    top: 50%;
+    transform: translate(6px, -50%);
+  }
+
+  &::after {
+    bottom: auto;
+    left: auto;
+    right: calc(100% + 0.25rem);
+    top: 50%;
+    border-width: 5px 0 5px 5px;
+    border-color: transparent transparent transparent var(--code-bg-color);
+    transform: translate(6px, -50%);
+    filter: drop-shadow(2px 0 2px oklch(18% 0.04 350deg / 20%));
+  }
+
+  &:hover::before,
+  &:hover::after,
+  &:focus-visible::before,
+  &:focus-visible::after {
+    transform: translate(0, -50%);
+  }
+}
+
+[data-tooltip][data-tooltip-placement="right"] {
+  &::before {
+    bottom: auto;
+    left: calc(100% + 0.75rem);
+    top: 50%;
+    transform: translate(-6px, -50%);
+  }
+
+  &::after {
+    bottom: auto;
+    left: calc(100% + 0.25rem);
+    top: 50%;
+    border-width: 5px 5px 5px 0;
+    border-color: transparent var(--code-bg-color) transparent transparent;
+    transform: translate(-6px, -50%);
+    filter: drop-shadow(-2px 0 2px oklch(18% 0.04 350deg / 20%));
+  }
+
+  &:hover::before,
+  &:hover::after,
+  &:focus-visible::before,
+  &:focus-visible::after {
+    transform: translate(0, -50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-tooltip] {
+    &::before,
+    &::after {
+      transition: opacity var(--zen-duration-normal) var(--zen-ease-out);
+    }
+  }
+
+  [data-tooltip]:not([data-tooltip-placement]),
+  [data-tooltip][data-tooltip-placement="top"],
+  [data-tooltip][data-tooltip-placement="bottom"] {
+    &::before,
+    &::after {
+      transform: translate(-50%, 0);
+    }
+  }
+
+  [data-tooltip][data-tooltip-placement="left"],
+  [data-tooltip][data-tooltip-placement="right"] {
+    &::before,
+    &::after {
+      transform: translate(0, -50%);
+    }
+  }
+}

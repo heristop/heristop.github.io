@@ -83,7 +83,7 @@ const shareLinks = [
   </button>
 </div>
 
-<script is:inline>
+<script>
   const SHARE_FEEDBACK_DURATION = 1500;
 
   const initSocialShare = () => {
@@ -93,7 +93,10 @@ const shareLinks = [
       typeof navigator.clipboard.writeText !== 'undefined';
 
     for (const el of document.querySelectorAll('.social-share__native-btn')) {
-      const btn = /** @type {HTMLElement} */ (el);
+      if (!(el instanceof HTMLElement)) {
+        continue;
+      }
+      const btn = el;
 
       if (canShare || canCopy) {
         btn.removeAttribute('hidden');
@@ -123,7 +126,7 @@ const shareLinks = [
 
         await navigator.clipboard.writeText(url);
         const icon = btn.querySelector('.social-share__icon');
-        if (!icon) {
+        if (!(icon instanceof HTMLImageElement)) {
           return;
         }
 
