@@ -179,7 +179,8 @@ a {
   &.post-page__tag::after,
   &.tags-page__pill::after,
   &.blog-archive__tags-link::after,
-  &.blog-card__tag::after {
+  &.blog-card__tag::after,
+  &.not-found__link::after {
     content: none;
   }
 
