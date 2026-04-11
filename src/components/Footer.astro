@@ -14,11 +14,33 @@ import Icon from './Icon.astro';
 
 const currentYear = new Date().getFullYear();
 const brandMark = `{ ${SITE_TITLE.replace(' ', '_')} }`;
+
+const normalizePath = (p: string) => (p === '/' ? '/' : p.replace(/\/$/, ''));
+const currentPath = normalizePath(Astro.url.pathname);
+
+const navEntries: { href: string; icon: string; label: string }[] = [
+  { href: '/', icon: 'home', label: 'Home' },
+  { href: '/blog', icon: 'book-open', label: 'Blog' },
+  { href: '/projects', icon: 'layers', label: 'Projects' },
+  { href: '/about', icon: 'info', label: 'About' },
+  { href: '/path', icon: 'map', label: 'Path' },
+];
+
+const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href) !== currentPath);
 ---
 
-<div class="site-footer__eof">--eof--</div>
-
 <footer class="site-footer" role="contentinfo">
+  <button
+    type="button"
+    class="site-footer__eof"
+    aria-label="Scroll to top"
+    data-tooltip="↑ Back to top"
+    data-scroll-top
+  >
+    <span class="site-footer__eof-bracket" aria-hidden="true">--</span><span
+      class="site-footer__eof-text" aria-hidden="true">eof</span><span
+      class="site-footer__eof-bracket" aria-hidden="true">--</span>
+  </button>
   <div class="site-footer__container">
     <!-- About Section -->
     <section
@@ -26,11 +48,12 @@ const brandMark = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       aria-labelledby="footer-about"
     >
       <a
-        title="Profile"
-        href="/extra"
+        href="/about"
         class="site-footer__profile"
-        aria-label="View profile">
-        <span class="site-footer__profile-tooltip">See Extra</span>
+        aria-label="About me"
+        data-tooltip="About me"
+        data-tooltip-placement="bottom"
+      >
       </a>
       <div class="site-footer__info">
         <h3 id="footer-about" class="site-footer__title">{SITE_TITLE}</h3>
@@ -62,42 +85,19 @@ const brandMark = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       <h3 id="footer-nav" class="site-footer__section-title">Navigate</h3>
       <nav aria-label="Footer navigation">
         <ul class="site-footer__nav-list">
-          <li>
-            <a href="/" class="site-footer__nav-link">
-              <span class="site-footer__nav-icon" aria-hidden="true">
-                <Icon name="home" size={14} aria-hidden={true} />
-              </span>
-              <span class="site-footer__nav-label">Home</span>
-              <Icon name="arrow-right" size={14} class="site-footer__nav-arrow" aria-hidden={true} />
-            </a>
-          </li>
-          <li>
-            <a href="/blog" class="site-footer__nav-link">
-              <span class="site-footer__nav-icon" aria-hidden="true">
-                <Icon name="book-open" size={14} aria-hidden={true} />
-              </span>
-              <span class="site-footer__nav-label">Blog</span>
-              <Icon name="arrow-right" size={14} class="site-footer__nav-arrow" aria-hidden={true} />
-            </a>
-          </li>
-          <li>
-            <a href="/projects" class="site-footer__nav-link">
-              <span class="site-footer__nav-icon" aria-hidden="true">
-                <Icon name="layers" size={14} aria-hidden={true} />
-              </span>
-              <span class="site-footer__nav-label">Projects</span>
-              <Icon name="arrow-right" size={14} class="site-footer__nav-arrow" aria-hidden={true} />
-            </a>
-          </li>
-          <li>
-            <a href="/about" class="site-footer__nav-link">
-              <span class="site-footer__nav-icon" aria-hidden="true">
-                <Icon name="info" size={14} aria-hidden={true} />
-              </span>
-              <span class="site-footer__nav-label">About</span>
-              <Icon name="arrow-right" size={14} class="site-footer__nav-arrow" aria-hidden={true} />
-            </a>
-          </li>
+          {
+            visibleNavEntries.map((entry) => (
+              <li>
+                <a href={entry.href} class="site-footer__nav-link">
+                  <span class="site-footer__nav-icon" aria-hidden="true">
+                    <Icon name={entry.icon} size={14} aria-hidden={true} />
+                  </span>
+                  <span class="site-footer__nav-label">{entry.label}</span>
+                  <Icon name="arrow-right" size={14} class="site-footer__nav-arrow" aria-hidden={true} />
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </nav>
     </section>
@@ -213,4 +213,38 @@ const brandMark = `{ ${SITE_TITLE.replace(' ', '_')} }`;
   };
   initFooterRssCopy();
   document.addEventListener('astro:page-load', initFooterRssCopy);
+</script>
+
+<script is:inline>
+  const SCROLL_TOP_THRESHOLD = 400;
+
+  const scrollToPageTop = () => {
+    globalThis.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const initScrollTopControls = () => {
+    for (const el of document.querySelectorAll('[data-scroll-top]')) {
+      if (el.dataset.scrollTopInit === 'true') {
+        continue;
+      }
+      el.dataset.scrollTopInit = 'true';
+      el.addEventListener('click', scrollToPageTop);
+    }
+
+    const fixedBtn = document.querySelector('.scroll-to-top[data-scroll-top-fixed]');
+    if (fixedBtn && fixedBtn.dataset.scrollTopFixedInit !== 'true') {
+      fixedBtn.dataset.scrollTopFixedInit = 'true';
+
+      const updateFixedVisibility = () => {
+        fixedBtn.toggleAttribute('hidden', globalThis.scrollY <= SCROLL_TOP_THRESHOLD);
+      };
+
+      globalThis.addEventListener('scroll', updateFixedVisibility, { passive: true });
+      updateFixedVisibility();
+      fixedBtn.addEventListener('click', scrollToPageTop);
+    }
+  };
+
+  initScrollTopControls();
+  document.addEventListener('astro:page-load', initScrollTopControls);
 </script>
