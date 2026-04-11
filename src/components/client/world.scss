@@ -1,52 +1,119 @@
+@use "sass:color";
+
 .zazen-world-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem 1.5rem 3rem;
+  overflow-x: hidden;
+  border-radius: var(--radius-lg);
+  view-transition-name: zazen-world;
+
+  /* Ink-wash paper vignette */
+  background:
+    radial-gradient(
+      ellipse at 30% 20%,
+      color-mix(in oklch, var(--primary-color) 4%, transparent) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 70% 85%,
+      color-mix(in oklch, var(--primary-color) 5%, transparent) 0%,
+      transparent 60%
+    );
+
+  @media (width <= 768px) {
+    padding: 0.5rem 0.5rem 1.5rem;
+    min-height: 100dvh;
+    gap: 0.25rem;
+  }
+}
+
+.zazen-world__header.path-stones__header {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 2rem 2rem;
-  view-transition-name: zazen-world;
+  width: 100%;
+  max-width: 640px;
+  padding: 0 1rem;
+  text-align: center;
+  opacity: 0;
+  animation: zazen-header-fade-in 0.8s var(--zen-ease-elegant) forwards;
 
   @media (width <= 768px) {
-    padding: 0.5rem 1rem 1rem;
-    min-height: 100vh;
+    order: 1;
+    padding: 0 0.5rem;
+    gap: 0.15rem;
+  }
+}
+
+.path-stones__intro {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+  color: color-mix(in oklch, var(--heading-color) 82%, transparent);
+  margin: 0;
+
+  @media (width <= 768px) {
+    font-size: 0.88rem;
+  }
+}
+
+.path-stones__progress {
+  font-family: Georgia, serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: color-mix(in oklch, var(--primary-color) 70%, var(--heading-color));
+  margin: 0.35rem 0 0;
+  opacity: 0.78;
+
+  @media (width <= 768px) {
+    margin: 0.15rem 0 0;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+  }
+}
+
+.zazen-world__map-wrapper {
+  position: relative;
+  margin: 1.25rem auto;
+  max-width: 100%;
+  touch-action: none;
+  opacity: 0;
+  animation: zazen-map-fade-in 1s var(--zen-ease-elegant) 0.4s forwards;
+
+  @media (width <= 768px) {
+    order: 2;
+    margin: 0.5rem auto;
   }
 }
 
 .zazen-world__map {
-  position: relative;
-  margin: 2rem auto;
-  max-width: 100%;
-  transform-origin: center;
-  opacity: 0;
-  animation: zazen-map-fade-in 0.8s ease-out 0.3s forwards;
-
-  @media (width <= 768px) {
-    margin: 1rem auto;
-    transform: scale(0.8);
-  }
-
-  @media (width <= 480px) {
-    transform: scale(0.6);
-    margin: 0.5rem auto;
-  }
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 @keyframes zazen-map-fade-in {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(var(--zazen-scale, 1));
+    transform: translateY(14px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(var(--zazen-scale, 1));
+    transform: translateY(0);
   }
 }
 
 @keyframes zazen-header-fade-in {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
 
   to {
@@ -58,7 +125,7 @@
 @keyframes zazen-compass-fade-in {
   from {
     opacity: 0;
-    transform: translateY(-5px);
+    transform: translateY(-4px);
   }
 
   to {
@@ -67,172 +134,121 @@
   }
 }
 
-/* CSS custom properties for responsive scaling */
-.zazen-world__map {
-  --zazen-scale: 1;
-}
-
-@media (width <= 768px) {
-  .zazen-world__map {
-    --zazen-scale: 0.8;
-  }
-}
-
-@media (width <= 480px) {
-  .zazen-world__map {
-    --zazen-scale: 0.6;
-  }
-}
-
-.zazen-world__header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 800px;
-  padding: 0 1rem;
-  text-align: center;
-  opacity: 0;
-  animation: zazen-header-fade-in 0.6s ease-out forwards;
-
-  @media (width <= 768px) {
-    padding: 0 0.5rem;
-  }
-}
-
-.zazen-world__title {
-  font-size: 1.5rem;
-  margin: 0;
-  margin-bottom: 0.5rem;
-  text-align: center;
-
-  @media (width <= 768px) {
-    font-size: 1.3rem;
-  }
-
-  @media (width <= 480px) {
-    font-size: 1.2rem;
-  }
-}
-
-.zazen-world__position {
-  font-size: 0.9rem;
-  color: var(--heading-color);
-  background: color-mix(in oklch, var(--primary-bg-color) 80%, transparent);
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  border: 1px solid color-mix(in oklch, var(--primary-color) 20%, transparent);
-  font-family: monospace;
-}
-
-.zazen-world__close {
-  background: none;
-  border: 1px solid var(--footer-border-color);
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  color: var(--heading-color);
-}
-
+/* Lotus-inspired compass */
 .zazen-world__compass {
-  margin-bottom: 0.5rem;
+  margin: 1rem 0 0.5rem;
   opacity: 0;
-  animation: zazen-compass-fade-in 0.6s ease-out 0.15s forwards;
+  animation: zazen-compass-fade-in 0.8s var(--zen-ease-elegant) 0.2s forwards;
 
   @media (width <= 768px) {
-    margin-bottom: 1rem;
+    order: 3;
+    margin: 0.5rem 0 0.25rem;
   }
 
   &-container {
     position: relative;
-    width: 100px;
-    height: 100px;
+    width: 132px;
+    height: 132px;
     display: flex;
     align-items: center;
     justify-content: center;
 
-    @media (width <= 768px) {
-      width: 110px;
-      height: 110px;
+    /* Enso center mark */
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid color-mix(in oklch, var(--primary-color) 30%, transparent);
+      border-radius: 50%;
+      pointer-events: none;
     }
 
-    @media (width <= 480px) {
-      width: 120px;
-      height: 120px;
+    @media (width <= 768px) {
+      width: 128px;
+      height: 128px;
+    }
+
+    @media (width <= 380px) {
+      width: 116px;
+      height: 116px;
     }
   }
 
   &-btn {
     position: absolute;
-    background: color-mix(in oklch, var(--primary-bg-color) 92%, transparent);
-    border: 1px solid color-mix(in oklch, var(--primary-color) 30%, transparent);
-    border-radius: 50%;
-    cursor: pointer;
-    width: 32px;
-    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    width: 44px;
+    height: 44px;
+    background: color-mix(in oklch, var(--surface-glass) 90%, transparent);
+    border: 1px solid color-mix(in oklch, var(--primary-color) 28%, transparent);
+    border-radius: 50%;
     color: var(--heading-color);
-    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
-    font-size: 7px;
+    cursor: pointer;
+    box-shadow:
+      0 1px 3px oklch(0% 0 0deg / 10%),
+      0 6px 16px -4px color-mix(in oklch, var(--primary-color) 18%, transparent);
+    transition:
+      transform 260ms var(--zen-ease-elegant),
+      background 260ms var(--zen-ease-out),
+      border-color 260ms var(--zen-ease-out),
+      box-shadow 260ms var(--zen-ease-elegant),
+      color 260ms ease;
+    font-size: 8px;
     font-weight: 500;
 
     @media (width <= 768px) {
-      width: 38px;
-      height: 38px;
-      font-size: 8px;
-    }
-
-    @media (width <= 480px) {
-      width: 42px;
-      height: 42px;
+      width: 48px;
+      height: 48px;
       font-size: 9px;
     }
 
-    span {
-      margin-top: 1px;
-      opacity: 0.7;
+    @media (width <= 380px) {
+      width: 42px;
+      height: 42px;
       font-size: 8px;
-
-      @media (width <= 768px) {
-        font-size: 10px;
-      }
-
-      @media (width <= 480px) {
-        font-size: 12px;
-      }
     }
 
-    &:focus {
-      outline: 2px solid color-mix(in oklch, var(--primary-color) 60%, transparent);
-      outline-offset: 2px;
+    span {
+      margin-top: 2px;
+      opacity: 0.6;
+      font-family: Georgia, serif;
+      font-style: italic;
+      letter-spacing: 0.06em;
+    }
+
+    &:focus-visible {
+      outline: 2px solid color-mix(in oklch, var(--primary-color) 55%, transparent);
+      outline-offset: 3px;
     }
 
     &:hover {
-      background: color-mix(in oklch, var(--primary-bg-color) 98%, transparent);
+      background: color-mix(in oklch, var(--surface-glass) 96%, var(--primary-color));
       color: var(--primary-color);
-      box-shadow: 0 2px 8px color-mix(in oklch, var(--primary-color) 15%, transparent);
       border-color: color-mix(in oklch, var(--primary-color) 50%, transparent);
-      transform: scale(1.03) translateY(-1px);
+      box-shadow:
+        0 2px 6px oklch(0% 0 0deg / 14%),
+        0 10px 24px -6px color-mix(in oklch, var(--primary-color) 30%, transparent);
     }
 
     &:active {
-      transform: scale(0.97);
-      box-shadow: 0 1px 3px color-mix(in oklch, var(--primary-color) 20%, transparent);
+      box-shadow:
+        0 1px 3px oklch(0% 0 0deg / 14%);
     }
 
-    /* North button */
     &--north {
       top: 0;
       left: 50%;
       transform: translateX(-50%);
 
       &:hover {
-        transform: translateX(-50%) scale(1.03) translateY(-1px);
+        transform: translateX(-50%) translateY(-2px);
       }
 
       &:active {
@@ -240,14 +256,13 @@
       }
     }
 
-    /* West button */
     &--west {
       left: 0;
       top: 50%;
       transform: translateY(-50%);
 
       &:hover {
-        transform: translateY(-50%) scale(1.03) translateY(-1px);
+        transform: translate(-2px, -50%);
       }
 
       &:active {
@@ -255,14 +270,13 @@
       }
     }
 
-    /* East button */
     &--east {
       right: 0;
       top: 50%;
       transform: translateY(-50%);
 
       &:hover {
-        transform: translateY(-50%) scale(1.03) translateY(-1px);
+        transform: translate(2px, -50%);
       }
 
       &:active {
@@ -270,14 +284,13 @@
       }
     }
 
-    /* South button */
     &--south {
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
 
       &:hover {
-        transform: translateX(-50%) scale(1.03) translateY(-1px);
+        transform: translateX(-50%) translateY(2px);
       }
 
       &:active {
@@ -289,6 +302,44 @@
 
 .zazen-world__tile {
   position: absolute;
+
+  &--step {
+    cursor: pointer;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 44px;
+      width: 48px;
+      height: 24px;
+      border: 1px dashed color-mix(in oklch, var(--primary-color) 42%, transparent);
+      border-radius: 50%;
+      opacity: 0;
+      transform: translateY(2px);
+      pointer-events: none;
+      transition:
+        opacity 260ms var(--zen-ease-elegant),
+        transform 260ms var(--zen-ease-elegant);
+    }
+
+    &:hover::after,
+    &:focus-visible::after {
+      opacity: 0.85;
+      transform: translateY(0);
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .zazen-world__tile--step::after {
+    opacity: 0.5;
+    transform: translateY(0);
+  }
 }
 
 .zazen-world__tile-image {
@@ -300,25 +351,298 @@
   text-align: center;
   background-position: bottom;
   background-repeat: no-repeat;
+  transition:
+    filter 600ms var(--zen-ease-elegant),
+    opacity 600ms var(--zen-ease-elegant);
 
   img {
-    filter: drop-shadow(1px 1px 2px rgb(0 0 0 / 30%));
+    filter: drop-shadow(1px 1px 2px oklch(0% 0 0deg / 30%));
+  }
+
+  &--stone {
+    .zazen-world__decor {
+      animation: path-stones-stone-breathe var(--zen-duration-breath, 4000ms) var(--zen-ease-in-out, ease-in-out) infinite;
+      filter:
+        drop-shadow(0 0 6px color-mix(in oklch, var(--primary-color) 40%, transparent))
+        drop-shadow(1px 1px 2px oklch(0% 0 0deg / 25%));
+    }
+  }
+
+  &--shrine-locked {
+    filter: grayscale(0.7) brightness(0.85);
+    opacity: 0.72;
+  }
+
+  &--shrine-active {
+    filter: none;
+    opacity: 1;
+    animation: path-stones-shrine-pulse 3.2s var(--zen-ease-in-out, ease-in-out) infinite;
+  }
+}
+
+@keyframes path-stones-stone-breathe {
+  0%,
+  100% {
+    opacity: 0.88;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-1.5px);
+  }
+}
+
+@keyframes path-stones-shrine-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 color-mix(in oklch, var(--primary-color) 0%, transparent),
+      0 0 20px color-mix(in oklch, var(--primary-color) 18%, transparent);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 8px color-mix(in oklch, var(--primary-color) 12%, transparent),
+      0 0 36px color-mix(in oklch, var(--primary-color) 35%, transparent);
   }
 }
 
 .zazen-world__decor {
-  filter: drop-shadow(1px 1px 2px rgb(0 0 0 / 20%));
+  filter: drop-shadow(1px 1px 2px oklch(0% 0 0deg / 20%));
 }
 
-.zazen-world__instructions {
+/* Washi-paper HUD scroll */
+.path-stones__scroll {
+  position: fixed;
+  top: 50%;
+  right: 2rem;
+  transform: translateY(-50%);
+  width: 260px;
+  max-width: calc(100vw - 2rem);
+  padding: 1.25rem 1.35rem;
+  border-radius: 8px;
+  color: var(--heading-color);
+  font-family: Georgia, serif;
+  background:
+    radial-gradient(
+      circle at 20% 25%,
+      color-mix(in oklch, var(--primary-color) 3%, transparent) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      color-mix(in oklch, var(--primary-color) 5%, transparent) 0%,
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklch, var(--surface-warm, var(--surface-glass)) 94%, transparent) 0%,
+      color-mix(in oklch, var(--surface-warm, var(--surface-glass)) 88%, transparent) 100%
+    );
+  border: 1px solid color-mix(in oklch, var(--primary-color) 18%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in oklch, var(--primary-color) 12%, transparent) inset,
+    0 24px 48px -20px oklch(0% 0 0deg / 22%),
+    0 6px 14px -6px oklch(0% 0 0deg / 14%);
+  opacity: 0;
+  animation: zazen-header-fade-in 0.9s var(--zen-ease-elegant) 0.6s forwards;
+  z-index: 5;
+
+  /* Paper curl at top and bottom */
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    left: 1.5rem;
+    right: 1.5rem;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklch, var(--primary-color) 25%, transparent),
+      transparent
+    );
+  }
+
+  &::before {
+    top: 0.6rem;
+  }
+
+  &::after {
+    bottom: 0.6rem;
+  }
+
+  @media (width <= 1024px) {
+    position: relative;
+    top: auto;
+    right: auto;
+    transform: none;
+    width: min(420px, 92vw);
+    margin: 1rem auto 0;
+  }
+
+  @media (width <= 768px) {
+    order: 4;
+    padding: 0.9rem 1rem;
+    margin: 0.5rem auto 0;
+    width: min(360px, 94vw);
+    max-height: 40dvh;
+    overflow-y: auto;
+  }
+}
+
+.path-stones__scroll-title {
+  margin: 0 0 0.75rem;
+  font-family: Georgia, serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--primary-color) 72%, var(--heading-color));
   text-align: center;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin: 1rem 0;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.5;
+}
+
+.path-stones__scroll-placeholder {
+  font-style: italic;
+  color: color-mix(in oklch, var(--heading-color) 55%, transparent);
+  font-size: 0.88rem;
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+.path-stones__scroll-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.path-stones__haiku-line {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: color-mix(in oklch, var(--heading-color) 92%, transparent);
+  text-align: left;
+  letter-spacing: 0.005em;
+}
+
+.path-stones__scroll-progress {
+  margin: 0.35rem 0 0;
+  padding-top: 0.6rem;
+  font-family: Georgia, serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  text-align: center;
+  color: color-mix(in oklch, var(--primary-color) 60%, var(--heading-color));
+  opacity: 0.68;
+  border-top: 1px solid color-mix(in oklch, var(--primary-color) 15%, transparent);
+}
+
+/* Finale ink overlay */
+.path-stones__finale {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  backdrop-filter: blur(8px);
+  background:
+    radial-gradient(
+      ellipse at center,
+      color-mix(in oklch, var(--heading-color) 88%, transparent) 0%,
+      color-mix(in oklch, var(--heading-color) 96%, transparent) 60%,
+      color-mix(in oklch, var(--heading-color) 99%, transparent) 100%
+    );
+  animation: path-stones-finale-fade 1.4s var(--zen-ease-elegant) forwards;
+  opacity: 0;
+
+  @media (width <= 640px) {
+    padding: 1.25rem;
+  }
+}
+
+@keyframes path-stones-finale-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.path-stones__finale-poem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-width: 560px;
+  margin: 0 0 2.5rem;
+  text-align: center;
+  color: color-mix(in oklch, var(--primary-bg-color) 94%, white);
+
+  @media (width <= 640px) {
+    gap: 0.7rem;
+    margin: 0 0 1.75rem;
+  }
+}
+
+.path-stones__finale-line {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 1.35rem;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  color: color-mix(in oklch, var(--primary-bg-color) 96%, white);
+  text-shadow: 0 1px 2px oklch(0% 0 0deg / 40%);
+
+  @media (width <= 640px) {
+    font-size: 1.1rem;
+  }
+}
+
+.path-stones__finale-return {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 2.4rem;
+  min-height: 44px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--primary-bg-color) 94%, white);
+  background: transparent;
+  border: 1px solid color-mix(in oklch, var(--primary-bg-color) 55%, transparent);
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0;
+  animation: path-stones-finale-fade 1s var(--zen-ease-elegant) 0.2s forwards;
+  transition:
+    background 320ms var(--zen-ease-out),
+    border-color 320ms var(--zen-ease-out),
+    transform 320ms var(--zen-ease-elegant);
+
+  &:hover,
+  &:focus-visible {
+    background: color-mix(in oklch, var(--primary-bg-color) 14%, transparent);
+    border-color: color-mix(in oklch, var(--primary-bg-color) 80%, transparent);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid color-mix(in oklch, var(--primary-bg-color) 70%, transparent);
+    outline-offset: 3px;
+  }
 }
 
 /* Screen reader only content */
@@ -338,8 +662,16 @@
 @media (prefers-reduced-motion: reduce) {
   .zazen-world__header,
   .zazen-world__compass,
-  .zazen-world__map {
+  .zazen-world__map-wrapper,
+  .path-stones__scroll,
+  .path-stones__finale,
+  .path-stones__finale-return {
     animation: none !important;
     opacity: 1 !important;
+  }
+
+  .zazen-world__tile-image--stone .zazen-world__decor,
+  .zazen-world__tile-image--shrine-active {
+    animation: none !important;
   }
 }

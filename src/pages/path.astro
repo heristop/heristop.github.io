@@ -3,6 +3,6 @@ import Layout from "../layouts/Layout.astro";
 import ZazenWorld from "../components/client/zazen-world";
 ---
 
-<Layout title="" description="Extra page">
-  <ZazenWorld client:load />
+<Layout title="Path of Stones" description="A quiet walk along five stones.">
+  <ZazenWorld client:only="react" />
 </Layout>

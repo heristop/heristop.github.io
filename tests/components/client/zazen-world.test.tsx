@@ -6,10 +6,12 @@ vi.mock("../../../src/components/client/world.scss", () => ({}));
 import ZazenWorld from "../../../src/components/client/zazen-world";
 
 describe("<ZazenWorld />", () => {
-  it("renders title and instructions", () => {
+  it("renders the Path of Stones heading and poetic intro", () => {
     render(<ZazenWorld />);
-    expect(screen.getByRole("heading", { level: 1, name: /zazen world/i })).toBeInTheDocument();
-    expect(screen.getByText(/use wasd keys/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: /path of stones/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/five stones wait along the path/i)).toBeInTheDocument();
   });
 
   it("renders the four compass buttons", () => {

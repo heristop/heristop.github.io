@@ -1,10 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   GRID_SIZE,
+  SHRINE_POSITION,
+  STONES,
+  activateShrine,
   buildInitialMap,
   calculateMapDimensions,
+  collectStoneAt,
   generateTerrain,
   handleKeyDirection,
+  isShrineTile,
+  isStoneTile,
   performMove,
 } from "../../../src/components/client/zazen-world-helpers";
 import type { Direction, MapTile } from "../../../src/components/client/zazen-world-helpers";
@@ -50,6 +56,29 @@ describe("buildInitialMap", () => {
     const player = map.find((tile) => tile.perso === 1);
     expect(player?.posX).toBe(5);
     expect(player?.posY).toBe(5);
+  });
+
+  it("places all 5 stones from STONES constant", () => {
+    const map = buildInitialMap();
+    const stones = map.filter((tile) => tile.stone !== undefined);
+    expect(stones).toHaveLength(STONES.length);
+    for (const stone of STONES) {
+      const tile = map.find(
+        (entry) => entry.posX === stone.posX && entry.posY === stone.posY,
+      );
+      expect(tile?.stone).toBeDefined();
+      expect(tile?.decors).toBe("pierre-2");
+      expect(tile?.img).toBe("terre");
+    }
+  });
+
+  it("places a locked shrine at SHRINE_POSITION", () => {
+    const map = buildInitialMap();
+    const shrine = map.find(
+      (tile) => tile.posX === SHRINE_POSITION.posX && tile.posY === SHRINE_POSITION.posY,
+    );
+    expect(shrine?.shrine).toBe("locked");
+    expect(shrine?.img).toBe("dalle-2");
   });
 });
 
@@ -101,6 +130,64 @@ describe("performMove", () => {
   it("returns undefined when target is off the map", () => {
     const map = buildTinyMap();
     expect(performMove("N", { posX: 1, posY: 1 }, map)).toBeUndefined();
+  });
+
+  it("allows walking onto a pierre-2 stone decor", () => {
+    const map: MapTile[] = [
+      { posX: 1, posY: 1, perso: 1, decors: "", img: "terre" },
+      { posX: 1, posY: 2, perso: 0, decors: "pierre-2", img: "terre", stone: 0 },
+    ];
+    const result = performMove("W", { posX: 1, posY: 1 }, map);
+    expect(result).toBeDefined();
+    expect(result?.newPosition).toEqual({ posX: 1, posY: 2 });
+  });
+});
+
+describe("stone and shrine tile predicates", () => {
+  it("isStoneTile returns true only when stone is set", () => {
+    expect(isStoneTile({ posX: 1, posY: 1, perso: 0, decors: "", img: "terre" })).toBe(false);
+    expect(
+      isStoneTile({ posX: 1, posY: 1, perso: 0, decors: "pierre-2", img: "terre", stone: 2 }),
+    ).toBe(true);
+  });
+
+  it("isShrineTile returns true only when shrine is set", () => {
+    expect(isShrineTile({ posX: 1, posY: 1, perso: 0, decors: "", img: "terre" })).toBe(false);
+    expect(
+      isShrineTile({ posX: 1, posY: 1, perso: 0, decors: "", img: "dalle-2", shrine: "locked" }),
+    ).toBe(true);
+  });
+});
+
+describe("collectStoneAt", () => {
+  it("clears the decor and stone marker at the matching stone index", () => {
+    const map = buildInitialMap();
+    const firstStone = STONES[0];
+    const next = collectStoneAt(map, 0);
+    const tile = next.find((entry) => entry.posX === firstStone.posX && entry.posY === firstStone.posY);
+    expect(tile?.decors).toBe("");
+    expect(tile?.stone).toBeUndefined();
+  });
+
+  it("leaves non-matching stones untouched", () => {
+    const map = buildInitialMap();
+    const next = collectStoneAt(map, 0);
+    const secondStone = STONES[1];
+    const tile = next.find((entry) => entry.posX === secondStone.posX && entry.posY === secondStone.posY);
+    expect(tile?.stone).toBe(1);
+    expect(tile?.decors).toBe("pierre-2");
+  });
+});
+
+describe("activateShrine", () => {
+  it("transitions the shrine tile from locked to active and swaps the image", () => {
+    const map = buildInitialMap();
+    const next = activateShrine(map);
+    const shrine = next.find(
+      (tile) => tile.posX === SHRINE_POSITION.posX && tile.posY === SHRINE_POSITION.posY,
+    );
+    expect(shrine?.shrine).toBe("active");
+    expect(shrine?.img).toBe("dalle");
   });
 });
 

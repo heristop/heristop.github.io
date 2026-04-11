@@ -1,4 +1,4 @@
-import type { Direction, MapTile, MoveResult } from "./zazen-world-types";
+import type { Direction, MapTile, MoveResult, StoneConfig } from "./zazen-world-types";
 
 const CENTER_COORDINATE = 6.5;
 const WATER_ROW_START = 8;
@@ -18,10 +18,27 @@ const TILE_FULL_HEIGHT_WITH_PADDING = 90;
 const ICON_SIZE = 16;
 const ICON_STROKE_WIDTH = 2.5;
 
+const STONE_DECOR = "pierre-2";
+const WALKABLE_DECORS: ReadonlySet<string> = new Set(["", STONE_DECOR]);
+
+const STONES: readonly StoneConfig[] = [
+  { posX: 5, posY: 6, line: "A path of stones —" },
+  { posX: 7, posY: 5, line: "each one a breath held still" },
+  { posX: 7, posY: 7, line: "between the pine and pond." },
+  { posX: 9, posY: 5, line: "Evening light remembers" },
+  { posX: 10, posY: 7, line: "the river's oldest vow." },
+];
+
+const SHRINE_POSITION = { posX: 10, posY: 6 };
+const SHRINE_IMG_LOCKED = "dalle-2";
+const SHRINE_IMG_ACTIVE = "dalle";
+
 interface TerrainResult {
   img: string;
   decors: string;
   perso: number;
+  stone?: number;
+  shrine?: "locked" | "active";
 }
 
 const ORIGINAL_CONTENT: Record<string, TerrainResult> = {
@@ -61,45 +78,45 @@ const ORIGINAL_CONTENT: Record<string, TerrainResult> = {
   "9-7": { decors: "", img: "terre", perso: 0 },
   "9-8": { decors: "", img: "eau-2", perso: 0 },
   "9-9": { decors: "", img: "eau-1", perso: 0 },
+  "10-5": { decors: "", img: "terre", perso: 0 },
 };
 
-const getWaterImage = function getWaterImage(posY: number): string {
+const findStoneIndex = (posX: number, posY: number): number =>
+  STONES.findIndex((stone) => stone.posX === posX && stone.posY === posY);
+
+const isShrinePosition = (posX: number, posY: number): boolean =>
+  posX === SHRINE_POSITION.posX && posY === SHRINE_POSITION.posY;
+
+const getWaterImage = (posY: number): string => {
   if (posY === WATER_ROW_END) {
     return "eau-1";
   }
   return "eau-2";
 };
 
-const getTerrainVariant = function getTerrainVariant(chance: number): string {
+const getTerrainVariant = (chance: number): string => {
   if (Math.random() > chance) {
     return "terre-2";
   }
   return "terre";
 };
 
-const getRandomDecor = function getRandomDecor(): string {
+const getRandomDecor = (): string => {
   const decorOptions = ["arbre", "pierre"];
   return decorOptions[Math.floor(Math.random() * decorOptions.length)];
 };
 
-const isWaterRow = function isWaterRow(posY: number): boolean {
-  return posY >= WATER_ROW_START && posY <= WATER_ROW_END;
-};
+const isWaterRow = (posY: number): boolean =>
+  posY >= WATER_ROW_START && posY <= WATER_ROW_END;
 
-const isOuterEdge = function isOuterEdge(posX: number, posY: number, distance: number): boolean {
-  return (
-    distance > DISTANCE_THRESHOLD ||
-    posX <= OUTER_EDGE_LOW ||
-    posX >= OUTER_EDGE_HIGH ||
-    posY <= OUTER_EDGE_LOW ||
-    posY >= OUTER_EDGE_HIGH
-  );
-};
+const isOuterEdge = (posX: number, posY: number, distance: number): boolean =>
+  distance > DISTANCE_THRESHOLD ||
+  posX <= OUTER_EDGE_LOW ||
+  posX >= OUTER_EDGE_HIGH ||
+  posY <= OUTER_EDGE_LOW ||
+  posY >= OUTER_EDGE_HIGH;
 
-const getProceduralTerrain = function getProceduralTerrain(
-  posX: number,
-  posY: number,
-): TerrainResult {
+const getProceduralTerrain = (posX: number, posY: number): TerrainResult => {
   const distanceFromCenter = Math.sqrt(
     (posX - CENTER_COORDINATE) ** 2 + (posY - CENTER_COORDINATE) ** 2,
   );
@@ -121,7 +138,16 @@ const getProceduralTerrain = function getProceduralTerrain(
   return { decors, img, perso: 0 };
 };
 
-const generateTerrain = function generateTerrain(posX: number, posY: number): TerrainResult {
+const generateTerrain = (posX: number, posY: number): TerrainResult => {
+  const stoneIndex = findStoneIndex(posX, posY);
+  if (stoneIndex !== -1) {
+    return { decors: STONE_DECOR, img: "terre", perso: 0, stone: stoneIndex };
+  }
+
+  if (isShrinePosition(posX, posY)) {
+    return { decors: "", img: SHRINE_IMG_LOCKED, perso: 0, shrine: "locked" };
+  }
+
   const key = `${posX}-${posY}`;
   if (ORIGINAL_CONTENT[key] !== undefined) {
     return ORIGINAL_CONTENT[key];
@@ -129,23 +155,30 @@ const generateTerrain = function generateTerrain(posX: number, posY: number): Te
   return getProceduralTerrain(posX, posY);
 };
 
-const buildInitialMap = function buildInitialMap(): MapTile[] {
+const buildInitialMap = (): MapTile[] => {
   const result: MapTile[] = [];
   for (let posX = 1; posX <= GRID_SIZE; posX++) {
     for (let posY = 1; posY <= GRID_SIZE; posY++) {
-      const { img, decors, perso } = generateTerrain(posX, posY);
-      result.push({ decors, img, perso, posX, posY });
+      const { img, decors, perso, stone, shrine } = generateTerrain(posX, posY);
+      const tile: MapTile = { decors, img, perso, posX, posY };
+      if (stone !== undefined) {
+        tile.stone = stone;
+      }
+      if (shrine !== undefined) {
+        tile.shrine = shrine;
+      }
+      result.push(tile);
     }
   }
   return result;
 };
 
-const calculateMapDimensions = function calculateMapDimensions(map: MapTile[]): {
+const calculateMapDimensions = (map: MapTile[]): {
   height: number;
   width: number;
   offsetX: number;
   offsetY: number;
-} {
+} => {
   let maxX = -Infinity;
   let maxY = -Infinity;
   let minX = Infinity;
@@ -175,11 +208,11 @@ const calculateMapDimensions = function calculateMapDimensions(map: MapTile[]): 
   return { height, width, offsetX: minX, offsetY: minY };
 };
 
-const applyDirectionOffset = function applyDirectionOffset(
+const applyDirectionOffset = (
   direction: Direction,
   posX: number,
   posY: number,
-): { newX: number; newY: number } {
+): { newX: number; newY: number } => {
   let newX = posX;
   let newY = posY;
   switch (direction) {
@@ -203,22 +236,21 @@ const applyDirectionOffset = function applyDirectionOffset(
   return { newX, newY };
 };
 
-const findTargetTile = function findTargetTile(map: MapTile[], newX: number, newY: number): number {
-  return map.findIndex(
+const findTargetTile = (map: MapTile[], newX: number, newY: number): number =>
+  map.findIndex(
     (tile) =>
       tile.posX === newX &&
       tile.posY === newY &&
       tile.perso === 0 &&
-      tile.decors === "" &&
+      WALKABLE_DECORS.has(tile.decors) &&
       !tile.img.includes("eau"),
   );
-};
 
-const performMove = function performMove(
+const performMove = (
   direction: Direction,
   characterPosition: { posX: number; posY: number },
   map: MapTile[],
-): MoveResult | undefined {
+): MoveResult | undefined => {
   const { newX, newY } = applyDirectionOffset(
     direction,
     characterPosition.posX,
@@ -245,10 +277,56 @@ const performMove = function performMove(
   return { newMap, newPosition: { posX: newX, posY: newY } };
 };
 
-const handleKeyDirection = function handleKeyDirection(
+const isStoneTile = (tile: MapTile): boolean => tile.stone !== undefined;
+
+const isShrineTile = (tile: MapTile): boolean => tile.shrine !== undefined;
+
+const isWalkableTile = (tile: MapTile): boolean =>
+  tile.perso === 0 && WALKABLE_DECORS.has(tile.decors) && !tile.img.includes("eau");
+
+const directionFromDelta = (
+  from: { posX: number; posY: number },
+  to: { posX: number; posY: number },
+): Direction | undefined => {
+  const dx = to.posX - from.posX;
+  const dy = to.posY - from.posY;
+  if (dx === -1 && dy === 0) {
+    return "N";
+  }
+  if (dx === 1 && dy === 0) {
+    return "S";
+  }
+  if (dx === 0 && dy === -1) {
+    return "E";
+  }
+  if (dx === 0 && dy === 1) {
+    return "W";
+  }
+  return undefined;
+};
+
+const collectStoneAt = (map: MapTile[], stoneIndex: number): MapTile[] =>
+  map.map((tile) => {
+    if (tile.stone === stoneIndex) {
+      const next: MapTile = { ...tile, decors: "" };
+      delete next.stone;
+      return next;
+    }
+    return tile;
+  });
+
+const activateShrine = (map: MapTile[]): MapTile[] =>
+  map.map((tile) => {
+    if (tile.shrine !== undefined && isShrinePosition(tile.posX, tile.posY)) {
+      return { ...tile, img: SHRINE_IMG_ACTIVE, shrine: "active" };
+    }
+    return tile;
+  });
+
+const handleKeyDirection = (
   ev: KeyboardEvent,
   move: (dir: Direction) => void,
-): void {
+): void => {
   switch (ev.key.toLowerCase()) {
     case "arrowup":
     case "w": {
@@ -277,18 +355,27 @@ const handleKeyDirection = function handleKeyDirection(
   }
 };
 
-export type { Direction, MapTile, MoveResult };
+export type { Direction, MapTile, MoveResult, StoneConfig };
 export {
   GRID_SIZE,
-  TILE_HALF_WIDTH,
-  TILE_HALF_HEIGHT,
-  TILE_FULL_WIDTH,
-  TILE_FULL_HEIGHT_WITH_PADDING,
   ICON_SIZE,
   ICON_STROKE_WIDTH,
-  generateTerrain,
+  SHRINE_POSITION,
+  STONES,
+  TILE_FULL_HEIGHT_WITH_PADDING,
+  TILE_FULL_WIDTH,
+  TILE_HALF_HEIGHT,
+  TILE_HALF_WIDTH,
+  WALKABLE_DECORS,
+  activateShrine,
   buildInitialMap,
   calculateMapDimensions,
-  performMove,
+  collectStoneAt,
+  directionFromDelta,
+  generateTerrain,
   handleKeyDirection,
+  isShrineTile,
+  isStoneTile,
+  isWalkableTile,
+  performMove,
 };
