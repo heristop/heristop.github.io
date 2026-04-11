@@ -106,8 +106,7 @@ const getRandomDecor = (): string => {
   return decorOptions[Math.floor(Math.random() * decorOptions.length)];
 };
 
-const isWaterRow = (posY: number): boolean =>
-  posY >= WATER_ROW_START && posY <= WATER_ROW_END;
+const isWaterRow = (posY: number): boolean => posY >= WATER_ROW_START && posY <= WATER_ROW_END;
 
 const isOuterEdge = (posX: number, posY: number, distance: number): boolean =>
   distance > DISTANCE_THRESHOLD ||
@@ -173,7 +172,9 @@ const buildInitialMap = (): MapTile[] => {
   return result;
 };
 
-const calculateMapDimensions = (map: MapTile[]): {
+const calculateMapDimensions = (
+  map: MapTile[],
+): {
   height: number;
   width: number;
   offsetX: number;
@@ -323,10 +324,7 @@ const activateShrine = (map: MapTile[]): MapTile[] =>
     return tile;
   });
 
-const handleKeyDirection = (
-  ev: KeyboardEvent,
-  move: (dir: Direction) => void,
-): void => {
+const handleKeyDirection = (ev: KeyboardEvent, move: (dir: Direction) => void): void => {
   switch (ev.key.toLowerCase()) {
     case "arrowup":
     case "w": {

@@ -59,8 +59,7 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
       }
 
       const landedTile = result.newMap.find(
-        (tile) =>
-          tile.posX === result.newPosition.posX && tile.posY === result.newPosition.posY,
+        (tile) => tile.posX === result.newPosition.posX && tile.posY === result.newPosition.posY,
       );
       if (!landedTile) {
         setMap(result.newMap);
@@ -76,9 +75,7 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
         const nextStones = [...stonesFound, stoneIndex];
         setStonesFound(nextStones);
         setHaikuLines((prev) => [...prev, { stoneIndex, text: stone.line }]);
-        setAnnouncement(
-          `Stone ${nextStones.length} of ${STONES.length} gathered. ${stone.line}`,
-        );
+        setAnnouncement(`Stone ${nextStones.length} of ${STONES.length} gathered. ${stone.line}`);
         options.onStoneCollected?.(stoneIndex);
 
         if (nextStones.length === STONES.length) {
