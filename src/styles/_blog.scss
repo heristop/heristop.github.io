@@ -197,6 +197,13 @@
   border-top: 1px solid color-mix(in oklch, var(--primary-color) 12%, transparent);
 }
 
+.post-page__bmc {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .blog-archive__subscribe-sep {
   color: var(--text-secondary);
   opacity: 0.6;
@@ -408,8 +415,7 @@ pre {
     0 0 0 1px color-mix(in oklch, var(--primary-color) 10%, transparent) inset,
     0 20px 44px -26px oklch(18% 0.04 350deg / 48%),
     0 8px 20px -14px oklch(18% 0.04 350deg / 32%);
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto hidden;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklch, var(--primary-color) 55%, transparent) transparent;
   tab-size: 2;
@@ -508,7 +514,7 @@ pre > code {
 
 @media (width <= 40rem) {
   pre {
-    padding: 1.15rem 1.15rem;
+    padding: 1.15rem;
     border-radius: var(--radius-md);
 
     &::after {

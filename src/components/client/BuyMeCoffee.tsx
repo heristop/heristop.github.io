@@ -76,6 +76,8 @@ export default function BuyMeCoffee({ url }: { url: string }) {
         rel="noopener noreferrer"
         aria-label="Buy me a coffee"
         className="bmc__link"
+        data-tooltip="Support my writing ☕ (opens in new tab)"
+        data-tooltip-placement="top"
       >
         <div
           ref={contentRef}
