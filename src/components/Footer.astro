@@ -11,6 +11,9 @@ import {
   X_URL,
 } from '../consts';
 import Icon from './Icon.astro';
+
+const currentYear = new Date().getFullYear();
+const brandMark = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 ---
 
 <div class="site-footer__eof">--eof--</div>
@@ -33,13 +36,19 @@ import Icon from './Icon.astro';
         <h3 id="footer-about" class="site-footer__title">{SITE_TITLE}</h3>
         <address class="site-footer__contact">
           <p class="site-footer__author">
-            <Icon name="user" size={16} aria-hidden={true} />
-            {SITE_AUTHOR}<br />
-            ({SITE_PSEUDO})
+            <span class="site-footer__meta-chip" aria-hidden="true">
+              <Icon name="user" size={14} aria-hidden={true} />
+            </span>
+            <span class="site-footer__author-text">
+              <span class="site-footer__author-name">{SITE_AUTHOR}</span>
+              <span class="site-footer__handle">@{SITE_PSEUDO}</span>
+            </span>
           </p>
           <p class="site-footer__role">
-            <Icon name="feather" size={16} aria-hidden={true} />
-            {SITE_THEME}
+            <span class="site-footer__meta-chip" aria-hidden="true">
+              <Icon name="feather" size={14} aria-hidden={true} />
+            </span>
+            <span>{SITE_THEME}</span>
           </p>
         </address>
       </div>
@@ -53,12 +62,42 @@ import Icon from './Icon.astro';
       <h3 id="footer-nav" class="site-footer__section-title">Navigate</h3>
       <nav aria-label="Footer navigation">
         <ul class="site-footer__nav-list">
-          <li><a href="/" class="site-footer__nav-link">Home</a></li>
-          <li><a href="/blog" class="site-footer__nav-link">Blog</a></li>
           <li>
-            <a href="/projects" class="site-footer__nav-link">Projects</a>
+            <a href="/" class="site-footer__nav-link">
+              <span class="site-footer__nav-icon" aria-hidden="true">
+                <Icon name="home" size={14} aria-hidden={true} />
+              </span>
+              <span class="site-footer__nav-label">Home</span>
+              <Icon name="arrow-right" size={14} class="site-footer__nav-arrow" aria-hidden={true} />
+            </a>
           </li>
-          <li><a href="/about" class="site-footer__nav-link">About</a></li>
+          <li>
+            <a href="/blog" class="site-footer__nav-link">
+              <span class="site-footer__nav-icon" aria-hidden="true">
+                <Icon name="book-open" size={14} aria-hidden={true} />
+              </span>
+              <span class="site-footer__nav-label">Blog</span>
+              <Icon name="arrow-right" size={14} class="site-footer__nav-arrow" aria-hidden={true} />
+            </a>
+          </li>
+          <li>
+            <a href="/projects" class="site-footer__nav-link">
+              <span class="site-footer__nav-icon" aria-hidden="true">
+                <Icon name="layers" size={14} aria-hidden={true} />
+              </span>
+              <span class="site-footer__nav-label">Projects</span>
+              <Icon name="arrow-right" size={14} class="site-footer__nav-arrow" aria-hidden={true} />
+            </a>
+          </li>
+          <li>
+            <a href="/about" class="site-footer__nav-link">
+              <span class="site-footer__nav-icon" aria-hidden="true">
+                <Icon name="info" size={14} aria-hidden={true} />
+              </span>
+              <span class="site-footer__nav-label">About</span>
+              <Icon name="arrow-right" size={14} class="site-footer__nav-arrow" aria-hidden={true} />
+            </a>
+          </li>
         </ul>
       </nav>
     </section>
@@ -123,12 +162,18 @@ import Icon from './Icon.astro';
           rel="noopener noreferrer"
           class="site-footer__link"
         >
-          <Icon name="external-link" size={16} aria-hidden={true} />
-          Link in Bio
+          <span class="site-footer__link-icon" aria-hidden="true">
+            <Icon name="external-link" size={14} aria-hidden={true} />
+          </span>
+          <span class="site-footer__link-label">Link in Bio</span>
+          <Icon name="arrow-up-right" size={14} class="site-footer__link-arrow" aria-hidden={true} />
         </a>
         <button type="button" class="site-footer__link site-footer__rss-copy" data-url="/rss.xml">
-          <Icon name="rss" size={16} aria-hidden={true} />
-          <span>RSS Feed</span>
+          <span class="site-footer__link-icon" aria-hidden="true">
+            <Icon name="rss" size={14} aria-hidden={true} />
+          </span>
+          <span class="site-footer__link-label">RSS Feed</span>
+          <Icon name="copy" size={14} class="site-footer__link-arrow" aria-hidden={true} />
         </button>
       </div>
     </section>
@@ -137,8 +182,14 @@ import Icon from './Icon.astro';
   <!-- Copyright -->
   <div class="site-footer__bottom">
     <p class="site-footer__copyright">
-      © 2014-{new Date().getFullYear()}
-      {SITE_TITLE}. Zen-crafted.
+      <span class="site-footer__copyright-year">© 2014&ndash;{currentYear}</span>
+      <span class="site-footer__copyright-sep" aria-hidden="true">·</span>
+      <span class="site-footer__copyright-brand">{brandMark}</span>
+      <span class="site-footer__copyright-sep" aria-hidden="true">·</span>
+      <span class="site-footer__copyright-tag">
+        <Icon name="feather" size={12} class="site-footer__copyright-icon" aria-hidden={true} />
+        <em>zen-crafted</em>
+      </span>
     </p>
   </div>
 </footer>
