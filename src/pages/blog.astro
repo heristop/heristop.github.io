@@ -206,6 +206,17 @@ const timeAgo = (date: Date) => {
     }
   </div>
 
+  <button
+    class="scroll-to-top"
+    aria-label="Scroll to top"
+    data-tooltip="↑ Back to top"
+    data-tooltip-placement="left"
+    data-scroll-top-fixed
+    hidden
+  >
+    <Icon name="arrow-up" size={18} aria-hidden={true} />
+  </button>
+
   <script type="module" is:inline>
     const INTERSECTION_THRESHOLD = 0.1;
 

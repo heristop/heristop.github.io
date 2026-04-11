@@ -126,7 +126,14 @@ const breadcrumbItems = [
   </div>
 
   <div class="reading-progress" aria-hidden="true"></div>
-  <button class="scroll-to-top" aria-label="Scroll to top" hidden>
+  <button
+    class="scroll-to-top"
+    aria-label="Scroll to top"
+    data-tooltip="↑ Back to top"
+    data-tooltip-placement="left"
+    data-scroll-top-fixed
+    hidden
+  >
     <Icon name="arrow-up" size={18} aria-hidden={true} />
   </button>
 
@@ -384,12 +391,9 @@ const breadcrumbItems = [
       }
     });
 
-    const SCROLL_TOP_THRESHOLD = 400;
-
     const initReadingProgress = () => {
       const bar = document.querySelector('.reading-progress');
-      const scrollBtn = document.querySelector('.scroll-to-top');
-      if (!bar || !scrollBtn) return;
+      if (!bar) return;
 
       const stickyNav = document.querySelector('#sticky-nav');
       if (stickyNav) {
@@ -404,16 +408,10 @@ const breadcrumbItems = [
         const docHeight = document.documentElement.scrollHeight - globalThis.innerHeight;
         const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
         bar.style.transform = `scaleX(${progress})`;
-
-        scrollBtn.toggleAttribute('hidden', scrollTop <= SCROLL_TOP_THRESHOLD);
       };
 
       globalThis.addEventListener('scroll', updateProgress, { passive: true });
       updateProgress();
-
-      scrollBtn.addEventListener('click', () => {
-        globalThis.scrollTo({ top: 0, behavior: 'smooth' });
-      });
     };
 
     if (document.readyState === 'loading') {
