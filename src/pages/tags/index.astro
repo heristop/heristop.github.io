@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import ZenSlide from "../../components/zen/ZenSlide.astro";
+import ZenTagCloud from "../../components/client/zen-tag-cloud";
 
 const posts = await getCollection("blog");
 
@@ -13,8 +14,29 @@ for (const post of posts) {
   }
 }
 
-const sortedTags = [...tagCounts.entries()].toSorted((entryA, entryB) => entryA[0].localeCompare(entryB[0]));
-const maxCount = Math.max(...tagCounts.values());
+const sortedEntries = [...tagCounts.entries()].toSorted((entryA, entryB) =>
+  entryA[0].localeCompare(entryB[0])
+);
+const maxCount = Math.max(...tagCounts.values(), 1);
+
+type TagSize = "sm" | "md" | "lg";
+
+const getSize = (count: number): TagSize => {
+  const weight = Math.min(count / maxCount, 1);
+  if (weight > 0.6) {
+    return "lg";
+  }
+  if (weight > 0.25) {
+    return "md";
+  }
+  return "sm";
+};
+
+const tagItems = sortedEntries.map(([tag, count]) => ({
+  count,
+  size: getSize(count),
+  tag,
+}));
 ---
 
 <Layout title="Tags" description="Browse blog posts by tag">
@@ -26,24 +48,10 @@ const maxCount = Math.max(...tagCounts.values());
 
   <div class="tags-page">
     <ZenSlide direction="up" delay={400}>
-      <div class="tags-page__cloud">
-        {sortedTags.map(([tag, count]) => {
-          const weight = Math.min(count / maxCount, 1);
-          const sizeClass = weight > 0.6 ? "tags-page__pill--lg" : weight > 0.25 ? "tags-page__pill--md" : "";
-          return (
-            <a
-              class={`tags-page__pill ${sizeClass}`}
-              href={`/tags/${tag}/`}
-            >
-              <span class="tags-page__pill-name">{tag}</span>
-              <span class="tags-page__pill-count">{count}</span>
-            </a>
-          );
-        })}
-      </div>
+      <ZenTagCloud client:visible tags={tagItems} />
     </ZenSlide>
 
-    {sortedTags.length === 0 && (
+    {tagItems.length === 0 && (
       <ZenSlide direction="up" delay={400}>
         <p class="tags-page__empty">No tags found.</p>
       </ZenSlide>
@@ -58,20 +66,21 @@ const maxCount = Math.max(...tagCounts.values());
     margin-bottom: 2rem;
   }
 
-  .tags-page__cloud {
+  .tags-page :global(.tags-page__cloud) {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.65rem 0.6rem;
     justify-content: center;
-    max-width: 50rem;
+    max-width: 52rem;
     margin: 0 auto;
+    padding: 0.5rem;
   }
 
-  .tags-page__pill {
+  .tags-page :global(.tags-page__pill) {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.85rem;
+    gap: 0.45rem;
+    padding: 0.4rem 0.95rem;
     border-radius: 999px;
     background: color-mix(in oklch, var(--primary-color) 8%, transparent);
     border: 1px solid color-mix(in oklch, var(--primary-color) 12%, transparent);
@@ -80,62 +89,125 @@ const maxCount = Math.max(...tagCounts.values());
     font-weight: 500;
     letter-spacing: 0.02em;
     text-decoration: none;
+    line-height: 1.2;
+    transform: translateY(6px);
+    opacity: 0;
     transition:
       background-color var(--zen-duration-fast) var(--zen-ease-out),
       border-color var(--zen-duration-fast) var(--zen-ease-out),
       color var(--zen-duration-fast) var(--zen-ease-out),
-      transform var(--zen-duration-fast) var(--zen-ease-out);
-
-    &::after {
-      content: none;
-    }
-
-    &:hover {
-      background: color-mix(in oklch, var(--primary-color) 16%, transparent);
-      border-color: color-mix(in oklch, var(--primary-color) 28%, transparent);
-      color: var(--primary-color);
-      transform: translateY(-2px);
-    }
-
-    &:active {
-      transform: scale(0.97);
-      transition-duration: 80ms;
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--primary-color);
-      outline-offset: 2px;
-    }
+      transform 560ms var(--zen-ease-elegant),
+      opacity 560ms var(--zen-ease-elegant),
+      box-shadow 320ms var(--zen-ease-out);
+    transition-delay:
+      0ms,
+      0ms,
+      0ms,
+      var(--tag-pill-delay, 0ms),
+      var(--tag-pill-delay, 0ms),
+      0ms;
   }
 
-  .tags-page__pill--md {
+  .tags-page :global(.tags-page__pill::after) {
+    content: none;
+  }
+
+  .tags-page :global(.tags-page__pill--in) {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .tags-page :global(.tags-page__pill:hover) {
+    background: color-mix(in oklch, var(--primary-color) 16%, transparent);
+    border-color: color-mix(in oklch, var(--primary-color) 32%, transparent);
+    color: var(--primary-color);
+    transform: translateY(-3px);
+    box-shadow:
+      0 6px 18px -10px color-mix(in oklch, var(--primary-color) 55%, transparent),
+      0 1px 0 color-mix(in oklch, var(--primary-color) 18%, transparent) inset;
+  }
+
+  .tags-page :global(.tags-page__pill:active) {
+    transform: scale(0.97);
+    transition-duration: 80ms;
+  }
+
+  .tags-page :global(.tags-page__pill:focus-visible) {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  .tags-page :global(.tags-page__pill--md) {
     font-size: 0.95rem;
-    padding: 0.4rem 1rem;
+    padding: 0.45rem 1.1rem;
     font-weight: 600;
   }
 
-  .tags-page__pill--lg {
+  .tags-page :global(.tags-page__pill--lg) {
     font-size: 1.05rem;
-    padding: 0.45rem 1.15rem;
+    padding: 0.5rem 1.25rem;
     font-weight: 600;
     background: color-mix(in oklch, var(--primary-color) 12%, transparent);
-    border-color: color-mix(in oklch, var(--primary-color) 18%, transparent);
+    border-color: color-mix(in oklch, var(--primary-color) 20%, transparent);
   }
 
-  .tags-page__pill-count {
+  .tags-page :global(.tags-page__pill-name) {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .tags-page :global(.tags-page__pill-name::after) {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 1px;
+    width: var(--tag-text-width, 100%);
+    background: currentColor;
+    opacity: 0.75;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 420ms var(--zen-ease-elegant);
+    pointer-events: none;
+  }
+
+  .tags-page :global(.tags-page__pill:hover .tags-page__pill-name::after),
+  .tags-page :global(.tags-page__pill:focus-visible .tags-page__pill-name::after) {
+    transform: scaleX(1);
+  }
+
+  .tags-page :global(.tags-page__pill-count) {
     font-size: 0.7em;
-    padding: 0.1rem 0.35rem;
+    padding: 0.12rem 0.4rem;
     border-radius: 999px;
     background: color-mix(in oklch, var(--primary-color) 10%, transparent);
     color: var(--text-secondary);
     font-weight: 500;
     min-width: 1.2em;
     text-align: center;
+    transition: background-color var(--zen-duration-fast) var(--zen-ease-out);
+  }
+
+  .tags-page :global(.tags-page__pill:hover .tags-page__pill-count) {
+    background: color-mix(in oklch, var(--primary-color) 22%, transparent);
   }
 
   .tags-page__empty {
     text-align: center;
     color: var(--text-secondary);
     padding: var(--space-xl);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tags-page :global(.tags-page__pill) {
+      transition: none;
+      transform: none;
+      opacity: 1;
+    }
+
+    .tags-page :global(.tags-page__pill-name::after) {
+      transition: none;
+    }
   }
 </style>
