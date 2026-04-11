@@ -66,11 +66,12 @@ const websiteSchema = {
     <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <ClientRouter />
-    <main class="site-layout">
+    <div class="site-layout">
       <Header title={SITE_TITLE} />
 
-      <div class="site-layout__content site-layout__content--home" id="main-content">
+      <main aria-label="Main content" class="site-layout__content site-layout__content--home" id="main-content">
         <section class="latest-posts" aria-labelledby="latest-posts-heading">
           <ZenSlide direction="up" delay={200}>
             <h2 id="latest-posts-heading" class="section-heading">
@@ -196,10 +197,10 @@ const websiteSchema = {
             </div>
           </ZenFade>
         </section>
-      </div>
+      </main>
 
       <Footer />
-    </main>
+    </div>
 
     <!-- Search Overlay -->
     <div
@@ -231,7 +232,8 @@ const websiteSchema = {
               />
               <button
                 class="search-input-icon search-input-icon--right search-close"
-                aria-label="Close search (Escape)"
+                aria-label="Close search"
+                aria-keyshortcuts="Escape"
                 type="button"
               >
                 <Icon name="x" size={20} aria-hidden={true} />

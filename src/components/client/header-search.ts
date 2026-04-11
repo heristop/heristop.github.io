@@ -9,6 +9,7 @@ interface BlogPost {
 }
 
 interface SearchElements {
+  lastOpener: { current: HTMLElement | null };
   searchInput: HTMLInputElement;
   searchOverlay: HTMLElement;
   searchResults: HTMLElement;
@@ -86,6 +87,9 @@ const performSearchQuery = (
 /* ── Search overlay ── */
 
 const openSearchOverlay = (elems: SearchElements): void => {
+  if (document.activeElement instanceof HTMLElement) {
+    elems.lastOpener.current = document.activeElement;
+  }
   elems.searchOverlay.setAttribute("aria-hidden", "false");
   elems.searchOverlay.removeAttribute("inert");
   elems.searchOverlay.classList.add("search-overlay--open");
@@ -128,6 +132,16 @@ const closeSearchOverlay = (elems: SearchElements): void => {
   document.body.classList.remove("search-open");
   elems.searchInput.value = "";
   helpers.showEmptyState(elems.searchResults);
+  const opener = elems.lastOpener.current;
+  if (opener !== null && document.contains(opener)) {
+    opener.focus();
+  } else {
+    const fallbackToggle = elems.searchToggles[0];
+    if (fallbackToggle instanceof HTMLElement) {
+      fallbackToggle.focus();
+    }
+  }
+  elems.lastOpener.current = null;
 };
 
 /* ── Event binding ── */
@@ -185,6 +199,7 @@ const initializeSearch = (): void => {
     return;
   }
   const elems: SearchElements = {
+    lastOpener: { current: null },
     searchInput,
     searchOverlay,
     searchResults,
