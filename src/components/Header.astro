@@ -15,9 +15,9 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 <header class="site-header-static">
   <div class="site-header__container">
     <div class="header__brand-section">
-      <h1 class="site-header__title title">
+      <div class="site-header__title title">
         <a href="/" aria-label="Go to homepage">{title}</a>
-      </h1>
+      </div>
     </div>
 
     <!-- Initial Navigation (visible immediately) -->
@@ -117,7 +117,8 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
           />
           <img
             src={bannerImageFallback}
-            alt="Zen meditation scene in a quiet garden"
+            alt=""
+            role="presentation"
             class="site-header__banner-image"
             loading="eager"
             decoding="async"

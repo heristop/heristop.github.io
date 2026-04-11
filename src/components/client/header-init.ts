@@ -35,6 +35,7 @@ const handleEscapeKey = (event: KeyboardEvent): void => {
     return;
   }
   const openMenus = document.querySelectorAll(".header__nav--mobile.header__nav--mobile-open");
+  let focusTarget: HTMLElement | null = null;
   for (const menuNav of openMenus) {
     const menuToggle = menuNav
       .closest(".site-header-static, .site-header-nav")
@@ -42,11 +43,15 @@ const handleEscapeKey = (event: KeyboardEvent): void => {
     if (menuToggle instanceof HTMLElement) {
       menuToggle.setAttribute("aria-expanded", "false");
       menuToggle.classList.remove("header__mobile-toggle--active");
+      if (focusTarget === null) {
+        focusTarget = menuToggle;
+      }
     }
     menuNav.classList.remove("header__nav--mobile-open");
   }
   if (openMenus.length > 0) {
     document.body.classList.remove("mobile-menu-open");
+    focusTarget?.focus();
   }
 };
 
