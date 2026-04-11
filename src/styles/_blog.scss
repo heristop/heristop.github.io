@@ -370,20 +370,158 @@
 }
 
 code {
-  border-radius: var(--radius-md);
-  padding: 0.2em 0.4em;
-  color: var(--code-text-color);
-  background-color: var(--code-bg-color);
-  font-size: 0.9em !important;
+  font-family: var(--font-mono);
+  font-size: 0.86em !important;
+  font-weight: 500;
+  font-variant-ligatures: none;
+  padding: 0.12em 0.45em;
+  border-radius: 0.35em;
+  color: var(--primary-color);
+  background-color: var(--code-inline-bg);
+  border: 1px solid var(--code-inline-border);
+  box-shadow: 0 1px 0 oklch(100% 0 0deg / 45%) inset;
+  white-space: nowrap;
+  transition:
+    background-color var(--zen-duration-fast) var(--zen-ease-out),
+    border-color var(--zen-duration-fast) var(--zen-ease-out);
+
+  a:hover & {
+    background-color: var(--code-inline-bg-hover);
+    border-color: color-mix(in oklch, var(--primary-color) 40%, transparent);
+  }
 }
 
 pre {
-  padding: 1.5em;
-  border-radius: var(--radius-md);
+  position: relative;
+  padding: 1.5rem 1.75rem;
+  border-radius: var(--radius-lg);
+  background-color: var(--code-bg-color) !important;
+  background-image: linear-gradient(
+    180deg,
+    var(--code-bg-color-edge) 0%,
+    var(--code-bg-color) 52%
+  ) !important;
+  color: var(--code-text-color) !important;
+  border: 1px solid color-mix(in oklch, var(--primary-color) 24%, transparent);
+  box-shadow:
+    0 1px 0 oklch(100% 0 0deg / 10%) inset,
+    0 0 0 1px color-mix(in oklch, var(--primary-color) 10%, transparent) inset,
+    0 20px 44px -26px oklch(18% 0.04 350deg / 48%),
+    0 8px 20px -14px oklch(18% 0.04 350deg / 32%);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--primary-color) 55%, transparent) transparent;
+  tab-size: 2;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        ellipse 120% 60% at 0% 0%,
+        color-mix(in oklch, var(--primary-color) 22%, transparent) 0%,
+        transparent 58%
+      );
+    mix-blend-mode: screen;
+    opacity: 0.42;
+  }
+
+  &::after {
+    content: attr(data-language);
+    position: absolute;
+    top: 0.85rem;
+    right: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: color-mix(in oklch, var(--primary-color) 55%, oklch(96% 0.025 30deg));
+    padding: 0.22em 0.65em;
+    border-radius: 999px;
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in oklch, var(--primary-color) 14%, oklch(0% 0 0deg / 28%)) 0%,
+        oklch(0% 0 0deg / 32%) 100%
+      );
+    border: 1px solid color-mix(in oklch, var(--primary-color) 34%, transparent);
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+    opacity: 0.82;
+    transition:
+      opacity var(--zen-duration-normal) var(--zen-ease-out),
+      transform var(--zen-duration-normal) var(--zen-ease-out);
+  }
+
+  &:hover::after {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+
+  &[data-language=""]::after,
+  &:not([data-language])::after {
+    display: none;
+  }
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: color-mix(in oklch, var(--primary-color) 45%, transparent);
+    border-radius: 999px;
+
+    &:hover {
+      background: color-mix(in oklch, var(--primary-color) 65%, transparent);
+    }
+  }
+
+  &::selection,
+  *::selection {
+    background: var(--code-selection);
+    color: oklch(98% 0.005 30deg);
+  }
 }
 
 pre > code {
   all: unset;
+  display: block;
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  font-variant-ligatures: none;
+  line-height: 1.68;
+  color: inherit;
+  background: transparent;
+  border: none;
+  white-space: pre;
+}
+
+@media (width <= 40rem) {
+  pre {
+    padding: 1.15rem 1.15rem;
+    border-radius: var(--radius-md);
+
+    &::after {
+      top: 0.55rem;
+      right: 0.6rem;
+      font-size: 0.58rem;
+    }
+  }
+
+  pre > code {
+    font-size: 0.82em;
+    line-height: 1.6;
+  }
 }
 
 blockquote {
