@@ -32,26 +32,20 @@
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    oklch(0% 0 0 / 40%) 15%,
-    oklch(0% 0 0) 30%,
-    oklch(0% 0 0) 60%,
-    oklch(0% 0 0 / 40%) 85%,
+    oklch(0% 0 0deg / 40%) 15%,
+    oklch(0% 0 0deg) 30%,
+    oklch(0% 0 0deg) 60%,
+    oklch(0% 0 0deg / 40%) 85%,
     transparent 100%
   );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    oklch(0% 0 0 / 40%) 15%,
-    oklch(0% 0 0) 30%,
-    oklch(0% 0 0) 60%,
-    oklch(0% 0 0 / 40%) 85%,
-    transparent 100%
-  );
+  transition:
+    opacity 620ms var(--zen-ease-elegant),
+    transform 620ms var(--zen-ease-elegant);
 
   &::before {
     content: "";
     position: absolute;
-    inset: -1px 0 -2px 0;
+    inset: -1px 0 -2px;
     background: var(--primary-color);
     opacity: 0.12;
     filter: blur(3px);
@@ -62,7 +56,7 @@
   &::after {
     content: "";
     position: absolute;
-    inset: -1px 0 -2px 0;
+    inset: -1px 0 -2px;
     background: var(--primary-color);
     opacity: 0.08;
     filter: blur(5px);
@@ -203,6 +197,12 @@
   border-top: 1px solid color-mix(in oklch, var(--primary-color) 12%, transparent);
 }
 
+.blog-archive__subscribe-sep {
+  color: var(--text-secondary);
+  opacity: 0.6;
+  margin: 0 0.15rem;
+}
+
 .blog-archive__rss-copy {
   background: none;
   border: none;
@@ -223,6 +223,23 @@
   &--copied {
     color: var(--primary-color);
     text-decoration: none;
+  }
+}
+
+.blog-archive__tags-link {
+  color: var(--link-color);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  transition: color 280ms var(--zen-ease-out);
+
+  &::after {
+    content: none;
+  }
+
+  &:hover {
+    color: var(--link-hover-color);
   }
 }
 
@@ -553,13 +570,6 @@ tbody tr:hover {
   }
 }
 
-@keyframes zen-card-fallback {
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
 .zen-card {
   position: relative;
   display: flex;
@@ -572,13 +582,11 @@ tbody tr:hover {
   box-shadow:
     var(--home-card-shadow-soft),
     0 1px 0 var(--surface-glass-strong);
-  transform: translate3d(0, 1.25rem, 0) rotate(0deg);
+  transform: translate3d(0, 1.25rem, 0) scale(0.97);
   opacity: 0;
-  /* CSS-only fallback: show cards after animation window passes */
-  animation: zen-card-fallback 0s 1.5s forwards;
   transition:
-    opacity 420ms var(--zen-transition-timing),
-    transform 520ms var(--zen-transition-timing),
+    opacity 620ms var(--zen-ease-elegant),
+    transform 720ms var(--zen-ease-elegant),
     box-shadow 320ms var(--zen-ease-out),
     border-color 320ms var(--zen-ease-out),
     color 320ms ease;
@@ -609,9 +617,8 @@ tbody tr:hover {
   }
 
   &--visible {
-    animation: none;
     opacity: 1;
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: translate3d(0, 0, 0) scale(1);
 
     .zen-card__wash {
       transform: translateX(110%);
@@ -657,6 +664,7 @@ tbody tr:hover {
   @media (prefers-reduced-motion: reduce) {
     opacity: 1;
     transform: none;
+    filter: none;
     transition: none;
 
     .zen-card__wash {
@@ -854,6 +862,42 @@ tbody tr:hover {
 .recommended-posts {
   margin: 1rem 0;
 
+  &__heading-icon {
+    color: var(--primary-color);
+    transform-origin: center;
+    transition:
+      transform 900ms var(--zen-ease-elegant),
+      color 400ms var(--zen-ease-out);
+    will-change: transform;
+  }
+
+  &:hover &__heading-icon {
+    transform: rotate(360deg);
+    color: color-mix(in oklch, var(--primary-color) 75%, var(--heading-color));
+  }
+
+  &__intro-icon {
+    color: var(--primary-color);
+    transform-origin: 70% 85%;
+    transition: transform 400ms var(--zen-ease-elegant);
+    will-change: transform;
+  }
+
+  &:hover &__intro-icon {
+    animation: feather-writing 1600ms var(--zen-ease-elegant) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__heading-icon,
+    &:hover &__heading-icon,
+    &__intro-icon,
+    &:hover &__intro-icon {
+      transform: none;
+      transition: none;
+      animation: none;
+    }
+  }
+
   &__intro {
     display: flex;
     align-items: flex-start;
@@ -867,7 +911,6 @@ tbody tr:hover {
 
     .icon {
       flex-shrink: 0;
-      color: var(--primary-color);
       margin-top: 0.2rem;
     }
   }
@@ -913,6 +956,17 @@ tbody tr:hover {
       }
     }
   }
+}
+
+@keyframes feather-writing {
+  0%   { transform: translateX(0) rotate(0deg); }
+  12%  { transform: translateX(-1.5px) rotate(-9deg); }
+  26%  { transform: translateX(1.5px) rotate(7deg); }
+  40%  { transform: translateX(-1px) rotate(-5deg); }
+  54%  { transform: translateX(1px) rotate(4deg); }
+  68%  { transform: translateX(-0.5px) rotate(-2deg); }
+  82%  { transform: translateX(0.5px) rotate(1deg); }
+  100% { transform: translateX(0) rotate(0deg); }
 }
 
 .post-page__header {

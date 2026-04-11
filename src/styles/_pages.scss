@@ -72,14 +72,18 @@
     display: flex;
     overflow: hidden;
     border-radius: var(--radius-lg);
-    transform: translate3d(0, 1.5rem, 0);
+    transform: translate3d(0, 2rem, 0) scale(0.94);
     transform-style: preserve-3d;
+    transform-origin: center bottom;
     opacity: 0;
+    filter: blur(6px);
     transition:
-      opacity 500ms var(--zen-transition-timing),
-      transform 600ms var(--zen-transition-timing),
+      opacity 620ms var(--zen-ease-elegant),
+      transform 720ms var(--zen-ease-elegant),
+      filter 620ms var(--zen-ease-elegant),
       box-shadow 500ms var(--zen-ease-gentle);
     transition-delay: var(--social-card-stagger, 0ms);
+    will-change: opacity, transform, filter;
 
     &::after {
       content: '';
@@ -114,16 +118,19 @@
 
     &--visible {
       opacity: 1;
-      transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0) scale(1);
+      filter: blur(0);
+      will-change: auto;
     }
 
-    &--visible#{&}--hover {
+    &--visible.social-network__card--hover {
       transform: perspective(800px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translate3d(0, -2px, 0);
     }
 
     @media (prefers-reduced-motion: reduce) {
       opacity: 1;
       transform: none;
+      filter: none;
       transition: none;
 
       &--hover {
@@ -679,15 +686,6 @@
 
 .social-network__card {
   margin-top: 0.25rem;
-}
-
-.site-footer__profile {
-  position: relative;
-  transition: transform var(--zen-duration-fast) var(--zen-ease-out);
-
-  &:hover {
-    transform: translateY(-3px) scale(1.03);
-  }
 }
 
 .site-footer__profile-tooltip {

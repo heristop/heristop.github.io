@@ -2,7 +2,6 @@
 import Icon from "../components/Icon.astro";
 import Layout from "../layouts/Layout.astro";
 import SocialNetworks from "../components/SocialNetworks.astro";
-import ZenFade from "../components/zen/ZenFade.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
 ---
 
@@ -17,7 +16,5 @@ import ZenSlide from "../components/zen/ZenSlide.astro";
     </h2>
   </ZenSlide>
 
-  <ZenFade delay={600}>
-    <SocialNetworks filter="project" />
-  </ZenFade>
+  <SocialNetworks filter="project" baseDelay={600} />
 </Layout>

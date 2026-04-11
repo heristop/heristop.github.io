@@ -46,7 +46,7 @@ const recommendedPosts = await getRecommendedPosts(currentPostSlug);
   {
     conclusion && (
       <p class="recommended-posts__intro">
-        <Icon name="feather" size={18} aria-hidden={true} />
+        <Icon name="feather" size={18} aria-hidden={true} class="recommended-posts__intro-icon" />
         <b>{conclusion.replace(/^\W+\s*/, '')}</b>
       </p>
     )
@@ -55,7 +55,7 @@ const recommendedPosts = await getRecommendedPosts(currentPostSlug);
   <div class="recommended-posts__divider"></div>
 
   <h3 class="recommended-posts__heading">
-    <Icon name="compass" size={18} aria-hidden={true} /> Explore More
+    <Icon name="compass" size={18} aria-hidden={true} class="recommended-posts__heading-icon" /> Explore More
   </h3>
 
   <ul>
