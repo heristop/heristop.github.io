@@ -13,8 +13,14 @@
   --highlight-bg-color: oklch(15% 0 0deg);
   --heading-color: oklch(30% 0.12 355deg);
   --accent-color: var(--primary-color);
-  --code-bg-color: oklch(34% 0.01 250deg);
-  --code-text-color: oklch(97% 0.01 75deg);
+  --code-bg-color: oklch(21% 0.035 355deg);
+  --code-bg-color-edge: oklch(26% 0.045 355deg);
+  --code-text-color: oklch(93% 0.03 25deg);
+  --code-inline-bg: color-mix(in oklch, var(--primary-color) 12%, var(--surface-warm));
+  --code-inline-bg-hover: color-mix(in oklch, var(--primary-color) 18%, var(--surface-warm));
+  --code-inline-border: color-mix(in oklch, var(--primary-color) 26%, transparent);
+  --code-selection: color-mix(in oklch, var(--primary-color) 45%, transparent);
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --color-overlay-light: oklch(97% 0 0deg / 50%);
   --space-xs: 0.125rem;
   --space-sm: 0.25rem;

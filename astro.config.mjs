@@ -13,6 +13,10 @@ import icon from "astro-icon";
 export default defineConfig({
   integrations: [mdx(), sitemap(), react(), icon()],
   markdown: {
+    shikiConfig: {
+      theme: "rose-pine",
+      wrap: false,
+    },
     rehypePlugins: [
       [
         externalLink,
