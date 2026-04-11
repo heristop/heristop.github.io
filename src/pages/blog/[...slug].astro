@@ -7,7 +7,6 @@ import BreadcrumbSchema from "../../components/BreadcrumbSchema.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import Icon from "../../components/Icon.astro";
 import Layout from "../../layouts/Layout.astro";
-import BuyMeCoffee from "../../components/client/BuyMeCoffee";
 import PostTags from "../../components/client/PostTags";
 import RecommendedPosts from "../../components/RecommendedPosts.astro";
 import SocialShare from "../../components/SocialShare.astro";
@@ -119,11 +118,8 @@ const breadcrumbItems = [
         class="post-page__share-links"
         title={post.data.title}
         slug={currentPostSlug}
+        supportUrl={BUY_ME_COFFEE_URL}
       />
-    </div>
-
-    <div class="post-page__bmc">
-      <BuyMeCoffee client:visible url={BUY_ME_COFFEE_URL} />
     </div>
 
     <blockquote class="post-page__endquote">

@@ -4,6 +4,8 @@ interface Props {
   slug: string;
   minimal?: boolean;
   class?: string;
+  /** When provided, append a "Buy me a coffee" CTA after the share links. */
+  supportUrl?: string;
 }
 
 const {
@@ -11,6 +13,7 @@ const {
   slug,
   minimal = false,
   class: className = 'social-share--default',
+  supportUrl,
 } = Astro.props;
 const url = `https://heristop.github.io/blog/${slug}`;
 
@@ -28,6 +31,35 @@ const shareLinks = [
 ---
 
 <div class={`social-share ${className}`}>
+  {supportUrl && (
+    <a
+      href={supportUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class:list={[
+        'social-share__link',
+        'social-share__link--support',
+        minimal ? 'social-share__link--minimal' : 'social-share__link--full',
+      ]}
+      aria-label="Support my writing — Buy me a coffee"
+      data-tooltip={minimal ? 'Buy me a coffee ☕' : 'Support my writing ☕ (opens in new tab)'}
+    >
+      <span class="social-share__link--support-shimmer" aria-hidden="true" />
+      <img
+        src="/icons/coffee.svg"
+        alt=""
+        width="20"
+        height="20"
+        class:list={[
+          'social-share__icon',
+          { 'social-share__icon--with-text': !minimal },
+        ]}
+      />
+      {!minimal && (
+        <span class="social-share__text">Buy me a coffee</span>
+      )}
+    </a>
+  )}
   {
     shareLinks.map(link => (
       <a
