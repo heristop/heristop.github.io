@@ -586,11 +586,6 @@
   }
 }
 
-.zazen-world__tile {
-  position: absolute;
-}
-
-
 .img-container {
   display: flex;
   width: 100%;
@@ -686,54 +681,6 @@
 
 .social-network__card {
   margin-top: 0.25rem;
-}
-
-.site-footer__profile-tooltip {
-  position: absolute;
-  bottom: -2.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: oklch(0% 0 0deg / 60%);
-  color: var(--text-on-dark);
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity var(--zen-duration-fast) var(--zen-ease-out),
-    transform var(--zen-duration-fast) var(--zen-ease-out),
-    visibility var(--zen-duration-fast);
-  pointer-events: none;
-  z-index: 10;
-
-  /* Small arrow pointing up */
-  &::before {
-    content: '';
-    position: absolute;
-    top: -4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-bottom: 4px solid oklch(0% 0 0deg / 60%);
-  }
-}
-
-.site-footer__profile:hover .site-footer__profile-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(-2px);
-}
-
-@media (width <= 768px) {
-  .site-footer__profile-tooltip {
-    display: none;
-  }
 }
 
 .site-footer__extra-link {
