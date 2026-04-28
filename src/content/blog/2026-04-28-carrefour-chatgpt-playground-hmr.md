@@ -35,7 +35,7 @@ Before the sandbox was in place, developing a component like product search look
 1. Edit the code, kick off a build, reload the MCP server.
 2. Go back to ChatGPT, restart the conversation, retype the query that triggers the tool.
 3. Negotiate with the model so it calls the right tool (results vary), wait for the iframe to reload.
-4. Notice that a `padding` is still off, go back to step 1.
+4. Watch the promo badge eat into the product image, go back to step 1.
 
 Multiply that by several dozen iterations a day, and you're back to the golden age of the punch card.
 
