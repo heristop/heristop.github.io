@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { usesCoarsePointer } from "./pretext-loader";
 import textReveal from "./use-text-reveal";
 
 const { buildCharDrifts, getCharClass, getSmokeStyle, maxAnimationEnd, useReducedMotion, useTextLayout } = textReveal;
@@ -7,6 +8,7 @@ interface Props {
   className?: string;
   font?: string;
   lineHeight?: number;
+  mobileStrategy?: "characters" | "text";
   tag?: "span" | "p" | "div";
   text: string;
 }
@@ -18,10 +20,46 @@ const DEFAULT_FONT = `400 ${FONT_SIZE}rem Comfortaa, sans-serif`;
 const DEFAULT_LINE_HEIGHT = FONT_SIZE * BODY_LINE_HEIGHT * BASE_PX;
 const APPEAR_DELAY_MS = 80;
 const TEXT_DURATION_MS = 800;
+const SIMPLE_TEXT_DURATION_MS = 420;
 const SETTLE_BUFFER_MS = 300;
 const NBSP = "\u00A0";
 
-const ZenTextReveal = ({ text, tag: Tag = "span", className, font = DEFAULT_FONT, lineHeight = DEFAULT_LINE_HEIGHT }: Props) => {
+const getSimpleTextStyle = (appeared: boolean, reducedMotion: boolean): React.CSSProperties | undefined => {
+  if (reducedMotion) {
+    return undefined;
+  }
+  return {
+    opacity: appeared ? 1 : 0,
+    transition: `opacity ${SIMPLE_TEXT_DURATION_MS}ms var(--zen-ease-elegant)`,
+  };
+};
+
+const SimpleTextReveal = ({ text, tag: Tag = "span", className }: Props) => {
+  const [appeared, setAppeared] = useState(false);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (appeared || reducedMotion) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setAppeared(true);
+    }, APPEAR_DELAY_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [appeared, reducedMotion]);
+
+  return (
+    <Tag className={className} aria-label={text}>
+      <span aria-hidden="true" style={getSimpleTextStyle(appeared || reducedMotion, reducedMotion)}>
+        {text}
+      </span>
+    </Tag>
+  );
+};
+
+const CharacterTextReveal = ({ text, tag: Tag = "span", className, font = DEFAULT_FONT, lineHeight = DEFAULT_LINE_HEIGHT }: Props) => {
   const containerRef = useRef<HTMLElement>(null);
   const [appeared, setAppeared] = useState(false);
   const [settled, setSettled] = useState(false);
@@ -75,6 +113,13 @@ const ZenTextReveal = ({ text, tag: Tag = "span", className, font = DEFAULT_FONT
       )}
     </Tag>
   );
+};
+
+const ZenTextReveal = (props: Props) => {
+  if (props.mobileStrategy === "text" && usesCoarsePointer()) {
+    return <SimpleTextReveal {...props} />;
+  }
+  return <CharacterTextReveal {...props} />;
 };
 
 export default ZenTextReveal;

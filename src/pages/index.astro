@@ -97,7 +97,7 @@ const websiteSchema = {
                             </span>
                           </span>
                         )}
-                        <ZenTextReveal client:visible text={post.data.title} className="latest-posts__title" />
+                        <ZenTextReveal client:visible text={post.data.title} className="latest-posts__title" mobileStrategy="text" />
                         {post.data.tags && post.data.tags.length > 0 && (
                           <div
                             class="latest-posts__tags"
