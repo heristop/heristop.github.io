@@ -3,7 +3,9 @@
 
 <div id="sakura-container" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;" transition:persist="sakura"></div>
 
-<script is:inline>
+<script>
+  import { shouldBindSakuraTouchBursts } from "./client/sakura-petals";
+
   (function() {
     var PETAL_COUNT_MIN = 6;
     var PETAL_COUNT_MAX = 10;
@@ -13,8 +15,9 @@
     var bound = false;
 
     var prefersReduced = globalThis.matchMedia && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var shouldBindPointerBursts = shouldBindSakuraTouchBursts();
 
-    function randomBetween(min, max) {
+    function randomBetween(min: number, max: number) {
       return min + Math.random() * (max - min);
     }
 
@@ -31,7 +34,7 @@
       return el;
     }
 
-    function createPetal(x, y) {
+    function createPetal(x: number, y: number) {
       var petal = document.createElement('span');
       var spreadX = randomBetween(-60, 60);
       var fallY = randomBetween(80, 180);
@@ -74,7 +77,7 @@
       return petal;
     }
 
-    function burst(x, y) {
+    function burst(x: number, y: number) {
       var now = Date.now();
       if (now - lastBurst < THROTTLE) return;
       lastBurst = now;
@@ -102,18 +105,20 @@
       if (bound || prefersReduced) return;
       bound = true;
 
-      document.addEventListener('click', function(e) {
-        burst(e.clientX, e.clientY);
-      });
+      if (shouldBindPointerBursts) {
+        document.addEventListener('click', function(e) {
+          burst(e.clientX, e.clientY);
+        });
 
-      document.addEventListener('touchstart', function(e) {
-        if (e.touches.length === 1) {
-          burst(e.touches[0].clientX, e.touches[0].clientY);
-        }
-      }, { passive: true });
+        document.addEventListener('touchstart', function(e) {
+          if (e.touches.length === 1) {
+            burst(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        }, { passive: true });
+      }
 
       document.addEventListener('sakura:burst', function(e) {
-        var detail = e.detail;
+        var detail = (e as CustomEvent<{ x: number; y: number }>).detail;
         if (detail && typeof detail.x === 'number' && typeof detail.y === 'number') {
           burst(detail.x, detail.y);
         }
