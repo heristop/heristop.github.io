@@ -1,10 +1,11 @@
-import { layoutWithLines, prepareWithSegments } from "@chenglou/pretext";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { LayoutLine } from "@chenglou/pretext";
+import { loadPretext, usesCoarsePointer } from "./pretext-loader";
+import type { LayoutLine, prepareWithSegments } from "@chenglou/pretext";
 import type { RefObject } from "react";
 
 const REVEAL_DELAY_MS = 50;
 const RESIZE_DEBOUNCE_MS = 150;
+type PreparedText = ReturnType<typeof prepareWithSegments>;
 
 // Pretext can split a word across lines at a non-space boundary; merge the orphan back
 const rejoinBrokenWords = (rawLines: string[]): string[] => {
@@ -58,26 +59,70 @@ const useReducedMotion = (): boolean => {
 };
 
 interface ComputeLinesDeps {
+  activeRef: RefObject<boolean>;
   containerRef: RefObject<HTMLElement | null>;
   font: string;
   lineHeight: number;
-  preparedRef: RefObject<ReturnType<typeof prepareWithSegments> | null>;
+  layoutKeyRef: RefObject<string | null>;
+  preparedRef: RefObject<PreparedText | null>;
   prevFontRef: RefObject<string | null>;
   prevTextRef: RefObject<string | null>;
+  requestIdRef: RefObject<number>;
   setLines: (lines: LayoutLine[]) => void;
   text: string | undefined;
 }
 
 const useComputeLines = (deps: ComputeLinesDeps) => {
-  const { text, font, lineHeight, containerRef, preparedRef, prevTextRef, prevFontRef, setLines } =
-    deps;
-  return useCallback(() => {
+  const {
+    activeRef,
+    containerRef,
+    font,
+    layoutKeyRef,
+    lineHeight,
+    preparedRef,
+    prevFontRef,
+    prevTextRef,
+    requestIdRef,
+    setLines,
+    text,
+  } = deps;
+  return useCallback(async () => {
     if (text === undefined || text === "" || !containerRef.current) {
       return;
     }
 
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+
+    if (usesCoarsePointer()) {
+      const layoutKey = `coarse:${text}`;
+      preparedRef.current = null;
+      prevTextRef.current = null;
+      prevFontRef.current = null;
+      if (layoutKeyRef.current !== layoutKey) {
+        layoutKeyRef.current = layoutKey;
+        setLines(toLayoutLines([text]));
+      }
+      return;
+    }
+
+    const width = containerRef.current.offsetWidth;
+    if (width <= 0) {
+      return;
+    }
+
+    const layoutKey = `pretext:${text}\u0000${font}\u0000${lineHeight}\u0000${width}`;
+    if (layoutKeyRef.current === layoutKey && preparedRef.current) {
+      return;
+    }
+
+    const pretext = await loadPretext();
+    if (!activeRef.current || requestIdRef.current !== requestId || !containerRef.current) {
+      return;
+    }
+
     if (prevTextRef.current !== text || prevFontRef.current !== font) {
-      preparedRef.current = prepareWithSegments(text, font);
+      preparedRef.current = pretext.prepareWithSegments(text, font);
       prevTextRef.current = text;
       prevFontRef.current = font;
     }
@@ -87,15 +132,23 @@ const useComputeLines = (deps: ComputeLinesDeps) => {
       return;
     }
 
-    const width = containerRef.current.offsetWidth;
-    if (width <= 0) {
-      return;
-    }
-
-    const result = layoutWithLines(prepared, width, lineHeight);
+    const result = pretext.layoutWithLines(prepared, width, lineHeight);
     const rawTexts = result.lines.map((item) => item.text);
+    layoutKeyRef.current = layoutKey;
     setLines(toLayoutLines(rejoinBrokenWords(rawTexts)));
-  }, [text, font, lineHeight, containerRef, preparedRef, prevTextRef, prevFontRef, setLines]);
+  }, [
+    activeRef,
+    containerRef,
+    font,
+    layoutKeyRef,
+    lineHeight,
+    preparedRef,
+    prevFontRef,
+    prevTextRef,
+    requestIdRef,
+    setLines,
+    text,
+  ]);
 };
 
 const useTextLayout = (
@@ -107,28 +160,45 @@ const useTextLayout = (
   const [lines, setLines] = useState<LayoutLine[]>([]);
   const [revealed, setRevealed] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const preparedRef = useRef<ReturnType<typeof prepareWithSegments> | null>(null);
+  const activeRef = useRef(true);
+  const layoutKeyRef = useRef<string | null>(null);
+  const preparedRef = useRef<PreparedText | null>(null);
   const prevTextRef = useRef<string | null>(null);
   const prevFontRef = useRef<string | null>(null);
+  const requestIdRef = useRef(0);
 
   const computeLines = useComputeLines({
+    activeRef,
     containerRef,
     font,
+    layoutKeyRef,
     lineHeight,
     preparedRef,
     prevFontRef,
     prevTextRef,
+    requestIdRef,
     setLines,
     text,
   });
 
   useEffect(() => {
-    computeLines();
-    const timer = setTimeout(() => {
-      setRevealed(true);
-    }, REVEAL_DELAY_MS);
+    activeRef.current = true;
+    setRevealed(false);
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    void computeLines().finally(() => {
+      if (cancelled || !activeRef.current) {
+        return;
+      }
+      timer = setTimeout(() => {
+        setRevealed(true);
+      }, REVEAL_DELAY_MS);
+    });
     return () => {
-      clearTimeout(timer);
+      cancelled = true;
+      if (timer !== null) {
+        clearTimeout(timer);
+      }
     };
   }, [computeLines]);
 
@@ -137,7 +207,9 @@ const useTextLayout = (
       if (timeoutRef.current !== null) {
         clearTimeout(timeoutRef.current);
       }
-      timeoutRef.current = setTimeout(computeLines, RESIZE_DEBOUNCE_MS);
+      timeoutRef.current = setTimeout(() => {
+        void computeLines();
+      }, RESIZE_DEBOUNCE_MS);
     };
     globalThis.addEventListener("resize", onResize);
     return () => {
@@ -147,6 +219,14 @@ const useTextLayout = (
       globalThis.removeEventListener("resize", onResize);
     };
   }, [computeLines]);
+
+  useEffect(
+    () => () => {
+      activeRef.current = false;
+      requestIdRef.current += 1;
+    },
+    [],
+  );
 
   return { lines, revealed };
 };
