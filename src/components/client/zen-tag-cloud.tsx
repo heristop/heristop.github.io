@@ -1,5 +1,5 @@
-import { measureNaturalWidth, prepareWithSegments } from "@chenglou/pretext";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { loadPretext, usesCoarsePointer } from "./pretext-loader";
 import type { LayoutLine } from "@chenglou/pretext";
 import textReveal from "./use-text-reveal";
 
@@ -54,7 +54,7 @@ const TagPill = ({ item, index, reducedMotion }: PillProps) => {
   const [appeared, setAppeared] = useState(reducedMotion);
   const [settled, setSettled] = useState(reducedMotion);
   const [textWidth, setTextWidth] = useState<number | null>(null);
-  const measuredRef = useRef(false);
+  const measuredKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -66,16 +66,36 @@ const TagPill = ({ item, index, reducedMotion }: PillProps) => {
   );
 
   useEffect(() => {
-    if (measuredRef.current) {
+    const measuredKey = `${item.tag}\u0000${item.size}`;
+    if (measuredKeyRef.current === measuredKey) {
       return;
     }
-    measuredRef.current = true;
-    try {
-      const prepared = prepareWithSegments(item.tag, FONT_BY_SIZE[item.size].font);
-      setTextWidth(measureNaturalWidth(prepared));
-    } catch {
+    measuredKeyRef.current = measuredKey;
+    if (usesCoarsePointer()) {
       setTextWidth(null);
+      return;
     }
+    let cancelled = false;
+    void loadPretext()
+      .then(({ measureNaturalWidth, prepareWithSegments }) => {
+        if (cancelled) {
+          return;
+        }
+        try {
+          const prepared = prepareWithSegments(item.tag, FONT_BY_SIZE[item.size].font);
+          setTextWidth(measureNaturalWidth(prepared));
+        } catch {
+          setTextWidth(null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setTextWidth(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [item.tag, item.size]);
 
   useEffect(() => {

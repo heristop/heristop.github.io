@@ -5,11 +5,11 @@ import { afterEach, vi } from "vitest";
 vi.mock("@chenglou/pretext", async () => {
   const emptyPos = { graphemeIndex: 0, segmentIndex: 0 };
   return {
-    prepareWithSegments: (text: string) => ({ text, segments: [] }),
-    layoutWithLines: (prepared: { text: string }) => ({
+    prepareWithSegments: vi.fn((text: string) => ({ text, segments: [] })),
+    layoutWithLines: vi.fn((prepared: { text: string }) => ({
       lines: [{ text: prepared.text, width: 0, start: emptyPos, end: emptyPos }],
-    }),
-    measureNaturalWidth: () => 0,
+    })),
+    measureNaturalWidth: vi.fn(() => 0),
   };
 });
 
