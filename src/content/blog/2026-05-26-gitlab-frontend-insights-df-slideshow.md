@@ -7,7 +7,7 @@ tags: ["case-study", "carrefour", "gitlab", "frontend", "design-system", "toolin
 conclusion: "The tool started as a way to turn raw GitLab data into a readable picture. It's now become the backbone of our frontend performance reviews. The gap between 'we have data' and 'we use data' turned out to be a UX problem as much as a data problem."
 ---
 
-Five months ago I wrote about **[how we built a 360° Frontend Observatory at Carrefour](https://heristop.github.io/blog/2025-11-28-frontend-observatory-design-system-ast/)** — scanning hundreds of frontend repos twice a week via AST parsing to measure Marcel adoption, Tech Radar compliance, accessibility, and more.
+A few months ago I wrote about **[how we built a 360° Frontend Observatory at Carrefour](https://heristop.github.io/blog/2025-11-28-frontend-observatory-design-system-ast/)** — scanning hundreds of frontend repos twice a week via AST parsing to measure Marcel adoption, Tech Radar compliance, accessibility, and more.
 
 That post covered the foundation: what we track, how we compute it, why raw npm install counts don't tell you anything useful. This one is about **what we built on top of it**.
 
