@@ -1,5 +1,5 @@
 ---
-title: "How Carrefour Built a 360° Frontend Observatory for Hundreds of Projects"
+title: "Building a Frontend Observatory at Carrefour"
 description: "Measuring Design System adoption, accessibility compliance, and tech standards at scale using AST parsing"
 pubDate: "2025-11-28"
 conclusion: "☝ A Design System without measurement is a blind investment. With our Frontend Observatory, we now have a 360° view: from the tech ecosystem down to every component and accessibility attribute. If you can't measure it, you can't improve it."
