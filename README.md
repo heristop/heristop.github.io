@@ -15,7 +15,7 @@ JavaScript, TypeScript, PHP, and frontend development — including a long-runni
 
 - Long-form posts in MDX with KaTeX math and rose-pine syntax highlighting
 - Tags, RSS feed, and generated sitemap
-- **Path of Stones** — a small meditative React experience
+- **Path of Stones** — a small meditative experience
 - View transitions and a dark, focused reading theme
 
 ## Tech stack
