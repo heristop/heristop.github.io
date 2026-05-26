@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import dissolve from "./haiku-dissolve";
 import textReveal from "./use-text-reveal";
 import useHaikuAnimation from "./use-haiku-animation";
+import { usesCoarsePointer } from "./pretext-loader";
 import type { CharDrift } from "./use-text-reveal";
 import type { CharCacheEntry } from "./haiku-dissolve";
 
-const { getSmokeStyle } = textReveal;
+const { getSmokeStyle, useReducedMotion } = textReveal;
 const { processCharEntry, resetElement } = dissolve;
 
 interface Props {
@@ -13,6 +14,16 @@ interface Props {
 }
 
 const DISSOLVE_RADIUS = 80;
+const SIMPLE_APPEAR_DELAY_MS = 80;
+const SIMPLE_FADE_DURATION_MS = 420;
+
+const HaikuSkeleton = () => (
+  <div className="haiku-skeleton" aria-hidden="true">
+    <span className="haiku-skeleton__line" style={{ width: '75%' }} />
+    <span className="haiku-skeleton__line" style={{ width: '60%' }} />
+    <span className="haiku-skeleton__line" style={{ width: '45%' }} />
+  </div>
+);
 
 interface ContainerBox {
   bottom: number;
@@ -262,7 +273,49 @@ const useCardPointer = (opts: CardPointerOptions) => {
 };
 
 
-const ZenHaikuReveal = ({ url }: Props) => {
+const getSimpleFadeStyle = (appeared: boolean, reducedMotion: boolean): React.CSSProperties | undefined => {
+  if (reducedMotion) {
+    return undefined;
+  }
+  return {
+    opacity: appeared ? 1 : 0,
+    transition: `opacity ${SIMPLE_FADE_DURATION_MS}ms var(--zen-ease-elegant)`,
+  };
+};
+
+const SimpleHaikuReveal = ({ url }: Props) => {
+  const text = useHaikuFetch(url);
+  const reducedMotion = useReducedMotion();
+  const [appeared, setAppeared] = useState(false);
+
+  useEffect(() => {
+    if (text === undefined || appeared || reducedMotion) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setAppeared(true);
+    }, SIMPLE_APPEAR_DELAY_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [text, appeared, reducedMotion]);
+
+  return (
+    <div
+      className="haiku-card__quote"
+      aria-label={text ?? "Loading today's verse..."}
+    >
+      {text === undefined && <HaikuSkeleton />}
+      {text !== undefined && (
+        <span aria-hidden="true" style={getSimpleFadeStyle(appeared || reducedMotion, reducedMotion)}>
+          {text}
+        </span>
+      )}
+    </div>
+  );
+};
+
+const FullHaikuReveal = ({ url }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const charElsRef = useRef<Map<string, HTMLSpanElement>>(new Map());
   const text = useHaikuFetch(url);
@@ -285,13 +338,7 @@ const ZenHaikuReveal = ({ url }: Props) => {
       onMouseMove={collapsed ? undefined : onMouseMove}
       onMouseLeave={collapsed ? undefined : onLeave}
     >
-      {text === undefined && (
-        <div className="haiku-skeleton" aria-hidden="true">
-          <span className="haiku-skeleton__line" style={{ width: '75%' }} />
-          <span className="haiku-skeleton__line" style={{ width: '60%' }} />
-          <span className="haiku-skeleton__line" style={{ width: '45%' }} />
-        </div>
-      )}
+      {text === undefined && <HaikuSkeleton />}
       {text !== undefined && words.length > 0 && (
         collapsed ? (
           <span aria-hidden="true">{text}</span>
@@ -305,6 +352,13 @@ const ZenHaikuReveal = ({ url }: Props) => {
       )}
     </div>
   );
+};
+
+const ZenHaikuReveal = ({ url }: Props) => {
+  if (usesCoarsePointer()) {
+    return <SimpleHaikuReveal url={url} />;
+  }
+  return <FullHaikuReveal url={url} />;
 };
 
 export default ZenHaikuReveal;
