@@ -26,129 +26,232 @@ const personSchema = {
     '@type': 'Organization',
     name: 'Carrefour SI',
   },
-  knowsAbout: ['JavaScript', 'TypeScript', 'Vue', 'React', 'Node.js', 'PHP', 'Symfony'],
+  knowsAbout: ['JavaScript', 'TypeScript', 'Vue', 'React', 'Node.js', 'PHP', 'Rust', 'AI', 'Web Development'],
   sameAs: [GITHUB_URL, LINKEDIN_URL, X_URL, BLUESKY_URL],
 };
 ---
 
-<Layout title="About" description="Alexandre Mogere - Chapter Lead at Carrefour SI. JavaScript, TypeScript, Vue, React, Node.js, PHP, and Symfony." headSchema={personSchema}>
-  <ZenSlide direction="up" delay={200}>
-    <blockquote>
-      Hello, I'm <b>heristop</b>! <span class="about-info__wave">👋</span> I'm a Chapter Lead &
-      Web Development Expert. I lead teams of developers building web applications,
-      with a stack spanning JavaScript, TypeScript, Vue, React, Node.js, PHP, and Symfony.
-      I care about technical leadership, architecture decisions, and keeping teams moving forward.
-    </blockquote>
-  </ZenSlide>
+<Layout
+  title="About"
+  description="Alexandre Mogère — Chapter Lead at Carrefour SI, writing Zazen Code since 2014 on coding & AI, JavaScript, TypeScript, Vue, React, Node.js, PHP, Rust, and AI."
+  headSchema={personSchema}
+>
+  <div class="about">
+    <header class="about__intro">
+      <ZenSlide direction="up" delay={100}>
+        <div class="about__hero">
+          <img
+            class="about__avatar"
+            src="/images/avatar.webp"
+            alt="Alexandre Mogère"
+            width="112"
+            height="112"
+            loading="eager"
+            decoding="async"
+          />
+          <blockquote class="about__lead">
+            Hello, I'm <b>heristop</b>! <span class="about__wave">👋</span>
+            I'm Alexandre — a Chapter Lead &amp; web development expert based in Paris,
+            leading teams that build web applications across JavaScript, TypeScript,
+            Vue, React, Node.js, PHP, Rust, and AI.
+          </blockquote>
+        </div>
+      </ZenSlide>
+    </header>
 
-  <section class="about-info" aria-labelledby="personal-info-heading">
-    <h2 class="sr-only" id="personal-info-heading">Personal Information</h2>
-    <div class="about-info__grid">
-      <ul class="about-info__list zen-slide-up zen-delay-300">
-        <li class="about-info__item about-info__item--with-icon zen-slide-up zen-delay-500">
-          <Icon name="briefcase" size={20} aria-hidden={true} class="about-info__icon" />
-          <div class="about-info__content">
-            <div class="about-info__role">Chapter Lead</div>
-            <span class="about-info__subtitle">@Carrefour SI</span>
+    <section class="about-meta" aria-labelledby="personal-info-heading">
+      <h2 class="sr-only" id="personal-info-heading">At a glance</h2>
+      <ZenSlide direction="up" delay={500}>
+        <div class="about-meta__grid">
+          <ul class="about-meta__list">
+            <li class="about-meta__item">
+              <Icon name="briefcase" size={18} aria-hidden={true} class="about-meta__icon" />
+              <span class="about-meta__content">
+                <span class="about-meta__role">Chapter Lead</span>
+                <span class="about-meta__subtitle">@Carrefour SI</span>
+              </span>
+            </li>
+            <li class="about-meta__item">
+              <Icon name="map-pin" size={18} aria-hidden={true} class="about-meta__icon" />
+              <span class="about-meta__text">Paris, France</span>
+            </li>
+            <li class="about-meta__item">
+              <Icon name="calendar" size={18} aria-hidden={true} class="about-meta__icon" />
+              <span class="about-meta__text">4 November</span>
+            </li>
+          </ul>
+          <div class="about-meta__qr">
+            <QrCode url={LINKFOLIO_URL} label="Link in bio" />
           </div>
-        </li>
-        <li class="about-info__item zen-slide-up zen-delay-600">
-          <Icon name="calendar" size={20} aria-hidden={true} class="about-info__icon" /> 4 November
-        </li>
-        <li class="about-info__item zen-slide-up zen-delay-700">
-          <Icon name="map-pin" size={20} aria-hidden={true} class="about-info__icon" /> Paris, France
-        </li>
-      </ul>
-      <div class="about-info__qr zen-slide-up zen-delay-900">
-        <QrCode url={LINKFOLIO_URL} label="Link in bio" />
-      </div>
-    </div>
-  </section>
+        </div>
+      </ZenSlide>
+    </section>
 
-  <ZenSlide direction="up" delay={800}>
-    <h2 class="icon-heading social-heading">
-      <Icon name="share-2" size={20} /> Zen Broadcasts
-    </h2>
-  </ZenSlide>
+    <section class="about__broadcasts" aria-labelledby="broadcasts-heading">
+      <ZenSlide direction="up" delay={700}>
+        <h2 id="broadcasts-heading" class="icon-heading social-heading">
+          <Icon name="share-2" size={20} aria-hidden={true} /> Zen Broadcasts
+        </h2>
+      </ZenSlide>
 
-  <SocialNetworks filter="socialnetwork" variant="compact" baseDelay={1000} />
+      <SocialNetworks filter="socialnetwork" variant="compact" baseDelay={800} />
+    </section>
 
-  <ZenFade delay={1200}>
-    <BuyMeCoffee client:visible url={BUY_ME_COFFEE_URL} />
-  </ZenFade>
+    <ZenFade delay={900}>
+      <BuyMeCoffee client:visible url={BUY_ME_COFFEE_URL} />
+    </ZenFade>
+  </div>
 </Layout>
 
 <style>
-  .about-info__wave {
+  /* Vertical rhythm: generous, breathing separation between movements */
+  .about {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.75rem, 5vw, 3rem);
+  }
+
+  .about__intro {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.85rem, 2.5vw, 1.25rem);
+  }
+
+  /* Portrait + lead: stacked on mobile, side-by-side from 40rem up */
+  .about__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(0.9rem, 3vw, 1.4rem);
+  }
+
+  .about__avatar {
+    flex-shrink: 0;
+    width: clamp(4.75rem, 13vw, 7rem);
+    height: clamp(4.75rem, 13vw, 7rem);
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--surface-glass-strong);
+    box-shadow:
+      0 14px 28px -16px color-mix(in oklch, var(--primary-color) 45%, transparent),
+      var(--shadow-sm);
+    transition:
+      transform 520ms var(--zen-ease-elegant),
+      box-shadow 520ms var(--zen-ease-elegant);
+  }
+
+  .about__avatar:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow:
+      0 18px 34px -14px color-mix(in oklch, var(--primary-color) 55%, transparent),
+      var(--shadow-md);
+  }
+
+  @media screen and (width >= 40rem) {
+    .about__hero {
+      flex-direction: row;
+      align-items: center;
+      gap: clamp(1.1rem, 3vw, 1.75rem);
+    }
+
+    .about__lead {
+      flex: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .about__avatar:hover {
+      transform: none;
+    }
+  }
+
+  .about__wave {
     display: inline-block;
-    font-size: 1.5em;
+    font-size: 1.4em;
+    transform-origin: 70% 80%;
     animation: wave 1.8s ease-in-out 1;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .about-info__wave {
+    .about__wave {
       animation: none;
     }
   }
 
-  .about-info__item--with-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.35rem;
-  }
-
-  .about-info__content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 0.25rem;
-  }
-
-  @media screen and (width >= 40rem) {
-    .about-info__item--with-icon {
-      flex-direction: row;
-      gap: 0.5rem;
-    }
-
-    .about-info__content {
-      align-items: flex-start;
-      text-align: left;
-    }
-  }
-
-  .about-info__role {
-    font-weight: 700;
-  }
-
-  .about-info__grid {
+  /* Coordinates card — balances the QR, left-aligned rows, no nested cards.
+     Namespaced as .about-meta to avoid the homepage's shared .about-info styles. */
+  .about-meta__grid {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 0.75rem;
+    gap: clamp(0.75rem, 2vw, 1rem);
   }
 
-  .about-info__qr {
+  .about-meta__list {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.85rem;
+    margin: 0;
+    padding: clamp(1rem, 3vw, 1.35rem) clamp(1.1rem, 3.5vw, 1.5rem);
+    list-style: none;
+    background: var(--surface-card);
+    border: 1px solid var(--surface-glass-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .about-meta__item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--text-on-surface);
+  }
+
+  .about-meta__icon {
+    flex-shrink: 0;
+    color: var(--primary-color);
+  }
+
+  .about-meta__content {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .about-meta__role {
+    font-weight: 700;
+    color: var(--heading-color);
+  }
+
+  .about-meta__subtitle,
+  .about-meta__text {
+    color: var(--text-secondary);
+  }
+
+  .about-meta__qr {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: var(--surface-muted);
-    box-shadow: var(--shadow-md);
-    border-radius: var(--radius-md);
-    padding: clamp(0.65rem, 2vw, 1rem);
   }
 
   @media screen and (width >= 40rem) {
-    .about-info__grid {
+    .about-meta__grid {
       flex-direction: row;
       align-items: stretch;
-      gap: 0.75rem;
     }
 
-    .about-info__qr {
+    .about-meta__qr {
       flex-shrink: 0;
     }
+  }
+
+  .about__broadcasts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   @keyframes wave {
@@ -168,15 +271,20 @@ const personSchema = {
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const waveEmoji = document.querySelector(".about-info__wave") as HTMLElement;
-    if (waveEmoji) {
-      waveEmoji.addEventListener("mouseenter", () => {
-        waveEmoji.style.animation = "none";
-        setTimeout(() => {
-          waveEmoji.style.animation = "wave 1.8s ease-in-out 3";
-        }, 10);
-      });
+  const armWave = () => {
+    const waveEmoji = document.querySelector(".about__wave") as HTMLElement | null;
+    if (!waveEmoji) {
+      return;
     }
-  });
+
+    waveEmoji.addEventListener("mouseenter", () => {
+      waveEmoji.style.animation = "none";
+      setTimeout(() => {
+        waveEmoji.style.animation = "wave 1.8s ease-in-out 3";
+      }, 10);
+    });
+  };
+
+  armWave();
+  document.addEventListener("astro:page-load", armWave);
 </script>
