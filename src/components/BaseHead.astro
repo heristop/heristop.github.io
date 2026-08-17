@@ -74,8 +74,41 @@ const {
   <meta property="article:tag" content={tag} />
 ))}
 
-<script
-  is:inline
-  src="https://beamanalytics.b-cdn.net/beam.min.js"
-  data-token={import.meta.env.BEAM_TOKEN}
-  async></script>
+<!--
+  Google Analytics 4, gated behind Consent Mode v2.
+
+  Order matters and is the whole point: the `consent default` call must run BEFORE gtag.js is
+  requested, so the tag boots with storage denied and sends nothing until the visitor opts in.
+  CookieConsent.astro flips it with a `consent update`. Getting this backwards means the first
+  pageview is collected before anyone agrees to anything, which is the failure mode Consent Mode
+  exists to prevent.
+-->
+<script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  window.gtag = gtag;
+
+  gtag("consent", "default", {
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
+    analytics_storage: "denied",
+    wait_for_update: 500,
+  });
+
+  // Replay a stored choice before the tag loads, so a returning visitor who already accepted is
+  // measured on their first pageview rather than from the second one on.
+  try {
+    if (localStorage.getItem("heristop-consent") === "granted") {
+      gtag("consent", "update", { analytics_storage: "granted" });
+    }
+  } catch (e) {
+    /* storage blocked — stay denied */
+  }
+
+  gtag("js", new Date());
+  gtag("config", "G-P44DRVCNGY", { anonymize_ip: true });
+</script>
+<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-P44DRVCNGY"></script>
