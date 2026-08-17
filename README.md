@@ -14,13 +14,14 @@ JavaScript, TypeScript, PHP, and frontend development — including a long-runni
 ## Features
 
 - Long-form posts in MDX with KaTeX math and rose-pine syntax highlighting
+- Mermaid diagrams rendered to inline SVG at build time — no client-side bundle
 - Tags, RSS feed, and generated sitemap
 - **Path of Stones** — a small meditative experience
 - View transitions and a dark, focused reading theme
 
 ## Tech stack
 
-Built with [Astro 6](https://astro.build), [React 19](https://react.dev), MDX,
+Built with [Astro 7](https://astro.build), [React 19](https://react.dev), MDX,
 and TypeScript. Hosted on [GitHub Pages](https://pages.github.com).
 
 ## Local development
