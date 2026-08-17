@@ -12,13 +12,17 @@
   id="cookie-consent"
   class="consent"
   role="region"
-  aria-label="Analytics consent"
+  aria-labelledby="consent-title"
+  tabindex="-1"
   hidden
 >
-  <p class="consent__text">
-    A light touch — which pages are read, and where readers arrive from. Nothing is
-    sent unless you allow it.
-  </p>
+  <div class="consent__copy">
+    <p class="consent__title" id="consent-title">Privacy-first</p>
+    <p class="consent__text">
+      A light touch — which pages are read, and where readers arrive from. Nothing is
+      sent unless you allow it.
+    </p>
+  </div>
 
   <div class="consent__actions">
     <button type="button" class="consent__btn consent__btn--ghost" data-consent="denied">
@@ -31,58 +35,99 @@
 </div>
 
 <script is:inline>
-  (function () {
-    var KEY = "heristop-consent";
-    var bar = document.getElementById("cookie-consent");
-    if (!bar) return;
+  var CONSENT_KEY = "heristop-consent";
+  // Match the CSS duration so the node leaves the a11y tree only after it's out of sight.
+  var CONSENT_EXIT_MS = 280;
 
-    var stored = null;
+  // Returns the stored choice, null when none was made yet, and undefined when storage is blocked —
+  // three states the caller has to tell apart, which is why this does not collapse to a plain string.
+  var readConsent = function () {
     try {
-      stored = localStorage.getItem(KEY);
+      return localStorage.getItem(CONSENT_KEY);
     } catch (e) {
-      // Storage blocked: a choice can't be remembered, so asking every visit would be the only
-      // honest option — but a bar that never goes away is worse. Stay silent and stay denied.
-      return;
+      return undefined;
     }
+  };
 
-    if (stored === "granted" || stored === "denied") return;
+  // Any control carrying aria-controls="cookie-consent" is a trigger, so the footer shortcut — and
+  // anything added later — gets its expanded state kept honest without naming it here.
+  var setConsentExpanded = function (expanded) {
+    var triggers = document.querySelectorAll('[aria-controls="cookie-consent"]');
+    for (var i = 0; i < triggers.length; i++) {
+      triggers[i].setAttribute("aria-expanded", expanded ? "true" : "false");
+    }
+  };
 
+  var showConsentBar = function (bar, moveFocus) {
     bar.hidden = false;
+    setConsentExpanded(true);
     // Two frames: one to let `hidden` drop, one so the transition has a start state to animate from.
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         bar.classList.add("is-visible");
+        // Only when summoned deliberately. Stealing focus on the first-visit reveal would drag a
+        // keyboard reader out of the page they came to read.
+        if (moveFocus) bar.focus();
       });
     });
+  };
 
+  var hideConsentBar = function (bar) {
+    bar.classList.remove("is-visible");
+    setConsentExpanded(false);
+    window.setTimeout(function () {
+      bar.hidden = true;
+    }, CONSENT_EXIT_MS);
+  };
+
+  // The footer shortcut calls this to bring the bar back after a choice was made.
+  window.openConsentPreferences = function () {
+    var bar = document.getElementById("cookie-consent");
+    if (bar) showConsentBar(bar, true);
+  };
+
+  var initConsent = function () {
+    var bar = document.getElementById("cookie-consent");
+    if (!bar || bar.dataset.consentInit === "true") return;
+    bar.dataset.consentInit = "true";
+
+    // Wired unconditionally, unlike the reveal below. A bar re-opened from the footer has to be as
+    // interactive as a first-visit one, and an early return here would hand back a dead panel.
     bar.addEventListener("click", function (event) {
       var choice = event.target.closest("[data-consent]");
       if (!choice) return;
 
       var value = choice.getAttribute("data-consent");
       try {
-        localStorage.setItem(KEY, value);
+        localStorage.setItem(CONSENT_KEY, value);
       } catch (e) {
         /* nothing to do — the update below still applies for this pageview */
       }
 
-      if (value === "granted") {
-        if (typeof window.gtag === "function") {
-          window.gtag("consent", "update", { analytics_storage: "granted" });
-        }
-        // gtag.js is not on the page until this point — declining leaves zero Google requests.
-        if (typeof window.loadGoogleAnalytics === "function") {
-          window.loadGoogleAnalytics();
-        }
+      // Sent for both answers: gtag() only queues into dataLayer until the library exists, so a
+      // decline still costs zero requests to Google. Sending "denied" earns its keep now that the
+      // shortcut lets someone come back and withdraw a consent they already granted.
+      if (typeof window.gtag === "function") {
+        window.gtag("consent", "update", { analytics_storage: value });
+      }
+      // gtag.js is not on the page until this point — declining leaves zero Google requests.
+      if (value === "granted" && typeof window.loadGoogleAnalytics === "function") {
+        window.loadGoogleAnalytics();
       }
 
-      bar.classList.remove("is-visible");
-      // Match the CSS duration so the node leaves the a11y tree only after it's out of sight.
-      window.setTimeout(function () {
-        bar.hidden = true;
-      }, 280);
+      hideConsentBar(bar);
     });
-  })();
+
+    // Only a working store with nothing in it earns the uninvited reveal. Storage blocked: a choice
+    // can't be remembered, so asking every visit would be the only honest option — but a bar that
+    // never goes away is worse. Stay silent and stay denied.
+    if (readConsent() === null) {
+      showConsentBar(bar, false);
+    }
+  };
+
+  initConsent();
+  document.addEventListener("astro:page-load", initConsent);
 </script>
 
 <style>
@@ -130,11 +175,42 @@
     opacity: 1;
   }
 
+  /* The bar takes focus when summoned from the footer so a keyboard reader lands on it. That focus is
+     programmatic, not a tab stop the reader aimed at, so the UA's default ring would be both a
+     surprise and the one blue thing on the page — suppress it, and keep the palette's ring for anyone
+     who genuinely tabs here. */
+  .consent:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  .consent:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 3px;
+  }
+
+  .consent__copy {
+    flex: 1 1 22rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  /* Names the ask before explaining it, and labels the region for assistive tech. 700 is Comfortaa's
+     heaviest weight — 800 and 900 clamp to it and render identically, so the extra presence has to
+     come from size and tighter tracking rather than from a weight the family does not have. */
+  .consent__title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.006em;
+    color: var(--heading-color);
+  }
+
   /* Vibrancy: text over a translucent surface needs more contrast and a touch more weight than the
      same text on a solid one — flat grey goes muddy as whatever is behind it changes. The small
      positive tracking is size-specific; it buys legibility at 0.875rem and would look loose larger. */
   .consent__text {
-    flex: 1 1 22rem;
     margin: 0;
     font-size: 0.875rem;
     font-weight: 500;
