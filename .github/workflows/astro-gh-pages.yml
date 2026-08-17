@@ -20,6 +20,25 @@ jobs:
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
+
+      # rehype-mermaid renders ```mermaid fences to SVG at build time by driving Playwright, so the
+      # build needs a real browser binary. Without it mermaid throws and rehype-mermaid emits the page
+      # with an EMPTY BODY — build still exits 0, so the only symptom is a silently blank article.
+      # This step must run before withastro/action, which does install+build in one go.
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install the Chromium build mermaid renders with
+        run: pnpm exec playwright install --with-deps chromium
+
       - name: Install, build, and upload your site output
         uses: withastro/action@v2
         with:
