@@ -4,7 +4,7 @@ import { externalLink } from "../../src/plugins/external-link";
 
 type Transformer = (tree: Root, file: unknown, next: () => void) => void;
 
-const makeAnchor = (href: string | null | undefined): Element => ({
+const makeAnchor = (href: string | undefined): Element => ({
   type: "element",
   tagName: "a",
   properties: href === undefined ? {} : { href },
