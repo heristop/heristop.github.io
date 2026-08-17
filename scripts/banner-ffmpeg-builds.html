@@ -1,0 +1,213 @@
+<!doctype html>
+<!--
+  Source for the article banner: public/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/
+  one-to-three-banner.webp — re-render with `node scripts/render-banner.mjs`.
+
+  1680x480 (3.5:1) to match the post banner's rendered ratio; it is object-fit: cover, so a squarer
+  source gets its middle band cropped out. No text, for the same reason.
+
+  The picture is the article's argument: one spec on the left, the same scene rendered three times on
+  the right, and the third render visibly coarser — flat colour blocks and banded sky instead of
+  smooth gradients, because the on-device LGPL build encodes with openh264 at a bitrate target rather
+  than libx264 at a quality target. Same composition, different pixels. That is the whole piece.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        width: 1680px;
+        height: 480px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background:
+          radial-gradient(circle at 10% 12%, #fbe4e9 0%, transparent 55%),
+          radial-gradient(circle at 90% 88%, #f6e2c2 0%, transparent 52%),
+          #f4ede3;
+      }
+
+      /* ---- the spec ---------------------------------------------------- */
+      .spec {
+        width: 232px;
+        height: 288px;
+        border-radius: 20px;
+        border: 3px solid #9c4f63;
+        background: #fffaf4;
+        box-shadow: 0 18px 34px -22px rgb(74 31 44 / 55%);
+        padding: 30px 26px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        position: relative;
+      }
+      /* Rows read as structure, not as skeleton: nested indents, key/value pairing. */
+      .kv {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+      }
+      .k {
+        height: 13px;
+        border-radius: 7px;
+        background: #9c4f63;
+        opacity: 0.85;
+      }
+      .v {
+        height: 13px;
+        border-radius: 7px;
+        background: #edc9d3;
+      }
+      .indent {
+        padding-left: 22px;
+      }
+
+      /* ---- the filmstrip ------------------------------------------------ */
+      .strip {
+        display: flex;
+        gap: 26px;
+        padding: 22px 26px;
+        border-radius: 22px;
+        background: #3a2530;
+        box-shadow: 0 22px 44px -26px rgb(58 37 48 / 70%);
+        position: relative;
+      }
+      /* Sprocket holes: the one motif that says "film" without a caption. */
+      .strip::before,
+      .strip::after {
+        content: "";
+        position: absolute;
+        left: 26px;
+        right: 26px;
+        height: 9px;
+        background-image: radial-gradient(#f4ede3 0 46%, transparent 48%);
+        background-size: 26px 9px;
+        background-repeat: repeat-x;
+      }
+      .strip::before {
+        top: 7px;
+      }
+      .strip::after {
+        bottom: 7px;
+      }
+
+      .frame {
+        width: 236px;
+        height: 214px;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        background: #cfe3ef;
+      }
+      /* The rendered scene: sky, sun, ridge, subject. Smooth on the software encoders. */
+      .sky {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(#bcd9ec 0%, #e6d3cf 62%, #f0ded2 100%);
+      }
+      .sun {
+        position: absolute;
+        top: 34px;
+        left: 42px;
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: #f2c98a;
+      }
+      .ridge {
+        position: absolute;
+        left: -6%;
+        right: -6%;
+        bottom: 34px;
+        height: 92px;
+        background: #9c7f86;
+        clip-path: polygon(0 100%, 18% 42%, 38% 74%, 62% 22%, 84% 62%, 100% 36%, 100% 100%);
+      }
+      .ground {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 36px;
+        background: #6f5560;
+      }
+
+      /* The on-device render: bitrate-driven openh264, no libx264. Banding in the sky, flattened
+         colour, a coarser ridge — the difference the article is about, drawn rather than described. */
+      .frame.dev .sky {
+        background: linear-gradient(
+          #aecde2 0 20%,
+          #c6d6e0 20% 38%,
+          #dcd3d0 38% 58%,
+          #ecdccd 58% 78%,
+          #f2e2d2 78% 100%
+        );
+      }
+      .frame.dev .sun {
+        background: #eec27c;
+        border-radius: 12px;
+      }
+      .frame.dev .ridge {
+        background: #94787f;
+        clip-path: polygon(0 100%, 18% 46%, 38% 76%, 62% 26%, 84% 64%, 100% 40%, 100% 100%);
+      }
+      .frame.dev .ground {
+        background: #6a5059;
+      }
+      .frame.dev {
+        box-shadow:
+          inset 0 0 0 4px #d79a3c,
+          0 0 0 4px rgb(215 154 60 / 45%);
+      }
+
+      /* ---- the split ---------------------------------------------------- */
+      svg {
+        flex: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="spec">
+      <div class="kv"><span class="k" style="width: 46px"></span><span class="v" style="width: 84px"></span></div>
+      <div class="kv indent"><span class="k" style="width: 38px"></span><span class="v" style="width: 60px"></span></div>
+      <div class="kv indent"><span class="k" style="width: 52px"></span><span class="v" style="width: 44px"></span></div>
+      <div class="kv"><span class="k" style="width: 60px"></span><span class="v" style="width: 66px"></span></div>
+      <div class="kv indent"><span class="k" style="width: 34px"></span><span class="v" style="width: 78px"></span></div>
+      <div class="kv indent"><span class="k" style="width: 48px"></span><span class="v" style="width: 52px"></span></div>
+    </div>
+
+    <svg width="250" height="300" viewBox="0 0 250 300" fill="none" aria-hidden="true">
+      <g stroke="#b8697f" stroke-width="5" stroke-linecap="round" fill="none">
+        <path d="M4 150 C 124 150, 126 44, 246 44" />
+        <path d="M4 150 L 246 150" />
+        <path d="M4 150 C 124 150, 126 256, 246 256" />
+      </g>
+    </svg>
+
+    <div class="strip">
+      <div class="frame">
+        <div class="sky"></div>
+        <div class="sun"></div>
+        <div class="ridge"></div>
+        <div class="ground"></div>
+      </div>
+      <div class="frame">
+        <div class="sky"></div>
+        <div class="sun"></div>
+        <div class="ridge"></div>
+        <div class="ground"></div>
+      </div>
+      <div class="frame dev">
+        <div class="sky"></div>
+        <div class="sun"></div>
+        <div class="ridge"></div>
+        <div class="ground"></div>
+      </div>
+    </div>
+  </body>
+</html>
