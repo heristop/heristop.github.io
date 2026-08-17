@@ -21,32 +21,31 @@ jobs:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
 
-      # rehype-mermaid renders ```mermaid fences to SVG at build time by driving Playwright, so the
-      # build needs a real browser binary. Without it mermaid throws and rehype-mermaid emits the page
-      # with an EMPTY BODY — build still exits 0, so the only symptom is a silently blank article.
-      # This step must run before withastro/action, which does install+build in one go.
+      # Explicit steps rather than withastro/action: rehype-mermaid renders ```mermaid fences to SVG at
+      # build time by driving Playwright, so the build needs a browser binary installed BEFORE it runs.
+      # The action does install+build atomically, leaving no window for that — and running our own
+      # install first made the action's nested setup-node fail cache path validation in its post step,
+      # failing the job after a green build and skipping the deploy. Doing it by hand is less magic and
+      # one less moving part; the action only ever wrapped these five steps.
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
           version: latest
-      # No `cache: pnpm` here on purpose: withastro/action runs its own setup-node with caching, and
-      # two competing cache configs make the action's post step fail path validation — which fails the
-      # job after a perfectly good build and skips the deploy.
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Install the Chromium build mermaid renders with
         run: pnpm exec playwright install --with-deps chromium
-
-      - name: Install, build, and upload your site output
-        uses: withastro/action@v2
+      - name: Build
+        run: pnpm run build
+      - name: Upload the site output
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: . 
-          node-version: 22
-          package-manager: pnpm@latest
+          path: dist
 
   deploy:
     needs: build
