@@ -1,6 +1,7 @@
 ---
-// Consent bar for Google Analytics, paired with the Consent Mode v2 defaults in BaseHead.astro.
-// GA boots with analytics_storage denied; this is the only thing that grants it.
+// Consent bar for Google Analytics. BaseHead.astro sets Consent Mode to denied and defines
+// loadGoogleAnalytics() but never calls gtag.js; Accept here is the only thing that loads it, so a
+// visitor who declines generates no requests to Google at all.
 //
 // Rendered on every page but hidden by default via the `hidden` attribute. The inline script below
 // reveals it only when no choice is stored — the reverse (render visible, hide with JS) makes the bar
@@ -65,8 +66,14 @@
         /* nothing to do — the update below still applies for this pageview */
       }
 
-      if (value === "granted" && typeof window.gtag === "function") {
-        window.gtag("consent", "update", { analytics_storage: "granted" });
+      if (value === "granted") {
+        if (typeof window.gtag === "function") {
+          window.gtag("consent", "update", { analytics_storage: "granted" });
+        }
+        // gtag.js is not on the page until this point — declining leaves zero Google requests.
+        if (typeof window.loadGoogleAnalytics === "function") {
+          window.loadGoogleAnalytics();
+        }
       }
 
       bar.classList.remove("is-visible");
