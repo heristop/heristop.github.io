@@ -1,0 +1,199 @@
+---
+// Consent bar for Google Analytics, paired with the Consent Mode v2 defaults in BaseHead.astro.
+// GA boots with analytics_storage denied; this is the only thing that grants it.
+//
+// Rendered on every page but hidden by default via the `hidden` attribute. The inline script below
+// reveals it only when no choice is stored — the reverse (render visible, hide with JS) makes the bar
+// flash on every page load for visitors who already decided, which is worse than not having one.
+---
+
+<div
+  id="cookie-consent"
+  class="consent"
+  role="region"
+  aria-label="Analytics consent"
+  hidden
+>
+  <p class="consent__text">
+    I use Google Analytics to see which posts people actually read — page views and
+    referrers, nothing more. Nothing is collected unless you say yes.
+  </p>
+
+  <div class="consent__actions">
+    <button type="button" class="consent__btn consent__btn--ghost" data-consent="denied">
+      Decline
+    </button>
+    <button type="button" class="consent__btn consent__btn--solid" data-consent="granted">
+      Accept
+    </button>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var KEY = "heristop-consent";
+    var bar = document.getElementById("cookie-consent");
+    if (!bar) return;
+
+    var stored = null;
+    try {
+      stored = localStorage.getItem(KEY);
+    } catch (e) {
+      // Storage blocked: a choice can't be remembered, so asking every visit would be the only
+      // honest option — but a bar that never goes away is worse. Stay silent and stay denied.
+      return;
+    }
+
+    if (stored === "granted" || stored === "denied") return;
+
+    bar.hidden = false;
+    // Two frames: one to let `hidden` drop, one so the transition has a start state to animate from.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        bar.classList.add("is-visible");
+      });
+    });
+
+    bar.addEventListener("click", function (event) {
+      var choice = event.target.closest("[data-consent]");
+      if (!choice) return;
+
+      var value = choice.getAttribute("data-consent");
+      try {
+        localStorage.setItem(KEY, value);
+      } catch (e) {
+        /* nothing to do — the update below still applies for this pageview */
+      }
+
+      if (value === "granted" && typeof window.gtag === "function") {
+        window.gtag("consent", "update", { analytics_storage: "granted" });
+      }
+
+      bar.classList.remove("is-visible");
+      // Match the CSS duration so the node leaves the a11y tree only after it's out of sight.
+      window.setTimeout(function () {
+        bar.hidden = true;
+      }, 280);
+    });
+  })();
+</script>
+
+<style>
+  .consent {
+    position: fixed;
+    right: var(--space-ml);
+    bottom: var(--space-ml);
+    left: var(--space-ml);
+    z-index: 100;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-ml);
+    align-items: center;
+    justify-content: space-between;
+    max-width: 44rem;
+    margin-inline: auto;
+    padding: var(--space-ml) var(--space-lg);
+    border: 1px solid color-mix(in oklch, var(--primary-color) 18%, transparent);
+    border-radius: var(--radius-lg);
+    background: var(--surface-card, oklch(99% 0.008 75deg));
+    backdrop-filter: blur(10px);
+    box-shadow: var(--home-card-shadow-soft);
+
+    /* Entry state; `.is-visible` is added a frame after unhiding. */
+    transform: translateY(0.75rem);
+    opacity: 0;
+    transition:
+      opacity var(--zen-transition-duration) var(--zen-ease-elegant),
+      transform var(--zen-transition-duration) var(--zen-ease-elegant);
+  }
+
+  .consent.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .consent__text {
+    flex: 1 1 22rem;
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--footer-text-color);
+  }
+
+  .consent__actions {
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--space-md);
+  }
+
+  .consent__btn {
+    /* 44px min target: this is the one interaction on the page everyone is forced to make. */
+    min-height: 44px;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color var(--zen-duration-fast) var(--zen-ease-out),
+      border-color var(--zen-duration-fast) var(--zen-ease-out),
+      transform var(--zen-duration-fast) var(--zen-ease-out);
+  }
+
+  .consent__btn:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  .consent__btn:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Decline is a peer, not a footnote: same size and same hit area as Accept, because a refusal that
+     is harder to give than a consent is not a real choice. Only the fill differs. */
+  .consent__btn--ghost {
+    border: 1px solid color-mix(in oklch, var(--primary-color) 34%, transparent);
+    background: transparent;
+    color: var(--primary-color);
+  }
+
+  .consent__btn--ghost:hover {
+    background: color-mix(in oklch, var(--primary-color) 8%, transparent);
+  }
+
+  .consent__btn--solid {
+    border: 1px solid var(--primary-color);
+    background: var(--primary-color);
+    color: oklch(99% 0.005 75deg);
+  }
+
+  .consent__btn--solid:hover {
+    background: var(--link-hover-color);
+    border-color: var(--link-hover-color);
+  }
+
+  @media screen and (width < 40rem) {
+    .consent {
+      gap: var(--space-md);
+    }
+
+    .consent__actions {
+      flex: 1 1 100%;
+    }
+
+    .consent__btn {
+      flex: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .consent {
+      transition: none;
+    }
+
+    .consent__btn:hover {
+      transform: none;
+    }
+  }
+</style>

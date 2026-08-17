@@ -3,6 +3,7 @@ import "../styles/global.scss";
 import BaseHead from "../components/BaseHead.astro";
 import { ClientRouter } from "astro:transitions";
 import Footer from "../components/Footer.astro";
+import CookieConsent from "../components/CookieConsent.astro";
 import Header from "../components/Header.astro";
 import Icon from "../components/Icon.astro";
 import SakuraPetals from "../components/SakuraPetals.astro";
@@ -51,6 +52,7 @@ const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, t
       </div>
 
       <Footer />
+      <CookieConsent />
     </div>
 
     <!-- Search Overlay -->
