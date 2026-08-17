@@ -36,7 +36,8 @@
     }
 
     /* full-width when only 1 card remains in the last row */
-    &:has(:nth-child(4)):not(:has(:nth-child(5))) .social-network__card--standard:nth-child(4) {
+    &:has(:nth-child(4)):not(:has(:nth-child(5)))
+      .social-network__card--standard:nth-child(4) {
       @media screen and (width >= 48rem) {
         grid-column: span 6;
       }
@@ -86,7 +87,7 @@
     will-change: opacity, transform, filter;
 
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       inset: 0;
       background: radial-gradient(
@@ -105,7 +106,8 @@
     background-clip: padding-box;
 
     &--hover {
-      transform: perspective(800px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translate3d(0, 0, 0);
+      transform: perspective(800px) rotateX(var(--tilt-x))
+        rotateY(var(--tilt-y)) translate3d(0, 0, 0);
       border-color: color-mix(in oklch, var(--primary-color) 15%, transparent);
       transition:
         box-shadow 300ms var(--zen-ease-gentle),
@@ -124,7 +126,8 @@
     }
 
     &--visible.social-network__card--hover {
-      transform: perspective(800px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translate3d(0, -2px, 0);
+      transform: perspective(800px) rotateX(var(--tilt-x))
+        rotateY(var(--tilt-y)) translate3d(0, -2px, 0);
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -209,7 +212,7 @@
         0 4px 12px -4px oklch(18% 0.03 350deg / 8%);
 
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 20%;
         bottom: 20%;
@@ -341,10 +344,43 @@
     color: var(--text-secondary);
     font-size: 0.95rem;
     animation: zen-fade-in var(--zen-transition-duration)
-        var(--zen-transition-timing) both;
+      var(--zen-transition-timing) both;
+  }
+
+  /* The projects bento is stated, not emergent. Featured tiles are WIDER than the rest — they do not
+     also grow taller. They used to span two grid rows while their image shell was `flex: 1`, so the
+     image absorbed whatever height the cell happened to have: the 2x2 cell rendered an enormous crop
+     and the 1x2 cell squeezed a wide screenshot into a portrait sliver, while the standard tiles below
+     (fixed 6rem image) looked correct. Pinning the featured image height makes each tile's proportions
+     a decision rather than a side effect of its span.
+
+     The `:has(:nth-child(3))` mirrors the selector that sets the spans above, so this wins on source
+     order rather than needing !important. */
+  &--projects:has(:nth-child(3)) {
+    .social-network__card--featured:nth-child(1),
+    .social-network__card--featured:nth-child(2) {
+      @media screen and (width >= 64rem) {
+        grid-row: auto;
+      }
+    }
   }
 
   &--projects {
+    .social-network__card--featured {
+      .social-network__image-shell {
+        flex: none;
+        height: auto;
+        min-height: 0;
+      }
+
+      /* Taller than the 6rem standard tiles, so the first row still reads as the feature row. */
+      .social-network__image {
+        height: 11rem;
+        object-fit: cover;
+        object-position: center;
+      }
+    }
+
     .social-network__card--standard {
       .social-network__link {
         flex-direction: column;
@@ -400,7 +436,6 @@
   margin-top: 1.5rem;
   margin-bottom: 1rem;
 }
-
 
 .social-share {
   display: flex;
@@ -488,15 +523,15 @@
   &__link--support {
     position: relative;
     isolation: isolate;
-    background:
-      linear-gradient(
-        135deg,
-        color-mix(in oklch, var(--primary-color) 92%, oklch(55% 0.15 20deg)) 0%,
-        var(--primary-color) 48%,
-        color-mix(in oklch, var(--primary-color) 88%, oklch(30% 0.08 355deg)) 100%
-      );
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklch, var(--primary-color) 92%, oklch(55% 0.15 20deg)) 0%,
+      var(--primary-color) 48%,
+      color-mix(in oklch, var(--primary-color) 88%, oklch(30% 0.08 355deg)) 100%
+    );
     color: var(--text-on-dark);
-    border: 1px solid color-mix(in oklch, var(--primary-color) 80%, oklch(20% 0.03 355deg));
+    border: 1px solid
+      color-mix(in oklch, var(--primary-color) 80%, oklch(20% 0.03 355deg));
     box-shadow:
       0 1px 0 color-mix(in oklch, oklch(100% 0 0deg) 32%, transparent) inset,
       0 4px 14px -8px color-mix(in oklch, var(--primary-color) 60%, transparent),
@@ -534,18 +569,19 @@
 
     &:hover,
     &:focus-visible {
-      background:
-        linear-gradient(
-          135deg,
-          color-mix(in oklch, var(--primary-color) 88%, oklch(62% 0.18 20deg)) 0%,
-          color-mix(in oklch, var(--primary-color) 98%, oklch(50% 0.14 10deg)) 48%,
-          color-mix(in oklch, var(--primary-color) 86%, oklch(28% 0.08 355deg)) 100%
-        );
+      background: linear-gradient(
+        135deg,
+        color-mix(in oklch, var(--primary-color) 88%, oklch(62% 0.18 20deg)) 0%,
+        color-mix(in oklch, var(--primary-color) 98%, oklch(50% 0.14 10deg)) 48%,
+        color-mix(in oklch, var(--primary-color) 86%, oklch(28% 0.08 355deg))
+          100%
+      );
       color: var(--text-on-dark);
       transform: translateY(-2px);
       box-shadow:
         0 1px 0 color-mix(in oklch, oklch(100% 0 0deg) 40%, transparent) inset,
-        0 10px 24px -10px color-mix(in oklch, var(--primary-color) 70%, transparent),
+        0 10px 24px -10px
+          color-mix(in oklch, var(--primary-color) 70%, transparent),
         0 2px 6px color-mix(in oklch, oklch(0% 0 0deg) 24%, transparent),
         0 0 0 3px color-mix(in oklch, var(--primary-color) 18%, transparent);
 
@@ -564,7 +600,8 @@
       transform: translateY(0);
       box-shadow:
         0 1px 0 color-mix(in oklch, oklch(100% 0 0deg) 28%, transparent) inset,
-        0 2px 8px -4px color-mix(in oklch, var(--primary-color) 50%, transparent);
+        0 2px 8px -4px
+          color-mix(in oklch, var(--primary-color) 50%, transparent);
     }
   }
 }
@@ -585,7 +622,6 @@
     }
   }
 }
-
 
 .zazen-modal {
   position: fixed;
