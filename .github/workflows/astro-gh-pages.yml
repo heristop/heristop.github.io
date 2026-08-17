@@ -29,11 +29,13 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: latest
+      # No `cache: pnpm` here on purpose: withastro/action runs its own setup-node with caching, and
+      # two competing cache configs make the action's post step fail path validation — which fails the
+      # job after a perfectly good build and skips the deploy.
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Install the Chromium build mermaid renders with
