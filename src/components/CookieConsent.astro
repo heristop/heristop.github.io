@@ -100,31 +100,47 @@
     max-width: 44rem;
     margin-inline: auto;
     padding: var(--space-ml) var(--space-lg);
-    border: 1px solid color-mix(in oklch, var(--primary-color) 18%, transparent);
     border-radius: var(--radius-lg);
-    background: var(--surface-card, oklch(99% 0.008 75deg));
-    backdrop-filter: blur(10px);
-    box-shadow: var(--home-card-shadow-soft);
 
-    /* Entry state; `.is-visible` is added a frame after unhiding. */
-    transform: translateY(0.75rem);
+    /* A translucent layer the page scrolls under, not an opaque strip that eats a band of the
+       viewport. No scrim: this is a parallel, non-blocking ask — dimming the page would imply the
+       reader has to deal with it before continuing, which is not true. */
+    background: color-mix(in oklch, var(--primary-bg-color) 78%, transparent);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid color-mix(in oklch, var(--primary-color) 16%, transparent);
+    /* Bright top edge: light catching the near side of a real material. */
+    box-shadow:
+      inset 0 1px 0 oklch(100% 0 0deg / 55%),
+      var(--home-card-shadow-soft);
+    will-change: transform, opacity, backdrop-filter;
+
+    /* Materialises rather than fading: blur, scale and position resolve together, so it reads as a
+       surface arriving instead of a rectangle turning opaque. Enters up from the bottom edge and
+       leaves the same way — a thing that appeared from below belongs below. */
+    transform: translateY(1rem) scale(0.985);
     opacity: 0;
     transition:
       opacity var(--zen-transition-duration) var(--zen-ease-elegant),
-      transform var(--zen-transition-duration) var(--zen-ease-elegant);
+      transform var(--zen-transition-duration) var(--zen-ease-spring),
+      backdrop-filter var(--zen-transition-duration) var(--zen-ease-elegant);
   }
 
   .consent.is-visible {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
   }
 
+  /* Vibrancy: text over a translucent surface needs more contrast and a touch more weight than the
+     same text on a solid one — flat grey goes muddy as whatever is behind it changes. The small
+     positive tracking is size-specific; it buys legibility at 0.875rem and would look loose larger. */
   .consent__text {
     flex: 1 1 22rem;
     margin: 0;
     font-size: 0.875rem;
+    font-weight: 500;
     line-height: 1.6;
-    color: var(--footer-text-color);
+    letter-spacing: 0.005em;
+    color: var(--heading-color);
   }
 
   .consent__actions {
@@ -155,6 +171,12 @@
 
   .consent__btn:hover {
     transform: translateY(-1px);
+  }
+
+  /* Feedback on the press itself, not on release. Waiting for click to acknowledge reads as dead. */
+  .consent__btn:active {
+    transform: scale(0.97);
+    transition: transform 100ms var(--zen-ease-out);
   }
 
   /* Decline is a peer, not a footnote: same size and same hit area as Accept, because a refusal that
@@ -195,12 +217,42 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    /* Reduced motion is not "no feedback": keep a short cross-fade, drop the travel and the scale. */
     .consent {
-      transition: none;
+      transform: none;
+      transition: opacity 200ms var(--zen-ease-out);
     }
 
-    .consent__btn:hover {
+    .consent.is-visible {
       transform: none;
+    }
+
+    .consent__btn:hover,
+    .consent__btn:active {
+      transform: none;
+    }
+  }
+
+  /* Frost the material instead of blurring it — the effect people are asking to be rid of is the
+     see-through, not the panel. */
+  @media (prefers-reduced-transparency: reduce) {
+    .consent {
+      background: var(--primary-bg-color);
+      backdrop-filter: none;
+    }
+  }
+
+  /* Near-solid with a defined edge, so the boundary never depends on a shadow being perceptible. */
+  @media (prefers-contrast: more) {
+    .consent {
+      background: var(--primary-bg-color);
+      backdrop-filter: none;
+      border-color: var(--primary-color);
+    }
+
+    .consent__text {
+      color: var(--heading-color);
+      font-weight: 600;
     }
   }
 </style>
