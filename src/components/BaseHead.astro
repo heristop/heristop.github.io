@@ -1,7 +1,12 @@
 ---
 import '../styles/global.scss';
+import { analyticsMode, umamiConfig } from '../analytics';
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// Resolved on the build machine, so the page ships one tracker's tag and nothing of the other's.
+const tracker = analyticsMode();
+const umami = umamiConfig();
 
 interface Props {
   title: string;
@@ -75,6 +80,17 @@ const {
 ))}
 
 <!--
+  Self-hosted Umami. It sets no cookie and stores no visitor identifier, so it needs no consent gate
+  and none is rendered: the bar and the footer's shortcut are both absent from this build.
+
+  Auto-tracking stays on, unlike the single-page builds elsewhere — each page here is its own
+  document, so the tracker's own pageview is the right one and there is no router to report them.
+-->
+{tracker === 'umami' && umami && (
+  <script is:inline async src={umami.scriptSrc} data-website-id={umami.websiteId} data-host-url={umami.hostUrl}></script>
+)}
+
+<!--
   Google Analytics 4, loaded only after consent.
 
   gtag.js is NOT requested here. Consent Mode alone is not enough: with analytics_storage denied the
@@ -85,41 +101,45 @@ const {
 
   The consent defaults and config still run now: gtag() queues into dataLayer, and the library
   replays that queue when it eventually loads.
+
+  Absent entirely from an Umami build — that is what lets the bar go with it.
 -->
-<script is:inline>
-  window.dataLayer = window.dataLayer || [];
-  function gtag() {
-    window.dataLayer.push(arguments);
-  }
-  window.gtag = gtag;
-
-  gtag("consent", "default", {
-    ad_storage: "denied",
-    ad_user_data: "denied",
-    ad_personalization: "denied",
-    analytics_storage: "denied",
-  });
-
-  gtag("js", new Date());
-  gtag("config", "G-P44DRVCNGY", { anonymize_ip: true });
-
-  // Idempotent: CookieConsent.astro calls this on Accept, and it runs here on load for a visitor
-  // who already accepted, so their pageview is measured rather than lost.
-  window.loadGoogleAnalytics = function () {
-    if (document.getElementById("ga-tag")) return;
-    var tag = document.createElement("script");
-    tag.id = "ga-tag";
-    tag.async = true;
-    tag.src = "https://www.googletagmanager.com/gtag/js?id=G-P44DRVCNGY";
-    document.head.appendChild(tag);
-  };
-
-  try {
-    if (localStorage.getItem("heristop-consent") === "granted") {
-      gtag("consent", "update", { analytics_storage: "granted" });
-      window.loadGoogleAnalytics();
+{tracker !== 'umami' && (
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      window.dataLayer.push(arguments);
     }
-  } catch (e) {
-    /* storage blocked — stay denied and load nothing */
-  }
-</script>
+    window.gtag = gtag;
+
+    gtag("consent", "default", {
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      analytics_storage: "denied",
+    });
+
+    gtag("js", new Date());
+    gtag("config", "G-P44DRVCNGY", { anonymize_ip: true });
+
+    // Idempotent: CookieConsent.astro calls this on Accept, and it runs here on load for a visitor
+    // who already accepted, so their pageview is measured rather than lost.
+    window.loadGoogleAnalytics = function () {
+      if (document.getElementById("ga-tag")) return;
+      var tag = document.createElement("script");
+      tag.id = "ga-tag";
+      tag.async = true;
+      tag.src = "https://www.googletagmanager.com/gtag/js?id=G-P44DRVCNGY";
+      document.head.appendChild(tag);
+    };
+
+    try {
+      if (localStorage.getItem("heristop-consent") === "granted") {
+        gtag("consent", "update", { analytics_storage: "granted" });
+        window.loadGoogleAnalytics();
+      }
+    } catch (e) {
+      /* storage blocked — stay denied and load nothing */
+    }
+  </script>
+)}

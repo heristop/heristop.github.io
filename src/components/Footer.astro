@@ -10,6 +10,7 @@ import {
   SITE_TITLE,
   X_URL,
 } from '../consts';
+import { consentRequired } from '../analytics';
 import Icon from './Icon.astro';
 
 const currentYear = new Date().getFullYear();
@@ -187,20 +188,24 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
           <span class="site-footer__link-label">RSS Feed</span>
           <Icon name="copy" size={14} class="site-footer__link-arrow" aria-hidden={true} />
         </button>
-        <button
-          type="button"
-          class="site-footer__link site-footer__consent-open"
-          aria-controls="cookie-consent"
-          aria-expanded="false"
-          data-tooltip="Review your analytics choice"
-          data-tooltip-placement="top"
-        >
-          <span class="site-footer__link-icon" aria-hidden="true">
-            <Icon name="shield" size={14} aria-hidden={true} />
-          </span>
-          <span class="site-footer__link-label">Cookie Settings</span>
-          <Icon name="sliders" size={14} class="site-footer__link-arrow" aria-hidden={true} />
-        </button>
+        {/* Gone under a cookieless tracker: there is no bar left for it to reopen. The init
+            script below finds no such control then and quietly does nothing. */}
+        {consentRequired() && (
+          <button
+            type="button"
+            class="site-footer__link site-footer__consent-open"
+            aria-controls="cookie-consent"
+            aria-expanded="false"
+            data-tooltip="Review your analytics choice"
+            data-tooltip-placement="top"
+          >
+            <span class="site-footer__link-icon" aria-hidden="true">
+              <Icon name="shield" size={14} aria-hidden={true} />
+            </span>
+            <span class="site-footer__link-label">Cookie Settings</span>
+            <Icon name="sliders" size={14} class="site-footer__link-arrow" aria-hidden={true} />
+          </button>
+        )}
       </div>
     </section>
   </div>
