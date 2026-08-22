@@ -80,8 +80,10 @@ const {
 ))}
 
 <!--
-  Self-hosted Umami. It sets no cookie and stores no visitor identifier, so it needs no consent gate
-  and none is rendered: the bar and the footer's shortcut are both absent from this build.
+  Self-hosted Umami. It sets no cookie and writes no identifier on the visitor's device, which is
+  what the bar asks about, so none is rendered: it and the footer's shortcut are both absent from
+  this build. (It still derives a pseudonymous visitor hash server-side — cookieless is not the
+  same claim as anonymous.)
 
   Auto-tracking stays on. The first pageview is the tag's own; <ClientRouter> then navigates without
   reloading and Astro does not re-run an already-executed inline script, so the ones after it come

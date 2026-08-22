@@ -37,7 +37,7 @@ describe("analytics mode", () => {
 
     const { analyticsMode, consentRequired, umamiConfig } = await loadAnalytics();
 
-    // Umami sets no cookie and stores no visitor identifier: nothing to consent to.
+    // Umami sets no cookie and writes nothing on the visitor's device: nothing for a bar to ask.
     expect(analyticsMode()).toBe("umami");
     expect(consentRequired()).toBe(false);
     expect(umamiConfig()).toEqual({ scriptSrc: SCRIPT_SRC, websiteId: WEBSITE_ID, hostUrl: undefined });
