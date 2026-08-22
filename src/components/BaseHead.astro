@@ -83,11 +83,44 @@ const {
   Self-hosted Umami. It sets no cookie and stores no visitor identifier, so it needs no consent gate
   and none is rendered: the bar and the footer's shortcut are both absent from this build.
 
-  Auto-tracking stays on, unlike the single-page builds elsewhere — each page here is its own
-  document, so the tracker's own pageview is the right one and there is no router to report them.
+  Auto-tracking stays on. The first pageview is the tag's own; <ClientRouter> then navigates without
+  reloading and Astro does not re-run an already-executed inline script, so the ones after it come
+  from the tracker's own history hook rather than from anything here.
 -->
 {tracker === 'umami' && umami && (
   <script is:inline async src={umami.scriptSrc} data-website-id={umami.websiteId} data-host-url={umami.hostUrl}></script>
+)}
+
+<!--
+  Switching a live site over leaves the previous tracker's traces in browsers that already accepted:
+  a stored yes nothing asks about any more, and Google's cookies with no bar left to withdraw them
+  from. Clearing them is the visitor's side of the switch, so it happens here rather than nowhere.
+-->
+{tracker === 'umami' && (
+  <script is:inline>
+    (function () {
+      try {
+        if (localStorage.getItem("heristop-consent") !== null) {
+          localStorage.removeItem("heristop-consent");
+        }
+      } catch (e) {
+        /* storage blocked — nothing was stored to clear either */
+      }
+
+      // GA sets these on the exact host and, depending on the property, on a dot-prefixed parent;
+      // a cookie only expires when the domain and path match the ones it was written with.
+      var stale = document.cookie.split(";").map(function (pair) {
+        return pair.split("=")[0].trim();
+      });
+
+      for (var i = 0; i < stale.length; i++) {
+        if (!/^_ga($|_)|^_gid$/.test(stale[i])) continue;
+        document.cookie = stale[i] + "=; Max-Age=0; path=/";
+        document.cookie = stale[i] + "=; Max-Age=0; path=/; domain=" + location.hostname;
+        document.cookie = stale[i] + "=; Max-Age=0; path=/; domain=." + location.hostname;
+      }
+    })();
+  </script>
 )}
 
 <!--
@@ -104,7 +137,7 @@ const {
 
   Absent entirely from an Umami build — that is what lets the bar go with it.
 -->
-{tracker !== 'umami' && (
+{tracker === 'ga' && (
   <script is:inline>
     window.dataLayer = window.dataLayer || [];
     function gtag() {

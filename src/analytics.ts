@@ -53,13 +53,10 @@ const analyticsMode = (): AnalyticsMode => {
 };
 
 /**
- * Self-hosted Umami sets no cookie and stores no visitor identifier, so there is nothing to ask
- * about: in that mode the bar and the footer's way back to it are never rendered.
- *
- * Every other mode keeps the question — including `none`, where the answer still gates whatever the
- * page carries.
+ * Only Google Analytics asks. Umami is cookieless, and `none` renders no tag at all — in both cases
+ * the bar and the footer's way back to it would put a question to the visitor about nothing.
  */
-const consentRequired = (): boolean => analyticsMode() !== "umami";
+const consentRequired = (): boolean => analyticsMode() === "ga";
 
 export { analyticsMode, consentRequired, umamiConfig, GA_MEASUREMENT_ID, CONSENT_STORAGE_KEY };
 export type { AnalyticsMode, UmamiConfig };

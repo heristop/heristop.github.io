@@ -42,6 +42,13 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - name: Build
         run: pnpm run build
+        env:
+          # Repository variables, not secrets: these ship in every page by design. Left unset, the
+          # build stays on Google Analytics — which is what the site runs today. Setting both
+          # switches the deployed site to Umami and takes the cookie bar off it.
+          UMAMI_SRC: ${{ vars.UMAMI_SRC }}
+          UMAMI_WEBSITE_ID: ${{ vars.UMAMI_WEBSITE_ID }}
+          UMAMI_HOST_URL: ${{ vars.UMAMI_HOST_URL }}
       - name: Upload the site output
         uses: actions/upload-pages-artifact@v3
         with:
