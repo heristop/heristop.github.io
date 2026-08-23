@@ -2,17 +2,8 @@
 
 interface ImportMetaEnv {
   /**
-   * Self-hosted Umami. Both together switch analytics away from Google Analytics and take the
-   * cookie bar off the site — see src/analytics.ts. Read on the build machine only: the values
-   * reach the page because the tag is rendered with them, not because the client can read the env.
-   */
-  readonly UMAMI_SRC?: string;
-  readonly UMAMI_WEBSITE_ID?: string;
-  /** Only when the collect API answers on another origin than the script. */
-  readonly UMAMI_HOST_URL?: string;
-  /**
-   * Cloudflare Web Analytics token. Cookieless like Umami and lighter still, but it collects page
-   * views only — it has no event API.
+   * Cloudflare Web Analytics token, and the only analytics configuration left. Cookieless, so no
+   * consent bar is rendered; page views only, since the vendor has no event API.
    */
   readonly CLOUDFLARE_TOKEN?: string;
 }

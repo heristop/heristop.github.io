@@ -1,24 +1,14 @@
-// Which tracker the site runs, decided from the env at build time.
+// Audience measurement, decided from the env at build time.
 //
-// Astro renders components on the build machine, so the components below read this directly: the
-// page ships with one tracker's tag and nothing of the other's — no runtime branch, no swap step.
+// Astro renders components on the build machine, so the components read this
+// directly: a page either carries the beacon or carries nothing.
+//
+// One tracker, and a cookieless one. Google Analytics and the self-hosted Umami
+// option that briefly replaced it are both gone — with them went the consent
+// bar, because a tracker that writes nothing on the visitor's device leaves a
+// banner with no question to ask.
 
-type AnalyticsMode = "umami" | "cloudflare" | "ga" | "none";
-
-interface UmamiConfig {
-  scriptSrc: string;
-  websiteId: string;
-  /** Only when the collect API answers on another origin than the script. */
-  hostUrl?: string;
-}
-
-/** GA4 property for the site. Public by nature — it ships in every page. */
-const GA_MEASUREMENT_ID = "G-P44DRVCNGY";
-
-/** Cloudflare Web Analytics token, from the env like the Umami pair. */
-const cloudflareToken = (): string | undefined => text(import.meta.env.CLOUDFLARE_TOKEN);
-
-/** Where the visitor's answer to the consent bar is remembered. */
+/** Where the visitor's answer to the old consent bar was remembered. */
 const CONSENT_STORAGE_KEY = "heristop-consent";
 
 const text = (value: unknown): string | undefined => {
@@ -31,48 +21,11 @@ const text = (value: unknown): string | undefined => {
   return trimmed.length > 0 ? trimmed : undefined;
 };
 
-/** Undefined unless both halves are set: neither one alone can send a hit. */
-const umamiConfig = (): UmamiConfig | undefined => {
-  const scriptSrc = text(import.meta.env.UMAMI_SRC);
-  const websiteId = text(import.meta.env.UMAMI_WEBSITE_ID);
-
-  if (!scriptSrc || !websiteId) {
-    return undefined;
-  }
-
-  return { scriptSrc, websiteId, hostUrl: text(import.meta.env.UMAMI_HOST_URL) };
-};
-
 /**
- * Umami first, then Cloudflare, then GA. The order only decides who wins when two are configured at
- * once — a mistake rather than a state worth honouring — and it measures once instead of twice. The
- * two cookieless ones come before the tracker that is not.
+ * Cloudflare Web Analytics token. Unset means no tag at all: taking the
+ * configuration away is what switches measurement off, with nothing left
+ * hardcoded to keep it alive.
  */
-const analyticsMode = (): AnalyticsMode => {
-  if (umamiConfig()) {
-    return "umami";
-  }
+const cloudflareToken = (): string | undefined => text(import.meta.env.CLOUDFLARE_TOKEN);
 
-  if (cloudflareToken()) {
-    return "cloudflare";
-  }
-
-  return text(GA_MEASUREMENT_ID) ? "ga" : "none";
-};
-
-/**
- * Only Google Analytics asks. Umami and Cloudflare are cookieless, and `none` renders no tag at all
- * — in all three cases the bar and the footer's way back to it would put a question to the visitor
- * about nothing.
- */
-const consentRequired = (): boolean => analyticsMode() === "ga";
-
-export {
-  analyticsMode,
-  cloudflareToken,
-  consentRequired,
-  umamiConfig,
-  GA_MEASUREMENT_ID,
-  CONSENT_STORAGE_KEY,
-};
-export type { AnalyticsMode, UmamiConfig };
+export { cloudflareToken, CONSENT_STORAGE_KEY };

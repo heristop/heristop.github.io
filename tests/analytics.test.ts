@@ -1,26 +1,21 @@
-// The mode decides two things that must agree: which tag BaseHead renders, and whether the site
-// carries a consent bar at all. A disagreement is silent — either an unasked cookie, or a bar over
-// a site that sets none — so both come from these functions, and this pins them.
+// One tracker, and the page either carries it or carries nothing. What is worth
+// pinning is that the token is the only thing deciding, and that the beacon and
+// the leftover-cookie cleanup are actually in the component — an Astro inline
+// script is emitted verbatim, so nothing typechecks what is inside it.
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const SCRIPT_SRC = "https://stats.example.test/script.js";
-const WEBSITE_ID = "0d1e2f34-5678-49ab-cdef-0123456789ab";
-
-const loadAnalytics = async () => import("../src/analytics");
-
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (file: string): string => readFileSync(path.join(root, file), "utf8");
 
-describe("analytics mode", () => {
+const loadAnalytics = async () => import("../src/analytics");
+
+describe("cloudflareToken", () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.stubEnv("UMAMI_SRC", "");
-    vi.stubEnv("UMAMI_WEBSITE_ID", "");
-    vi.stubEnv("UMAMI_HOST_URL", "");
     vi.stubEnv("CLOUDFLARE_TOKEN", "");
   });
 
@@ -28,159 +23,68 @@ describe("analytics mode", () => {
     vi.unstubAllEnvs();
   });
 
-  it("runs Google Analytics by default, and asks before measuring", async () => {
-    const { analyticsMode, consentRequired } = await loadAnalytics();
-
-    expect(analyticsMode()).toBe("ga");
-    expect(consentRequired()).toBe(true);
-  });
-
-  it("runs Umami when both halves are set, and asks nothing", async () => {
-    vi.stubEnv("UMAMI_SRC", SCRIPT_SRC);
-    vi.stubEnv("UMAMI_WEBSITE_ID", WEBSITE_ID);
-
-    const { analyticsMode, consentRequired, umamiConfig } = await loadAnalytics();
-
-    // Umami sets no cookie and writes nothing on the visitor's device: nothing for a bar to ask.
-    expect(analyticsMode()).toBe("umami");
-    expect(consentRequired()).toBe(false);
-    expect(umamiConfig()).toEqual({ scriptSrc: SCRIPT_SRC, websiteId: WEBSITE_ID, hostUrl: undefined });
-  });
-
-  it("lets Umami win over the GA property, rather than measuring twice", async () => {
-    vi.stubEnv("UMAMI_SRC", SCRIPT_SRC);
-    vi.stubEnv("UMAMI_WEBSITE_ID", WEBSITE_ID);
-
-    const { analyticsMode, GA_MEASUREMENT_ID } = await loadAnalytics();
-
-    expect(GA_MEASUREMENT_ID).not.toBe("");
-    expect(analyticsMode()).toBe("umami");
-  });
-
-  it("ignores a half-configured Umami rather than rendering a tag that cannot send", async () => {
-    vi.stubEnv("UMAMI_SRC", SCRIPT_SRC);
-
-    const { analyticsMode, umamiConfig } = await loadAnalytics();
-
-    expect(umamiConfig()).toBeUndefined();
-    // Still asking, still on GA — a stray variable must not take the bar away.
-    expect(analyticsMode()).toBe("ga");
-  });
-
-  it("treats blank-only values as unset", async () => {
-    vi.stubEnv("UMAMI_SRC", "   ");
-    vi.stubEnv("UMAMI_WEBSITE_ID", "   ");
-
-    const { analyticsMode } = await loadAnalytics();
-
-    expect(analyticsMode()).toBe("ga");
-  });
-
-  it("carries a separate collect host through only when it differs", async () => {
-    vi.stubEnv("UMAMI_SRC", SCRIPT_SRC);
-    vi.stubEnv("UMAMI_WEBSITE_ID", WEBSITE_ID);
-    vi.stubEnv("UMAMI_HOST_URL", "https://collect.example.test");
-
-    const { umamiConfig } = await loadAnalytics();
-
-    expect(umamiConfig()?.hostUrl).toBe("https://collect.example.test");
-  });
-});
-
-// The components carry these values as literals: an .astro inline script is emitted verbatim, so
-// nothing interpolates a constant into it and nothing typechecks what is inside. Changing the
-// property id or the storage key here would otherwise keep sending to the old property, or read a
-// key nothing writes, with every test still green.
-describe("the literals the components carry", () => {
-
-  it("configures and loads the property named in analytics.ts", async () => {
-    const { GA_MEASUREMENT_ID } = await loadAnalytics();
-    const head = read("src/components/BaseHead.astro");
-
-    expect(head).toContain(`gtag("config", "${GA_MEASUREMENT_ID}"`);
-    expect(head).toContain(`gtag/js?id=${GA_MEASUREMENT_ID}`);
-  });
-
-  it("reads and clears the same storage key the bar writes", async () => {
-    const { CONSENT_STORAGE_KEY } = await loadAnalytics();
-
-    // Written by the bar, read by the GA snippet, removed by the Umami switch-over — three places,
-    // one key.
-    expect(read("src/components/CookieConsent.astro")).toContain(`"${CONSENT_STORAGE_KEY}"`);
-    expect(read("src/components/BaseHead.astro")).toContain(`getItem("${CONSENT_STORAGE_KEY}")`);
-    expect(read("src/components/BaseHead.astro")).toContain(`removeItem("${CONSENT_STORAGE_KEY}")`);
-  });
-
-  it("renders no tag at all when nothing is configured", () => {
-    // `none` must not fall through to the GA snippet: its id is a literal in the file, so the
-    // gate is the only thing keeping it off the page.
-    expect(read("src/components/BaseHead.astro")).toContain("{tracker === 'ga' && (");
-  });
-});
-
-describe("Cloudflare Web Analytics", () => {
-  beforeEach(() => {
-    vi.resetModules();
-    vi.stubEnv("UMAMI_SRC", "");
-    vi.stubEnv("UMAMI_WEBSITE_ID", "");
-    vi.stubEnv("CLOUDFLARE_TOKEN", "");
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  it("runs on a token alone, and asks for nothing", async () => {
+  it("is the token when one is configured", async () => {
     vi.stubEnv("CLOUDFLARE_TOKEN", "abc123");
 
-    const { analyticsMode, consentRequired } = await loadAnalytics();
+    const { cloudflareToken } = await loadAnalytics();
 
-    expect(analyticsMode()).toBe("cloudflare");
-    // Cookieless, so the bar would be a question about nothing.
-    expect(consentRequired()).toBeFalsy();
+    expect(cloudflareToken()).toBe("abc123");
   });
 
-  it("ranks behind Umami and ahead of Google Analytics", async () => {
-    vi.stubEnv("CLOUDFLARE_TOKEN", "abc123");
-    vi.stubEnv("UMAMI_SRC", SCRIPT_SRC);
-    vi.stubEnv("UMAMI_WEBSITE_ID", WEBSITE_ID);
+  it("is undefined once the configuration is taken away", async () => {
+    const { cloudflareToken } = await loadAnalytics();
 
-    const umamiFirst = await loadAnalytics();
-
-    expect(umamiFirst.analyticsMode()).toBe("umami");
-
-    vi.resetModules();
-    vi.stubEnv("UMAMI_SRC", "");
-    vi.stubEnv("UMAMI_WEBSITE_ID", "");
-
-    const overGa = await loadAnalytics();
-
-    // The GA property is a non-empty constant, so this is the real comparison.
-    expect(overGa.GA_MEASUREMENT_ID).not.toBe("");
-    expect(overGa.analyticsMode()).toBe("cloudflare");
+    // Which is what switches measurement off: nothing is hardcoded to keep it
+    // alive, the way a measurement id in the source used to.
+    expect(cloudflareToken()).toBeUndefined();
   });
 
   it("treats a blank-only token as unset", async () => {
     vi.stubEnv("CLOUDFLARE_TOKEN", "   ");
 
-    const { analyticsMode } = await loadAnalytics();
+    const { cloudflareToken } = await loadAnalytics();
 
-    expect(analyticsMode()).toBe("ga");
+    expect(cloudflareToken()).toBeUndefined();
   });
+});
 
-  it("renders the beacon, and no Google tag, when it is the one measuring", () => {
-    const head = read("src/components/BaseHead.astro");
+describe("what the page carries", () => {
+  const head = read("src/components/BaseHead.astro");
 
-    expect(head).toContain("{tracker === 'cloudflare' && cloudflare && (");
+  it("renders the beacon only when a token is configured", () => {
+    expect(head).toContain("{cloudflare && (");
     expect(head).toContain("static.cloudflareinsights.com/beacon.min.js");
-    // The GA snippet stays behind its own mode, so `cloudflare` ships neither it
-    // nor the bar.
-    expect(head).toContain("{tracker === 'ga' && (");
   });
 
-  it("clears the old tracker's traces on any switch away from Google", () => {
-    // Not just Umami: a visitor who accepted keeps `_ga` cookies and a stored
-    // yes under Cloudflare too, with no bar left to withdraw from.
-    expect(read("src/components/BaseHead.astro")).toContain("{tracker !== 'ga' && (");
+  it("carries no Google Analytics and no Umami any more", () => {
+    expect(head).not.toContain("googletagmanager");
+    expect(head).not.toContain("gtag(");
+    expect(head).not.toContain("data-website-id");
+  });
+
+  it("still clears what the removed tracker left in browsers that had accepted", async () => {
+    const { CONSENT_STORAGE_KEY } = await loadAnalytics();
+
+    // The bar is gone, so nobody can withdraw an old yes by hand any more.
+    expect(head).toContain(`removeItem("${CONSENT_STORAGE_KEY}")`);
+    expect(head).toContain("_ga");
+  });
+});
+
+describe("the rest of the site", () => {
+  it("mounts no consent bar anywhere", () => {
+    for (const file of ["src/layouts/Layout.astro", "src/pages/index.astro"]) {
+      expect(read(file), `${file} still mounts the bar`).not.toContain("CookieConsent");
+    }
+
+    expect(read("src/components/Footer.astro")).not.toContain("consent");
+  });
+
+  it("hands the token to the deploy, or the switch could never be flipped", () => {
+    // The build reads it from the env; a workflow that does not pass it would
+    // make the setting unreachable in production and fail silently.
+    expect(read(".github/workflows/astro-gh-pages.yml")).toContain(
+      "CLOUDFLARE_TOKEN: ${{ vars.CLOUDFLARE_TOKEN }}",
+    );
   });
 });
