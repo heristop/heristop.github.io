@@ -3,7 +3,7 @@
 // Astro renders components on the build machine, so the components below read this directly: the
 // page ships with one tracker's tag and nothing of the other's — no runtime branch, no swap step.
 
-type AnalyticsMode = "umami" | "ga" | "none";
+type AnalyticsMode = "umami" | "cloudflare" | "ga" | "none";
 
 interface UmamiConfig {
   scriptSrc: string;
@@ -14,6 +14,9 @@ interface UmamiConfig {
 
 /** GA4 property for the site. Public by nature — it ships in every page. */
 const GA_MEASUREMENT_ID = "G-P44DRVCNGY";
+
+/** Cloudflare Web Analytics token, from the env like the Umami pair. */
+const cloudflareToken = (): string | undefined => text(import.meta.env.CLOUDFLARE_TOKEN);
 
 /** Where the visitor's answer to the consent bar is remembered. */
 const CONSENT_STORAGE_KEY = "heristop-consent";
@@ -41,22 +44,35 @@ const umamiConfig = (): UmamiConfig | undefined => {
 };
 
 /**
- * Umami wins over GA when both are configured, so a half-finished migration measures once rather
- * than twice.
+ * Umami first, then Cloudflare, then GA. The order only decides who wins when two are configured at
+ * once — a mistake rather than a state worth honouring — and it measures once instead of twice. The
+ * two cookieless ones come before the tracker that is not.
  */
 const analyticsMode = (): AnalyticsMode => {
   if (umamiConfig()) {
     return "umami";
   }
 
+  if (cloudflareToken()) {
+    return "cloudflare";
+  }
+
   return text(GA_MEASUREMENT_ID) ? "ga" : "none";
 };
 
 /**
- * Only Google Analytics asks. Umami is cookieless, and `none` renders no tag at all — in both cases
- * the bar and the footer's way back to it would put a question to the visitor about nothing.
+ * Only Google Analytics asks. Umami and Cloudflare are cookieless, and `none` renders no tag at all
+ * — in all three cases the bar and the footer's way back to it would put a question to the visitor
+ * about nothing.
  */
 const consentRequired = (): boolean => analyticsMode() === "ga";
 
-export { analyticsMode, consentRequired, umamiConfig, GA_MEASUREMENT_ID, CONSENT_STORAGE_KEY };
+export {
+  analyticsMode,
+  cloudflareToken,
+  consentRequired,
+  umamiConfig,
+  GA_MEASUREMENT_ID,
+  CONSENT_STORAGE_KEY,
+};
 export type { AnalyticsMode, UmamiConfig };

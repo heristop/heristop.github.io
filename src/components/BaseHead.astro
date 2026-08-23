@@ -1,12 +1,13 @@
 ---
 import '../styles/global.scss';
-import { analyticsMode, umamiConfig } from '../analytics';
+import { analyticsMode, cloudflareToken, umamiConfig } from '../analytics';
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 // Resolved on the build machine, so the page ships one tracker's tag and nothing of the other's.
 const tracker = analyticsMode();
 const umami = umamiConfig();
+const cloudflare = cloudflareToken();
 
 interface Props {
   title: string;
@@ -94,11 +95,12 @@ const {
 )}
 
 <!--
-  Switching a live site over leaves the previous tracker's traces in browsers that already accepted:
+  Switching a live site over — to Umami, to Cloudflare, or to nothing at all — leaves the previous
+  tracker's traces in browsers that already accepted:
   a stored yes nothing asks about any more, and Google's cookies with no bar left to withdraw them
   from. Clearing them is the visitor's side of the switch, so it happens here rather than nowhere.
 -->
-{tracker === 'umami' && (
+{tracker !== 'ga' && (
   <script is:inline>
     (function () {
       try {
@@ -123,6 +125,15 @@ const {
       }
     })();
   </script>
+)}
+
+<!--
+  Cloudflare Web Analytics. Cookieless like Umami, so no consent gate and none rendered — and even
+  lighter: a token, no instance to host. It collects page views on its own; it has no event API, so
+  nothing else can be measured through it.
+-->
+{tracker === 'cloudflare' && cloudflare && (
+  <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: cloudflare })}></script>
 )}
 
 <!--

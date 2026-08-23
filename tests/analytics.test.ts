@@ -12,12 +12,16 @@ const WEBSITE_ID = "0d1e2f34-5678-49ab-cdef-0123456789ab";
 
 const loadAnalytics = async () => import("../src/analytics");
 
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const read = (file: string): string => readFileSync(path.join(root, file), "utf8");
+
 describe("analytics mode", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.stubEnv("UMAMI_SRC", "");
     vi.stubEnv("UMAMI_WEBSITE_ID", "");
     vi.stubEnv("UMAMI_HOST_URL", "");
+    vi.stubEnv("CLOUDFLARE_TOKEN", "");
   });
 
   afterEach(() => {
@@ -88,8 +92,6 @@ describe("analytics mode", () => {
 // property id or the storage key here would otherwise keep sending to the old property, or read a
 // key nothing writes, with every test still green.
 describe("the literals the components carry", () => {
-  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-  const read = (file: string): string => readFileSync(path.join(root, file), "utf8");
 
   it("configures and loads the property named in analytics.ts", async () => {
     const { GA_MEASUREMENT_ID } = await loadAnalytics();
@@ -113,5 +115,72 @@ describe("the literals the components carry", () => {
     // `none` must not fall through to the GA snippet: its id is a literal in the file, so the
     // gate is the only thing keeping it off the page.
     expect(read("src/components/BaseHead.astro")).toContain("{tracker === 'ga' && (");
+  });
+});
+
+describe("Cloudflare Web Analytics", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.stubEnv("UMAMI_SRC", "");
+    vi.stubEnv("UMAMI_WEBSITE_ID", "");
+    vi.stubEnv("CLOUDFLARE_TOKEN", "");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("runs on a token alone, and asks for nothing", async () => {
+    vi.stubEnv("CLOUDFLARE_TOKEN", "abc123");
+
+    const { analyticsMode, consentRequired } = await loadAnalytics();
+
+    expect(analyticsMode()).toBe("cloudflare");
+    // Cookieless, so the bar would be a question about nothing.
+    expect(consentRequired()).toBeFalsy();
+  });
+
+  it("ranks behind Umami and ahead of Google Analytics", async () => {
+    vi.stubEnv("CLOUDFLARE_TOKEN", "abc123");
+    vi.stubEnv("UMAMI_SRC", SCRIPT_SRC);
+    vi.stubEnv("UMAMI_WEBSITE_ID", WEBSITE_ID);
+
+    const umamiFirst = await loadAnalytics();
+
+    expect(umamiFirst.analyticsMode()).toBe("umami");
+
+    vi.resetModules();
+    vi.stubEnv("UMAMI_SRC", "");
+    vi.stubEnv("UMAMI_WEBSITE_ID", "");
+
+    const overGa = await loadAnalytics();
+
+    // The GA property is a non-empty constant, so this is the real comparison.
+    expect(overGa.GA_MEASUREMENT_ID).not.toBe("");
+    expect(overGa.analyticsMode()).toBe("cloudflare");
+  });
+
+  it("treats a blank-only token as unset", async () => {
+    vi.stubEnv("CLOUDFLARE_TOKEN", "   ");
+
+    const { analyticsMode } = await loadAnalytics();
+
+    expect(analyticsMode()).toBe("ga");
+  });
+
+  it("renders the beacon, and no Google tag, when it is the one measuring", () => {
+    const head = read("src/components/BaseHead.astro");
+
+    expect(head).toContain("{tracker === 'cloudflare' && cloudflare && (");
+    expect(head).toContain("static.cloudflareinsights.com/beacon.min.js");
+    // The GA snippet stays behind its own mode, so `cloudflare` ships neither it
+    // nor the bar.
+    expect(head).toContain("{tracker === 'ga' && (");
+  });
+
+  it("clears the old tracker's traces on any switch away from Google", () => {
+    // Not just Umami: a visitor who accepted keeps `_ga` cookies and a stored
+    // yes under Cloudflare too, with no bar left to withdraw from.
+    expect(read("src/components/BaseHead.astro")).toContain("{tracker !== 'ga' && (");
   });
 });

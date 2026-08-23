@@ -10,6 +10,11 @@ interface ImportMetaEnv {
   readonly UMAMI_WEBSITE_ID?: string;
   /** Only when the collect API answers on another origin than the script. */
   readonly UMAMI_HOST_URL?: string;
+  /**
+   * Cloudflare Web Analytics token. Cookieless like Umami and lighter still, but it collects page
+   * views only — it has no event API.
+   */
+  readonly CLOUDFLARE_TOKEN?: string;
 }
 
 interface ImportMeta {
