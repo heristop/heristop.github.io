@@ -42,6 +42,11 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - name: Build
         run: pnpm run build
+        env:
+          # A repository variable, not a secret: the token ships in every page by design. Left
+          # unset, the site loads no analytics tag at all — which is what makes taking the
+          # configuration away the way to switch measurement off.
+          CLOUDFLARE_TOKEN: ${{ vars.CLOUDFLARE_TOKEN }}
       - name: Upload the site output
         uses: actions/upload-pages-artifact@v3
         with:
