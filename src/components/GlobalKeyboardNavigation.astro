@@ -7,7 +7,7 @@ const navPages = [
   { path: '/blog/', title: 'Blog' },
   { path: '/projects/', title: 'Projects' },
   { path: '/about/', title: 'About' },
-  { path: '/path/', title: 'Path' }
+  { path: '/path-of-stones/', title: 'Garden' }
 ];
 
 const getCurrentPageIndex = (pagePath: string) => {
@@ -274,7 +274,8 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
     const isArticlePage = globalThis.location.pathname.startsWith('/blog/') &&
                          globalThis.location.pathname !== '/blog/' &&
                          globalThis.location.pathname !== '/blog';
-    const isPathPage = globalThis.location.pathname === '/path/' || globalThis.location.pathname === '/path';
+    const isPathPage = globalThis.location.pathname === '/path-of-stones/' ||
+      globalThis.location.pathname === '/path-of-stones';
 
     if (!isArticlePage && !isPathPage) {
       cleanupGlobalNavigation();

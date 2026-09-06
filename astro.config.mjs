@@ -15,6 +15,12 @@ import icon from "astro-icon";
 export default defineConfig({
   integrations: [mdx(), sitemap(), react(), icon()],
   compressHTML: true,
+  // The garden lived at /path for as long as it has existed, which is long enough for the
+  // URL to be somewhere other than this repository. A static build emits this as a real
+  // redirect page, so old links keep working rather than landing on the 404.
+  redirects: {
+    "/path": "/path-of-stones",
+  },
   markdown: {
     shikiConfig: {
       theme: "rose-pine",
