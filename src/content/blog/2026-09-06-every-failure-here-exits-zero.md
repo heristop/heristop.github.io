@@ -1,29 +1,31 @@
 ---
-title: "Every Failure Here Exits Zero"
-description: "Rewriting a twenty-year-old point-of-sale system in weeks, with agents writing most of the code. Every merge request now carries a before/after video, because six diffs a day is more than I can honestly read. Building that video taught me something about failures that succeed."
+title: "My Agents Ship Six Features in Parallel. How Do I Review Them?"
+description: "Agents can finish several user stories before I have reviewed the first. I now ask each one to deliver a short before-and-after video with its merge request, so I can see what changed before diving into the code."
 image: "/images/posts/2026-09-06-every-failure-here-exits-zero/before-after-banner.webp"
 pubDate: "2026-09-06"
-tags: ["playwright", "ffmpeg", "ai-agents", "mcp", "case-study"]
-conclusion: "A verification artefact that can fail silently is worse than no artefact at all, because it gets trusted. Every check in this pipeline was written after the matching failure had already shipped."
+tags: ["ai-agents", "code-review", "playwright", "mcp", "case-study"]
+conclusion: "When agents build in parallel, human review becomes the bottleneck. A short before-and-after video gives me a way to check the delivered behaviour and focus my code review. Producing that evidence is now part of the agent's job."
 ---
 
-## The premise
+I am rewriting a supermarket point-of-sale system: scanning items, applying promotions, taking payments, printing receipts. The existing software has accumulated nearly twenty years of behaviour. I am rebuilding it in weeks, with agents writing most of the code.
 
-I am rewriting a point-of-sale system, the software behind supermarket tills: scanning, promotions, payment, receipts, and the fiscal rules that come with all three. The version being replaced has been accumulating behaviour for the better part of twenty years, in C with an ageing front end on top, and the new one is supposed to do the same job after a few weeks of work rather than two decades of it. That schedule only holds because agents write most of the code, which is also where my problem starts.
+Five or six user stories can be in flight at once. The agents work in parallel. I review what they deliver.
 
-Five or six stories are in flight at any given moment. Each lands as a merge request with a diff long enough that reading it properly costs twenty minutes I have not got, so what happens is the obvious thing: I approve something I did not really read, and I tell myself I did.
+That is where the pace breaks down.
 
-Every merge request now carries a video instead. The ticket, what changed, the screens before and after, in under a minute.
+An agent finishes a story and opens a merge request. Then another does. Each comes with a description, tests and enough changed code to deserve twenty minutes of attention. The work is ready faster than I can properly review it.
 
-It is a selfish artefact. Watching the flow run is the only review I trust to catch the case where what shipped is not what the ticket asked for, and it fits in the gap between two meetings. QA gets the benefit second: they pick up the ticket with the video already on it and know what to test without coming to ask me.
+I have caught myself approving a diff I had barely read. Everything looked plausible, the tests passed, and the next merge request was already waiting.
 
-The pipeline behind it is dull on purpose. The agent reads the ticket straight out of Jira so nobody retypes the story, writes the tests, writes the code, runs the build, then starts the app and plays the flow through a browser while filming the screens it touched. Those recordings go to **[LeClap](https://leclap.dev)**, which cuts them into a clip and posts it to the merge request and to the ticket. One point I was stubborn about: the editor renders rather than generates, so the same description always produces the same images. I did not want a guardrail capable of inventing something the diff does not contain.
+I needed a way to see what each agent had actually delivered. So I started asking for a short before-and-after video with every merge request.
 
-What follows is everything between the recording and the finished clip, which is where the time actually went.
+## Show me the feature working
 
-## What the clip actually is
+The video answers a straightforward question: does the application now do what the ticket asked for?
 
-Six sections: a title card, then a BEFORE card and its clip, an AFTER card and its clip, then an outro.
+It shows the ticket, the relevant flow before the change, then the same flow after it. Usually in under a minute. Enough to see the action and its result, without opening a local environment or reconstructing the feature from the diff.
+
+Here is a real example. The ticket concerned a payment-transfer action that stayed greyed out when it should have been available. The clip shows the problem, then the corrected behaviour. It takes twenty-two seconds.
 
 <div class="img-container">
   <figure class="img-figure" style="width: 100%; max-width: 48rem;">
@@ -34,89 +36,61 @@ Six sections: a title card, then a BEFORE card and its clip, an AFTER card and i
       Your browser does not support the video tag.
     </video>
     <figcaption class="img-caption">
-      A real clip, posted on a real merge request, unedited. Twenty-two seconds, on a ticket about a payment-transfer action that stayed greyed out when it should have opened. The length follows the flow being tested, not a budget.
+      A before-and-after clip attached to a real merge request. Twenty-two seconds to show a payment-transfer action before and after the fix.
     </figcaption>
   </figure>
 </div>
 
-The card-then-clip pair is written once and reused twice, once per side, which is how six sections come out of two lines of description. Each reuse glues a word onto the front of the names, so the pair becomes `beforecard` and `beforeclip`, then `aftercard` and `afterclip`. Those names are not decorative, they are addresses: the section called `beforeclip` looks for a file called `beforeclip.mp4` and for nothing else, and no setting anywhere lets you say *for this section, use that file*. The only way to point at a recording is to give it the name of the section that wants it.
+That gives me a concrete starting point for the review. I can compare the result with the request, then read the code knowing which behaviour it is supposed to produce. If the agent has misunderstood the ticket, I can spot it before spending twenty minutes on the implementation.
 
-Misname one and the whole render stops on `✗ Compilation failed to produce output`, which is also what you get for a bad duration, and for an effect the engine does not support. Terse, but at least it stops.
+## The agent delivers the evidence too
 
-It is the last time in this article that anything does.
+Recording these videos myself would only move the bottleneck. The agent has to produce them as part of the work.
 
-## The agent does not open a terminal
+The flow is simple:
 
-It talks to the video editor over MCP, which is what people usually mean when they say an agent "uses a tool". In practice it can ask three questions and give one order: what fields does a description actually accept, how long is this recording and what size, and **do a dry run and tell me which files you are about to look for**. Then render.
+1. The agent reads the user story directly from Jira.
+2. It writes the tests and implements the change.
+3. It runs the build and starts the application.
+4. It plays the relevant browser flow and records the before-and-after screens.
+5. It assembles the video and attaches it to the merge request and the Jira ticket.
 
-The dry run is the one that earns its place, for the reason above. Names are addresses here, so having them read back to you before anything renders beats any error message you get afterwards.
+I use **[LeClap](https://leclap.dev)** for the last step. It turns the recordings into a short clip with a title and before-and-after labels. The agent calls it through MCP, the interface that lets it use tools directly.
 
-One decision inside that setup generalises past this project. The editor runs from a copy of the code linked on my machine, rather than being fetched from the package registry on demand. Fetching on demand is convenient and not free: the first call quietly builds a throwaway install off to one side and keeps it in a cache, and mine is currently sitting on 26 of those, a gigabyte and a half. For a command you run three times per video that is a fine deal. For a tool the agent connects to it is not, because the connection is made at the start of every session rather than once per video, so you pay all day instead of per clip and you silently get whichever version was published last. You find out when a render changes shape under you.
+The footage comes from the running application. The editor arranges those recordings into a fixed template. That matters: I want to see what the application did, and be able to trace it back to the recorded flow.
 
-The rest of it is configuration I got wrong twice, and it now lives in the skill rather than in my head, which is the subject of the last section.
+The video arrives with the code, ready to watch. I do not have to ask the agent for a demonstration in a separate conversation.
 
-## The recording lies about time
+## What changes when six stories arrive together
 
-My first attempt at trimming counted backwards from the end. The interesting click happens two seconds before the test finishes, so cut the last five seconds and you have it.
+Without the video, each merge request asks me to rebuild the same context: what was requested, how the screen worked, what the agent changed, and whether those changes match the request.
 
-I did not have it.
+With the video, I can start by watching the result. A short clip fits between two meetings. It makes it easier to identify a story that needs clarification and to enter the code review with a specific question in mind.
 
-A browser recording is not aligned to the clock. A test that took 15.3 seconds produced a 13.9 second file, because the recorder drops frames when the machine is busy, and what lands on disk is shorter than what happened by an amount that changes with the machine. An offset measured against the test's own duration therefore lands somewhere else in the video, and somewhere different on the build server than on my laptop. Nothing fails; you get a clip of the app sitting still, which is indistinguishable from a clip of a feature that does nothing.
+I still need to read the code. A video cannot tell me whether a payment calculation is correct in every case, whether permissions are enforced, or whether the implementation will be maintainable. Tests and code review still have that job.
 
-Comparing frames to each other and cutting around the moment the screen changes is slower to write and works. And trim harder than feels polite while you are there: there are always several seconds of blank startup at the front, and a reviewer watching a progress spinner is a reviewer not watching the change.
+But it helps separate two questions that otherwise get tangled together: **did the agent build the requested behaviour, and is the implementation sound?** Seeing the first makes it easier to concentrate on the second.
 
-## The crop eats the two rows that matter
+QA benefits too. The tester picks up a ticket with a demonstration already attached. They can see the intended change and use it as a starting point for their own checks, including the cases the clip does not show.
 
-A till screen is 1024×768, nearly square. Video is 1280×720, not square at all. Something has to give, and the engine's default is to fill the frame and throw away the overflow at the top and the bottom, which on a till is the header and the footer, which is where the total, the payment state and the operator's name live. The change under review was in the footer more than once.
+## The video has to earn its trust
 
-So the picture gets padded sideways before the engine ever sees it. Whether anyone notices depends on the layout: on a clip that fills the frame the padding shows as two plain bands, and on one framed beside a caption panel, like the video above, it disappears under the composition.
+Getting the first clips right took more work than I expected. Some recordings missed the useful moment. Others cut off the part of the screen where the change happened. The video played perfectly, but did not show what I needed to verify.
 
-```bash
-ffmpeg -i raw.webm -vf "scale=960:720,pad=1280:720:160:0:black" -r 30 beforeclip.mp4
-```
+That is the lesson worth keeping from the editing details: a finished video is not automatically useful evidence.
 
-## An apostrophe cannot go through
+I put the recording and editing instructions into a reusable skill, a document the agent reads before doing the job. It describes the format, what must remain visible, and the checks to run before attaching the result. The agent can reuse that process on the next ticket instead of improvising it again.
 
-Every card and caption is drawn by FFmpeg, and half of the copy is French: `l'écran`, `d'origine`, `n'existe`.
+The same discipline that applies to the code applies to its demonstration: check that it does what it is supposed to do.
 
-The apostrophe does not need escaping. It cannot be passed at all. I tried the three ways you would try, all three finished successfully, and all three rendered *iso V2's reason popup* as *V2s*, dropping the character without a word.
+## Finishing includes showing
 
-One of them goes further. It eats the instruction that follows it, which happens to be the one naming the font, and the rest of that instruction ends up painted across the frame as literal text. That is how a card reading `…reason popup:fontfile=build/fonts/Ubuntu-Regular.ttf:…` got rendered, uploaded, and attached to a merge request. The only warning anywhere was a single line of noise in the log, and it was there because losing the quote had taken the font down with it.
+Working with agents has made it much easier to produce several implementations at once. My capacity to understand and approve them has not grown at the same rate.
 
-Handing the text over in a file instead of on the command line works. It brings two smaller problems of its own, of the encoding and path-syntax variety, which are the sort of thing you fix once and then write down somewhere you will look.
+The before-and-after video is how I am closing part of that gap. It gives me a quick view of the delivered behaviour, gives QA context, and leaves a demonstration alongside the ticket and the code.
 
-## A missing font does not fail either
-
-The obvious FFmpeg to install on a Mac cannot draw text at all, which at least announces itself: every card dies immediately, and you go and install a build that can.
-
-Then there is the quiet version. A font file that does not exist does not fail. The renderer substitutes a wide default sans, finishes happily, and hands you a clip in the wrong typeface with one stray line in the log as its only tell. A mix-up between two fonts went all the way through on that, and I only caught it because two videos from the same series happened to be open in adjacent tabs and one of them was visibly fatter than the other.
-
-## Text never wraps, and nothing tells you
-
-There is no line wrapping. A description longer than its box runs straight out of it and over the footage, and neither the render nor the validator says anything about it. An overflowing panel has already shipped this way.
-
-Writing copy short enough to fit is not a fix, it is a bet on the next ticket's title being short too. Counting characters does not work either, since letters are not the same width: thirty characters of `SUSPENSION` and thirty of `Suspension` differ by a third. The text is measured properly now, letter by letter against the width of the box, and a label that does not fit raises an error rather than being rendered off the edge.
-
-The badge ended up with a two-word vocabulary, `BEFORE` or `AFTER`, with the finding moved into the title beside it, because it is the one element with nowhere to wrap to. What settled that was a measurement: `THREE RUBRICS` came to 201 pixels against a budget of 218. It fitted, at 92 % of the space available, and one longer word would have put it outside the frame.
-
-## Reproducible, but only just
-
-The claim I make about this pipeline is that the same description and the same recordings give the same video, which turns out to be true with an asterisk I only found because I went looking. Rendered on two different builds of FFmpeg, the files are not identical. Not visibly different, and the picture is the same to any measurement I know how to make, but the compression underneath is not the same. The description pins everything it can reach and it cannot pin the encoder.
-
-Reproducible therefore means *for a given FFmpeg*. A re-run in six months gives back the same picture, and gives back the same file only on the same machine, which in practice means settling on one FFmpeg for a batch of merge requests so that at least the clips match each other.
-
-## What the guardrail needed
-
-A shortened recording, a cropped header, a dropped apostrophe, a substituted font, an overflowing label, a differing encode. Not one of them returns an error. Every one produces a finished, playable, entirely plausible video that is wrong in a way you only catch by watching it closely, which is the work the video was supposed to save me.
-
-This goes well past video. **A verification artefact that can fail silently is worse than no artefact at all, because it gets trusted.** An empty merge request description makes a reviewer read the diff. A convincing clip of the wrong screen makes them approve.
-
-So the pipeline checks what it used to assume. Fonts are verified rather than passed. Labels are measured against their box and refuse to render if they overflow. Trims anchor on what changed on screen instead of on the clock. The template gets a dry run before every render. None of it is clever, and all of it was written after the matching failure had already shipped.
-
-Which is why the checks are not really the deliverable. The file they are written down in is: a skill, a document the agent reads before it makes one of these videos, holding the house template, the colour convention, and a long section called *the traps* whose entries are, one for one, the failures above. Without it the agent rediscovers the apostrophe on every ticket, and it has no way to know that the FFmpeg on the path cannot draw text.
-
-It runs to 362 lines. Most of it is a list of ways to be wrong that produce a working video.
+For this workflow, an agent's job now includes showing what it changed. When six stories land together, that makes the review queue easier to work through without relying on a convincing summary and a green build.
 
 ---
 
-The renderer is on npm as `ffmpeg-video-composer`, with a command line and an MCP server alongside it. All of it is MIT: [github.com/heristop/leclap](https://github.com/heristop/leclap).
+LeClap is open source under the MIT licence: [github.com/heristop/leclap](https://github.com/heristop/leclap). The renderer is available on npm as `ffmpeg-video-composer`, with a command-line interface and an MCP server.
