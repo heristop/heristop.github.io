@@ -6,7 +6,7 @@ import {
   dayForTile,
   parseGardenSeed,
   tileForDay,
-} from "../../src/data/garden-schema";
+} from "../../../../src/components/client/garden/schema";
 
 describe("FALLBACK_SEED", () => {
   it("has exactly one entry per day in the window", () => {

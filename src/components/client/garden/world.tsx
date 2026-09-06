@@ -1,41 +1,46 @@
 import "./world.scss";
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { GardenSeed } from "../../../data/garden-schema";
+import type { GardenSeed } from "./schema";
 import {
   DATA_TILES,
   FALLBACK_SEED,
   GRID_SIZE,
   STONE_COUNT,
   WINDOW_DAYS,
-} from "../../../data/garden-schema";
+} from "./schema";
 import type { Direction, MapTile, Position } from "./types";
+// One import per layer, not one per file. The island is the only thing in the module that
+// touches all four, so it is the one place where the layering is visible at a glance —
+// and it stays visible only while these stay collapsed.
 import {
   DECOR_HEADROOM,
-  applyDirectionOffset,
-  directionFromDelta,
-  manhattan,
-  toScreen,
-} from "./board/geometry";
-import { canPaveTile, handleKeyDirection, isWalkableTile, tileAt } from "./board/rules";
-import { cheapestRoute } from "./board/routing";
-import {
   STONE_REFUEL,
+  applyDirectionOffset,
+  canPaveTile,
+  cheapestRoute,
   dayIndexForPosition,
+  directionFromDelta,
+  handleKeyDirection,
+  isWalkableTile,
+  manhattan,
   positionForDay,
+  tileAt,
   tileIndexForPosition,
-} from "./board/terrain";
-import ZazenCat from "./figures/cat";
-import ZazenCompanion from "./figures/companion";
-import ZazenDayCard from "./hud/day-card";
-import ZazenHeatmap from "./hud/heatmap";
-import ZazenDefeatOverlay from "./hud/defeat-overlay";
-import ZazenFinaleOverlay from "./hud/finale-overlay";
-import ZazenHaikuScroll from "./hud/haiku-scroll";
-import ZazenPilgrim, { PILGRIM_ANCHOR_X } from "./figures/pilgrim";
-import useZazenAudio from "./state/use-audio";
-import useZazenGame from "./state/use-game";
-import useZazenStep, { prefersReducedMotion } from "./state/use-step";
+  toScreen,
+} from "./board";
+import {
+  PILGRIM_ANCHOR_X,
+  ZazenCat,
+  ZazenCompanion,
+  ZazenDayCard,
+  ZazenDefeatOverlay,
+  ZazenFinaleOverlay,
+  ZazenHaikuScroll,
+  ZazenHeatmap,
+  ZazenPilgrim,
+} from "./components";
+import { prefersReducedMotion, useZazenAudio, useZazenGame, useZazenStep } from "./composables";
 
 const ICON_SIZE = 16;
 const ICON_STROKE_WIDTH = 2.5;

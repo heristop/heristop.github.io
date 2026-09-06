@@ -1,4 +1,4 @@
-import type { GardenDay } from "../../../data/garden-schema";
+import type { GardenDay } from "./schema";
 
 interface Position {
   posX: number;

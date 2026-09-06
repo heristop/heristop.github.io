@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
-import type { GardenSeed } from "../../../../data/garden-schema";
-import { FALLBACK_SEED, STONE_COUNT } from "../../../../data/garden-schema";
+import type { GardenSeed } from "../schema";
+import { FALLBACK_SEED, STONE_COUNT } from "../schema";
 import type { Direction, HaikuEntry, MapTile, Position } from "../types";
 import type { GardenLayout } from "../board/terrain";
 import { HAIKU_LINES, STONE_REFUEL, buildGarden } from "../board/terrain";

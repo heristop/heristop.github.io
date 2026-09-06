@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import ZenTextReveal from "../../zen-text-reveal";
-import textReveal from "../../use-text-reveal";
-import type { HaikuEntry } from "../types";
-import { scoreWalk } from "../state/score";
+import ZenTextReveal from "../../../zen-text-reveal";
+import textReveal from "../../../use-text-reveal";
+import type { HaikuEntry } from "../../types";
+import { scoreWalk } from "../../score";
 
 const { useReducedMotion } = textReveal;
 

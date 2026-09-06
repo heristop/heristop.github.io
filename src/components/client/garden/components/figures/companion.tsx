@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { Position } from "../types";
-import { toScreen } from "../board/geometry";
+import type { Position } from "../../types";
+import { toScreen } from "../../board/geometry";
 
 // The woman who was a frog, once she is walking.
 //

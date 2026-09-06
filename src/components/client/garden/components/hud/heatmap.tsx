@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import type { GardenDay } from "../../../../data/garden-schema";
+import type { GardenDay } from "../../schema";
 import { formatDate } from "./day-card";
 
 interface Props {

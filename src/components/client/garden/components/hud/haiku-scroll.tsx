@@ -1,6 +1,6 @@
-import ZenTextReveal from "../../zen-text-reveal";
-import type { HaikuEntry } from "../types";
-import { STONE_COUNT } from "../../../../data/garden-schema";
+import ZenTextReveal from "../../../zen-text-reveal";
+import type { HaikuEntry } from "../../types";
+import { STONE_COUNT } from "../../schema";
 
 interface Props {
   lines: readonly HaikuEntry[];

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { GardenDay, GardenSeed } from "../../../../../src/data/garden-schema";
+import type { GardenDay, GardenSeed } from "../../../../../src/components/client/garden/schema";
 import {
   DATA_TILES,
   FALLBACK_SEED,
   STONE_COUNT,
   WINDOW_DAYS,
-} from "../../../../../src/data/garden-schema";
+} from "../../../../../src/components/client/garden/schema";
 import type { MapTile, Position } from "../../../../../src/components/client/garden/types";
 import { isWalkableTile } from "../../../../../src/components/client/garden/board/rules";
 import { cheapestCrossing } from "../../../../../src/components/client/garden/board/routing";

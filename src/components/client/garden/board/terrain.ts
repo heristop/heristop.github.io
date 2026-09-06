@@ -1,4 +1,4 @@
-import type { GardenDay, GardenSeed } from "../../../../data/garden-schema";
+import type { GardenDay, GardenSeed } from "../schema";
 import {
   DATA_COLS,
   DATA_ROWS,
@@ -8,7 +8,7 @@ import {
   WINDOW_DAYS,
   dayForTile,
   tileForDay,
-} from "../../../../data/garden-schema";
+} from "../schema";
 import type { MapTile, Position } from "../types";
 import {
   LAID_STONE_SPRITE,

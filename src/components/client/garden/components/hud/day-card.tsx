@@ -1,4 +1,4 @@
-import type { MapTile } from "../types";
+import type { MapTile } from "../../types";
 
 interface Props {
   tile: MapTile | undefined;
