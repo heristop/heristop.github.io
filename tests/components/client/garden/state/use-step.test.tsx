@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import useZazenStep from "../../../src/components/client/use-zazen-step";
+import useZazenStep from "../../../../../src/components/client/garden/state/use-step";
 
 describe("useZazenStep", () => {
   beforeEach(() => {

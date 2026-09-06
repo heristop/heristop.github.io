@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { scoreWalk } from "../../../src/components/client/zazen-score";
+import { scoreWalk } from "../../../../../src/components/client/garden/state/score";
 
 describe("scoreWalk", () => {
   // The whole point of the scoring: restraint outranks speed. A walk that never breaks

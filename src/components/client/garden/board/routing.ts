@@ -1,6 +1,6 @@
-import type { MapTile, Position } from "./zazen-garden-types";
-import { applyDirectionOffset } from "./zazen-world-geometry";
-import { canPaveTile, isWalkableTile } from "./zazen-world-rules";
+import type { MapTile, Position } from "../types";
+import { applyDirectionOffset } from "./geometry";
+import { canPaveTile, isWalkableTile } from "./rules";
 
 // What a crossing costs in stepping stones. Firm ground is free; raked sand costs one
 // stone, laid once and kept forever; water and the gate cost nothing because you cannot

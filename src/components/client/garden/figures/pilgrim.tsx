@@ -1,5 +1,5 @@
-import type { Direction, Position } from "./zazen-garden-types";
-import { toScreen } from "./zazen-world-geometry";
+import type { Direction, Position } from "../types";
+import { toScreen } from "../board/geometry";
 
 // Cell size of one frame in the pilgrim sheet, and the sheet's facing order.
 const CELL_WIDTH = 24;

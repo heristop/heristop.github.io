@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
-import type { GardenDay } from "../../data/garden-schema";
-import { formatDate } from "./zazen-day-card";
+import type { GardenDay } from "../../../../data/garden-schema";
+import { formatDate } from "./day-card";
 
 interface Props {
   days: readonly (GardenDay | null)[];

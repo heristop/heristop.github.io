@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import type { GardenDay, GardenSeed } from "../../../src/data/garden-schema";
+import type { GardenDay, GardenSeed } from "../../../../../src/data/garden-schema";
 import {
   DATA_TILES,
   FALLBACK_SEED,
   STONE_COUNT,
   WINDOW_DAYS,
-} from "../../../src/data/garden-schema";
-import type { MapTile, Position } from "../../../src/components/client/zazen-garden-types";
-import { isWalkableTile } from "../../../src/components/client/zazen-world-rules";
-import { cheapestCrossing } from "../../../src/components/client/zazen-stones";
+} from "../../../../../src/data/garden-schema";
+import type { MapTile, Position } from "../../../../../src/components/client/garden/types";
+import { isWalkableTile } from "../../../../../src/components/client/garden/board/rules";
+import { cheapestCrossing } from "../../../../../src/components/client/garden/board/routing";
 import {
   HAIKU_LINES,
   buildGarden,
@@ -16,7 +16,7 @@ import {
   dayIndexToCell,
   groundForCount,
   tourCompletes,
-} from "../../../src/components/client/zazen-world-terrain";
+} from "../../../../../src/components/client/garden/board/terrain";
 
 const seedWith = (counts: readonly number[]): GardenSeed => ({
   days: Array.from({ length: WINDOW_DAYS }, (_unused, index): GardenDay | null =>

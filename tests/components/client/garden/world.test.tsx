@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("../../../src/components/client/world.scss", () => ({}));
+vi.mock("../../../../src/components/client/garden/world.scss", () => ({}));
 
-import ZazenWorld, { chooseMapScale } from "../../../src/components/client/zazen-world";
+import ZazenWorld, { chooseMapScale } from "../../../../src/components/client/garden/world";
 
 describe("chooseMapScale", () => {
   it("only ever returns an integer, so pixel art is never resampled", () => {

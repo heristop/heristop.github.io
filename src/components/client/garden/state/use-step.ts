@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import type { Direction, Position } from "./zazen-garden-types";
-import { directionFromDelta } from "./zazen-world-geometry";
+import type { Direction, Position } from "../types";
+import { directionFromDelta } from "../board/geometry";
 
 const STEP_DURATION_MS = 200;
 

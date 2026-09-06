@@ -1,41 +1,41 @@
 import "./world.scss";
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { GardenSeed } from "../../data/garden-schema";
+import type { GardenSeed } from "../../../data/garden-schema";
 import {
   DATA_TILES,
   FALLBACK_SEED,
   GRID_SIZE,
   STONE_COUNT,
   WINDOW_DAYS,
-} from "../../data/garden-schema";
-import type { Direction, MapTile, Position } from "./zazen-garden-types";
+} from "../../../data/garden-schema";
+import type { Direction, MapTile, Position } from "./types";
 import {
   DECOR_HEADROOM,
   applyDirectionOffset,
   directionFromDelta,
   manhattan,
   toScreen,
-} from "./zazen-world-geometry";
-import { canPaveTile, handleKeyDirection, isWalkableTile, tileAt } from "./zazen-world-rules";
-import { cheapestRoute } from "./zazen-stones";
+} from "./board/geometry";
+import { canPaveTile, handleKeyDirection, isWalkableTile, tileAt } from "./board/rules";
+import { cheapestRoute } from "./board/routing";
 import {
   STONE_REFUEL,
   dayIndexForPosition,
   positionForDay,
   tileIndexForPosition,
-} from "./zazen-world-terrain";
-import ZazenCat from "./zazen-cat";
-import ZazenCompanion from "./zazen-companion";
-import ZazenDayCard from "./zazen-day-card";
-import ZazenHeatmap from "./zazen-heatmap";
-import ZazenDefeatOverlay from "./zazen-defeat-overlay";
-import ZazenFinaleOverlay from "./zazen-finale-overlay";
-import ZazenHaikuScroll from "./zazen-haiku-scroll";
-import ZazenPilgrim, { PILGRIM_ANCHOR_X } from "./zazen-pilgrim";
-import useZazenAudio from "./use-zazen-audio";
-import useZazenGame from "./use-zazen-game";
-import useZazenStep, { prefersReducedMotion } from "./use-zazen-step";
+} from "./board/terrain";
+import ZazenCat from "./figures/cat";
+import ZazenCompanion from "./figures/companion";
+import ZazenDayCard from "./hud/day-card";
+import ZazenHeatmap from "./hud/heatmap";
+import ZazenDefeatOverlay from "./hud/defeat-overlay";
+import ZazenFinaleOverlay from "./hud/finale-overlay";
+import ZazenHaikuScroll from "./hud/haiku-scroll";
+import ZazenPilgrim, { PILGRIM_ANCHOR_X } from "./figures/pilgrim";
+import useZazenAudio from "./state/use-audio";
+import useZazenGame from "./state/use-game";
+import useZazenStep, { prefersReducedMotion } from "./state/use-step";
 
 const ICON_SIZE = 16;
 const ICON_STROKE_WIDTH = 2.5;

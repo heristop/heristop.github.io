@@ -1,4 +1,4 @@
-import type { Direction, MapTile, Position } from "./zazen-garden-types";
+import type { Direction, MapTile, Position } from "../types";
 
 // Frozen: a 64x32 diamond drawn inside a 64x64 cell. Every sprite is authored to this.
 const TILE_HALF_WIDTH = 32;

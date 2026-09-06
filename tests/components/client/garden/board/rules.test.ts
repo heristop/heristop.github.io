@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { MapTile } from "../../../src/components/client/zazen-garden-types";
+import type { MapTile } from "../../../../../src/components/client/garden/types";
 import {
   activateShrine,
   canPaveTile,
@@ -9,7 +9,7 @@ import {
   layStoneAt,
   performMove,
   tileAt,
-} from "../../../src/components/client/zazen-world-rules";
+} from "../../../../../src/components/client/garden/board/rules";
 
 const tile = (posX: number, posY: number, over: Partial<MapTile> = {}): MapTile => ({
   decor: "",

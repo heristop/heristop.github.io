@@ -1,5 +1,5 @@
-import type { Direction, MapTile, MoveResult, Position } from "./zazen-garden-types";
-import { applyDirectionOffset } from "./zazen-world-geometry";
+import type { Direction, MapTile, MoveResult, Position } from "../types";
+import { applyDirectionOffset } from "./geometry";
 
 const STONE_DECOR = "stone-marker";
 const SHRINE_SPRITE_ACTIVE = "shrine-active";

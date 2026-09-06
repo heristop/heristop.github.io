@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { Position } from "./zazen-garden-types";
-import { toScreen } from "./zazen-world-geometry";
+import type { Position } from "../types";
+import { toScreen } from "../board/geometry";
 
 // The woman who was a frog, once she is walking.
 //

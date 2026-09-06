@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { STONE_COUNT } from "../../data/garden-schema";
+import { STONE_COUNT } from "../../../../data/garden-schema";
 
 // The end of a walk that cannot be finished. It is deliberately not the finale in another
 // colour: the finale is warm and arrives slowly, and this is cool and arrives at once,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { MapTile } from "../../../src/components/client/zazen-garden-types";
+import type { MapTile } from "../../../../../src/components/client/garden/types";
 import {
   TILE_FULL_WIDTH,
   applyDirectionOffset,
@@ -7,7 +7,7 @@ import {
   directionFromDelta,
   manhattan,
   toScreen,
-} from "../../../src/components/client/zazen-world-geometry";
+} from "../../../../../src/components/client/garden/board/geometry";
 
 const tile = (posX: number, posY: number): MapTile => ({
   decor: "",

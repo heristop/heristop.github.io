@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
-import type { GardenSeed } from "../../data/garden-schema";
-import { FALLBACK_SEED, STONE_COUNT } from "../../data/garden-schema";
-import type { Direction, HaikuEntry, MapTile, Position } from "./zazen-garden-types";
-import type { GardenLayout } from "./zazen-world-terrain";
-import { HAIKU_LINES, STONE_REFUEL, buildGarden } from "./zazen-world-terrain";
+import type { GardenSeed } from "../../../../data/garden-schema";
+import { FALLBACK_SEED, STONE_COUNT } from "../../../../data/garden-schema";
+import type { Direction, HaikuEntry, MapTile, Position } from "../types";
+import type { GardenLayout } from "../board/terrain";
+import { HAIKU_LINES, STONE_REFUEL, buildGarden } from "../board/terrain";
 import {
   activateShrine,
   canPaveTile,
@@ -12,10 +12,10 @@ import {
   layStoneAt,
   performMove,
   tileAt,
-} from "./zazen-world-rules";
-import { applyDirectionOffset, manhattan } from "./zazen-world-geometry";
-import { calculateMapDimensions } from "./zazen-world-geometry";
-import { cheapestCrossing } from "./zazen-stones";
+} from "../board/rules";
+import { applyDirectionOffset, manhattan } from "../board/geometry";
+import { calculateMapDimensions } from "../board/geometry";
+import { cheapestCrossing } from "../board/routing";
 
 interface UseZazenGameOptions {
   seed?: GardenSeed;

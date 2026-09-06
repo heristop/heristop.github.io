@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createRng, hashString } from "../../../src/components/client/zazen-rng";
+import { createRng, hashString } from "../../../../../src/components/client/garden/board/rng";
 
 describe("createRng", () => {
   it("returns the same sequence for the same seed", () => {

@@ -1,8 +1,8 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { FALLBACK_SEED, STONE_COUNT } from "../../../src/data/garden-schema";
-import { HAIKU_LINES, buildGarden } from "../../../src/components/client/zazen-world-terrain";
-import useZazenGame from "../../../src/components/client/use-zazen-game";
+import { FALLBACK_SEED, STONE_COUNT } from "../../../../../src/data/garden-schema";
+import { HAIKU_LINES, buildGarden } from "../../../../../src/components/client/garden/board/terrain";
+import useZazenGame from "../../../../../src/components/client/garden/state/use-game";
 
 describe("useZazenGame", () => {
   it("starts the pilgrim on the seed's start tile", () => {

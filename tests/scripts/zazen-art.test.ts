@@ -94,14 +94,25 @@ describe("sprites", () => {
     }
   });
 
+  // Scanned in a plain loop with a single assertion at the end, rather than an expect()
+  // per pixel. There are a hundred and forty thousand pixels across the sheet and an
+  // expect() each was costing nearly five seconds — the test was not wrong, it was simply
+  // slower than the default timeout on a loaded machine, so it failed at random. Gathering
+  // the offenders first also reports every bad character at once instead of the first.
   it("uses only characters defined in the palette", () => {
+    const offenders: string[] = [];
     for (const [name, entry] of Object.entries(sprites)) {
+      const seen = new Set<string>();
       for (const row of entry.rows) {
         for (const char of row) {
-          expect(Object.hasOwn(PALETTE, char), `${name} uses undefined char "${char}"`).toBe(true);
+          if (!Object.hasOwn(PALETTE, char) && !seen.has(char)) {
+            seen.add(char);
+            offenders.push(`${name} uses undefined char "${char}"`);
+          }
         }
       }
     }
+    expect(offenders).toEqual([]);
   });
 
   it("draws ground tiles on the frozen 64x64 cell", () => {

@@ -1,4 +1,4 @@
-import type { GardenDay, GardenSeed } from "../../data/garden-schema";
+import type { GardenDay, GardenSeed } from "../../../../data/garden-schema";
 import {
   DATA_COLS,
   DATA_ROWS,
@@ -8,18 +8,18 @@ import {
   WINDOW_DAYS,
   dayForTile,
   tileForDay,
-} from "../../data/garden-schema";
-import type { MapTile, Position } from "./zazen-garden-types";
+} from "../../../../data/garden-schema";
+import type { MapTile, Position } from "../types";
 import {
   LAID_STONE_SPRITE,
   STONE_DECOR,
   canPaveTile,
   isWalkableTile,
   layStoneAt,
-} from "./zazen-world-rules";
-import { cheapestCrossing, cheapestRoute } from "./zazen-stones";
-import { createRng, hashString } from "./zazen-rng";
-import { manhattan } from "./zazen-world-geometry";
+} from "./rules";
+import { cheapestCrossing, cheapestRoute } from "./routing";
+import { createRng, hashString } from "./rng";
+import { manhattan } from "./geometry";
 
 const BORDER = 1;
 const MIN_STONE_SEPARATION = 3;

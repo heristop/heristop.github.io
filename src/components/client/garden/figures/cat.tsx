@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { Position } from "./zazen-garden-types";
-import { toScreen } from "./zazen-world-geometry";
+import type { Position } from "../types";
+import { toScreen } from "../board/geometry";
 
 // Half the pilgrim's height, and a quarter of the area he was as scenery. A cat standing
 // as tall as the man walking past it is not a cat, it is a bear.
