@@ -10,13 +10,7 @@ import {
   tileForDay,
 } from "../schema";
 import type { MapTile, Position } from "../types";
-import {
-  LAID_STONE_SPRITE,
-  STONE_DECOR,
-  canPaveTile,
-  isWalkableTile,
-  layStoneAt,
-} from "./rules";
+import { LAID_STONE_SPRITE, STONE_DECOR, canPaveTile, isWalkableTile, layStoneAt } from "./rules";
 import { cheapestCrossing, cheapestRoute } from "./routing";
 import { createRng, hashString } from "./rng";
 import { manhattan } from "./geometry";
