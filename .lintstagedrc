@@ -1,5 +1,5 @@
 {
-    "*.md": [
+    "src/content/**/*.md": [
         "pnpm md:lint"
     ],
     "*.{css,scss}": [
