@@ -1,6 +1,6 @@
 import ZenTextReveal from "./zen-text-reveal";
-import type { HaikuEntry } from "./zazen-world-types";
-import { STONES } from "./zazen-world-helpers";
+import type { HaikuEntry } from "./zazen-garden-types";
+import { STONE_COUNT } from "../../data/garden-schema";
 
 interface Props {
   lines: readonly HaikuEntry[];
@@ -9,9 +9,14 @@ interface Props {
 const HAIKU_FONT = "italic 0.95rem Georgia, serif";
 const HAIKU_LINE_HEIGHT = 0.95 * 16 * 1.6;
 
+// The poem, as it assembles. It used to render from the first moment of the game as an
+// empty card holding a summary of the rules and a count of nothing — both of which the
+// header now says better and says once. An empty panel is not a promise of content, it is
+// furniture, so the scroll waits until it has a line to show.
 const ZazenHaikuScroll = ({ lines }: Props) => {
-  const total = STONES.length;
-  const found = lines.length;
+  if (lines.length === 0) {
+    return null;
+  }
 
   return (
     <aside
@@ -24,24 +29,20 @@ const ZazenHaikuScroll = ({ lines }: Props) => {
       <h2 id="path-stones-scroll-title" className="path-stones__scroll-title">
         The Path
       </h2>
-      {found === 0 ? (
-        <p className="path-stones__scroll-placeholder">Walk the path. Find the stones.</p>
-      ) : (
-        <div className="path-stones__scroll-lines">
-          {lines.map((entry) => (
-            <ZenTextReveal
-              key={entry.stoneIndex}
-              text={entry.text}
-              tag="p"
-              className="path-stones__haiku-line"
-              font={HAIKU_FONT}
-              lineHeight={HAIKU_LINE_HEIGHT}
-            />
-          ))}
-        </div>
-      )}
+      <div className="path-stones__scroll-lines">
+        {lines.map((entry) => (
+          <ZenTextReveal
+            key={entry.stoneIndex}
+            text={entry.text}
+            tag="p"
+            className="path-stones__haiku-line"
+            font={HAIKU_FONT}
+            lineHeight={HAIKU_LINE_HEIGHT}
+          />
+        ))}
+      </div>
       <p className="path-stones__scroll-progress" aria-hidden="true">
-        {found} of {total} stones
+        {lines.length} of {STONE_COUNT} stones
       </p>
     </aside>
   );

@@ -1,6 +1,11 @@
 @use "sass:color";
 
 .zazen-world-container {
+  /* Moss, taken from the ground the sprites already use. Every other accent on this page
+     is rose, which the game spends on cost — a gain needed a colour that was not another
+     kind of alarm. */
+  --stone-gain: oklch(52% 0.085 145deg);
+
   position: relative;
   display: flex;
   flex-direction: column;
@@ -29,6 +34,44 @@
     min-height: 100dvh;
     gap: 0.25rem;
   }
+
+}
+
+/* Below the width where the flanking panels and the compass pin themselves to the
+   viewport, every piece of the HUD drops back into the column and the source order
+   decides what you read first. Left to itself that put the calendar and the legend above
+   the page's own title, so a visitor met a contribution chart before being told what the
+   garden was. This is the order the page is meant to be read in: what this is, how to
+   read it, the garden, what moves you through it, where you are standing, the fortnight
+   the garden was grown from, and last the poem you have gathered so far. */
+@media (width <= 1100px) {
+  .zazen-world__header.path-stones__header {
+    order: 1;
+  }
+
+  .path-stones__rules {
+    order: 2;
+  }
+
+  .zazen-world__map-wrapper {
+    order: 3;
+  }
+
+  .zazen-world__compass {
+    order: 4;
+  }
+
+  .path-stones__day {
+    order: 5;
+  }
+
+  .path-stones__heat {
+    order: 6;
+  }
+
+  .path-stones__scroll {
+    order: 7;
+  }
 }
 
 .zazen-world__header.path-stones__header {
@@ -44,7 +87,6 @@
   animation: zazen-header-fade-in 0.8s var(--zen-ease-elegant) forwards;
 
   @media (width <= 768px) {
-    order: 1;
     padding: 0 0.5rem;
     gap: 0.15rem;
   }
@@ -59,31 +101,498 @@
   margin: 0;
 }
 
-.path-stones__progress {
-  font-family: Georgia, serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.2em;
-  color: color-mix(in oklch, var(--primary-color) 70%, var(--heading-color));
-  margin: 0.35rem 0 0;
-  opacity: 0.78;
+/* Two gauges, read together: what you have gathered and what you have left to spend.
+   Side by side because they are the same sentence — the second is the reason the first
+   is hard — and set large because they are the only numbers on the page that move. */
+.path-stones__gauges {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(1.5rem, 5vw, 3rem);
+  margin: 0.6rem 0 0;
 
   @media (width <= 768px) {
-    margin: 0.15rem 0 0;
-    font-size: 0.68rem;
-    letter-spacing: 0.16em;
+    gap: 1.6rem;
+    margin: 0.35rem 0 0;
+  }
+}
+
+.path-stones__gauge {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0;
+  font-family: Georgia, serif;
+  color: color-mix(in oklch, var(--heading-color) 70%, transparent);
+}
+
+.path-stones__gauge-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 0.22rem;
+  line-height: 1;
+
+  b {
+    font-size: clamp(1.9rem, 4.4vw, 2.5rem);
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: color-mix(in oklch, var(--heading-color) 92%, transparent);
+  }
+
+  i {
+    font-style: normal;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.5;
+  }
+}
+
+.path-stones__gauge-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.72;
+
+  @media (width <= 768px) {
+    font-size: 0.56rem;
+    letter-spacing: 0.12em;
+  }
+}
+
+/* The supply. Rose from the start, because it is the number you are spending, and it
+   deepens as it runs out — the last stone is the one worth noticing. */
+.path-stones__gauge--supply {
+  color: color-mix(in oklch, var(--primary-color) 72%, var(--heading-color));
+
+  .path-stones__gauge-figure b {
+    position: relative;
+    color: color-mix(in oklch, var(--primary-color) 84%, var(--heading-color));
+
+    /* Everything but the name. The name is what changes per event, and swapping it is
+       what restarts the animation — see the [data-pulse] pair below. */
+    animation-duration: 620ms;
+    animation-timing-function: var(--zen-ease-elegant);
+    animation-fill-mode: both;
+
+    /* The shockwave. The numeral moving on its own is a tick; the numeral moving inside
+       a ring that leaves the figure is an impact, and the impact is the point — this is
+       the moment the player is meant to feel poorer. */
+    &::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 2.6em;
+      height: 2.6em;
+      margin: -1.3em 0 0 -1.3em;
+      border: 2px solid var(--primary-color);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      animation-duration: 620ms;
+      animation-timing-function: var(--zen-ease-elegant);
+      animation-fill-mode: both;
+    }
+  }
+
+  &.path-stones__gauge--low .path-stones__gauge-figure b {
+    color: var(--primary-color);
+  }
+
+  &.path-stones__gauge--spent {
+    .path-stones__gauge-figure b {
+      color: color-mix(in oklch, var(--primary-color) 62%, var(--heading-color));
+      opacity: 0.55;
+    }
+
+    .path-stones__gauge-label {
+      opacity: 0.5;
+    }
+  }
+}
+
+/* What just happened to the supply, thrown clear of the figure. A loss falls away in
+   rose; a gain rises in moss — the colour the ground you can walk on already is, so a
+   refund reads as the garden opening rather than as another kind of alarm. */
+.path-stones__gauge-delta {
+  position: absolute;
+  left: 50%;
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  opacity: 0;
+  animation-duration: 1s;
+  animation-timing-function: var(--zen-ease-elegant);
+  animation-fill-mode: both;
+}
+
+.path-stones__gauge[data-delta="loss"] .path-stones__gauge-delta {
+  top: 1.6rem;
+  color: var(--primary-color);
+}
+
+.path-stones__gauge[data-delta="gain"] .path-stones__gauge-delta {
+  top: -0.2rem;
+  color: var(--stone-gain);
+}
+
+/* The restart mechanism: same frames, two names, and every event swaps between them. The
+   sign picks which pair — a stone spent buckles the figure, a stone gathered swells it. */
+.path-stones__gauge--supply[data-delta="loss"] {
+  &[data-pulse="0"] {
+    .path-stones__gauge-figure b {
+      animation-name: path-stones-figure-punch-a;
+    }
+
+    .path-stones__gauge-figure b::after {
+      animation-name: path-stones-figure-shock-a;
+    }
+
+    .path-stones__gauge-delta {
+      animation-name: path-stones-delta-fall-a;
+    }
+  }
+
+  &[data-pulse="1"] {
+    .path-stones__gauge-figure b {
+      animation-name: path-stones-figure-punch-b;
+    }
+
+    .path-stones__gauge-figure b::after {
+      animation-name: path-stones-figure-shock-b;
+    }
+
+    .path-stones__gauge-delta {
+      animation-name: path-stones-delta-fall-b;
+    }
+  }
+}
+
+.path-stones__gauge--supply[data-delta="gain"] {
+  .path-stones__gauge-figure b::after {
+    border-color: var(--stone-gain);
+  }
+
+  &[data-pulse="0"] {
+    .path-stones__gauge-figure b {
+      animation-name: path-stones-figure-gain-a;
+    }
+
+    .path-stones__gauge-figure b::after {
+      animation-name: path-stones-figure-gather-a;
+    }
+
+    .path-stones__gauge-delta {
+      animation-name: path-stones-loss-rise-a;
+    }
+  }
+
+  &[data-pulse="1"] {
+    .path-stones__gauge-figure b {
+      animation-name: path-stones-figure-gain-b;
+    }
+
+    .path-stones__gauge-figure b::after {
+      animation-name: path-stones-figure-gather-b;
+    }
+
+    .path-stones__gauge-delta {
+      animation-name: path-stones-loss-rise-b;
+    }
+  }
+}
+
+/* Gathering one is a gain, so it swells rather than buckles, and the ring closes inward
+   instead of leaving. The same beat, read the other way round. */
+.path-stones__gauge--found .path-stones__gauge-figure b {
+  position: relative;
+  animation-duration: 620ms;
+  animation-timing-function: var(--zen-ease-elegant);
+  animation-fill-mode: both;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2.6em;
+    height: 2.6em;
+    margin: -1.3em 0 0 -1.3em;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    animation-duration: 620ms;
+    animation-timing-function: var(--zen-ease-elegant);
+    animation-fill-mode: both;
+  }
+}
+
+.path-stones__gauge--found[data-pulse="0"] {
+  .path-stones__gauge-figure b {
+    animation-name: path-stones-figure-gain-a;
+  }
+
+  .path-stones__gauge-figure b::after {
+    animation-name: path-stones-figure-gather-a;
+  }
+}
+
+.path-stones__gauge--found[data-pulse="1"] {
+  .path-stones__gauge-figure b {
+    animation-name: path-stones-figure-gain-b;
+  }
+
+  .path-stones__gauge-figure b::after {
+    animation-name: path-stones-figure-gather-b;
+  }
+}
+
+/* The supply as objects rather than as a number. A row of stones with the spent ones
+   left behind as empty sockets: the shape of what you started with stays on screen, so
+   the cost is legible without doing arithmetic. */
+.path-stones__pips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  max-width: 132px;
+  min-height: 9px;
+}
+
+/* The pip is the socket; the stone sitting in it is the pseudo-element. Keeping them
+   separate is what lets a stone leave without the seat leaving with it — animating the pip
+   itself faded the socket out too, and the row silently got shorter instead of showing
+   what it had cost. */
+.path-stones__pip {
+  position: relative;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklch, var(--heading-color) 20%, transparent);
+  background: transparent;
+  box-shadow: inset 0 1px 1px oklch(0% 0 0deg / 10%);
+
+  &--held {
+    background: color-mix(in oklch, var(--primary-color) 68%, transparent);
+    border-color: color-mix(in oklch, var(--primary-color) 68%, transparent);
+    box-shadow: none;
+  }
+
+  /* The one that just went. It gains this class the instant the count drops — a fresh
+     class on a fresh element, so the fall starts on its own without any restart trick. */
+  &--falling::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: 50%;
+    background: color-mix(in oklch, var(--primary-color) 68%, transparent);
+    animation: path-stones-pip-fall 620ms var(--zen-ease-elegant) both;
+  }
+}
+
+/* Each of these is emitted twice under an -a and a -b name. The pair is the restart
+   mechanism, not a variation: the frames are written once as a mixin and included in both,
+   so the two can never drift apart. */
+
+/* Overshoot hard, land short, settle. A number that merely fades to its new value reads
+   as data refreshing; a number that arrives too big, buckles under itself and steadies
+   reads as something that just happened to you. */
+@mixin figure-punch-frames {
+  0% {
+    transform: translateY(-6px) scale(1.55);
+    opacity: 0.2;
+  }
+
+  30% {
+    transform: translateY(2px) scale(0.86);
+    opacity: 1;
+  }
+
+  55% {
+    transform: translateY(0) scale(1.08);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@mixin figure-shock-frames {
+  0% {
+    transform: scale(0.35);
+    border-width: 3px;
+    opacity: 0.55;
+  }
+
+  100% {
+    transform: scale(1.9);
+    border-width: 1px;
+    opacity: 0;
+  }
+}
+
+/* Spending falls, gathering rises. The direction is the whole message. */
+@mixin delta-fall-frames {
+  0% {
+    transform: translate(-50%, -0.4rem);
+    opacity: 0;
+  }
+
+  18% {
+    transform: translate(-50%, 0.1rem);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, 1.5rem);
+    opacity: 0;
+  }
+}
+
+@mixin loss-rise-frames {
+  0% {
+    transform: translate(-50%, 0.4rem);
+    opacity: 0;
+  }
+
+  18% {
+    transform: translate(-50%, -0.1rem);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -1.5rem);
+    opacity: 0;
+  }
+}
+
+/* A stone gathered. Swells and settles — no buckle, because nothing was taken. */
+@mixin figure-gain-frames {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: scale(1.22);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* The ring closes inward rather than leaving: something arrived. */
+@mixin figure-gather-frames {
+  0% {
+    transform: scale(2);
+    border-width: 1px;
+    opacity: 0;
+  }
+
+  35% {
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(0.6);
+    border-width: 3px;
+    opacity: 0;
+  }
+}
+
+@keyframes path-stones-figure-punch-a {
+  @include figure-punch-frames;
+}
+
+@keyframes path-stones-figure-punch-b {
+  @include figure-punch-frames;
+}
+
+@keyframes path-stones-figure-shock-a {
+  @include figure-shock-frames;
+}
+
+@keyframes path-stones-figure-shock-b {
+  @include figure-shock-frames;
+}
+
+@keyframes path-stones-delta-fall-a {
+  @include delta-fall-frames;
+}
+
+@keyframes path-stones-delta-fall-b {
+  @include delta-fall-frames;
+}
+
+@keyframes path-stones-loss-rise-a {
+  @include loss-rise-frames;
+}
+
+@keyframes path-stones-loss-rise-b {
+  @include loss-rise-frames;
+}
+
+@keyframes path-stones-figure-gain-a {
+  @include figure-gain-frames;
+}
+
+@keyframes path-stones-figure-gain-b {
+  @include figure-gain-frames;
+}
+
+@keyframes path-stones-figure-gather-a {
+  @include figure-gather-frames;
+}
+
+@keyframes path-stones-figure-gather-b {
+  @include figure-gather-frames;
+}
+
+/* Not a fade. A stone that dims where it sits reads as a setting being switched off; one
+   that tips out of its socket and drops reads as a stone leaving your hand. */
+@keyframes path-stones-pip-fall {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  30% {
+    transform: translate(1px, -5px) scale(0.95);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(4px, 11px) scale(0.7);
+    opacity: 0;
   }
 }
 
 .zazen-world__map-wrapper {
   position: relative;
-  margin: 1.25rem auto;
+  margin: 0.5rem auto 1.25rem;
   max-width: 100%;
-  touch-action: none;
-  opacity: 0;
-  animation: zazen-map-fade-in 1s var(--zen-ease-elegant) 0.4s forwards;
+
+  /* Scale never drops below 1, so a viewport too narrow for the garden pans rather
+     than shrinking it — a fractional scale would resample every sprite. */
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+
+  /* Both axes, not just the one this box scrolls on. The board is most of the screen on a
+     phone, and pan-x alone meant a finger that landed on it could only slide the garden:
+     an upward swipe was swallowed and the page underneath refused to move. The browser
+     still picks the axis from the first few pixels of the gesture, so a horizontal drag
+     pans the garden exactly as before and a vertical one scrolls the page. */
+  touch-action: pan-x pan-y;
 
   @media (width <= 768px) {
-    order: 2;
     margin: 0.5rem auto;
   }
 }
@@ -92,17 +601,352 @@
   position: absolute;
   top: 0;
   left: 0;
+
+  /* The last of the grade, applied to the whole board at once. The palette is seventeen
+     deliberately quiet values, and quiet is not the same as washed out — HD-2D pushes its
+     contrast hard and that is why its pixel art reads as lit rather than as faded. */
+  filter: contrast(1.12) saturate(1.22) brightness(0.985);
 }
 
-@keyframes zazen-map-fade-in {
-  from {
+/* The garden's silhouette is one diamond, exactly twice as wide as it is tall, sitting
+   below the headroom the decor needs. Blurred and dropped, it is what lifts the board off
+   the page — the single largest step towards reading as a diorama rather than a texture. */
+.zazen-world__cast {
+  position: absolute;
+  top: var(--board-top, 32px);
+  left: 0;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  background: oklch(32% 0.03 60deg);
+  opacity: 0.34;
+  filter: blur(18px);
+
+  /* Dropped far enough to clear the board's own skirt, or it hides entirely behind the
+     silhouette it is cast from and only the blur spills out. */
+  transform: translateY(38px) scale(0.99);
+  pointer-events: none;
+}
+
+/* Ambient light, and one cloud crossing it. Clipped to the same diamond so neither can
+   leak past the garden's edge as a rectangle on the page. The cloud is the slowest thing
+   on the board by an order of magnitude, which is what makes the sway read as deliberate
+   rather than as everything jittering at once. */
+.zazen-world__weather {
+  position: absolute;
+  top: var(--board-top, 32px);
+  left: 0;
+  z-index: 3;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+
+  /* The cloud travels well past this box. clip-path hides it, but it still counts as
+     scrollable overflow in the panning wrapper — which put a scrollbar on both axes of a
+     board that fits exactly. Hidden overflow keeps the travel from escaping the layout. */
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 40% 46% at 26% 18%,
+      oklch(96% 0.03 85deg / 26%) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 60% 60% at 78% 88%,
+      oklch(38% 0.03 60deg / 15%) 0%,
+      transparent 72%
+    );
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 26% 34% at 50% 50%,
+      oklch(40% 0.02 60deg / 13%) 0%,
+      transparent 68%
+    );
+    animation: path-stones-cloud 41s linear infinite;
+  }
+}
+
+/* Birds. Two strokes and a flap is all a bird is at this size, and more would read as a
+   moth. They cross the far side of the garden along the same diagonal the tiles run on,
+   so they belong to the world's perspective rather than to the screen's. */
+.zazen-world__sky {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+
+  /* Their flight path leaves the board, and without this it counts as scrollable overflow
+     in the panning wrapper. */
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.zazen-world__bird {
+  position: absolute;
+  top: 96px;
+  left: -70px;
+  width: 11px;
+  height: 6px;
+  opacity: 0;
+  animation: path-stones-bird 34s linear infinite;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 6px;
+    height: 5px;
+    border-top: 2px solid color-mix(in oklch, var(--heading-color) 78%, transparent);
+    border-radius: 70% 70% 0 0;
+    animation: path-stones-flap 380ms ease-in-out infinite;
+  }
+
+  &::before {
+    left: 0;
+  }
+
+  &::after {
+    right: 0;
+    transform: scaleX(-1);
+  }
+
+  /* Smaller, higher, slower: a second bird at the same size and speed reads as a copy. */
+  &--far {
+    top: 58px;
+    scale: 0.74;
     opacity: 0;
-    transform: translateY(14px);
+    animation-duration: 47s;
+    animation-delay: -19s;
+  }
+
+  &--late {
+    top: 132px;
+    animation-duration: 41s;
+    animation-delay: -31s;
+  }
+}
+
+@keyframes path-stones-flap {
+  0%,
+  100% {
+    transform: rotate(-12deg);
+  }
+
+  50% {
+    transform: rotate(10deg);
+  }
+}
+
+.zazen-world__bird--far::after,
+.zazen-world__bird--late::after {
+  transform: scaleX(-1);
+}
+
+/* Rarity was the intent, but three birds on long co-prime cycles meant the usual state of
+   the sky was no birds at all. Shorter cycles and a wider visible window, so at any moment
+   one is usually crossing — and the stroke is heavier, because a 1.5px line at half
+   opacity against pale sand is not a bird, it is a smudge nobody sees. */
+@keyframes path-stones-bird {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  4% {
+    opacity: 0.78;
+  }
+
+  46% {
+    opacity: 0.78;
+  }
+
+  54%,
+  100% {
+    opacity: 0;
+    transform: translate(940px, 178px);
+  }
+}
+
+/* HD-2D, as Square Enix build it: pixel sprites left exactly as drawn, and the richness
+   applied afterwards as light rather than as brushwork. Two layers do it — a grade that
+   deepens the shadows and warms the key, and bloom around anything that emits. The
+   sprites themselves are never touched; that is the whole discipline of the style.
+
+   There is deliberately no tilt-shift. Octopath can blur its background because it renders
+   at a resolution where two pixels are a fraction of a sprite; here two pixels are a
+   quarter of a tile's detail, and the depth of field ate the cat, the koi and the torii
+   before it suggested any depth at all. Blur does not survive this scale. */
+
+/* The grade. Warm where the light falls, cool and deep in the corners the light misses —
+   the contrast HD-2D lives on, and the reason its pixel art never looks washed out. */
+.zazen-world__grade {
+  position: absolute;
+  top: var(--board-top, 32px);
+  left: 0;
+  z-index: 7;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 44% 50% at 34% 24%,
+      oklch(94% 0.12 78deg / 88%) 0%,
+      transparent 66%
+    ),
+    radial-gradient(
+      ellipse 80% 80% at 64% 92%,
+      oklch(22% 0.08 265deg / 82%) 0%,
+      transparent 72%
+    ),
+    linear-gradient(
+      to bottom,
+      oklch(18% 0.07 265deg / 52%) 0%,
+      transparent 24%,
+      transparent 58%,
+      oklch(16% 0.07 265deg / 62%) 100%
+    );
+}
+
+/* Bloom. Only tiles that actually emit — a lit lantern, the woken shrine — and the glow
+   is drawn as a shadow on the sprite so it spreads from the sprite's own silhouette
+   rather than from its bounding box. */
+.zazen-world__tile-image[data-glow] {
+  .zazen-world__decor {
+    filter:
+      drop-shadow(0 0 3px oklch(86% 0.14 74deg / 85%))
+      drop-shadow(0 0 9px oklch(80% 0.16 62deg / 55%))
+      drop-shadow(0 -1px 16px oklch(76% 0.15 58deg / 32%));
+    animation: path-stones-bloom 3.6s var(--zen-ease-in-out, ease-in-out) infinite;
+  }
+
+  &.zazen-world__tile-image--shrine-active {
+    filter: drop-shadow(0 0 12px oklch(72% 0.16 18deg / 45%));
+  }
+}
+
+/* The pond's two residents, animated off their own sprite source rather than a class —
+   they are placed by the terrain generator as decor, and the generator has no idea it is
+   placing anything alive.
+
+   Both move in whole pixels and snap between them. That was a rumble on the trees, which
+   are rooted and should be still; on a fish and a frog the same jitter is the point. */
+.zazen-world__decor[src*="koi"] {
+  animation: path-stones-swim 11s steps(1, end) infinite;
+}
+
+@keyframes path-stones-swim {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  20% {
+    transform: translate(2px, -1px);
+  }
+
+  40% {
+    transform: translate(4px, 0);
+  }
+
+  60% {
+    transform: translate(3px, 1px);
+  }
+
+  80% {
+    transform: translate(1px, 0);
+  }
+}
+
+/* He sits still for six of every seven seconds, and that is what makes the hop land. */
+.zazen-world__decor[src*="frog"] {
+  animation: path-stones-hop 7.4s steps(1, end) infinite;
+}
+
+@keyframes path-stones-hop {
+  0%,
+  84%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  86% {
+    transform: translate(1px, -3px);
+  }
+
+  89% {
+    transform: translate(2px, -4px);
+  }
+
+  92% {
+    transform: translate(3px, -2px);
+  }
+
+  95% {
+    transform: translate(3px, 0);
+  }
+}
+
+@keyframes path-stones-bloom {
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Dust hanging in the light. Each mote gets its own lane, height and pace off its index,
+   so eight elements never look like eight copies of one. */
+.zazen-world__mote {
+  position: absolute;
+  bottom: 22%;
+  left: calc(8% + var(--mote) * 11%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: oklch(92% 0.07 80deg);
+  box-shadow: 0 0 5px oklch(88% 0.11 72deg / 80%);
+  opacity: 0;
+  animation: path-stones-mote calc(17s + var(--mote) * 3s) linear infinite;
+  animation-delay: calc(var(--mote) * -4.3s);
+}
+
+@keyframes path-stones-mote {
+  0% {
+    opacity: 0;
+    transform: translate(0, 30px) scale(0.6);
+  }
+
+  18% {
+    opacity: 0.75;
+  }
+
+  76% {
+    opacity: 0.55;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(26px, -120px) scale(1);
+  }
+}
+
+@keyframes path-stones-cloud {
+  from {
+    transform: translate(-70%, -24%);
   }
 
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: translate(70%, 24%);
   }
 }
 
@@ -136,8 +980,18 @@
   opacity: 0;
   animation: zazen-compass-fade-in 0.8s var(--zen-ease-elegant) 0.2s forwards;
 
+  /* A HUD control pinned to the viewport, not a block stacked above the board. It used
+     to push the garden a compass-height further below the fold, which on a laptop meant
+     scrolling before you could see what you were playing. */
+  @media (width >= 1101px) {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    z-index: 4;
+    margin: 0;
+  }
+
   @media (width <= 768px) {
-    order: 3;
     margin: 0.5rem 0 0.25rem;
   }
 
@@ -205,9 +1059,11 @@
       font-size: 9px;
     }
 
+    /* Still the smallest the ring can hold four of, but no smaller than a fingertip:
+       44px is where a target stops being a thing you aim at. */
     @media (width <= 380px) {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       font-size: 8px;
     }
 
@@ -238,59 +1094,64 @@
         0 1px 3px oklch(0% 0 0deg / 14%);
     }
 
-    &--north {
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-
-      &:hover {
-        transform: translateX(-50%) translateY(-2px);
-      }
-
-      &:active {
-        transform: translateX(-50%) scale(0.97);
-      }
+    /* Every tile step is diagonal on screen: one tile "north" moves the pilgrim up AND
+       left. Drawing the buttons on the up/down/left/right axes promised axis-aligned
+       movement and delivered diagonal, which read as inverted controls. The compass now
+       sits on the same diagonals the pilgrim actually walks, and each arrow points where
+       its key will send him. */
+    svg {
+      transform: rotate(-45deg);
     }
 
-    &--west {
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
+    &--north {
+      top: 4px;
+      left: 4px;
 
       &:hover {
-        transform: translate(-2px, -50%);
+        transform: translate(-2px, -2px);
       }
 
       &:active {
-        transform: translateY(-50%) scale(0.97);
+        transform: scale(0.97);
       }
     }
 
     &--east {
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
+      top: 4px;
+      right: 4px;
 
       &:hover {
-        transform: translate(2px, -50%);
+        transform: translate(2px, -2px);
       }
 
       &:active {
-        transform: translateY(-50%) scale(0.97);
+        transform: scale(0.97);
+      }
+    }
+
+    &--west {
+      bottom: 4px;
+      left: 4px;
+
+      &:hover {
+        transform: translate(-2px, 2px);
+      }
+
+      &:active {
+        transform: scale(0.97);
       }
     }
 
     &--south {
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      right: 4px;
+      bottom: 4px;
 
       &:hover {
-        transform: translateX(-50%) translateY(2px);
+        transform: translate(2px, 2px);
       }
 
       &:active {
-        transform: translateX(-50%) scale(0.97);
+        transform: scale(0.97);
       }
     }
   }
@@ -299,17 +1160,25 @@
 .zazen-world__tile {
   position: absolute;
 
+  /* Each tile drops into place on its own day's beat. `both` holds it invisible until its
+     turn, so the wave reads as the garden being laid down rather than as a hundred tiles
+     fading up together. */
+  animation: path-stones-tile-grow 380ms var(--zen-ease-elegant) var(--grow-delay, 0ms) both;
+
   &--step {
     cursor: pointer;
 
+    /* Inscribed inside the tile's own diamond. At 48x24 the ring reached well past the
+       diamond's edges, and everything outside a tile's diamond belongs to the neighbours
+       drawn after it — so the marker was painted over on two sides and came out cropped. */
     &::after {
       content: "";
       position: absolute;
-      left: 8px;
-      top: 44px;
-      width: 48px;
-      height: 24px;
-      border: 1px dashed color-mix(in oklch, var(--primary-color) 42%, transparent);
+      left: 15px;
+      top: 8px;
+      width: 34px;
+      height: 17px;
+      border: 1px dashed color-mix(in oklch, var(--primary-color) 38%, transparent);
       border-radius: 50%;
       opacity: 0;
       transform: translateY(2px);
@@ -343,16 +1212,86 @@
   top: 0;
   left: 0;
   width: 64px;
-  height: 90px;
-  text-align: center;
-  background-position: bottom;
+  height: 64px;
+
+  /* The diamond's top face occupies rows 0-31 of the sprite, so its centre sits at
+     (32, 16) and its front vertex at (32, 32). Decor and the pilgrim anchor to that. */
+  background-position: 0 0;
   background-repeat: no-repeat;
+  image-rendering: pixelated;
+
+  /* Stated, not inherited from the file. The clay tiles are baked at 128px and drawn at
+     64: without this they render at their intrinsic size and you see the top-left quarter
+     of every tile. */
+  background-size: 64px 64px;
+
+  /* Applies to the tile's decor and shadows too, so everything standing on a tile is lit
+     by the same light the ground is. */
+  filter: brightness(var(--depth-light, 1));
   transition:
     filter 600ms var(--zen-ease-elegant),
     opacity 600ms var(--zen-ease-elegant);
 
   img {
-    filter: drop-shadow(1px 1px 2px oklch(0% 0 0deg / 30%));
+    image-rendering: pixelated;
+
+    /* A hard one-pixel shadow, never a blurred one: a blur radius resamples the sprite
+       edge and undoes the whole point of authoring on a pixel grid. */
+    filter: drop-shadow(1px 1px 0 oklch(0% 0 0deg / 22%));
+  }
+
+  /* The contact shadow. An ellipse squashed to the ground plane's 2:1 isometric ratio,
+     sat under where the sprite's feet actually land. It is what tells the eye the tree is
+     ON the tile rather than floating over it — the sprite's own 1px offset shadow
+     describes the object's edge, not its footing.
+
+     It sits at row 20, not at the diamond's front vertex. The vertex is a point: a tile
+     there is only a few pixels wide, so an ellipse drawn at it hangs outside the diamond
+     on both sides. Inside the board the neighbours drawn afterwards cover the overhang and
+     nobody sees it — but along the outer edge there is no neighbour, and the shadow ran
+     off the board onto the page as a hard-edged grey slab. Twenty is where the sprite's
+     base actually is, and there the diamond is still wide enough to hold it. */
+  &[data-standing]::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 32px;
+    width: 20px;
+    height: 9px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at center,
+      oklch(0% 0 0deg / 26%) 0%,
+      oklch(0% 0 0deg / 14%) 55%,
+      transparent 78%
+    );
+    pointer-events: none;
+  }
+
+  /* Karesansui. Sand in a dry garden is raked into rings around each placed stone, and
+     without them the board was a flat cream plane with objects sitting on it. Drawn as an
+     ellipse at the ground plane's 2:1 ratio, so in world space the rings are circular, and
+     faded out at the rim so they dissolve into the sand instead of ending on a hard edge.
+     A gradient rather than sprites: the rings span three tiles and no per-tile sprite can
+     hold a shape wider than its own diamond. */
+  &--stone::before {
+    content: "";
+    position: absolute;
+    top: 16px;
+    left: 32px;
+    width: 208px;
+    height: 104px;
+    transform: translate(-50%, -50%);
+    background: repeating-radial-gradient(
+      ellipse at center,
+      transparent 0,
+      transparent 9px,
+      color-mix(in oklch, var(--heading-color) 13%, transparent) 9px,
+      color-mix(in oklch, var(--heading-color) 13%, transparent) 11px
+    );
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 72%);
+    pointer-events: none;
   }
 
   &--stone {
@@ -404,8 +1343,1230 @@
   }
 }
 
+/* A stone landing. The sprite may only ever move by whole pixels — a fractional
+   translate resamples it and the pixel grid is gone — so the drop is four integer steps
+   with a one-pixel overshoot, and the softness lives entirely in the dust around it,
+   which is CSS shapes rather than pixel art and may scale freely. */
+.zazen-world__tile-image--laid {
+  animation: path-stones-stone-land 300ms steps(1, end) both;
+}
+
+@keyframes path-stones-stone-land {
+  0% {
+    transform: translateY(-7px);
+  }
+
+  35% {
+    transform: translateY(-3px);
+  }
+
+  60% {
+    transform: translateY(1px);
+  }
+
+  80% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.zazen-world__laid {
+  position: absolute;
+  left: 32px;
+  top: 16px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* The dust wave, drawn at the ground plane's 2:1 ratio so it spreads across the tile in
+   world space rather than ballooning off it. */
+.zazen-world__laid-ring {
+  position: absolute;
+  left: -26px;
+  top: -13px;
+  width: 52px;
+  height: 26px;
+  border: 2px solid color-mix(in oklch, var(--heading-color) 30%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: path-stones-laid-ring 520ms var(--zen-ease-elegant) 60ms both;
+}
+
+/* Sand thrown out of the broken raking. Two pixels square and unblurred, so they read as
+   grains rather than as a glow. */
+.zazen-world__laid-grain {
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  width: 2px;
+  height: 2px;
+  background: color-mix(in oklch, var(--heading-color) 45%, transparent);
+  opacity: 0;
+  animation: path-stones-laid-grain 560ms var(--zen-ease-elegant) 40ms both;
+}
+
+@keyframes path-stones-laid-ring {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.75;
+  }
+
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes path-stones-laid-grain {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+
+  12% {
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: translate(var(--grain-x, 0), var(--grain-y, 0));
+    opacity: 0;
+  }
+}
+
+/* Gathering one. The opposite gesture to laying: rings that leave rather than a stone
+   that arrives, and sparks that rise off the tile rather than grains thrown flat across
+   it. Two rings a beat apart, because one ring is an event and two is a celebration. */
+.zazen-world__gather {
+  position: absolute;
+  left: 32px;
+  top: 14px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.zazen-world__gather-ring {
+  position: absolute;
+  left: -24px;
+  top: -12px;
+  width: 48px;
+  height: 24px;
+  border: 2px solid var(--stone-gain);
+  border-radius: 50%;
+  opacity: 0;
+  animation: path-stones-gather-ring 760ms var(--zen-ease-elegant) both;
+
+  &--late {
+    animation-delay: 150ms;
+    border-color: color-mix(in oklch, var(--primary-color) 55%, transparent);
+  }
+}
+
+.zazen-world__gather-spark {
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  width: 2px;
+  height: 2px;
+  background: var(--stone-gain);
+  opacity: 0;
+  animation: path-stones-gather-spark 820ms var(--zen-ease-elegant) both;
+}
+
+@keyframes path-stones-gather-ring {
+  0% {
+    transform: scale(0.15);
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Up and out, then gone. Grains fall when a stone lands; sparks rise when one is won. */
+@keyframes path-stones-gather-spark {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--grain-x, 0), var(--grain-y, -12px));
+    opacity: 0;
+  }
+}
+
+/* Smoke, and something standing up out of it. Warmer and slower than either the landing
+   or the gathering, because this is the only thing on the board that is not a rule. */
+.zazen-world__spell {
+  position: absolute;
+  left: 32px;
+  top: 12px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* The flash. One frame of light on the tile before anything else happens, so the eye is
+   already looking at the right place when the smoke arrives. */
+.zazen-world__spell-flash {
+  position: absolute;
+  left: -32px;
+  top: -16px;
+  width: 64px;
+  height: 32px;
+  background: color-mix(in oklch, var(--primary-bg-color) 96%, white);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  opacity: 0;
+  animation: path-stones-spell-flash 420ms var(--zen-ease-out) both;
+}
+
+/* Two rings leaving the tile along the ground plane, a beat apart. */
+.zazen-world__spell-ring {
+  position: absolute;
+  left: -26px;
+  top: -13px;
+  width: 52px;
+  height: 26px;
+  border: 2px solid color-mix(in oklch, var(--primary-color) 60%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: path-stones-spell-ring 900ms var(--zen-ease-elegant) both;
+
+  &--late {
+    animation-delay: 260ms;
+    border-color: var(--stone-gain);
+  }
+}
+
+/* The column. She comes up out of it, so it has to arrive before she does and be gone by
+   the time she has. */
+.zazen-world__spell-column {
+  position: absolute;
+  left: -7px;
+  bottom: -6px;
+  width: 14px;
+  height: 44px;
+  background: linear-gradient(
+    to top,
+    color-mix(in oklch, var(--primary-bg-color) 90%, white) 0%,
+    color-mix(in oklch, var(--stone-gain) 40%, transparent) 55%,
+    transparent 100%
+  );
+  opacity: 0;
+  animation: path-stones-spell-column 1.1s var(--zen-ease-elegant) 80ms both;
+}
+
+@keyframes path-stones-spell-flash {
+  0% {
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 0.85;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes path-stones-spell-ring {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@keyframes path-stones-spell-column {
+  0% {
+    transform: scaleY(0.2);
+    transform-origin: bottom;
+    opacity: 0;
+  }
+
+  35% {
+    transform: scaleY(1);
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: scaleY(1.1);
+    opacity: 0;
+  }
+}
+
+/* The woman who was a frog, on the layer where things that walk live. She rises into
+   place in whole pixels once the light has gone, then keeps up. */
+.zazen-world__companion {
+  position: absolute;
+  z-index: 2;
+  width: 24px;
+  height: 40px;
+  pointer-events: none;
+  transition:
+    left 460ms linear,
+    top 460ms linear;
+  animation: path-stones-npc-arrive 900ms steps(4, end) 380ms both;
+}
+
+.zazen-world__companion-sprite {
+  display: block;
+  width: 24px;
+  height: 40px;
+  image-rendering: pixelated;
+
+  /* The same hard one-pixel shadow every sprite on this board carries. A blur radius here
+     would resample the edge and undo the pixel grid. */
+  filter: drop-shadow(1px 1px 0 oklch(0% 0 0deg / 22%));
+}
+
+/* One frame, so the step is carried by the lean rather than by a walk cycle. */
+.zazen-world__companion--walking .zazen-world__companion-sprite {
+  animation: path-stones-companion-step 460ms var(--zen-ease-in-out, ease-in-out);
+}
+
+@keyframes path-stones-companion-step {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -1px;
+  }
+}
+
+@keyframes path-stones-npc-arrive {
+  0% {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+
+  40% {
+    transform: translateY(4px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.zazen-world__spell-smoke {
+  position: absolute;
+  left: -20px;
+  top: -14px;
+  width: 40px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in oklch, var(--primary-bg-color) 88%, white) 0%,
+    color-mix(in oklch, var(--primary-color) 30%, transparent) 55%,
+    transparent 78%
+  );
+  opacity: 0;
+  animation: path-stones-spell-smoke 1.3s var(--zen-ease-elegant) both;
+
+  &--wide {
+    animation-delay: 220ms;
+  }
+}
+
+.zazen-world__spell-mote {
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  width: 2px;
+  height: 2px;
+  background: color-mix(in oklch, var(--primary-color) 70%, white);
+  opacity: 0;
+  animation: path-stones-spell-mote 1.6s var(--zen-ease-elegant) var(--spark-delay, 120ms) both;
+}
+
+@keyframes path-stones-spell-smoke {
+  0% {
+    transform: scale(0.2) translateY(6px);
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 0.95;
+  }
+
+  100% {
+    transform: scale(1.5) translateY(-10px);
+    opacity: 0;
+  }
+}
+
+@keyframes path-stones-spell-mote {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--grain-x, 0), var(--grain-y, -16px));
+    opacity: 0;
+  }
+}
+
+/* The clickable diamond. Clipped to the tile's top face, so a click lands on the tile
+   you are actually pointing at rather than on whichever 64x64 box happens to overlap. */
+.zazen-world__hit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 64px;
+  height: 32px;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+/* Anywhere a route can end. The pointer used to appear only on the four tiles beside you,
+   which quietly said that the rest of the garden was scenery. */
+.zazen-world__tile--walkable .zazen-world__hit,
+.zazen-world__tile--payable .zazen-world__hit {
+  cursor: pointer;
+}
+
+/* Sand under the cursor: the outline of the stone you would be laying. Free ground gets
+   the dashed ring; this gets the shape of the thing it would cost you. */
+.zazen-world__tile--payable {
+  &:hover .zazen-world__tile-image::before,
+  &:focus-visible .zazen-world__tile-image::before {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: 6px;
+    width: 24px;
+    height: 20px;
+    background: color-mix(in oklch, var(--primary-color) 30%, transparent);
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    pointer-events: none;
+    z-index: 3;
+  }
+}
+
+
+/* Sprites are decoration; only the hit diamond takes pointer events, or a tall pine
+   would swallow clicks meant for the tiles behind it. */
+.zazen-world__tile-image,
+.zazen-world__decor,
+.zazen-world__npc {
+  pointer-events: none;
+}
+
+/* The route a click would take, previewed on hover. */
+
+/* The route a click would take. It has to be legible without becoming the loudest thing
+   on the board — a lit white tile with a solid rose lozenge on it read as the destination
+   rather than as the way there, and eight of them in a row read as a road under
+   construction. A whisper of brightness and a small hollow mark is enough: you are only
+   confirming a direction you already had in mind. */
+.zazen-world__tile--preview .zazen-world__tile-image {
+  filter: brightness(1.02);
+}
+
+.zazen-world__tile--preview::after {
+  content: "";
+  position: absolute;
+  left: 29px;
+  top: 14px;
+  width: 6px;
+  height: 4px;
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--primary-color) 20%, transparent);
+  pointer-events: none;
+}
+
+/* A step on this route that is still sand: one stone, spent here. The route used to be a
+   single uniform trail, which was fine while every step was free — now that some of them
+   cost, showing where the money goes before the click is the difference between a choice
+   and a surprise. Drawn as the outline of the stone that would fill it. */
+.zazen-world__tile--preview-pave::after {
+  left: 22px;
+  top: 8px;
+  width: 20px;
+  height: 16px;
+  border-radius: 0;
+  background: color-mix(in oklch, var(--primary-color) 26%, transparent);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  animation: path-stones-preview-pave 1.4s var(--zen-ease-in-out, ease-in-out) infinite;
+}
+
+@keyframes path-stones-preview-pave {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* The tile the inspect cursor is reading. This was a bordered rectangle clipped to a
+   diamond, which does not produce a diamond outline — it leaves only the fragments where
+   the rectangle's edges cross the clip, and those fragments were the stray triangles at
+   the corners. A filled wash needs no outline and cannot fragment. */
+.zazen-world__tile--inspected::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 64px;
+  height: 32px;
+  background: color-mix(in oklch, var(--primary-color) 17%, transparent);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.zazen-world__map:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 4px;
+}
+
+/* The price of the route under the cursor, or the reason the last click went nowhere. It
+   holds a non-breaking space when it has nothing to say, so the header never reflows by a
+   line as the mouse crosses the board. */
+.path-stones__quote {
+  min-height: 1.2rem;
+  margin: 0.5rem 0 0;
+  font-family: Georgia, serif;
+  font-size: 0.78rem;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: color-mix(in oklch, var(--heading-color) 58%, transparent);
+  transition: color 220ms var(--zen-ease-out);
+
+  &--denied {
+    color: var(--primary-color);
+  }
+}
+
+/* A route you cannot pay for. Shown rather than withheld — the player is owed the price
+   before the refusal, and a route that simply fails to appear reads as a broken board. */
+.zazen-world__tile--preview-denied::after {
+  background: color-mix(in oklch, var(--primary-color) 34%, transparent);
+  animation: none;
+  opacity: 0.5;
+}
+
+/* The rules. This was a five-line paragraph above the board and a flat list of swatches
+   below it — the same information twice, once as prose nobody reads before playing. Three
+   cards instead: what the ground is, what it costs, and what you are here for. The price
+   is right-aligned in its own column so the three of them read down as a column of costs,
+   which is the comparison that actually matters. */
+.path-stones__rules {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: min(100%, 720px);
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: Georgia, serif;
+
+  @media (width <= 720px) {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+    margin: 0.6rem 0 0;
+  }
+}
+
+.path-stones__rule {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+  border-radius: var(--radius-md, 8px);
+  background: color-mix(in oklch, var(--heading-color) 4%, transparent);
+
+  /* One card carries the cost, so one card gets the emphasis. The other two are quiet
+     ground for it — three outlined boxes of equal weight would be a table, and a table
+     is the thing this replaced. */
+  &--cost {
+    background: color-mix(in oklch, var(--primary-color) 9%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--primary-color) 16%, transparent);
+  }
+}
+
+.path-stones__rule-swatches {
+  display: flex;
+  flex: none;
+  gap: 2px;
+}
+
+.path-stones__rule-swatch {
+  display: block;
+  width: 20px;
+  height: 11px;
+  background-position: -22px -10px;
+  background-repeat: no-repeat;
+  background-size: 64px 64px;
+  image-rendering: pixelated;
+  border-radius: 1px;
+
+  /* Sand is nearly the colour of the page it sits on. Without an edge the chip reads as a
+     gap in the card rather than as a sample of the ground. */
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--heading-color) 14%, transparent);
+
+  &--stone {
+    width: 13px;
+    height: 13px;
+    background: var(--primary-color);
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  }
+}
+
+.path-stones__rule-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+
+  b {
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: color-mix(in oklch, var(--heading-color) 88%, transparent);
+  }
+}
+
+.path-stones__rule-gloss {
+  font-size: 0.7rem;
+  font-style: italic;
+  color: color-mix(in oklch, var(--heading-color) 52%, transparent);
+}
+
+.path-stones__rule-cost {
+  flex: none;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: color-mix(in oklch, var(--heading-color) 55%, transparent);
+
+  .path-stones__rule--cost & {
+    color: var(--primary-color);
+  }
+}
+
+.path-stones__source {
+  max-width: 46ch;
+  margin: 0.55rem auto 0;
+  font-family: Georgia, serif;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: color-mix(in oklch, var(--heading-color) 66%, transparent);
+}
+
+/* The contribution chart, in the site's own ramp rather than GitHub's green. It is a
+   control, not an illustration: each square walks the pilgrim to that day. */
+.path-stones__heat {
+  /* The calendar is a fixed grid of whole pixels, so the card is sized from it rather
+     than from the page. A 780px box around a 240px grid left the key stranded half a
+     card away from the squares it explains. */
+  --heat-cell: 22px;
+  --heat-gap: 5px;
+  --heat-pad: 1.15rem;
+
+  /* How many squares stand on one line. The whole window, until the window stops fitting
+     on the screen — see the wrap below. */
+  --heat-row: var(--heat-columns);
+  --heat-row-gap: var(--heat-gap);
+  --heat-width: calc(
+    var(--heat-row) * var(--heat-cell) + (var(--heat-row) - 1) * var(--heat-gap)
+  );
+
+  /* Width comes from the calendar alone. Sizing to content instead let the header — whose
+     readout changes length on every hover — drive the box, and the card twitched as the
+     pointer crossed the grid. */
+  width: min(100%, calc(var(--heat-width) + var(--heat-pad) * 2 + 14px));
+  margin: 2.5rem auto 0;
+  padding: 0.9rem var(--heat-pad) 0.85rem;
+  border: 1px solid color-mix(in oklch, var(--primary-color) 14%, transparent);
+  border-radius: 10px;
+  background: var(--surface-overlay);
+  font-family: Georgia, serif;
+
+  @media (pointer: coarse) {
+    --heat-cell: 26px;
+    --heat-gap: 6px;
+  }
+
+  /* Fourteen thumb-sized squares are 442px of grid, which no phone has to spare. The card
+     stopped at the edge of the screen and the grid did not: the last five days hung off
+     the side, unreadable and out of reach of the tap that walks you to them. A fortnight
+     is two weeks, so below the width where one line stops fitting it becomes two — the
+     squares keep their size, and the weekday initial under each one still says which day
+     is which. */
+  @media (width <= 600px) {
+    --heat-row: 7;
+
+    /* A second line needs more air than the columns do: at the column gap, the weekday
+       initials of the first week sit right on top of the squares of the second and the
+       two weeks read as one crowded block. */
+    --heat-row-gap: 0.6rem;
+  }
+}
+
+/* Label above, live value below. Side by side, the longest readout does not fit next to
+   the title at the calendar's width, and truncating the date is worse than a second line. */
+.path-stones__heat-head {
+  margin: 0 0 0.65rem;
+}
+
+.path-stones__heat-title {
+  margin: 0 0 0.2rem;
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--primary-color) 70%, var(--heading-color));
+}
+
+/* Reserves its line whether or not a day is focused, so nothing below it moves. */
+.path-stones__heat-readout {
+  min-height: 1em;
+  margin: 0;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: color-mix(in oklch, var(--heading-color) 62%, transparent);
+}
+
+/* A fortnight in a row, or in two rows of seven where a row will not fit. Bigger squares
+   than the hundred-day grid could afford, which also puts them within reach of a thumb. */
+.path-stones__heat-strip {
+  display: grid;
+  grid-template-columns: repeat(var(--heat-row), var(--heat-cell));
+  gap: var(--heat-row-gap) var(--heat-gap);
+  margin: 0;
+  padding: 4px 0 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.path-stones__heat-dow {
+  font-size: 0.56rem;
+  line-height: 1;
+  color: color-mix(in oklch, var(--heading-color) 42%, transparent);
+}
+
+.path-stones__heat-cell {
+  display: block;
+  width: var(--heat-cell);
+  height: var(--heat-cell);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  transition:
+    transform 160ms var(--zen-ease-elegant),
+    box-shadow 160ms var(--zen-ease-out);
+}
+
+/* The same four steps as the ground ramp: sand, sand with moss, moss, deep moss. */
+.path-stones__heat-cell--l0 {
+  background: color-mix(in oklch, var(--heading-color) 8%, var(--surface-card-solid));
+}
+
+.path-stones__heat-cell--l1 {
+  background: #cdd6c0;
+}
+
+.path-stones__heat-cell--l2 {
+  background: #a8b295;
+}
+
+.path-stones__heat-cell--l3 {
+  background: #6d7d5c;
+}
+
+/* The scale makes the cell its own stacking context, so without the z-index every square
+   later in the grid paints over the one you are pointing at. */
+button.path-stones__heat-cell:hover,
+button.path-stones__heat-cell:focus-visible {
+  z-index: 1;
+  transform: scale(1.35);
+  outline: none;
+  box-shadow: 0 2px 8px -2px color-mix(in oklch, var(--primary-color) 45%, transparent);
+}
+
+/* A day holding a stone, and the shrine on the newest day. Rose, as everywhere else. */
+.path-stones__heat-cell--stone {
+  border-color: var(--primary-color);
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--primary-color) 45%, transparent);
+}
+
+.path-stones__heat-cell--shrine {
+  border-color: color-mix(in oklch, var(--primary-color) 80%, transparent);
+  border-radius: 50%;
+}
+
+.path-stones__heat-cell--here {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 1px;
+}
+
+.path-stones__heat-cell--inspected {
+  transform: scale(1.35);
+}
+
+/* The card hugs the calendar, so its right content edge is the grid's right edge and the
+   key lands under the squares it explains rather than a card-width away from them. */
+.path-stones__heat-key {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  margin: 0.65rem 0 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: color-mix(in oklch, var(--heading-color) 48%, transparent);
+
+  .path-stones__heat-cell {
+    width: 12px;
+    height: 12px;
+    cursor: default;
+  }
+}
+
+/* The focused day. Sits opposite the haiku scroll so the two never fight. */
+.path-stones__day {
+  position: fixed;
+  top: 50%;
+  left: 2rem;
+  transform: translateY(-50%);
+  width: 220px;
+  max-width: calc(100vw - 2rem);
+  padding: 1rem 1.15rem;
+  border: 1px solid color-mix(in oklch, var(--primary-color) 16%, transparent);
+  border-radius: 8px;
+  background: var(--surface-overlay);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--home-card-shadow-soft);
+  font-family: Georgia, serif;
+  color: var(--heading-color);
+  transition: border-color var(--zen-duration-normal) var(--zen-ease-elegant);
+
+  @media (width <= 1100px) {
+    position: static;
+    transform: none;
+    width: min(100%, 320px);
+    margin: 0.75rem auto 0;
+  }
+}
+
+.path-stones__day--inspecting {
+  border-color: color-mix(in oklch, var(--primary-color) 45%, transparent);
+}
+
+.path-stones__day-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--primary-color) 70%, var(--heading-color));
+}
+
+.path-stones__day-date {
+  margin: 0;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+.path-stones__day-count {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  color: color-mix(in oklch, var(--heading-color) 72%, transparent);
+}
+
+.path-stones__day-lang {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  color: color-mix(in oklch, var(--heading-color) 58%, transparent);
+}
+
+.path-stones__day-ground {
+  margin: 0.55rem 0 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid color-mix(in oklch, var(--primary-color) 12%, transparent);
+  font-size: 0.78rem;
+  font-style: italic;
+  color: color-mix(in oklch, var(--heading-color) 55%, transparent);
+}
+
+.path-stones__day-index {
+  margin: 0.35rem 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: color-mix(in oklch, var(--heading-color) 42%, transparent);
+}
+
+/* Decor and NPCs stand at the diamond's front vertex, 32px down the 64px cell. */
+.zazen-world__decor,
+.zazen-world__npc {
+  position: absolute;
+  bottom: 32px;
+  image-rendering: pixelated;
+  filter: drop-shadow(1px 1px 0 oklch(0% 0 0deg / 20%));
+}
+
 .zazen-world__decor {
-  filter: drop-shadow(1px 1px 2px oklch(0% 0 0deg / 20%));
+  left: 16px;
+  width: 32px;
+  height: 64px;
+
+  /* No wind on the pixel art. A sprite authored on a grid cannot rotate without being
+     resampled at every angle, and the whole-pixel lean meant to stand in for that reads
+     as a rumble rather than a breeze — at this size a one-pixel step is a jolt, not a
+     sway. The clay art bends instead, because it may. */
+}
+
+
+
+.zazen-world__npc {
+  left: 20px;
+  width: 24px;
+  height: 40px;
+}
+
+/* The pilgrim is a sibling of the tile grid, not a child of a tile: a sprite cannot be
+   tweened between two DOM parents. */
+.zazen-world__pilgrim {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+
+  /* Plays once, on the outer box, so a step can never restart it. */
+  animation: path-stones-pilgrim-arrive 500ms var(--zen-ease-elegant) var(--grow-total, 1340ms) both;
+
+  /* His footing, on the same ground plane as the scenery's. The sprite's feet sit at
+     y = 37 of the 40px cell, so the ellipse straddles that line. */
+  &::after {
+    content: "";
+    position: absolute;
+    top: 34px;
+    left: 12px;
+    width: 17px;
+    height: 7px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at center,
+      oklch(0% 0 0deg / 24%) 0%,
+      oklch(0% 0 0deg / 12%) 55%,
+      transparent 78%
+    );
+  }
+}
+
+/* The cat. Two frames stepped continuously — he is never quite still even when he has
+   not moved, which is the difference between a cat and an ornament of a cat. The slide
+   between tiles is on left/top rather than a transform, because a transform would fight
+   the horizontal flip that gives him his facing. */
+.zazen-world__cat {
+  position: absolute;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  background-image: url("/images/zazen/persos/cat-walk.png");
+  background-repeat: no-repeat;
+  background-size: 48px 24px;
+  image-rendering: pixelated;
+  pointer-events: none;
+  transition:
+    left 460ms linear,
+    top 460ms linear;
+
+  /* The walk cycle is applied only while he is between tiles — see --walking. Sitting on
+     the frame he stopped on is what a cat at rest looks like. */
+  background-position: 0 0;
+
+  /* His footing. The contact shadow every prop gets comes from the tile it stands on, and
+     he stopped standing on a tile the moment he started walking between them — so he was
+     the one thing left on the board with nothing under him. Lower and wider than the
+     pilgrim's, because he is. */
+  &::after {
+    content: "";
+    position: absolute;
+    top: 19px;
+    left: 12px;
+    width: 19px;
+    height: 6px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at center,
+      oklch(0% 0 0deg / 24%) 0%,
+      oklch(0% 0 0deg / 12%) 55%,
+      transparent 78%
+    );
+  }
+}
+
+/* The greeting. A heart plotted pixel by pixel in box-shadows rather than drawn with a
+   border-radius, because a rounded rectangle at five pixels across is a blob — and the
+   one thing this board cannot have is a soft shape sitting next to hard ones. */
+.zazen-world__cat--walking {
+  animation: path-stones-cat-step 300ms steps(2) infinite;
+}
+
+.zazen-world__cat--greeting::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 9px;
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  box-shadow:
+    1px 0 var(--primary-color),
+    3px 0 var(--primary-color),
+    0 1px var(--primary-color),
+    1px 1px var(--primary-color),
+    2px 1px var(--primary-color),
+    3px 1px var(--primary-color),
+    4px 1px var(--primary-color),
+    0 2px var(--primary-color),
+    1px 2px var(--primary-color),
+    2px 2px var(--primary-color),
+    3px 2px var(--primary-color),
+    4px 2px var(--primary-color),
+    1px 3px var(--primary-color),
+    2px 3px var(--primary-color),
+    3px 3px var(--primary-color),
+    2px 4px var(--primary-color);
+  animation: path-stones-greet 2.6s var(--zen-ease-out, ease-out) infinite;
+}
+
+/* Whole pixels, and it rests for half the cycle: a heart bobbing without pause is a
+   notification badge, not a moment. */
+@keyframes path-stones-greet {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+
+  14% {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  46% {
+    opacity: 0.9;
+    transform: translateY(-3px);
+  }
+
+  62% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes path-stones-cat-step {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: -48px 0;
+  }
+}
+
+/* Floating in the middle of its tile rather than standing at the front vertex, which is
+   right for anything with feet and wrong for a fish. It moves UP, not down: decor is drawn
+   inside its own tile, so anything pushed below the front vertex disappears under the tile
+   drawn in front of it — which is what cropped the fish in half. */
+.zazen-world__decor[src*="koi"] {
+  bottom: 37px;
+}
+
+.zazen-world__pilgrim-sprite {
+  position: absolute;
+  inset: 0;
+  background-image: url("/images/zazen/persos/pilgrim.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+.zazen-world__pilgrim-sprite--idle {
+  animation: path-stones-idle-bob 2.4s var(--zen-ease-in-out, ease-in-out) infinite;
+}
+
+/* Driven by CSS, not by rAF. The tween hook's loop stops the moment a step lands, so
+   there is no always-on animation frame anywhere in the game. */
+@keyframes path-stones-tile-grow {
+  from {
+    opacity: 0;
+    transform: translateY(-7px) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes path-stones-pilgrim-arrive {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes path-stones-idle-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+/* Still water: one 64x256 strip, four frames, stepped so it never interpolates. */
+.zazen-world__tile-image[style*="water-still"] {
+  /* Eight frames stacked vertically, and the loop is exactly as long as the highlight
+     pattern repeats. A shorter loop over the same pattern jumps backwards partway
+     through, and that snap is what read as the pond blinking rather than flowing. */
+  background-size: 64px 512px;
+  animation: path-stones-water 3.2s steps(8) infinite;
+}
+
+@keyframes path-stones-water {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 0 -512px;
+  }
+}
+
+/* The reckoning. A results table would be the obvious thing and the wrong one — this is
+   the last thing you see in a garden, so it is set like the poem above it: no boxes, no
+   bars, hairlines only, and the total given quietly rather than shouted. */
+.path-stones__tally {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  gap: 0.9rem;
+  width: min(340px, 82vw);
+  margin: 0 auto 2.2rem;
+  font-family: Georgia, serif;
+
+  /* The finale is a deep rose ground, so the tally takes the poem's palette rather than
+     the page's. Reaching for --heading-color here put dark ink on dark rose and the whole
+     reckoning was invisible until you selected it. */
+  color: color-mix(in oklch, var(--primary-bg-color) 88%, white);
+}
+
+.path-stones__tally-rank {
+  margin: 0;
+  font-size: 1.15rem;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: color-mix(in oklch, var(--primary-bg-color) 98%, white);
+  text-shadow: 0 1px 2px oklch(0% 0 0deg / 40%);
+}
+
+.path-stones__tally-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0.9rem 0 0;
+  border-top: 1px solid color-mix(in oklch, var(--primary-bg-color) 34%, transparent);
+}
+
+.path-stones__tally-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+
+  dt {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.82rem;
+
+    span {
+      font-size: 0.72rem;
+      font-style: italic;
+      color: color-mix(in oklch, var(--primary-bg-color) 62%, transparent);
+    }
+  }
+
+  dd {
+    margin: 0;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.path-stones__tally-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding-top: 0.7rem;
+  border-top: 1px solid color-mix(in oklch, var(--primary-bg-color) 34%, transparent);
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+
+  b {
+    font-size: 1.7rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    color: color-mix(in oklch, var(--primary-bg-color) 99%, white);
+    text-shadow: 0 1px 3px oklch(0% 0 0deg / 45%);
+  }
 }
 
 /* Washi-paper HUD scroll */
@@ -469,20 +2630,23 @@
     bottom: 0.6rem;
   }
 
+  /* Once it is in the column rather than pinned to the flank, its width is the column's
+     to give. It used to be a share of the viewport, which knows nothing of the page's own
+     gutters — on a 360px screen that made the scroll 33px wider than the garden's
+     container and the right edge of the paper was clipped clean off. */
   @media (width <= 1024px) {
     position: relative;
     top: auto;
     right: auto;
     transform: none;
-    width: min(420px, 92vw);
+    width: min(420px, 100%);
     margin: 1rem auto 0;
   }
 
   @media (width <= 768px) {
-    order: 4;
     padding: 0.9rem 1rem;
     margin: 0.5rem auto 0;
-    width: min(360px, 94vw);
+    width: min(360px, 100%);
     max-height: 40dvh;
     overflow-y: auto;
   }
@@ -546,7 +2710,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+
+  /* Poem, then reckoning, then the way out — on a laptop in landscape that column is
+     taller than the viewport, and a plain `center` overflows in both directions, so the
+     total ends up underneath the Return link with no way to scroll to either. `safe`
+     falls back to flex-start once the content stops fitting, and the overlay scrolls. */
+  justify-content: safe center;
+  overflow-y: auto;
   padding: 2rem;
   backdrop-filter: blur(8px);
   background:
@@ -578,6 +2748,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  flex: none;
   max-width: 560px;
   margin: 0 0 2.5rem;
   text-align: center;
@@ -604,7 +2775,26 @@
   }
 }
 
+/* The two ways out, and they had none of this: no gap, so the pills overlapped, and no
+   difference between them, so the eye had to read both to find the one it wanted. Walking
+   again keeps you in the garden, so it takes the solid fill; Return stays a ghost. */
+.path-stones__finale-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+
+  @media (width <= 480px) {
+    flex-direction: column;
+    gap: 0.6rem;
+    width: min(280px, 82vw);
+  }
+}
+
 .path-stones__finale-return {
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -639,6 +2829,176 @@
     outline: 2px solid color-mix(in oklch, var(--primary-bg-color) 70%, transparent);
     outline-offset: 3px;
   }
+
+  /* A button, not a link, so the page's own control styles reach it — including a square
+     radius that fought the pill. Everything shape-bearing is restated here. */
+  &--primary {
+    appearance: none;
+    border-radius: 999px;
+    color: color-mix(in oklch, var(--heading-color) 88%, black);
+    background: color-mix(in oklch, var(--primary-bg-color) 92%, white);
+    border-color: transparent;
+    font-weight: 400;
+
+    &:hover,
+    &:focus-visible {
+      background: color-mix(in oklch, var(--primary-bg-color) 99%, white);
+      border-color: transparent;
+    }
+  }
+
+  @media (width <= 480px) {
+    width: 100%;
+    padding: 0.7rem 1.2rem;
+  }
+}
+
+/* The losing screen. Cool where the finale is warm and immediate where the finale is
+   slow: the one thing an ending you did not want must never do is make you sit through a
+   ceremony before it lets you try again. */
+.path-stones__defeat {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: safe center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 2rem 1.25rem;
+  backdrop-filter: blur(6px);
+  background: color-mix(in oklch, var(--heading-color) 82%, transparent);
+  animation: path-stones-finale-fade 420ms var(--zen-ease-elegant) both;
+}
+
+.path-stones__defeat-card {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  width: min(420px, 100%);
+  padding: 2rem 1.75rem;
+  text-align: center;
+  font-family: Georgia, serif;
+  color: color-mix(in oklch, var(--primary-bg-color) 92%, white);
+  border-radius: var(--radius-lg, 14px);
+  background: color-mix(in oklch, var(--heading-color) 62%, black);
+  box-shadow: 0 24px 60px oklch(0% 0 0deg / 45%);
+  animation: path-stones-defeat-rise 520ms var(--zen-ease-elegant) both;
+}
+
+/* A raked-sand diamond, empty. The garden's own mark for the thing you ran out of. */
+.path-stones__defeat-mark {
+  margin: 0;
+  font-size: 1.6rem;
+  line-height: 1;
+  opacity: 0.4;
+}
+
+.path-stones__defeat-title {
+  margin: 0;
+
+  /* Stated, not inherited. The site's heading face reaches any h2 on the page, and the
+     card came out in the sans display font while everything around it stayed serif. */
+  font-family: Georgia, serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: color-mix(in oklch, var(--primary-bg-color) 98%, white);
+}
+
+.path-stones__defeat-line {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: color-mix(in oklch, var(--primary-bg-color) 74%, transparent);
+}
+
+.path-stones__defeat-tally {
+  display: flex;
+  justify-content: center;
+  gap: 1.6rem;
+  width: 100%;
+  margin: 0.2rem 0 0.4rem;
+  padding: 0.9rem 0 0;
+  border-top: 1px solid color-mix(in oklch, var(--primary-bg-color) 22%, transparent);
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  dt {
+    order: 2;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: color-mix(in oklch, var(--primary-bg-color) 58%, transparent);
+  }
+
+  dd {
+    order: 1;
+    margin: 0;
+    font-size: 1.45rem;
+    font-variant-numeric: tabular-nums;
+    color: color-mix(in oklch, var(--primary-bg-color) 96%, white);
+  }
+}
+
+.path-stones__defeat-replay {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 46px;
+  padding: 0.7rem 2rem;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--heading-color) 88%, black);
+  background: color-mix(in oklch, var(--primary-bg-color) 92%, white);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 260ms var(--zen-ease-out),
+    transform 260ms var(--zen-ease-elegant);
+
+  &:hover,
+  &:focus-visible {
+    background: color-mix(in oklch, var(--primary-bg-color) 100%, white);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid color-mix(in oklch, var(--primary-bg-color) 70%, transparent);
+    outline-offset: 3px;
+  }
+}
+
+.path-stones__defeat-hint {
+  margin: 0;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: color-mix(in oklch, var(--primary-bg-color) 52%, transparent);
+}
+
+@keyframes path-stones-defeat-rise {
+  0% {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Screen reader only content */
@@ -661,13 +3021,64 @@
   .zazen-world__map-wrapper,
   .path-stones__scroll,
   .path-stones__finale,
-  .path-stones__finale-return {
+  .path-stones__finale-return,
+  .path-stones__defeat,
+  .path-stones__defeat-card,
+  .path-stones__gauge-figure b {
     animation: none !important;
     opacity: 1 !important;
   }
 
+  /* The pip still has to leave — a stone that stays in the row after you spend it is
+     wrong information, not merely a missing flourish — so its end state is stated flat
+     rather than animated to. */
+  .path-stones__pip--falling::after {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  .path-stones__gauge-delta,
+  .zazen-world__laid,
+  .zazen-world__gather,
+  .zazen-world__spell,
+  .zazen-world__tile--preview-pave::after,
+  .zazen-world__tile-image--laid {
+    animation: none !important;
+    opacity: 0 !important;
+    transform: none !important;
+  }
+
+  .zazen-world__tile-image--laid,
+  .zazen-world__tile--preview-pave::after {
+    opacity: 1 !important;
+  }
+
+  .zazen-world__weather::after,
+  .zazen-world__decor[src*="koi"],
+  .zazen-world__decor[src*="frog"],
+  .zazen-world__mote,
+  .zazen-world__tile-image[data-glow] .zazen-world__decor,
+  .zazen-world__bird,
+  .zazen-world__bird::before,
+  .zazen-world__bird::after,
+  .zazen-world__decor,
+  .zazen-world__cat,
+  .zazen-world__cat--greeting::before,
+  .zazen-world__companion,
+  .zazen-world__companion-sprite,
+  .zazen-world__tile,
+  .zazen-world__pilgrim,
+  .zazen-world__pilgrim-sprite {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
   .zazen-world__tile-image--stone .zazen-world__decor,
-  .zazen-world__tile-image--shrine-active {
+  .zazen-world__tile-image--shrine-active,
+  .zazen-world__pilgrim-sprite,
+  .zazen-world__pilgrim-sprite--idle,
+  .zazen-world__tile-image[style*="water-still"] {
     animation: none !important;
   }
 }
