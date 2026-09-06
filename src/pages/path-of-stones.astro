@@ -1,0 +1,18 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ZazenWorld from "../components/client/zazen-world";
+import { parseGardenSeed } from "../data/garden-schema";
+import gardenData from "../data/github-garden.json";
+
+// Read at build time and handed to the island as a prop. ZazenWorld is client:only, but
+// Astro still serialises props into it, so the seed ships with the page: no runtime
+// request, no loading state, no way for a GitHub outage to affect a visitor.
+//
+// parseGardenSeed never throws — a malformed or missing file degrades to FALLBACK_SEED,
+// so the page always builds, including with no network.
+const seed = parseGardenSeed(gardenData);
+---
+
+<Layout title="Path of Stones" description="A quiet walk along five stones.">
+  <ZazenWorld client:only="react" seed={seed} />
+</Layout>
