@@ -58,3 +58,27 @@ test("animates animal sprite cells and respects reduced motion", async ({ page }
     await expect(actor).toHaveCSS("object-position", "0px 0px");
   }
 });
+
+test("marks gardener work with a contour while preserving the ground texture", async ({ page }) => {
+  await page.clock.install();
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/path-of-stones/");
+  await expect(page.getByRole("application")).toBeVisible();
+  const working = page.locator(".zazen-world__tile[data-working]");
+  for (let step = 0; step < 120 && (await working.count()) === 0; step++) {
+    await page.clock.runFor(100);
+  }
+  await expect(working).toHaveCount(1);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const styles = await working.evaluate((el) => ({
+    filter: getComputedStyle(el.querySelector(".zazen-world__tile-image")!).filter,
+    border: getComputedStyle(el.querySelector(".zazen-world__hit")!, "::after").clipPath,
+    animation: getComputedStyle(el.querySelector(".zazen-world__hit")!, "::after").animationName,
+  }));
+  expect(styles.filter).not.toContain("sepia");
+  expect(styles.border).toContain("polygon");
+  expect(styles.animation).toBe("none");
+  await page.locator(".zazen-world__map-wrapper").screenshot({
+    path: `/tmp/path-stones-check/gardener-contour-${test.info().project.name}.png`,
+  });
+});

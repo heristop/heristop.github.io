@@ -1571,6 +1571,11 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                     // keyboard users get the whole garden through the Tab inspect cursor,
                     // which reads each day out and walks there on Enter.
                     data-rake={rakeIndex >= 0 ? "marked" : undefined}
+                    data-working={
+                      (game.gardenerActivity === "rake" &&
+                        manhattan(tile, game.gardenerPosition) === 0) ||
+                      undefined
+                    }
                     data-threatened={
                       threatenedPaths.some((target) => manhattan(tile, target) === 0) || undefined
                     }

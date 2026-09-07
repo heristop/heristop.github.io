@@ -714,8 +714,32 @@
     }
 }
 
-.zazen-world__tile[data-rake] .zazen-world__tile-image {
-  filter: sepia(0.6) brightness(1.2) drop-shadow(0 0 5px #f4b36b);
+.path-stones .zazen-world__tile[data-rake] .zazen-world__hit {
+  background: linear-gradient(135deg, #f8d38b30, #d9953b12);
+  box-shadow: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #d7a557;
+    clip-path: polygon(evenodd, 50% 0%, 100% 50%, 50% 100%, 0% 50%, 50% 0%, 50% 7%, 7% 50%, 50% 93%, 93% 50%, 50% 7%, 50% 0%);
+    pointer-events: none;
+  }
+}
+
+.path-stones .zazen-world__tile[data-working] .zazen-world__hit::after {
+  background: #ffe0a1;
+  animation: gardener-tile-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes gardener-tile-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-stones .zazen-world__tile[data-working] .zazen-world__hit::after { animation: none; }
 }
 
 .zazen-world__rake-dust {
