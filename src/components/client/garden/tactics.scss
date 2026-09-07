@@ -913,3 +913,34 @@
     animation: none;
   }
 }
+
+.zazen-world__frog-actor {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  z-index: 2;
+  pointer-events: none;
+  transition: left 460ms linear, top 460ms linear;
+}
+
+.path-stones .zazen-world__frog-actor .zazen-world__decor {
+  animation: frog-expression 4.8s steps(1, end) infinite;
+}
+
+.path-stones .zazen-world__frog-actor[data-hopping] .zazen-world__decor {
+  animation: frog-travel 460ms ease-out both;
+}
+
+@keyframes frog-travel {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(-10px); }
+}
+
+.zazen-world__companion[data-transforming] {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-stones .zazen-world__frog-actor { transition: none; }
+  .path-stones .zazen-world__frog-actor .zazen-world__decor { animation: none; }
+}

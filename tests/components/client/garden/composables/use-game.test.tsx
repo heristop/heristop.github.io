@@ -404,3 +404,26 @@ it("ends an exhausted final round and resets the refill limit on replay", () => 
     vi.useRealTimers();
   }
 });
+
+it("hops to one neighbouring tile without spending player resources", () => {
+  vi.useFakeTimers();
+  const random = vi.spyOn(Math, "random").mockReturnValue(0);
+  try {
+    const { result, unmount } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const before = result.current;
+    act(() => {
+      vi.advanceTimersByTime(2400);
+    });
+    const after = result.current;
+    expect(
+      Math.abs(after.frog.posX - before.frog.posX) + Math.abs(after.frog.posY - before.frog.posY),
+    ).toBe(1);
+    expect(after.steps).toBe(before.steps);
+    expect(after.stonesLeft).toBe(before.stonesLeft);
+    expect(after.map.filter((tile) => tile.decor === "frog")).toHaveLength(1);
+    unmount();
+  } finally {
+    random.mockRestore();
+    vi.useRealTimers();
+  }
+});

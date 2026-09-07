@@ -1,3 +1,4 @@
+import Frog from "./components/figures/frog";
 import useGamepad from "./composables/use-gamepad";
 import "./world.scss";
 import "./diorama.scss";
@@ -140,7 +141,6 @@ const catFooting = (map: readonly MapTile[], near: Position): Position => {
 };
 
 const CAT_STEP_MS = 900;
-const COMPANION_STEP_MS = 620;
 const CAT_MOVE_CHANCE = 0.55;
 // How often a step is taken towards the pilgrim rather than wherever he fancies.
 const CAT_FOLLOW_CHANCE = 0.8;
@@ -346,7 +346,6 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
           </span>
         </>
       )}
-      {tile.transformed === true && <FrogBurst />}
       {tile.stone !== undefined && (
         <span className="zazen-world__beacon" aria-hidden="true">
           ◆
@@ -366,7 +365,7 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
           }
         />
       )}
-      {tile.decor !== "" && (
+      {tile.decor !== "" && tile.decor !== "frog" && (
         <img
           src={`/images/zazen/decors/${tile.decor}${["frog", "koi"].includes(tile.decor) ? "-life" : ""}.png`}
           alt=""
@@ -640,14 +639,12 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   // worth anything — so it is recorded once and never taken back.
   const [catMet, setCatMet] = useState(false);
 
-  // She does not exist until she is freed, and then she walks. Undefined rather than a
-  // parked position, so nothing has to remember whether she is real yet.
-  const [companion, setCompanion] = useState<
-    { facingLeft: boolean; position: Position } | undefined
-  >(undefined);
-
+  const [companionRevealed, setCompanionRevealed] = useState(false);
+  const [transforming, setTransforming] = useState(false);
   const catWalking = useStride(cat.position);
-  const companionWalking = useStride(companion?.position ?? CAT_START);
+  const handleDiscoveryComplete = useCallback((kind: "cat" | "frog") => {
+    if (kind === "frog") setCompanionRevealed(true);
+  }, []);
 
   const handleStoneCollected = useCallback(
     (stoneIndex: number) => {
@@ -673,6 +670,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     seed,
   });
 
+  const frogHopping = useStride(game.frog);
   const step = useZazenStep(game.position);
 
   const [hoverDay, setHoverDay] = useState<number | undefined>(undefined);
@@ -899,48 +897,20 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     }
   }, [catGreeting]);
 
-  // She stands up where the frog was and walks from there. A restart takes her away again.
+  // Keep the frog visible until its discovery card has finished.
   useEffect(() => {
-    if (!game.frogFreed) {
-      setCompanion(undefined);
-      return;
-    }
-    // Where the frog was, or the nearest tile to it she can actually stand and walk on —
-    // she was sitting at the water's edge and the water is not hers to cross.
-    setCompanion(
-      (current) => current ?? { facingLeft: false, position: catFooting(game.map, game.frog) },
-    );
-  }, [game.frog, game.frogFreed, game.map]);
+    if (!game.frogFreed) setCompanionRevealed(false);
+  }, [game.frogFreed]);
 
-  // She follows, on the same rules as the cat and a beat slower — she is keeping you
-  // company rather than herding you, and two things arriving at your heel in step reads
-  // as an escort.
   useEffect(() => {
-    if (!game.frogFreed || game.finaleOpen || prefersReducedMotion()) {
+    if (!companionRevealed) {
+      setTransforming(false);
       return;
     }
-    const timer = setInterval(() => {
-      setCompanion((current) => {
-        if (!current) {
-          return current;
-        }
-        if (manhattan(current.position, game.position) <= 1) {
-          return current;
-        }
-        const next = catStepToward(game.map, current.position, game.position);
-        if (!next) {
-          return current;
-        }
-        return {
-          facingLeft: next.posX - next.posY < current.position.posX - current.position.posY,
-          position: next,
-        };
-      });
-    }, COMPANION_STEP_MS);
-    return () => {
-      clearInterval(timer);
-    };
-  }, [game.finaleOpen, game.frogFreed, game.map, game.position]);
+    setTransforming(true);
+    const timer = setTimeout(() => setTransforming(false), 1600);
+    return () => clearTimeout(timer);
+  }, [companionRevealed]);
 
   // The cat's own errand. Same walkability rules as the pilgrim, and the same refusal to
   // step on a stone or the shrine — those are the player's to find, and a cat that
@@ -1198,6 +1168,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         catMet={catMet}
         frogFreed={game.frogFreed}
         paused={game.phase !== "player"}
+        onComplete={handleDiscoveryComplete}
       />
       {!game.finaleOpen && (
         <TurnAnnouncement
@@ -1639,14 +1610,36 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                 offsetX={mapDimensions.offsetX}
                 offsetY={mapDimensions.offsetY}
               />
-              {companion && (
+              {(!game.frogFreed || !companionRevealed) && (
+                <Frog
+                  position={game.frog}
+                  hopping={frogHopping}
+                  offsetX={mapDimensions.offsetX}
+                  offsetY={mapDimensions.offsetY}
+                />
+              )}
+              {game.frogFreed && companionRevealed && (
                 <ZazenCompanion
-                  walking={companionWalking}
-                  position={companion.position}
-                  facingLeft={companion.facingLeft}
+                  transforming={transforming}
+                  walking={false}
+                  position={game.frog}
+                  facingLeft={false}
                   offsetX={game.mapDimensions.offsetX}
                   offsetY={game.mapDimensions.offsetY}
                 />
+              )}
+              {transforming && (
+                <div
+                  className="zazen-world__tile"
+                  style={toScreen(
+                    game.frog.posX,
+                    game.frog.posY,
+                    mapDimensions.offsetX,
+                    mapDimensions.offsetY,
+                  )}
+                >
+                  <FrogBurst />
+                </div>
               )}
               <ZazenCat
                 walking={catWalking}

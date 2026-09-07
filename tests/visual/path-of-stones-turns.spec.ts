@@ -53,7 +53,14 @@ for (const exhaust of [false, true]) {
           cheapestRoute(map, position, b, 1000)!.cost - cheapestRoute(map, position, a, 1000)!.cost,
       );
       remaining.push(layout.shrine);
+      const refreshFrog = async () => {
+        if (frogFreed) return;
+        const value = await page.locator(".zazen-world__frog-actor").getAttribute("data-position");
+        const [posX, posY] = value!.split(",").map(Number);
+        layout.frog = { posX, posY };
+      };
       while (remaining.length && steps < 400) {
+        await refreshFrog();
         // Deliberately spend two turns exploring sand before pursuing the relics.
         const detour =
           turns < (exhaust ? 100 : 2)
@@ -88,6 +95,7 @@ for (const exhaust of [false, true]) {
         const route = cheapestRoute(map, position, target, 1000)!;
         expect(route).toBeDefined();
         for (const next of route.path) {
+          await refreshFrog();
           const tile = tileAt(map, next)!;
           if (canPaveTile(tile)) {
             supply--;

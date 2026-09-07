@@ -18,7 +18,15 @@ for (const [name, Figure, selector] of [
 ] as const) {
   const AnimatedFigure = ({ position }: { position: typeof props.position }) => {
     const walking = useStride(position);
-    return <Figure {...props} position={position} greeting={false} walking={walking} />;
+    return (
+      <Figure
+        {...props}
+        position={position}
+        greeting={false}
+        transforming={false}
+        walking={walking}
+      />
+    );
   };
   describe(name, () => {
     it("starts idle, walks only after a move, then settles", () => {

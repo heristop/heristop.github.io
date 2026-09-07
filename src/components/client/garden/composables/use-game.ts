@@ -81,7 +81,8 @@ type Action =
   | { type: "lay"; position: Position }
   | { type: "restart"; frogRoll: number }
   | { type: "dismissFinale" }
-  | { type: "advanceGardener" };
+  | { type: "advanceGardener" }
+  | { type: "hopFrog"; roll: number };
 
 const describeDay = (tile: MapTile): string => {
   const day = tile.day;
@@ -247,6 +248,42 @@ const makeReducer =
   (state: GameState, action: Action): GameState => {
     const shrine = layout.shrine;
     switch (action.type) {
+      case "hopFrog": {
+        if (
+          state.phase !== "player" ||
+          state.frogFreed ||
+          state.finaleOpen ||
+          manhattan(state.frog, state.position) <= 2
+        )
+          return state;
+        const banks = state.map.filter(
+          (tile) =>
+            manhattan(tile, state.frog) === 1 &&
+            tile.decor === "" &&
+            tile.npc === 0 &&
+            tile.stone === undefined &&
+            !tile.shrine &&
+            (tile.walkable || tile.sprite.startsWith("water")) &&
+            state.map.some(
+              (near) => manhattan(near, tile) <= 1 && near.sprite.startsWith("water"),
+            ) &&
+            state.map.some((near) => manhattan(near, tile) === 1 && near.walkable) &&
+            manhattan(tile, state.position) > 2,
+        );
+        if (!banks.length) return state;
+        const target = banks[Math.min(banks.length - 1, Math.floor(action.roll * banks.length))];
+        return {
+          ...state,
+          frog: { posX: target.posX, posY: target.posY },
+          map: state.map.map((tile) =>
+            tile === target
+              ? { ...tile, decor: "frog" }
+              : manhattan(tile, state.frog) === 0
+                ? { ...tile, decor: "" }
+                : tile,
+          ),
+        };
+      }
       case "arrive": {
         if (state.phase !== "player" || state.finaleOpen) return state;
         return handToGardener(arrive(state, action.position, shrine, state.frog));
@@ -384,6 +421,12 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
     const timer = setTimeout(() => dispatch({ type: "advanceGardener" }), reduced ? 20 : delay);
     return () => clearTimeout(timer);
   }, [state.phase, state.gardenerActivity, state.gardenerActions]);
+
+  useEffect(() => {
+    if (state.frogFreed || state.phase !== "player" || state.finaleOpen) return;
+    const timer = setInterval(() => dispatch({ type: "hopFrog", roll: Math.random() }), 2400);
+    return () => clearInterval(timer);
+  }, [state.frogFreed, state.phase, state.finaleOpen]);
 
   const mapDimensions = useMemo(() => calculateMapDimensions(state.map), [state.map]);
 

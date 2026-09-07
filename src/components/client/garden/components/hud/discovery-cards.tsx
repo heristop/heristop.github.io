@@ -113,10 +113,12 @@ export function DiscoveryReveal({
   catMet,
   frogFreed,
   paused = false,
+  onComplete,
 }: {
   catMet: boolean;
   frogFreed: boolean;
   paused?: boolean;
+  onComplete?: (kind: Discovery) => void;
 }) {
   const [ready, setReady] = useState(!paused);
   useEffect(() => {
@@ -142,9 +144,12 @@ export function DiscoveryReveal({
   const active = queue[0];
   useEffect(() => {
     if (!active || !ready || paused) return;
-    const timer = window.setTimeout(() => setQueue((pending) => pending.slice(1)), 3600);
+    const timer = window.setTimeout(() => {
+      setQueue((pending) => pending.slice(1));
+      onComplete?.(active);
+    }, 3600);
     return () => window.clearTimeout(timer);
-  }, [active, ready, paused]);
+  }, [active, ready, paused, onComplete]);
   if (!active || !ready || paused) return null;
   return (
     <div className="garden-discovery" key={active} role="status" aria-live="polite">
