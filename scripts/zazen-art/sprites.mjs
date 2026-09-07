@@ -676,6 +676,10 @@ const koi = () =>
     rect(g, 19, 51, 3, 4, "a");
     rect(g, 22, 49, 2, 3, "a");
     rect(g, 22, 54, 2, 3, "a");
+    // Pectoral fins and a cool belly keep the silhouette in the water plane.
+    rect(g, 11, 49, 3, 1, "h");
+    rect(g, 11, 56, 3, 1, "h");
+    rect(g, 10, 55, 6, 1, "h");
     // Two patches and an eye.
     rect(g, 9, 51, 3, 2, "n");
     rect(g, 14, 53, 3, 2, "n");
@@ -967,7 +971,14 @@ const ambientSheet = (kind) => {
       const tail = g.slice(47, 59).map((row) => row.slice(20));
       rect(g, 20, 47, 12, 12, ".");
       blit(g, tail, 20, 47 + [0, -1, 0, 1][frame]);
-      put(g, 13, 50, "j");
+      // A travelling one-pixel bend links the body to the tail beat.
+      if (frame === 1 || frame === 3) {
+        const bend = frame === 1 ? -1 : 1;
+        const rear = g.slice(50, 56).map((row) => row.slice(16, 20));
+        rect(g, 16, 50, 4, 6, ".");
+        blit(g, rear, 16, 50 + bend);
+      }
+      put(g, 13, 50, "h");
       if (frame % 2) put(g, 12, 56, "a");
       if (frame === 2) put(g, 12, 49, "a");
     } else {

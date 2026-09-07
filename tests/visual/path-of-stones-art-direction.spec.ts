@@ -55,7 +55,16 @@ test("animates animal sprite cells and respects reduced motion", async ({ page }
     }));
     expect(cell).toEqual({ width: 32, height: 64 });
   }
+  const swimming = page.locator(".zazen-world__koi").first();
+  await expect(swimming).toHaveCSS("animation-name", "koi-cruise");
+  await expect(swimming.locator(".zazen-world__koi-surface")).toHaveCSS(
+    "animation-name",
+    "koi-refraction",
+  );
+  await expect(koi).toHaveCSS("opacity", "0.8");
   await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(swimming).toHaveCSS("animation-name", "none");
+  await expect(swimming.locator(".zazen-world__koi-surface")).toHaveCSS("animation-name", "none");
   await expect(pilgrim).toHaveCSS("animation-name", "none");
   for (const actor of [frog, koi]) {
     await expect(actor).toHaveCSS("animation-name", "none");

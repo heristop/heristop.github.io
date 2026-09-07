@@ -873,12 +873,87 @@
   animation: frog-expression 7.4s steps(1, end) infinite, path-stones-hop 7.4s steps(1, end) infinite;
 }
 
-.path-stones .zazen-world__decor[src*="koi-life"] {
-  animation: koi-fins 1.2s steps(1, end) infinite, path-stones-swim 11s steps(1, end) infinite;
+/* The whole fish turns with its wake; the sprite cell only drives its fins. */
+.path-stones .zazen-world__koi {
+  position: absolute;
+  left: 16px;
+  bottom: 37px;
+  width: 32px;
+  height: 64px;
+  pointer-events: none;
+  transform-origin: 16px 53px;
+  animation: koi-cruise 9s linear var(--swim-delay, 0s) infinite;
+
+  .zazen-world__decor {
+    inset: 0;
+    opacity: 0.8;
+    filter: none;
+    animation: koi-fins 800ms steps(1, end) infinite;
+  }
+
+  &::after {
+    position: absolute;
+    top: 51px;
+    left: 22px;
+    width: 9px;
+    height: 3px;
+    border-top: 1px solid #a9dad34d;
+    border-bottom: 1px solid #a9dad326;
+    content: "";
+    transform: skewX(-28deg);
+    animation: koi-wake 1.6s ease-out infinite;
+  }
 }
 
-.path-stones .zazen-world__tile:nth-child(3n) .zazen-world__decor[src*="koi-life"] {
-  animation-delay: -0.6s, var(--life-delay, -4s);
+.zazen-world__koi-surface {
+  position: absolute;
+  top: 48px;
+  left: 7px;
+  width: 16px;
+  height: 9px;
+  background: repeating-linear-gradient(170deg, transparent 0 3px, #79bec34a 3px 4px, transparent 4px 7px);
+  clip-path: polygon(0 45%, 28% 8%, 65% 0, 100% 45%, 65% 100%, 25% 85%);
+  animation: koi-refraction 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes koi-cruise {
+  0%, 100% { transform: translate(7px, 1px) scaleX(1) rotate(-5deg); }
+  44% { transform: translate(-7px, -2px) scaleX(1) rotate(5deg); }
+  50% { transform: translate(-8px, -2px) scaleX(-1) rotate(-5deg); }
+  94% { transform: translate(7px, 1px) scaleX(-1) rotate(5deg); }
+}
+
+@keyframes koi-wake {
+  from {
+    opacity: 0.55;
+    transform: translateX(-1px) skewX(-28deg) scaleX(0.7);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(4px) skewX(-28deg) scaleX(1.3);
+  }
+}
+
+@keyframes koi-refraction {
+  from {
+    opacity: 0.4;
+    translate: 0 -1px;
+  }
+
+  to {
+    opacity: 0.85;
+    translate: 1px 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-stones .zazen-world__koi,
+  .path-stones .zazen-world__koi::after,
+  .path-stones .zazen-world__koi .zazen-world__decor,
+  .zazen-world__koi-surface {
+    animation: none;
+  }
 }
 
 .path-stones .zazen-world__npc[src*="npc-3-life"] {

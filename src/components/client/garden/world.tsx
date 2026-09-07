@@ -365,9 +365,21 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
           }
         />
       )}
-      {tile.decor !== "" && tile.decor !== "frog" && (
+      {tile.decor === "koi" && (
+        <span
+          className="zazen-world__koi"
+          style={
+            { "--swim-delay": `${-((tile.posX * 3 + tile.posY) % 9)}s` } as React.CSSProperties
+          }
+          aria-hidden="true"
+        >
+          <img src="/images/zazen/decors/koi-life.png" alt="" className="zazen-world__decor" />
+          <span className="zazen-world__koi-surface" />
+        </span>
+      )}
+      {tile.decor !== "" && tile.decor !== "frog" && tile.decor !== "koi" && (
         <img
-          src={`/images/zazen/decors/${tile.decor}${["frog", "koi"].includes(tile.decor) ? "-life" : ""}.png`}
+          src={`/images/zazen/decors/${tile.decor}.png`}
           alt=""
           className="zazen-world__decor"
           style={
