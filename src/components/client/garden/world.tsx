@@ -334,6 +334,9 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
       {...standingAttr}
       {...glowAttr}
     >
+      {tile.decor === "lantern-lit" && (
+        <span className="zazen-world__light-pool" aria-hidden="true" />
+      )}
       {tile.laid === true && <LaidBurst />}
       {tile.gathered === true && (
         <>
@@ -354,7 +357,7 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
       )}
       {tile.npc !== 0 && tile.npc !== 2 && (
         <img
-          src={`/images/zazen/persos/npc-${tile.npc}.png`}
+          src={`/images/zazen/persos/npc-${tile.npc}${tile.npc === 3 ? "-life" : ""}.png`}
           alt=""
           className={
             tile.transformed === true
@@ -365,9 +368,12 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
       )}
       {tile.decor !== "" && (
         <img
-          src={`/images/zazen/decors/${tile.decor}.png`}
+          src={`/images/zazen/decors/${tile.decor}${["frog", "koi"].includes(tile.decor) ? "-life" : ""}.png`}
           alt=""
           className="zazen-world__decor"
+          style={
+            { "--life-delay": `${-((tile.posX * 3 + tile.posY) % 7)}s` } as React.CSSProperties
+          }
           data-foreground={
             (tile.posX + tile.posY > 8 && ["pine", "maple", "sakura"].includes(tile.decor)) ||
             undefined

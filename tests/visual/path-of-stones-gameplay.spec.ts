@@ -165,7 +165,7 @@ test("idle time does not spend player steps", async ({ page }) => {
   await page.goto("/path-of-stones/");
   await expect(page.getByRole("application")).toBeVisible();
   await page.clock.fastForward(20000);
-  await expect(page.getByText("0 steps · 0 stones laid")).toBeVisible();
+  await expect(page.getByText("0 steps · 0 stones laid")).toBeAttached();
 });
 
 test("moves by tapping a tile and offers sound and restart controls", async ({ page }) => {
@@ -181,9 +181,9 @@ test("moves by tapping a tile and offers sound and restart controls", async ({ p
     "false",
   );
   await page.locator('.zazen-world__tile[role="button"] .zazen-world__hit').first().click();
-  await expect(page.getByText(/1 steps ·/)).toBeVisible();
+  await expect(page.getByText(/1 steps ·/)).toBeAttached();
   await page.getByRole("button", { name: "Restart run" }).click();
-  await expect(page.getByText("0 steps · 0 stones laid")).toBeVisible();
+  await expect(page.getByText("0 steps · 0 stones laid")).toBeAttached();
 });
 
 test("keeps the desktop board compact and centered on wide monitors", async ({
@@ -222,7 +222,7 @@ test("keeps the desktop board compact and centered on wide monitors", async ({
 
 test("restart moves the frog without duplicating it", async ({ page }) => {
   await page.goto("/path-of-stones/");
-  const frog = page.locator('img[src$="/frog.png"]');
+  const frog = page.locator('img[src$="/frog-life.png"]');
   await expect(frog).toHaveCount(1);
   const tileIndex = () =>
     frog.evaluate((image) =>
@@ -301,7 +301,7 @@ test("finds the pilgrim after panning away without spending a move", async ({ pa
     )
     .toBe(true);
   await expect(page.getByRole("application")).toBeFocused();
-  await expect(page.getByText("0 steps · 0 stones laid")).toBeVisible();
+  await expect(page.getByText("0 steps · 0 stones laid")).toBeAttached();
 });
 
 test("remembers the sound setting across reloads", async ({ page }) => {

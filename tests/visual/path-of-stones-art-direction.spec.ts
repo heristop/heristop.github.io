@@ -36,3 +36,25 @@ test("keeps the tactical composition readable across screen sizes", async ({ pag
   expect(image.ok()).toBe(true);
   expect(image.headers()["content-type"]).toContain("image/webp");
 });
+
+test("animates animal sprite cells and respects reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/path-of-stones/");
+  const frog = page.locator('img[src$="/frog-life.png"]');
+  const koi = page.locator('img[src$="/koi-life.png"]').first();
+  await expect(frog).toBeVisible({ timeout: 20000 });
+  for (const actor of [frog, koi]) {
+    await expect(actor).toHaveCSS("object-fit", "none");
+    await expect.poll(() => actor.evaluate((el) => el.getAnimations().length)).toBeGreaterThan(0);
+    const cell = await actor.evaluate((el) => ({
+      width: (el as HTMLElement).offsetWidth,
+      height: (el as HTMLElement).offsetHeight,
+    }));
+    expect(cell).toEqual({ width: 32, height: 64 });
+  }
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const actor of [frog, koi]) {
+    await expect(actor).toHaveCSS("animation-name", "none");
+    await expect(actor).toHaveCSS("object-position", "0px 0px");
+  }
+});

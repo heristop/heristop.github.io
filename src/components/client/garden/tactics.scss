@@ -827,3 +827,89 @@
 @media (prefers-reduced-motion: reduce) {
   .stone-game-help[open] .stone-game-help__panel { animation: none; }
 }
+
+/* Warm pools anchor the lamps; cool fill preserves detail in the far corner. */
+.path-stones .zazen-world__grade {
+  background:
+    radial-gradient(ellipse 56% 58% at 28% 20%, #ffe3a8b0, transparent 72%),
+    radial-gradient(ellipse 75% 65% at 80% 85%, #25496799, transparent 80%),
+    linear-gradient(125deg, #f8d99026, transparent 52%, #172d4938);
+}
+
+.zazen-world__light-pool {
+  position: absolute;
+  left: -16px;
+  top: 4px;
+  width: 96px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #ffe3a880 0%, #e8ab4433 38%, transparent 72%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: lantern-pool 5.6s ease-in-out infinite;
+}
+
+@keyframes lantern-pool {
+  0%, 100% { opacity: 0.72; }
+  46% { opacity: 1; }
+  54% { opacity: 0.86; }
+}
+
+.path-stones .zazen-world__npc,
+.path-stones .zazen-world__cat,
+.path-stones .zazen-world__companion-sprite,
+.path-stones .zazen-world__gardener-sprite {
+  filter: drop-shadow(1px 1px 0 #15252b66);
+}
+
+.path-stones .zazen-world__decor[src*="frog-life"],
+.path-stones .zazen-world__decor[src*="koi-life"],
+.path-stones .zazen-world__npc[src*="npc-3-life"] {
+  object-fit: none;
+  object-position: 0 0;
+}
+
+.path-stones .zazen-world__decor[src*="frog-life"] {
+  animation: frog-expression 7.4s steps(1, end) infinite, path-stones-hop 7.4s steps(1, end) infinite;
+}
+
+.path-stones .zazen-world__decor[src*="koi-life"] {
+  animation: koi-fins 1.2s steps(1, end) infinite, path-stones-swim 11s steps(1, end) infinite;
+}
+
+.path-stones .zazen-world__tile:nth-child(3n) .zazen-world__decor[src*="koi-life"] {
+  animation-delay: -0.6s, var(--life-delay, -4s);
+}
+
+.path-stones .zazen-world__npc[src*="npc-3-life"] {
+  animation: seated-expression 8s steps(1, end) infinite;
+}
+
+@keyframes frog-expression {
+  0%, 36%, 64%, 100% { object-position: 0 0; }
+  22%, 72% { object-position: -32px 0; }
+  60% { object-position: -64px 0; }
+  84% { object-position: -96px 0; }
+}
+
+@keyframes koi-fins {
+  0%, 100% { object-position: 0 0; }
+  25% { object-position: -32px 0; }
+  50% { object-position: -64px 0; }
+  75% { object-position: -96px 0; }
+}
+
+@keyframes seated-expression {
+  0%, 42%, 74%, 100% { object-position: 0 0; }
+  30% { object-position: -24px 0; }
+  70% { object-position: -48px 0; }
+  88% { object-position: -72px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-stones .zazen-world__light-pool,
+  .path-stones .zazen-world__decor[src*="-life"],
+  .path-stones .zazen-world__npc[src*="-life"] {
+    animation: none;
+  }
+}
