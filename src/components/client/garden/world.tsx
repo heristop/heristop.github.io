@@ -1,6 +1,7 @@
 import useGamepad from "./composables/use-gamepad";
 import "./world.scss";
 import "./diorama.scss";
+import "./tactics.scss";
 import { MAX_GARDENER_TURNS } from "./board/challenge";
 import { chooseRakeTargets } from "./board/gardener";
 import Gardener from "./components/figures/gardener";
@@ -1193,6 +1194,9 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         {game.announcement}
       </div>
       <div className="zazen-world__header path-stones__header">
+        <span className="path-stones__chapter">
+          <span aria-hidden="true">✦</span> A garden chronicle <span aria-hidden="true">✦</span>
+        </span>
         <span className="path-stones__eyebrow path-stones__attribution">
           A garden shaped by{" "}
           <a href={`https://github.com/${resolvedSeed.login}`} target="_blank" rel="noreferrer">
@@ -1314,317 +1318,334 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
           {refusal ?? routePrice}
         </p>
       </div>
-      <div className="path-stones__mission" role="status">
-        <span className="path-stones__eyebrow">
-          {game.shrineActivated ? "The final crossing" : "Your quest"}
-        </span>
-        <strong>
-          {game.shrineActivated
-            ? "The shrine is awake. Find your way home."
-            : `Gather the five stones · ${game.stonesFound.length} / ${STONE_COUNT}`}
-        </strong>
-        <span className="path-stones__movement-hint">
-          <span className="path-stones__hint-pointer">
-            Click a tile to travel · WASD / arrow keys to walk
-          </span>
-          <span className="path-stones__hint-touch">
-            Tap a tile to travel · drag the garden to explore
-          </span>
-        </span>
-        <div className="path-stones__input-hint" data-controller={gamepad}>
-          <span className="path-stones__controller-status" role="status">
-            <Icon name="gamepad" size={16} aria-hidden="true" />
-            {gamepad === "connected"
-              ? "Controller connected"
-              : gamepad === "unsupported"
-                ? "Use keyboard or touch · controller unavailable"
-                : "Controller ready · press a button on your gamepad"}
-          </span>
-          {gamepad === "connected" && (
-            <span className="path-stones__pad-keys">
-              <span>
-                <kbd>
-                  <Icon name="move" size={13} />
-                </kbd>{" "}
-                Stick / D-pad
-              </span>
-              <span>
-                <kbd>A / ✕</kbd> Focus game
-              </span>
-              <span>
-                <kbd>B / ○</kbd> Cancel
-              </span>
-              <span>
-                <kbd>X / □</kbd> Sound
-              </span>
-              <span>
-                <kbd>Start</kbd> Help
-              </span>
-            </span>
-          )}
-        </div>
-        <div className="path-stones__tools">
-          <button
-            type="button"
-            aria-pressed={soundOn}
-            onClick={() => setSoundOn((current) => !current)}
-          >
-            {soundOn ? (
-              <Icon name="volume-2" size={15} aria-hidden="true" />
-            ) : (
-              <Icon name="volume-x" size={15} aria-hidden="true" />
-            )}
-            Sound {soundOn ? "on" : "off"}
-          </button>
-          <button type="button" onClick={handleReplay}>
-            <Icon name="rotate-ccw" size={15} aria-hidden="true" /> Restart run
-          </button>
-        </div>
-      </div>
-      <div
-        className="path-stones__turn"
-        data-final-round={refillsLeft === 0 || undefined}
-        data-phase={game.phase}
-        role="status"
-        aria-live="polite"
-      >
-        <span className="path-stones__gardener-portrait" aria-hidden="true" />
-        <div>
+      <div className="path-stones__battle">
+        <div className="path-stones__mission" role="status" data-complete={game.shrineActivated}>
           <span className="path-stones__eyebrow">
-            Round{" "}
-            {Math.max(1, Math.min(4, game.gardenerTurns + (game.phase === "gardener" ? 0 : 1)))} / 4
-            · {game.phase === "player" ? "Your turn" : "Gardener’s turn"}
+            {game.shrineActivated ? "The final crossing" : "Your quest"}
           </span>
           <strong>
-            {game.phase === "gardener"
-              ? game.rakeTargets.length
-                ? game.gardenerActivity === "walk"
-                  ? "Walking to the next path…"
-                  : game.gardenerActivity === "rake"
-                    ? "Raking this path…"
-                    : "The gardener is choosing his route…"
-                : "Your nearby paths are safe…"
-              : refillsLeft === 0
-                ? "Final round. Every stone counts."
-                : "Lay a path. Stay one step ahead."}
+            {game.shrineActivated
+              ? "The shrine is awake. Find your way home."
+              : `Gather the five stones · ${game.stonesFound.length} / ${STONE_COUNT}`}
           </strong>
-          <small>
-            {game.phase === "gardener"
-              ? game.openingTurn
-                ? "Opening move · your starting reserve is protected."
-                : "Your turn resumes with 2 stones."
-              : refillsLeft === 0
-                ? "No more refills. Collect a stone to keep going."
-                : `Next visit: up to ${game.gardenerTurns === 0 ? 2 : 3} paths raked. Amber paths are at risk.`}
-          </small>
+          <span className="path-stones__movement-hint">
+            <span className="path-stones__hint-pointer">
+              Click a tile to travel · WASD / arrow keys to walk
+            </span>
+            <span className="path-stones__hint-touch">
+              Tap a tile to travel · drag the garden to explore
+            </span>
+          </span>
+          <div className="path-stones__input-hint" data-controller={gamepad}>
+            <span className="path-stones__controller-status" role="status">
+              <Icon name="gamepad" size={16} aria-hidden="true" />
+              {gamepad === "connected"
+                ? "Controller connected"
+                : gamepad === "unsupported"
+                  ? "Use keyboard or touch · controller unavailable"
+                  : "Controller ready · press a button on your gamepad"}
+            </span>
+            {gamepad === "connected" && (
+              <span className="path-stones__pad-keys">
+                <span>
+                  <kbd>
+                    <Icon name="move" size={13} />
+                  </kbd>{" "}
+                  Stick / D-pad
+                </span>
+                <span>
+                  <kbd>A / ✕</kbd> Focus game
+                </span>
+                <span>
+                  <kbd>B / ○</kbd> Cancel
+                </span>
+                <span>
+                  <kbd>X / □</kbd> Sound
+                </span>
+                <span>
+                  <kbd>Start</kbd> Help
+                </span>
+              </span>
+            )}
+          </div>
+          <div className="path-stones__tools">
+            <button
+              type="button"
+              aria-pressed={soundOn}
+              onClick={() => setSoundOn((current) => !current)}
+            >
+              {soundOn ? (
+                <Icon name="volume-2" size={15} aria-hidden="true" />
+              ) : (
+                <Icon name="volume-x" size={15} aria-hidden="true" />
+              )}
+              Sound {soundOn ? "on" : "off"}
+            </button>
+            <button type="button" onClick={handleReplay}>
+              <Icon name="rotate-ccw" size={15} aria-hidden="true" /> Restart run
+            </button>
+          </div>
         </div>
-        <span className="path-stones__turn-reward">
-          {game.phase === "gardener" ? (game.openingTurn ? "I" : "+2") : `${refillsLeft}`}
-          <small>{game.phase === "gardener" ? "NEXT TURN" : "REFILLS LEFT"}</small>
-        </span>
-      </div>
-      <Legend />
-      <div className="path-stones__stage">
-        <button
-          className="path-stones__recenter"
-          type="button"
-          onClick={focusPilgrim}
-          aria-label="Find pilgrim — center the garden on your character"
-        >
-          <Icon name="locate" size={16} /> Find pilgrim
-        </button>
-        <CompassPanel
-          disabled={game.phase !== "player" || game.finaleOpen}
-          stonesLeft={game.stonesLeft}
-          onMove={(direction) => {
-            setRoute([]);
-            setCursorDay(undefined);
-            game.move(direction);
-          }}
-        />
         <div
-          className="zazen-world__map-wrapper"
-          ref={panRef}
-          style={{
-            height: `${Math.max(0, mapScale * mapDimensions.height)}px`,
-            width: `${Math.max(0, mapScale * mapDimensions.width)}px`,
-          }}
+          className="path-stones__turn"
+          data-final-round={refillsLeft === 0 || undefined}
+          data-phase={game.phase}
+          role="status"
+          aria-live="polite"
         >
-          <div
-            className="zazen-world__map"
-            ref={mapRef}
-            role="application"
-            tabIndex={0}
-            aria-label="Interactive game world map"
-            aria-busy={game.phase === "gardener"}
-            aria-describedby="game-instructions"
-            style={
-              {
-                "--board-top": `${DECOR_HEADROOM}px`,
-                "--grow-total": `${GROW_TOTAL_MS}ms`,
-                height: `${mapDimensions.height}px`,
-                transform: `scale(${mapScale})`,
-                transformOrigin: "top left",
-                width: `${mapDimensions.width}px`,
-              } as React.CSSProperties
-            }
+          <span className="path-stones__gardener-portrait" key={game.phase} aria-hidden="true" />
+          <div>
+            <span className="path-stones__eyebrow">
+              Round{" "}
+              {Math.max(1, Math.min(4, game.gardenerTurns + (game.phase === "gardener" ? 0 : 1)))} /
+              4 · {game.phase === "player" ? "Your turn" : "Gardener’s turn"}
+            </span>
+            <strong>
+              {game.phase === "gardener"
+                ? game.rakeTargets.length
+                  ? game.gardenerActivity === "walk"
+                    ? "Walking to the next path…"
+                    : game.gardenerActivity === "rake"
+                      ? "Raking this path…"
+                      : "The gardener is choosing his route…"
+                  : "Your nearby paths are safe…"
+                : refillsLeft === 0
+                  ? "Final round. Every stone counts."
+                  : "Lay a path. Stay one step ahead."}
+            </strong>
+            <small>
+              {game.phase === "gardener"
+                ? game.openingTurn
+                  ? "Opening move · your starting reserve is protected."
+                  : "Your turn resumes with 2 stones."
+                : refillsLeft === 0
+                  ? "No more refills. Collect a stone to keep going."
+                  : `Next visit: up to ${game.gardenerTurns === 0 ? 2 : 3} paths raked. Amber paths are at risk.`}
+            </small>
+          </div>
+          <span className="path-stones__turn-reward">
+            {game.phase === "gardener" ? (game.openingTurn ? "I" : "+2") : `${refillsLeft}`}
+            <small>{game.phase === "gardener" ? "NEXT TURN" : "REFILLS LEFT"}</small>
+          </span>
+        </div>
+        <Legend />
+        <div className="path-stones__stage">
+          <div className="path-stones__scene-heading" role="group" aria-label="Current objective">
+            <Icon
+              name={game.shrineActivated ? "sunrise" : "compass"}
+              size={18}
+              aria-hidden="true"
+            />
+            <strong>
+              {game.shrineActivated ? "Reach the awakened shrine" : "Gather the five stones"}
+            </strong>
+            <span>
+              {game.stonesFound.length} / {STONE_COUNT}
+            </span>
+          </div>
+          <div className="path-stones__scene-mist" aria-hidden="true" />
+          <button
+            className="path-stones__recenter"
+            type="button"
+            onClick={focusPilgrim}
+            aria-label="Find pilgrim — center the garden on your character"
           >
-            {/* The garden's own silhouette, blurred and dropped below it. A filter on the
+            <Icon name="locate" size={16} /> Find pilgrim
+          </button>
+          <CompassPanel
+            disabled={game.phase !== "player" || game.finaleOpen}
+            stonesLeft={game.stonesLeft}
+            onMove={(direction) => {
+              setRoute([]);
+              setCursorDay(undefined);
+              game.move(direction);
+            }}
+          />
+          <div
+            className="zazen-world__map-wrapper"
+            ref={panRef}
+            style={{
+              height: `${Math.max(0, mapScale * mapDimensions.height)}px`,
+              width: `${Math.max(0, mapScale * mapDimensions.width)}px`,
+            }}
+          >
+            <div
+              className="zazen-world__map"
+              ref={mapRef}
+              role="application"
+              tabIndex={0}
+              aria-label="Interactive game world map"
+              aria-busy={game.phase === "gardener"}
+              aria-describedby="game-instructions"
+              style={
+                {
+                  "--board-top": `${DECOR_HEADROOM}px`,
+                  "--grow-total": `${GROW_TOTAL_MS}ms`,
+                  height: `${mapDimensions.height}px`,
+                  transform: `scale(${mapScale})`,
+                  transformOrigin: "top left",
+                  width: `${mapDimensions.width}px`,
+                } as React.CSSProperties
+              }
+            >
+              {/* The garden's own silhouette, blurred and dropped below it. A filter on the
               board itself would re-run over 144 children on every step; one diamond costs
               nothing and casts the same shadow. */}
-            <div className="zazen-world__cast" aria-hidden="true" />
-            <div className="sr-only" aria-live="polite" id="position-announcer">
-              {`Pilgrim is at position ${game.position.posX}, ${game.position.posY}`}
-            </div>
-            {game.map.map((tile) => {
-              const key = `${tile.posX},${tile.posY}`;
-              const rakeIndex = game.rakeTargets.findIndex(
-                (target) => manhattan(tile, target) === 0,
-              );
-              const adjacent = isStepTarget(tile, game.position);
-              const payable = canPaveTile(tile);
-              const reachable = isWalkableTile(tile) || payable;
-              const classes = ["zazen-world__tile"];
-              if (adjacent) {
-                classes.push("zazen-world__tile--step");
-              }
-              if (reachable) {
-                classes.push("zazen-world__tile--walkable");
-              }
-              // Sand you may cross by paying for it. It was already clickable and already
-              // worked — it simply gave no sign of it: the cursor stayed an arrow and the
-              // hover mark was reserved for tiles you could step to for free, so the game's
-              // central move looked like something the board refused to do.
-              if (payable) {
-                classes.push("zazen-world__tile--payable");
-              }
-              if (previewKeys.has(key)) {
-                classes.push("zazen-world__tile--preview");
-              }
-              if (previewPaveKeys.has(key)) {
-                classes.push("zazen-world__tile--preview-pave");
-              }
-              if (previewKeys.has(key) && !previewAffordable) {
-                classes.push("zazen-world__tile--preview-denied");
-              }
-              if (
-                focusedPosition.posX === tile.posX &&
-                focusedPosition.posY === tile.posY &&
-                inspectDay !== undefined
-              ) {
-                classes.push("zazen-world__tile--inspected");
-              }
-              const { left, top } = toScreen(
-                tile.posX,
-                tile.posY,
-                mapDimensions.offsetX,
-                mapDimensions.offsetY,
-              );
-              return (
-                <div
-                  className={classes.join(" ")}
-                  key={key}
-                  style={
-                    {
-                      "--depth-light": depthLightFor(tile.posX, tile.posY),
-                      "--wind-phase": windPhaseFor(tile.posX, tile.posY),
-                      "--grow-delay": `${growDelayFor(tileIndexForPosition(tile))}ms`,
-                      left: `${left}px`,
-                      top: `${top}px`,
-                    } as React.CSSProperties
-                  }
-                  // Only the neighbouring tiles are exposed as buttons. Every tile is
-                  // clickable, but announcing 144 of them would bury the useful ones —
-                  // keyboard users get the whole garden through the Tab inspect cursor,
-                  // which reads each day out and walks there on Enter.
-                  data-rake={rakeIndex >= 0 ? "marked" : undefined}
-                  data-threatened={
-                    threatenedPaths.some((target) => manhattan(tile, target) === 0) || undefined
-                  }
-                  role={adjacent ? "button" : undefined}
-                  aria-disabled={adjacent && game.phase === "gardener" ? true : undefined}
-                  aria-label={adjacent ? `Walk to ${tile.posX}, ${tile.posY}` : undefined}
-                  onClick={
-                    reachable
-                      ? () => {
-                          handleTileClick(tile);
-                        }
-                      : undefined
-                  }
-                  onMouseEnter={() => {
-                    setHoverPosition({ posX: tile.posX, posY: tile.posY });
-                    setHoverDay(dayIndexForPosition(tile));
-                  }}
-                  onMouseLeave={() => {
-                    setHoverPosition(undefined);
-                    setHoverDay(undefined);
-                  }}
-                >
-                  <TileRenderer tile={tile} />
-                  {game.gardenerActivity === "rake" &&
-                    manhattan(tile, game.gardenerPosition) === 0 && (
-                      <span className="zazen-world__rake-dust" aria-hidden="true" />
-                    )}
-                  {game.phase === "gardener" &&
-                    game.gardenerActions.some(
-                      (action) => action.kind === "walk" && manhattan(tile, action.position) === 0,
-                    ) && <span className="zazen-world__gardener-footstep" aria-hidden="true" />}
+              <div className="zazen-world__cast" aria-hidden="true" />
+              <div className="sr-only" aria-live="polite" id="position-announcer">
+                {`Pilgrim is at position ${game.position.posX}, ${game.position.posY}`}
+              </div>
+              {game.map.map((tile) => {
+                const key = `${tile.posX},${tile.posY}`;
+                const rakeIndex = game.rakeTargets.findIndex(
+                  (target) => manhattan(tile, target) === 0,
+                );
+                const adjacent = isStepTarget(tile, game.position);
+                const payable = canPaveTile(tile);
+                const reachable = isWalkableTile(tile) || payable;
+                const classes = ["zazen-world__tile"];
+                if (adjacent) {
+                  classes.push("zazen-world__tile--step");
+                }
+                if (reachable) {
+                  classes.push("zazen-world__tile--walkable");
+                }
+                // Sand you may cross by paying for it. It was already clickable and already
+                // worked — it simply gave no sign of it: the cursor stayed an arrow and the
+                // hover mark was reserved for tiles you could step to for free, so the game's
+                // central move looked like something the board refused to do.
+                if (payable) {
+                  classes.push("zazen-world__tile--payable");
+                }
+                if (previewKeys.has(key)) {
+                  classes.push("zazen-world__tile--preview");
+                }
+                if (previewPaveKeys.has(key)) {
+                  classes.push("zazen-world__tile--preview-pave");
+                }
+                if (previewKeys.has(key) && !previewAffordable) {
+                  classes.push("zazen-world__tile--preview-denied");
+                }
+                if (
+                  focusedPosition.posX === tile.posX &&
+                  focusedPosition.posY === tile.posY &&
+                  inspectDay !== undefined
+                ) {
+                  classes.push("zazen-world__tile--inspected");
+                }
+                const { left, top } = toScreen(
+                  tile.posX,
+                  tile.posY,
+                  mapDimensions.offsetX,
+                  mapDimensions.offsetY,
+                );
+                return (
+                  <div
+                    className={classes.join(" ")}
+                    key={key}
+                    style={
+                      {
+                        "--depth-light": depthLightFor(tile.posX, tile.posY),
+                        "--wind-phase": windPhaseFor(tile.posX, tile.posY),
+                        "--grow-delay": `${growDelayFor(tileIndexForPosition(tile))}ms`,
+                        left: `${left}px`,
+                        top: `${top}px`,
+                      } as React.CSSProperties
+                    }
+                    // Only the neighbouring tiles are exposed as buttons. Every tile is
+                    // clickable, but announcing 144 of them would bury the useful ones —
+                    // keyboard users get the whole garden through the Tab inspect cursor,
+                    // which reads each day out and walks there on Enter.
+                    data-rake={rakeIndex >= 0 ? "marked" : undefined}
+                    data-threatened={
+                      threatenedPaths.some((target) => manhattan(tile, target) === 0) || undefined
+                    }
+                    role={adjacent ? "button" : undefined}
+                    aria-disabled={adjacent && game.phase === "gardener" ? true : undefined}
+                    aria-label={adjacent ? `Walk to ${tile.posX}, ${tile.posY}` : undefined}
+                    onClick={
+                      reachable
+                        ? () => {
+                            handleTileClick(tile);
+                          }
+                        : undefined
+                    }
+                    onMouseEnter={() => {
+                      setHoverPosition({ posX: tile.posX, posY: tile.posY });
+                      setHoverDay(dayIndexForPosition(tile));
+                    }}
+                    onMouseLeave={() => {
+                      setHoverPosition(undefined);
+                      setHoverDay(undefined);
+                    }}
+                  >
+                    <TileRenderer tile={tile} />
+                    {game.gardenerActivity === "rake" &&
+                      manhattan(tile, game.gardenerPosition) === 0 && (
+                        <span className="zazen-world__rake-dust" aria-hidden="true" />
+                      )}
+                    {game.phase === "gardener" &&
+                      game.gardenerActions.some(
+                        (action) =>
+                          action.kind === "walk" && manhattan(tile, action.position) === 0,
+                      ) && <span className="zazen-world__gardener-footstep" aria-hidden="true" />}
 
-                  {/* The tile itself is a 0x0 box: it is absolutely positioned and so is
+                    {/* The tile itself is a 0x0 box: it is absolutely positioned and so is
                     everything in it. This span is the actual hit area, clipped to the
                     diamond so neighbouring tiles never steal each other's clicks. */}
-                  <span className="zazen-world__hit" aria-hidden="true" />
-                </div>
-              );
-            })}
-            <div className="zazen-world__weather" aria-hidden="true" />
-            <div className="zazen-world__grade" aria-hidden="true" />
-            {/* Rare on purpose. Something that crosses every few seconds is scenery;
+                    <span className="zazen-world__hit" aria-hidden="true" />
+                  </div>
+                );
+              })}
+              <div className="zazen-world__weather" aria-hidden="true" />
+              <div className="zazen-world__grade" aria-hidden="true" />
+              {/* Rare on purpose. Something that crosses every few seconds is scenery;
               something that crosses every minute and a half is a thing you notice. */}
-            <div className="zazen-world__sky" aria-hidden="true">
-              <span className="zazen-world__bird" />
-              <span className="zazen-world__bird zazen-world__bird--far" />
-              <span className="zazen-world__bird zazen-world__bird--late" />
-              {MOTES.map((mote) => (
-                <span
-                  className="zazen-world__mote"
-                  key={mote}
-                  style={{ "--mote": mote } as React.CSSProperties}
-                />
-              ))}
-            </div>
-            <Gardener
-              position={game.gardenerPosition}
-              activity={game.gardenerActivity}
-              facingLeft={game.gardenerFacingLeft}
-              offsetX={mapDimensions.offsetX}
-              offsetY={mapDimensions.offsetY}
-            />
-            {companion && (
-              <ZazenCompanion
-                walking={companionWalking}
-                position={companion.position}
-                facingLeft={companion.facingLeft}
-                offsetX={game.mapDimensions.offsetX}
-                offsetY={game.mapDimensions.offsetY}
+              <div className="zazen-world__sky" aria-hidden="true">
+                <span className="zazen-world__bird" />
+                <span className="zazen-world__bird zazen-world__bird--far" />
+                <span className="zazen-world__bird zazen-world__bird--late" />
+                {MOTES.map((mote) => (
+                  <span
+                    className="zazen-world__mote"
+                    key={mote}
+                    style={{ "--mote": mote } as React.CSSProperties}
+                  />
+                ))}
+              </div>
+              <Gardener
+                position={game.gardenerPosition}
+                activity={game.gardenerActivity}
+                facingLeft={game.gardenerFacingLeft}
+                offsetX={mapDimensions.offsetX}
+                offsetY={mapDimensions.offsetY}
               />
-            )}
-            <ZazenCat
-              walking={catWalking}
-              position={cat.position}
-              facingLeft={cat.facingLeft}
-              greeting={catGreeting}
-              offsetX={mapDimensions.offsetX}
-              offsetY={mapDimensions.offsetY}
-            />
-            <ZazenPilgrim
-              renderPosition={step.renderPosition}
-              facing={step.facing}
-              frame={step.frame}
-              moving={step.moving}
-              offsetX={mapDimensions.offsetX}
-              offsetY={mapDimensions.offsetY}
-            />
+              {companion && (
+                <ZazenCompanion
+                  walking={companionWalking}
+                  position={companion.position}
+                  facingLeft={companion.facingLeft}
+                  offsetX={game.mapDimensions.offsetX}
+                  offsetY={game.mapDimensions.offsetY}
+                />
+              )}
+              <ZazenCat
+                walking={catWalking}
+                position={cat.position}
+                facingLeft={cat.facingLeft}
+                greeting={catGreeting}
+                offsetX={mapDimensions.offsetX}
+                offsetY={mapDimensions.offsetY}
+              />
+              <ZazenPilgrim
+                renderPosition={step.renderPosition}
+                facing={step.facing}
+                frame={step.frame}
+                moving={step.moving}
+                offsetX={mapDimensions.offsetX}
+                offsetY={mapDimensions.offsetY}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -1641,24 +1662,24 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         />
       )}
       {!game.finaleOpen && (
-        <ZazenDayCard
-          tile={focusedTile}
-          dayIndex={focusedDayIndex}
-          totalDays={WINDOW_DAYS}
-          inspecting={inspectDay !== undefined}
-        />
-      )}
-      {!game.finaleOpen && (
-        <ZazenHeatmap
-          days={resolvedSeed.days}
-          pilgrimDay={dayIndexForPosition(game.position)}
-          inspectDay={inspectDay}
-          focusDay={focusedDayIndex}
-          stoneDays={stoneDays}
-          shrineDay={WINDOW_DAYS - 1}
-          onHoverDay={setHoverDay}
-          onSelectDay={walkToDay}
-        />
+        <div className="path-stones__almanac">
+          <ZazenDayCard
+            tile={focusedTile}
+            dayIndex={focusedDayIndex}
+            totalDays={WINDOW_DAYS}
+            inspecting={inspectDay !== undefined}
+          />
+          <ZazenHeatmap
+            days={resolvedSeed.days}
+            pilgrimDay={dayIndexForPosition(game.position)}
+            inspectDay={inspectDay}
+            focusDay={focusedDayIndex}
+            stoneDays={stoneDays}
+            shrineDay={WINDOW_DAYS - 1}
+            onHoverDay={setHoverDay}
+            onSelectDay={walkToDay}
+          />
+        </div>
       )}
       <aside className="path-stones__source" aria-labelledby="garden-source-title">
         <div>

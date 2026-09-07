@@ -18,7 +18,7 @@ const seed = parseGardenSeed(gardenData);
 ---
 
 <html lang="en">
-  <head><BaseHead title="Path of Stones" description="A pixel-art garden shaped by @heristop’s public GitHub activity. Gather five stones, outwit the gardener and awaken the shrine." /></head>
+  <head><link rel="preload" as="image" href="/images/zazen/sanctuary-dawn.webp" /><BaseHead title="Path of Stones" description="A pixel-art garden shaped by @heristop’s public GitHub activity. Gather five stones, outwit the gardener and awaken the shrine." /></head>
   <body class="stone-game-page">
     <ClientRouter />
     <a href="#main-content" class="skip-link">Skip to game</a>
@@ -37,7 +37,7 @@ const seed = parseGardenSeed(gardenData);
           </ol>
           <p>Your tile and its neighbours stay safe. After the last refill, an empty supply with no reachable reward ends the run.</p>
           <p class="stone-game-help__tip">Controller: left stick or D-pad to walk; A / ✕ to focus the garden or replay after a run; B / ○ to cancel; X / □ for sound; Start / Options for this guide.</p>
-          <p class="stone-game-help__tip">On a phone, drag the garden sideways to explore. Tap a tile to travel.</p>
+          <p class="stone-game-help__tip">On a phone, drag the garden to explore. Tap a tile to travel.</p>
         </div>
       </details>
     </nav>

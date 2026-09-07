@@ -31,7 +31,9 @@ describe("<ZazenWorld />", () => {
   it("renders the Path of Stones heading and states the rule", () => {
     render(<ZazenWorld />);
     expect(screen.getByRole("heading", { level: 1, name: /path of stones/i })).toBeInTheDocument();
-    expect(screen.getByText(/Gather the five stones/i)).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Current objective" })).toHaveTextContent(
+      "Gather the five stones",
+    );
   });
 
   // A resource the player cannot see is not a resource, it is a trap. The supply has to

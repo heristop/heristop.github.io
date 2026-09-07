@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Icon from "../../../icon";
 
 export default function TurnAnnouncement({
   phase,
@@ -24,8 +25,13 @@ export default function TurnAnnouncement({
       data-side={gardener ? "gardener" : "player"}
       aria-hidden="true"
     >
-      <div className="path-stones__turn-standard">
-        <span className="path-stones__turn-crest">{gardener ? "♜" : "◆"}</span>
+      <div
+        className="path-stones__turn-standard"
+        data-round={["I", "II", "III", "IV"][Math.min(3, Math.max(0, round - 1))]}
+      >
+        <span className="path-stones__turn-crest">
+          <Icon name={gardener ? "feather" : "compass"} size={24} />
+        </span>
         <span className="path-stones__turn-kicker">
           {opening ? "Opening move" : `Round ${round} · Path of Stones`}
         </span>
