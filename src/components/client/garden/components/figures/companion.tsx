@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import type { Position } from "../../types";
 import { toScreen } from "../../board/geometry";
 
@@ -14,30 +13,17 @@ import { toScreen } from "../../board/geometry";
 // diamond's front vertex at y = 32, less the sprite's own footing at y = 37.
 const ANCHOR_X = 20;
 const ANCHOR_Y = -5;
-const STRIDE_MS = 460;
 
 interface Props {
   position: Position;
+  walking: boolean;
   facingLeft: boolean;
   offsetX: number;
   offsetY: number;
 }
 
-const ZazenCompanion = ({ position, facingLeft, offsetX, offsetY }: Props) => {
+const ZazenCompanion = ({ position, walking, facingLeft, offsetX, offsetY }: Props) => {
   const { left, top } = toScreen(position.posX, position.posY, offsetX, offsetY);
-
-  // She has one frame, so there is no walk cycle to run — but she still leans into a step
-  // and settles out of it, which is enough to read as walking rather than gliding.
-  const [walking, setWalking] = useState(false);
-  useEffect(() => {
-    setWalking(true);
-    const timer = setTimeout(() => {
-      setWalking(false);
-    }, STRIDE_MS);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [position.posX, position.posY]);
 
   return (
     <div
@@ -52,13 +38,11 @@ const ZazenCompanion = ({ position, facingLeft, offsetX, offsetY }: Props) => {
         top: `${top + ANCHOR_Y}px`,
       }}
     >
-      <img
-        src="/images/zazen/persos/npc-2.png"
-        alt=""
-        className="zazen-world__companion-sprite"
+      <span
+        className="zazen-world__companion-sprite zazen-world__npc-2-sprite"
         // Mirrored rather than drawn twice. A horizontal flip is the one transform pixel
         // art survives intact — every pixel lands on another pixel.
-        style={{ transform: facingLeft ? "scaleX(-1)" : undefined }}
+        style={{ scale: facingLeft ? "-1 1" : undefined }}
       />
     </div>
   );

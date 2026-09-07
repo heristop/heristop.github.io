@@ -1639,20 +1639,31 @@
   filter: drop-shadow(1px 1px 0 oklch(0% 0 0deg / 22%));
 }
 
-/* One frame, so the step is carried by the lean rather than by a walk cycle. */
-.zazen-world__companion--walking .zazen-world__companion-sprite {
-  animation: path-stones-companion-step 460ms var(--zen-ease-in-out, ease-in-out);
+.zazen-world__npc-2-sprite {
+  display: block;
+  width: 24px;
+  height: 40px;
+  background: url("/images/zazen/persos/npc-2-life.png") no-repeat 0 0 / 96px 80px;
+  image-rendering: pixelated;
+  animation: path-stones-companion-idle 7s steps(1, end) infinite;
 }
 
-@keyframes path-stones-companion-step {
-  0%,
-  100% {
-    translate: 0 0;
-  }
+.zazen-world__companion--walking .zazen-world__companion-sprite {
+  background-position: 0 -40px;
+  animation: path-stones-companion-walk 460ms steps(4) infinite;
+}
 
-  50% {
-    translate: 0 -1px;
-  }
+@keyframes path-stones-companion-idle {
+  0%, 64%, 100% { background-position: 0 0; }
+  68%, 74% { background-position: -24px 0; }
+  78%, 86% { background-position: -48px 0; }
+  82%, 90% { background-position: -72px 0; }
+  94% { background-position: -24px 0; }
+}
+
+@keyframes path-stones-companion-walk {
+  from { background-position: 0 -40px; }
+  to { background-position: -96px -40px; }
 }
 
 @keyframes path-stones-npc-arrive {
@@ -2297,10 +2308,7 @@ button.path-stones__heat-cell:focus-visible {
   }
 }
 
-/* The cat. Two frames stepped continuously — he is never quite still even when he has
-   not moved, which is the difference between a cat and an ornament of a cat. The slide
-   between tiles is on left/top rather than a transform, because a transform would fight
-   the horizontal flip that gives him his facing. */
+/* Three rows of four pixel frames: walk, idle, and greeting. */
 .zazen-world__cat {
   position: absolute;
   z-index: 2;
@@ -2308,7 +2316,7 @@ button.path-stones__heat-cell:focus-visible {
   height: 24px;
   background-image: url("/images/zazen/persos/cat-walk.png");
   background-repeat: no-repeat;
-  background-size: 48px 24px;
+  background-size: 96px 72px;
   image-rendering: pixelated;
   pointer-events: none;
   transition:
@@ -2317,7 +2325,8 @@ button.path-stones__heat-cell:focus-visible {
 
   /* The walk cycle is applied only while he is between tiles — see --walking. Sitting on
      the frame he stopped on is what a cat at rest looks like. */
-  background-position: 0 0;
+  background-position: 0 -24px;
+  animation: path-stones-cat-idle 5.6s steps(1, end) infinite;
 
   /* His footing. The contact shadow every prop gets comes from the tile it stands on, and
      he stopped standing on a tile the moment he started walking between them — so he was
@@ -2344,8 +2353,24 @@ button.path-stones__heat-cell:focus-visible {
 /* The greeting. A heart plotted pixel by pixel in box-shadows rather than drawn with a
    border-radius, because a rounded rectangle at five pixels across is a blob — and the
    one thing this board cannot have is a soft shape sitting next to hard ones. */
+.zazen-world__cat--greeting:not(.zazen-world__cat--walking) {
+  animation: path-stones-cat-greeting 1.2s steps(4) infinite;
+}
+
 .zazen-world__cat--walking {
-  animation: path-stones-cat-step 300ms steps(2) infinite;
+  animation: path-stones-cat-step 460ms steps(4) infinite;
+}
+
+@keyframes path-stones-cat-idle {
+  0%, 65%, 100% { background-position: 0 -24px; }
+  70%, 82% { background-position: -24px -24px; }
+  76% { background-position: -48px -24px; }
+  88%, 94% { background-position: -72px -24px; }
+}
+
+@keyframes path-stones-cat-greeting {
+  from { background-position: 0 -48px; }
+  to { background-position: -96px -48px; }
 }
 
 .zazen-world__cat--greeting::before {
@@ -2407,7 +2432,7 @@ button.path-stones__heat-cell:focus-visible {
   }
 
   to {
-    background-position: -48px 0;
+    background-position: -96px 0;
   }
 }
 
@@ -3066,6 +3091,7 @@ button.path-stones__heat-cell:focus-visible {
   .zazen-world__cat--greeting::before,
   .zazen-world__companion,
   .zazen-world__companion-sprite,
+  .zazen-world__npc-2-sprite,
   .zazen-world__tile,
   .zazen-world__pilgrim,
   .zazen-world__pilgrim-sprite {

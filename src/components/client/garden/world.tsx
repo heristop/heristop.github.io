@@ -1,14 +1,17 @@
+import useGamepad from "./composables/use-gamepad";
 import "./world.scss";
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from "lucide-react";
+import "./diorama.scss";
+import { MAX_GARDENER_TURNS } from "./board/challenge";
+import { chooseRakeTargets } from "./board/gardener";
+import Gardener from "./components/figures/gardener";
+import TurnAnnouncement from "./components/hud/turn-announcement";
+import useStride from "./composables/use-stride";
+import Journey from "./components/hud/journey";
+import { DiscoveryReveal } from "./components/hud/discovery-cards";
+import Icon from "../icon";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { GardenSeed } from "./schema";
-import {
-  DATA_TILES,
-  FALLBACK_SEED,
-  GRID_SIZE,
-  STONE_COUNT,
-  WINDOW_DAYS,
-} from "./schema";
+import { DATA_TILES, FALLBACK_SEED, GRID_SIZE, STONE_COUNT, WINDOW_DAYS } from "./schema";
 import type { Direction, MapTile, Position } from "./types";
 // One import per layer, not one per file. The island is the only thing in the module that
 // touches all four, so it is the one place where the layering is visible at a glance —
@@ -43,9 +46,9 @@ import {
 import { prefersReducedMotion, useZazenAudio, useZazenGame, useZazenStep } from "./composables";
 
 const ICON_SIZE = 16;
-const ICON_STROKE_WIDTH = 2.5;
 const BURST_SETTLE_MS = 30;
 const MAX_SCALE = 3;
+const MAX_BOARD_WIDTH = 960;
 const AUTO_STEP_MS = 190;
 
 // Left alone, he walks. He waits this long after you last touched anything, then takes a
@@ -144,19 +147,19 @@ const CAT_FOLLOW_CHANCE = 0.8;
 const CAT_HURRY_RANGE = 4;
 const CAT_START: Position = { posX: 0, posY: 3 };
 
-const WANDER_AFTER_MS = 7000;
-const WANDER_TICK_MS = 2600;
-const WANDER_CHANCE = 0.55;
 const DIRECTIONS: readonly Direction[] = ["N", "S", "E", "W"];
 
 // Integer scale only. A fractional scale resamples every sprite and destroys the pixel
 // grid the art is authored on; below scale 1 the map pans inside its wrapper rather
-// than shrinking.
+// than shrinking. Cap the available space so wide monitors do not magnify the board.
 const chooseMapScale = (available: number, naturalWidth: number): number => {
   if (naturalWidth <= 0) {
     return 1;
   }
-  return Math.min(MAX_SCALE, Math.max(1, Math.floor(available / naturalWidth)));
+  return Math.min(
+    MAX_SCALE,
+    Math.max(1, Math.floor(Math.min(available, MAX_BOARD_WIDTH) / naturalWidth)),
+  );
 };
 
 interface DirectionButtonProps {
@@ -316,9 +319,24 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
       {...glowAttr}
     >
       {tile.laid === true && <LaidBurst />}
-      {tile.gathered === true && <GatherBurst />}
+      {tile.gathered === true && (
+        <>
+          <GatherBurst />
+          <span className="zazen-world__reward" aria-hidden="true">
+            +{STONE_REFUEL} stones
+          </span>
+        </>
+      )}
       {tile.transformed === true && <FrogBurst />}
-      {tile.npc !== 0 && (
+      {tile.stone !== undefined && (
+        <span className="zazen-world__beacon" aria-hidden="true">
+          ◆
+        </span>
+      )}
+      {tile.npc === 2 && (
+        <span className="zazen-world__npc zazen-world__npc-2-sprite" aria-hidden="true" />
+      )}
+      {tile.npc !== 0 && tile.npc !== 2 && (
         <img
           src={`/images/zazen/persos/npc-${tile.npc}.png`}
           alt=""
@@ -334,23 +352,46 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
           src={`/images/zazen/decors/${tile.decor}.png`}
           alt=""
           className="zazen-world__decor"
+          data-foreground={
+            (tile.posX + tile.posY > 8 && ["pine", "maple", "sakura"].includes(tile.decor)) ||
+            undefined
+          }
         />
       )}
     </div>
   );
 });
 
-const northIcon = <ArrowUp size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />;
-const westIcon = <ArrowLeft size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />;
-const eastIcon = <ArrowRight size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />;
-const southIcon = <ArrowDown size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />;
+const northIcon = <Icon name="arrow-up" size={ICON_SIZE} />;
+const westIcon = <Icon name="arrow-left" size={ICON_SIZE} />;
+const eastIcon = <Icon name="arrow-right" size={ICON_SIZE} />;
+const southIcon = <Icon name="arrow-down" size={ICON_SIZE} />;
 
-const CompassPanel = ({ onMove }: { onMove: (dir: Direction) => void }) => (
+const CompassPanel = ({
+  onMove,
+  disabled,
+  stonesLeft,
+}: {
+  onMove: (dir: Direction) => void;
+  disabled: boolean;
+  stonesLeft: number;
+}) => (
   <div className="zazen-world__compass" role="group" aria-labelledby="compass-label">
     <div className="sr-only" id="compass-label">
       Movement controls
     </div>
-    <div className="zazen-world__compass-container">
+    <div className="path-stones__touch-status">
+      <span>{disabled ? "Garden at work" : "Your move"}</span>
+      <strong>
+        {stonesLeft} <small>stones to lay</small>
+      </strong>
+      <p>
+        Tap a tile to travel.
+        <br />
+        Drag the garden to explore.
+      </p>
+    </div>
+    <fieldset className="zazen-world__compass-container" disabled={disabled}>
       <DirectionButton
         direction="N"
         onMove={onMove}
@@ -391,7 +432,7 @@ const CompassPanel = ({ onMove }: { onMove: (dir: Direction) => void }) => (
         keyLabel="S"
         modifier="south"
       />
-    </div>
+    </fieldset>
   </div>
 );
 
@@ -414,14 +455,14 @@ interface Rule {
 const RULES: readonly Rule[] = [
   {
     cost: "free",
-    gloss: "days I committed",
+    gloss: "walk without spending",
     key: "firm",
     sprites: ["moss-mid", "gravel-edge"],
     tone: "free",
   },
   {
     cost: "one stone",
-    gloss: "days I did not",
+    gloss: "lay a stepping stone",
     key: "sand",
     sprites: ["sand-0"],
     tone: "cost",
@@ -476,7 +517,6 @@ const Legend = () => (
 const MOTES = [0, 1, 2, 3, 4, 5, 6, 7];
 
 // Long enough for the stone to land, the dust to clear and the counter to settle at zero.
-const DEFEAT_SETTLE_MS = 1100;
 
 // No ceiling on what a route may cost. Used when the question is "what would this cost"
 // rather than "what can I have" — the board is 144 tiles, so nothing can exceed it.
@@ -489,8 +529,7 @@ const UNCAPPED = Number.POSITIVE_INFINITY;
 // the stylesheet hangs two identically-bodied keyframes off the two values, so every event
 // swaps animation-name and the animation restarts from the top. No remount, nothing to
 // leak. Nothing has happened yet at zero, so nothing animates on first paint.
-const pulseFor = (count: number): string | undefined =>
-  count > 0 ? String(count % 2) : undefined;
+const pulseFor = (count: number): string | undefined => (count > 0 ? String(count % 2) : undefined);
 
 const GROW_FRAME_MS = 240;
 const GROW_PER_DAY_MS = 11;
@@ -508,8 +547,7 @@ const DEPTH_NEAR = 0.88;
 
 // A stable pseudo-random offset per tile. Without it every tree on the board leans the
 // same way at the same moment, which reads as one sheet of paper moving rather than wind.
-const windPhaseFor = (posX: number, posY: number): number =>
-  ((posX * 7 + posY * 13) % 11) / 11;
+const windPhaseFor = (posX: number, posY: number): number => ((posX * 7 + posY * 13) % 11) / 11;
 
 const depthLightFor = (posX: number, posY: number): number => {
   const depth = (posX + posY) / DEPTH_SPAN;
@@ -546,6 +584,20 @@ const dispatchSakuraBurstForStone = (stoneIndex: number) => {
 
 const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   const audio = useZazenAudio();
+  const [soundOn, setSoundOn] = useState(() => {
+    try {
+      return window.localStorage.getItem("path-stones:sound") !== "off";
+    } catch {
+      return true;
+    }
+  });
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("path-stones:sound", soundOn ? "on" : "off");
+    } catch {
+      /* Sound controls still work when browser storage is unavailable. */
+    }
+  }, [soundOn]);
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const panRef = useRef<HTMLDivElement>(null);
@@ -572,30 +624,25 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     { facingLeft: boolean; position: Position } | undefined
   >(undefined);
 
-
-  // Any deliberate input parks him. He is ambience, and ambience must never fight the
-  // hand on the keyboard.
-  const lastInputRef = useRef(Date.now());
-  const noteInput = useCallback(() => {
-    lastInputRef.current = Date.now();
-  }, []);
+  const catWalking = useStride(cat.position);
+  const companionWalking = useStride(companion?.position ?? CAT_START);
 
   const handleStoneCollected = useCallback(
     (stoneIndex: number) => {
-      audio.playChime();
+      if (soundOn) audio.playChime();
       lastBurstStoneRef.current = stoneIndex;
     },
-    [audio],
+    [audio, soundOn],
   );
 
   const handleFinaleOpened = useCallback(() => {
-    audio.playBell();
-  }, [audio]);
+    if (soundOn) audio.playBell();
+  }, [audio, soundOn]);
 
   // The one sound in the garden that means you spent something.
   const handleStoneLaid = useCallback(() => {
-    audio.playStoneDrop();
-  }, [audio]);
+    if (soundOn) audio.playStoneDrop();
+  }, [audio, soundOn]);
 
   const game = useZazenGame({
     onFinaleOpened: handleFinaleOpened,
@@ -618,7 +665,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
 
   const handleTileClick = useCallback(
     (tile: MapTile) => {
-      noteInput();
+      if (game.phase !== "player" || game.finaleOpen) return;
       // Priced, not merely walkable. The mouse used to be barred from sand entirely — you
       // could only pave by nudging into it with a key, which made the game's central move
       // unavailable to the input most people were using.
@@ -632,18 +679,11 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         setRefusal("No way through to there at any price.");
         return;
       }
-      if (route_.cost > game.stonesLeft) {
-        setRefusal(
-          `That way costs ${route_.cost} ${route_.cost === 1 ? "stone" : "stones"}. ` +
-            `You are carrying ${game.stonesLeft}.`,
-        );
-        return;
-      }
       setRefusal(undefined);
       setCursorDay(undefined);
       setRoute(route_.path);
     },
-    [game.map, game.position, game.stonesLeft, noteInput],
+    [game.map, game.position, game.stonesLeft, game.phase, game.finaleOpen],
   );
 
   // Route preview. Showing where a click will take you before it happens is what makes
@@ -667,7 +707,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       ? "\u00a0"
       : previewAffordable
         ? `This way: ${preview.cost} ${preview.cost === 1 ? "stone" : "stones"}`
-        : `This way: ${preview.cost} ${preview.cost === 1 ? "stone" : "stones"} — you have ${game.stonesLeft}`;
+        : `This way: ${preview.cost} stones · walk until the gardener’s turn`;
 
   const previewKeys = useMemo(
     () => new Set((preview?.path ?? []).map((step_) => `${step_.posX},${step_.posY}`)),
@@ -690,9 +730,9 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   // chart is a control rather than a decoration hanging off the side of the game.
   const walkToDay = useCallback(
     (dayIndex: number) => {
-      noteInput();
+      if (game.phase !== "player") return;
       const target = positionForDay(dayIndex);
-      const path = cheapestRoute(game.map, game.position, target, game.stonesLeft)?.path;
+      const path = cheapestRoute(game.map, game.position, target, UNCAPPED)?.path;
       setRefusal(undefined);
       if (!path || path.length === 0) {
         return;
@@ -700,7 +740,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       setCursorDay(undefined);
       setRoute(path);
     },
-    [game.map, game.position],
+    [game.map, game.position, game.phase],
   );
 
   const resolvedSeed = seed ?? FALLBACK_SEED;
@@ -720,8 +760,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   }, [game.map]);
 
   const inspectDay = hoverDay ?? cursorDay;
-  const focusedPosition =
-    inspectDay === undefined ? game.position : positionForDay(inspectDay);
+  const focusedPosition = inspectDay === undefined ? game.position : positionForDay(inspectDay);
   const focusedTile = tileAt(game.map, focusedPosition);
   const focusedDayIndex = dayIndexForPosition(focusedPosition);
 
@@ -778,32 +817,48 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   // the visible strip — inside it the visitor's own panning is left alone.
   useEffect(() => {
     const pan = panRef.current;
-    if (!pan || pan.scrollWidth <= pan.clientWidth) {
-      return;
-    }
-    const framed = hasFramedRef.current;
-    hasFramedRef.current = true;
-    const { left } = toScreen(
-      step.renderPosition.posX,
-      step.renderPosition.posY,
-      game.mapDimensions.offsetX,
-      game.mapDimensions.offsetY,
-    );
-    const pilgrimX = (left + PILGRIM_ANCHOR_X) * mapScale;
-    const margin = Math.min(96, pan.clientWidth / 4);
-    const tooFarLeft = pilgrimX < pan.scrollLeft + margin;
-    const tooFarRight = pilgrimX > pan.scrollLeft + pan.clientWidth - margin;
-    if (!tooFarLeft && !tooFarRight) {
-      return;
-    }
-    // Following the pilgrim is a movement and should be seen as one; the very first
-    // framing is not. Sliding the garden sideways the moment the page opens reads as the
-    // board drifting of its own accord, so the opening view is simply the right one.
-    pan.scrollTo({
-      behavior: !framed || prefersReducedMotion() ? "auto" : "smooth",
-      left: pilgrimX - pan.clientWidth / 2,
-    });
-  }, [step.renderPosition, game.mapDimensions, mapScale]);
+    if (!pan) return;
+    const frameActor = () => {
+      if (pan.scrollWidth <= pan.clientWidth && pan.scrollHeight <= pan.clientHeight) return;
+      const framed = hasFramedRef.current;
+      hasFramedRef.current = true;
+      const focus =
+        game.phase === "gardener" && !prefersReducedMotion()
+          ? game.gardenerPosition
+          : step.renderPosition;
+      const { left, top } = toScreen(
+        focus.posX,
+        focus.posY,
+        game.mapDimensions.offsetX,
+        game.mapDimensions.offsetY,
+      );
+      const pilgrimX = (left + PILGRIM_ANCHOR_X) * mapScale;
+      const pilgrimY = (top + 16) * mapScale;
+      const marginY = Math.min(80, pan.clientHeight / 4);
+      const margin = Math.min(96, pan.clientWidth / 4);
+      if (
+        pilgrimX >= pan.scrollLeft + margin &&
+        pilgrimX <= pan.scrollLeft + pan.clientWidth - margin &&
+        pilgrimY >= pan.scrollTop + marginY &&
+        pilgrimY <= pan.scrollTop + pan.clientHeight - marginY
+      )
+        return;
+      pan.scrollTo({
+        behavior: !framed || prefersReducedMotion() ? "auto" : "smooth",
+        left: pilgrimX - pan.clientWidth / 2,
+        top: pilgrimY - pan.clientHeight / 2,
+      });
+    };
+    frameActor();
+    const observer =
+      typeof ResizeObserver === "function" ? new ResizeObserver(frameActor) : undefined;
+    observer?.observe(pan);
+    window.addEventListener("resize", frameActor);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", frameActor);
+    };
+  }, [step.renderPosition, game.mapDimensions, game.phase, game.gardenerPosition, mapScale]);
 
   // A fresh garden — or a restart — may not have firm ground where he was standing.
   useEffect(() => {
@@ -875,8 +930,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     const timer = setInterval(() => {
       // He hurries when he has fallen behind and dawdles when he has not, which is the
       // difference between a follower and an escort.
-      const chance =
-        manhattan(cat.position, game.position) > CAT_HURRY_RANGE ? 1 : CAT_MOVE_CHANCE;
+      const chance = manhattan(cat.position, game.position) > CAT_HURRY_RANGE ? 1 : CAT_MOVE_CHANCE;
       if (Math.random() > chance) {
         return;
       }
@@ -899,8 +953,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         // freeze he steps to the nearest place with somewhere to go.
         if (open.length === 0) {
           const footing = catFooting(game.map, game.position);
-          return footing.posX === current.position.posX &&
-            footing.posY === current.position.posY
+          return footing.posX === current.position.posX && footing.posY === current.position.posY
             ? current
             : { facingLeft: current.facingLeft, position: footing };
         }
@@ -916,8 +969,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         const next = routed ?? open[Math.floor(Math.random() * open.length)];
         return {
           // N and W both travel leftwards on screen; E and S both travel right.
-          facingLeft:
-            next.posX - next.posY < current.position.posX - current.position.posY,
+          facingLeft: next.posX - next.posY < current.position.posX - current.position.posY,
           position: next,
         };
       });
@@ -927,46 +979,15 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     };
   }, [cat.position, game.map, game.position]);
 
-  // His own life. A garden whose only inhabitant stands perfectly still until poked reads
-  // as a diorama; one where he wanders off on his own reads as a place that exists whether
-  // or not you are watching.
-  useEffect(() => {
-    if (game.finaleOpen || prefersReducedMotion()) {
-      return;
-    }
-    const timer = setInterval(() => {
-      if (route.length > 0 || Date.now() - lastInputRef.current < WANDER_AFTER_MS) {
-        return;
-      }
-      // He dawdles: most ticks he simply stays where he is, which is what stops the
-      // wandering reading as a machine pacing a cage.
-      if (Math.random() > WANDER_CHANCE) {
-        return;
-      }
-      const open = DIRECTIONS.filter((direction) => {
-        const next = applyDirectionOffset(direction, game.position.posX, game.position.posY);
-        const tile = tileAt(game.map, next);
-        return (
-          tile !== undefined &&
-          isWalkableTile(tile) &&
-          tile.stone === undefined &&
-          tile.shrine === undefined
-        );
-      });
-      if (open.length === 0) {
-        return;
-      }
-      game.move(open[Math.floor(Math.random() * open.length)]);
-    }, WANDER_TICK_MS);
-    return () => {
-      clearInterval(timer);
-    };
-  }, [game, route.length]);
-
   // Walk a queued route one tile per step, so Enter can send the pilgrim to a tile that
   // is not adjacent. Each step goes through game.move, so stones, the shrine and the
   // walkability rules all behave exactly as they do for a keypress.
   useEffect(() => {
+    if (game.phase !== "player" || game.finaleOpen) {
+      if (route.length > 0) setRoute([]);
+      setRefusal(undefined);
+      return;
+    }
     if (route.length === 0) {
       return;
     }
@@ -1042,29 +1063,99 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   // tile remain the ways to move, on every device.
 
   const { mapDimensions } = game;
-  // A defeat that appears the instant the last stone lands reads as an accusation. Let
-  // the dust settle first; the state itself is already final, this only delays the news.
-  const [defeatVisible, setDefeatVisible] = useState(false);
-  useEffect(() => {
-    if (!game.doomed) {
-      setDefeatVisible(false);
-      return;
-    }
-    const timer = setTimeout(() => {
-      setDefeatVisible(true);
-    }, DEFEAT_SETTLE_MS);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [game.doomed]);
-
   const handleReplay = useCallback(() => {
     setCatMet(false);
-    setDefeatVisible(false);
+    setRefusal(undefined);
+    setHoverDay(undefined);
+    setHoverPosition(undefined);
+    hasFramedRef.current = false;
     setRoute([]);
     setCursorDay(undefined);
     game.restart();
   }, [game]);
+
+  const focusPilgrim = useCallback(() => {
+    const pan = panRef.current;
+    if (!pan) return;
+    const { left, top } = toScreen(
+      game.position.posX,
+      game.position.posY,
+      game.mapDimensions.offsetX,
+      game.mapDimensions.offsetY,
+    );
+    hasFramedRef.current = true;
+    const behavior = prefersReducedMotion() ? "auto" : "smooth";
+    pan.scrollTo({
+      left: (left + PILGRIM_ANCHOR_X) * mapScale - pan.clientWidth / 2,
+      top: (top + 16) * mapScale - pan.clientHeight / 2,
+      behavior,
+    });
+    pan.scrollIntoView({ block: "center", behavior });
+    mapRef.current?.focus({ preventScroll: true });
+  }, [game.position, game.mapDimensions, mapScale]);
+
+  const gamepad = useGamepad({
+    canMove: () =>
+      game.phase === "player" &&
+      !game.finaleOpen &&
+      !document.querySelector(".stone-game-help[open]") &&
+      !document.activeElement?.matches("input, textarea, select, [contenteditable=true]"),
+    move: (direction) => {
+      setRoute([]);
+      setCursorDay(undefined);
+      game.move(direction);
+    },
+    confirm: () => {
+      const help = document.querySelector<HTMLDetailsElement>(".stone-game-help");
+      if (help?.open) {
+        help.open = false;
+        return;
+      }
+      if (game.phase === "lost" || game.finaleOpen) {
+        handleReplay();
+        return;
+      }
+      focusPilgrim();
+    },
+    cancel: () => {
+      setRoute([]);
+      setCursorDay(undefined);
+      const help = document.querySelector<HTMLDetailsElement>(".stone-game-help");
+      if (help) help.open = false;
+    },
+    sound: () => setSoundOn((current) => !current),
+    help: () => {
+      if (game.phase === "lost" || game.finaleOpen) return;
+      const help = document.querySelector<HTMLDetailsElement>(".stone-game-help");
+      if (help) {
+        help.open = !help.open;
+        if (help.open) {
+          setRoute([]);
+          window.scrollTo({ top: 0, behavior: "instant" });
+        }
+      }
+    },
+  });
+
+  const threatenedPaths = useMemo(
+    () =>
+      game.phase === "player" && game.stonesLeft === 1 && game.gardenerTurns < MAX_GARDENER_TURNS
+        ? chooseRakeTargets(game.map, game.laidTrail, game.position, game.gardenerTurns + 1, {
+            budget: 2 * (MAX_GARDENER_TURNS - game.gardenerTurns),
+            from: game.gardenerPosition,
+          })
+        : [],
+    [
+      game.phase,
+      game.stonesLeft,
+      game.gardenerTurns,
+      game.map,
+      game.laidTrail,
+      game.position,
+      game.gardenerPosition,
+    ],
+  );
+  const refillsLeft = Math.max(0, MAX_GARDENER_TURNS - game.gardenerTurns);
 
   const stonesLabel = `${game.stonesFound.length} of ${STONE_COUNT} stones gathered`;
   const supplyLabel = `${game.stonesLeft} stepping stones left to lay`;
@@ -1076,32 +1167,60 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   }
 
   return (
-    <div className="zazen-world-container path-stones" ref={containerRef}>
+    <div
+      className="zazen-world-container path-stones"
+      ref={containerRef}
+      data-awakened={game.shrineActivated || undefined}
+    >
+      <DiscoveryReveal
+        catMet={catMet}
+        frogFreed={game.frogFreed}
+        paused={game.phase !== "player"}
+      />
+      {!game.finaleOpen && (
+        <TurnAnnouncement
+          phase={game.phase}
+          opening={game.openingTurn}
+          round={Math.max(1, game.gardenerTurns + (game.phase === "player" ? 1 : 0))}
+        />
+      )}
+      <div className="path-stones__ambient" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
       <div className="sr-only" aria-live="polite">
         {game.announcement}
       </div>
       <div className="zazen-world__header path-stones__header">
-        <h1 className="sr-only">Path of Stones</h1>
-        <p className="path-stones__intro">Cross the garden without disturbing the sand.</p>
+        <span className="path-stones__eyebrow path-stones__attribution">
+          A garden shaped by{" "}
+          <a href={`https://github.com/${resolvedSeed.login}`} target="_blank" rel="noreferrer">
+            @{resolvedSeed.login}’s GitHub<span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        </span>
+        <h1 className="path-stones__title">
+          Path of <em>Stones</em>
+        </h1>
+        <p className="path-stones__intro">Five ancient stones. One path home.</p>
         {/* One line where there were five. Everything the paragraph used to explain is
             now shown by the rule cards below, and what is left is the only thing the
             cards cannot show: whose fortnight this is and which corner it starts at. */}
-        <p className="path-stones__source">
-          {WINDOW_DAYS} days of my public GitHub activity — one bed each, oldest at the
-          near corner.
-        </p>
         <p className="sr-only" id="game-instructions">
-          Click any tile to walk there. WASD and the arrow keys step one tile at a time along
-          the garden's diagonals: up arrow walks up and left, right arrow up and right,
-          down arrow down and right, left arrow down and left. With the garden focused, Tab and Shift+Tab move an inspect cursor
-          through the days oldest to newest, Enter walks to the day under the cursor, and
-          Escape stops inspecting. Moss, gravel and laid stones may be walked on freely.
-          Raked sand may not: stepping onto it lays one of your stepping stones, which
-          costs one from your supply and makes that tile firm for the rest of the walk.
-          Every stone you gather returns {STONE_REFUEL} to your supply, so the order you
-          take them in decides whether you can afford the rest. Gather all five, then walk
-          to the awakened shrine to complete the path. If no stone is left within reach of
-          what you are carrying, the walk is over and the garden can be raked afresh.
+          Click any tile to walk there. WASD and the arrow keys step one tile at a time along the
+          garden's diagonals: up arrow walks up and left, right arrow up and right, down arrow down
+          and right, left arrow down and left. With the garden focused, Tab and Shift+Tab move an
+          inspect cursor through the days oldest to newest, Enter walks to the day under the cursor,
+          and Escape stops inspecting. Moss, gravel and laid stones may be walked on freely. Raked
+          sand may not: stepping onto it lays one of your stepping stones, which costs one from your
+          supply and makes that tile firm until the gardener rakes it. Every stone you gather
+          returns {STONE_REFUEL} to your supply, so the order you take them in decides whether you
+          can afford the rest. Gather all five, then walk to the awakened shrine to complete the
+          path. You have four rounds and three gardener refills. The gardener moves first to rake an
+          approach to a stone. When you run out, he rakes up to two useful approaches on his first
+          return and three on later visits, then gives you two stones. Your tile, its neighbours and
+          discoveries stay safe. In the final round, collect reachable stones or rescue the frog to
+          keep going. If no reward is reachable with an empty supply, the run ends.
         </p>
         {/* Two gauges, not two sentences. What you have gathered and what you have left
             to spend are the only live numbers on the page, and they were set at caption
@@ -1157,24 +1276,25 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
             <span className="path-stones__gauge-label" aria-hidden="true">
               stones to lay
             </span>
-            {/* Every stone the walk has ever held: the ones still in hand, then the
-                sockets of the ones spent. Sizing this to the starting purse stopped
-                being right the moment a gathered stone could hand two back. */}
+            {/* Show this turn's reserve, so repeated refills never grow an endless row. */}
             <span className="path-stones__pips" aria-hidden="true">
-              {Array.from({ length: game.stonesLeft + game.stonesLaid }, (_, index) => {
-                const classes = ["path-stones__pip"];
-                if (index < game.stonesLeft) {
-                  classes.push("path-stones__pip--held");
-                } else {
-                  classes.push("path-stones__pip--spent");
-                }
-                // The pip at the boundary is the one that just went. It gains this class
-                // the moment the count drops, which is what starts its fall.
-                if (index === game.stonesLeft && game.stonesLaid > 0) {
-                  classes.push("path-stones__pip--falling");
-                }
-                return <span className={classes.join(" ")} key={index} />;
-              })}
+              {Array.from(
+                { length: Math.max(game.stonesLeft, game.stoneBudget, 2) },
+                (_, index) => {
+                  const classes = ["path-stones__pip"];
+                  if (index < game.stonesLeft) {
+                    classes.push("path-stones__pip--held");
+                  } else {
+                    classes.push("path-stones__pip--spent");
+                  }
+                  // The pip at the boundary is the one that just went. It gains this class
+                  // the moment the count drops, which is what starts its fall.
+                  if (index === game.stonesLeft && game.stonesLaid > 0) {
+                    classes.push("path-stones__pip--falling");
+                  }
+                  return <span className={classes.join(" ")} key={index} />;
+                },
+              )}
             </span>
           </p>
         </div>
@@ -1194,166 +1314,332 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
           {refusal ?? routePrice}
         </p>
       </div>
-      <Legend />
-      <CompassPanel onMove={game.move} />
-      <div
-        className="zazen-world__map-wrapper"
-        ref={panRef}
-        style={{
-          height: `${Math.max(0, mapScale * mapDimensions.height)}px`,
-          width: `${Math.max(0, mapScale * mapDimensions.width)}px`,
-        }}
-      >
-        <div
-          className="zazen-world__map"
-          ref={mapRef}
-          role="application"
-          tabIndex={0}
-          aria-label="Interactive game world map"
-          aria-describedby="game-instructions"
-          style={
-            {
-              "--board-top": `${DECOR_HEADROOM}px`,
-              "--grow-total": `${GROW_TOTAL_MS}ms`,
-              height: `${mapDimensions.height}px`,
-              transform: `scale(${mapScale})`,
-              transformOrigin: "top left",
-              width: `${mapDimensions.width}px`,
-            } as React.CSSProperties
-          }
-        >
-          {/* The garden's own silhouette, blurred and dropped below it. A filter on the
-              board itself would re-run over 144 children on every step; one diamond costs
-              nothing and casts the same shadow. */}
-          <div className="zazen-world__cast" aria-hidden="true" />
-          <div className="sr-only" aria-live="polite" id="position-announcer">
-            {`Pilgrim is at position ${game.position.posX}, ${game.position.posY}`}
-          </div>
-          {game.map.map((tile) => {
-            const key = `${tile.posX},${tile.posY}`;
-            const adjacent = isStepTarget(tile, game.position);
-            const payable = canPaveTile(tile);
-            const reachable = isWalkableTile(tile) || payable;
-            const classes = ["zazen-world__tile"];
-            if (adjacent) {
-              classes.push("zazen-world__tile--step");
-            }
-            if (reachable) {
-              classes.push("zazen-world__tile--walkable");
-            }
-            // Sand you may cross by paying for it. It was already clickable and already
-            // worked — it simply gave no sign of it: the cursor stayed an arrow and the
-            // hover mark was reserved for tiles you could step to for free, so the game's
-            // central move looked like something the board refused to do.
-            if (payable) {
-              classes.push("zazen-world__tile--payable");
-            }
-            if (previewKeys.has(key)) {
-              classes.push("zazen-world__tile--preview");
-            }
-            if (previewPaveKeys.has(key)) {
-              classes.push("zazen-world__tile--preview-pave");
-            }
-            if (previewKeys.has(key) && !previewAffordable) {
-              classes.push("zazen-world__tile--preview-denied");
-            }
-            if (
-              focusedPosition.posX === tile.posX &&
-              focusedPosition.posY === tile.posY &&
-              inspectDay !== undefined
-            ) {
-              classes.push("zazen-world__tile--inspected");
-            }
-            const { left, top } = toScreen(
-              tile.posX,
-              tile.posY,
-              mapDimensions.offsetX,
-              mapDimensions.offsetY,
-            );
-            return (
-              <div
-                className={classes.join(" ")}
-                key={key}
-                style={
-                  {
-                    "--depth-light": depthLightFor(tile.posX, tile.posY),
-                    "--wind-phase": windPhaseFor(tile.posX, tile.posY),
-                    "--grow-delay": `${growDelayFor(tileIndexForPosition(tile))}ms`,
-                    left: `${left}px`,
-                    top: `${top}px`,
-                  } as React.CSSProperties
-                }
-                // Only the neighbouring tiles are exposed as buttons. Every tile is
-                // clickable, but announcing 144 of them would bury the useful ones —
-                // keyboard users get the whole garden through the Tab inspect cursor,
-                // which reads each day out and walks there on Enter.
-                role={adjacent ? "button" : undefined}
-                aria-label={adjacent ? `Walk to ${tile.posX}, ${tile.posY}` : undefined}
-                onClick={
-                  reachable
-                    ? () => {
-                        handleTileClick(tile);
-                      }
-                    : undefined
-                }
-                onMouseEnter={() => {
-                  setHoverPosition({ posX: tile.posX, posY: tile.posY });
-                  setHoverDay(dayIndexForPosition(tile));
-                }}
-                onMouseLeave={() => {
-                  setHoverPosition(undefined);
-                  setHoverDay(undefined);
-                }}
-              >
-                <TileRenderer tile={tile} />
-                {/* The tile itself is a 0x0 box: it is absolutely positioned and so is
-                    everything in it. This span is the actual hit area, clipped to the
-                    diamond so neighbouring tiles never steal each other's clicks. */}
-                <span className="zazen-world__hit" aria-hidden="true" />
-              </div>
-            );
-          })}
-          <div className="zazen-world__weather" aria-hidden="true" />
-          <div className="zazen-world__grade" aria-hidden="true" />
-          {/* Rare on purpose. Something that crosses every few seconds is scenery;
-              something that crosses every minute and a half is a thing you notice. */}
-          <div className="zazen-world__sky" aria-hidden="true">
-            <span className="zazen-world__bird" />
-            <span className="zazen-world__bird zazen-world__bird--far" />
-            <span className="zazen-world__bird zazen-world__bird--late" />
-            {MOTES.map((mote) => (
-              <span
-                className="zazen-world__mote"
-                key={mote}
-                style={{ "--mote": mote } as React.CSSProperties}
-              />
-            ))}
-          </div>
-          {companion && (
-            <ZazenCompanion
-              position={companion.position}
-              facingLeft={companion.facingLeft}
-              offsetX={game.mapDimensions.offsetX}
-              offsetY={game.mapDimensions.offsetY}
-            />
+      <div className="path-stones__mission" role="status">
+        <span className="path-stones__eyebrow">
+          {game.shrineActivated ? "The final crossing" : "Your quest"}
+        </span>
+        <strong>
+          {game.shrineActivated
+            ? "The shrine is awake. Find your way home."
+            : `Gather the five stones · ${game.stonesFound.length} / ${STONE_COUNT}`}
+        </strong>
+        <span className="path-stones__movement-hint">
+          <span className="path-stones__hint-pointer">
+            Click a tile to travel · WASD / arrow keys to walk
+          </span>
+          <span className="path-stones__hint-touch">
+            Tap a tile to travel · drag the garden to explore
+          </span>
+        </span>
+        <div className="path-stones__input-hint" data-controller={gamepad}>
+          <span className="path-stones__controller-status" role="status">
+            <Icon name="gamepad" size={16} aria-hidden="true" />
+            {gamepad === "connected"
+              ? "Controller connected"
+              : gamepad === "unsupported"
+                ? "Use keyboard or touch · controller unavailable"
+                : "Controller ready · press a button on your gamepad"}
+          </span>
+          {gamepad === "connected" && (
+            <span className="path-stones__pad-keys">
+              <span>
+                <kbd>
+                  <Icon name="move" size={13} />
+                </kbd>{" "}
+                Stick / D-pad
+              </span>
+              <span>
+                <kbd>A / ✕</kbd> Focus game
+              </span>
+              <span>
+                <kbd>B / ○</kbd> Cancel
+              </span>
+              <span>
+                <kbd>X / □</kbd> Sound
+              </span>
+              <span>
+                <kbd>Start</kbd> Help
+              </span>
+            </span>
           )}
-          <ZazenCat
-            position={cat.position}
-            facingLeft={cat.facingLeft}
-            greeting={catGreeting}
-            offsetX={mapDimensions.offsetX}
-            offsetY={mapDimensions.offsetY}
-          />
-          <ZazenPilgrim
-            renderPosition={step.renderPosition}
-            facing={step.facing}
-            frame={step.frame}
-            moving={step.moving}
-            offsetX={mapDimensions.offsetX}
-            offsetY={mapDimensions.offsetY}
-          />
+        </div>
+        <div className="path-stones__tools">
+          <button
+            type="button"
+            aria-pressed={soundOn}
+            onClick={() => setSoundOn((current) => !current)}
+          >
+            {soundOn ? (
+              <Icon name="volume-2" size={15} aria-hidden="true" />
+            ) : (
+              <Icon name="volume-x" size={15} aria-hidden="true" />
+            )}
+            Sound {soundOn ? "on" : "off"}
+          </button>
+          <button type="button" onClick={handleReplay}>
+            <Icon name="rotate-ccw" size={15} aria-hidden="true" /> Restart run
+          </button>
         </div>
       </div>
+      <div
+        className="path-stones__turn"
+        data-final-round={refillsLeft === 0 || undefined}
+        data-phase={game.phase}
+        role="status"
+        aria-live="polite"
+      >
+        <span className="path-stones__gardener-portrait" aria-hidden="true" />
+        <div>
+          <span className="path-stones__eyebrow">
+            Round{" "}
+            {Math.max(1, Math.min(4, game.gardenerTurns + (game.phase === "gardener" ? 0 : 1)))} / 4
+            · {game.phase === "player" ? "Your turn" : "Gardener’s turn"}
+          </span>
+          <strong>
+            {game.phase === "gardener"
+              ? game.rakeTargets.length
+                ? game.gardenerActivity === "walk"
+                  ? "Walking to the next path…"
+                  : game.gardenerActivity === "rake"
+                    ? "Raking this path…"
+                    : "The gardener is choosing his route…"
+                : "Your nearby paths are safe…"
+              : refillsLeft === 0
+                ? "Final round. Every stone counts."
+                : "Lay a path. Stay one step ahead."}
+          </strong>
+          <small>
+            {game.phase === "gardener"
+              ? game.openingTurn
+                ? "Opening move · your starting reserve is protected."
+                : "Your turn resumes with 2 stones."
+              : refillsLeft === 0
+                ? "No more refills. Collect a stone to keep going."
+                : `Next visit: up to ${game.gardenerTurns === 0 ? 2 : 3} paths raked. Amber paths are at risk.`}
+          </small>
+        </div>
+        <span className="path-stones__turn-reward">
+          {game.phase === "gardener" ? (game.openingTurn ? "I" : "+2") : `${refillsLeft}`}
+          <small>{game.phase === "gardener" ? "NEXT TURN" : "REFILLS LEFT"}</small>
+        </span>
+      </div>
+      <Legend />
+      <div className="path-stones__stage">
+        <button
+          className="path-stones__recenter"
+          type="button"
+          onClick={focusPilgrim}
+          aria-label="Find pilgrim — center the garden on your character"
+        >
+          <Icon name="locate" size={16} /> Find pilgrim
+        </button>
+        <CompassPanel
+          disabled={game.phase !== "player" || game.finaleOpen}
+          stonesLeft={game.stonesLeft}
+          onMove={(direction) => {
+            setRoute([]);
+            setCursorDay(undefined);
+            game.move(direction);
+          }}
+        />
+        <div
+          className="zazen-world__map-wrapper"
+          ref={panRef}
+          style={{
+            height: `${Math.max(0, mapScale * mapDimensions.height)}px`,
+            width: `${Math.max(0, mapScale * mapDimensions.width)}px`,
+          }}
+        >
+          <div
+            className="zazen-world__map"
+            ref={mapRef}
+            role="application"
+            tabIndex={0}
+            aria-label="Interactive game world map"
+            aria-busy={game.phase === "gardener"}
+            aria-describedby="game-instructions"
+            style={
+              {
+                "--board-top": `${DECOR_HEADROOM}px`,
+                "--grow-total": `${GROW_TOTAL_MS}ms`,
+                height: `${mapDimensions.height}px`,
+                transform: `scale(${mapScale})`,
+                transformOrigin: "top left",
+                width: `${mapDimensions.width}px`,
+              } as React.CSSProperties
+            }
+          >
+            {/* The garden's own silhouette, blurred and dropped below it. A filter on the
+              board itself would re-run over 144 children on every step; one diamond costs
+              nothing and casts the same shadow. */}
+            <div className="zazen-world__cast" aria-hidden="true" />
+            <div className="sr-only" aria-live="polite" id="position-announcer">
+              {`Pilgrim is at position ${game.position.posX}, ${game.position.posY}`}
+            </div>
+            {game.map.map((tile) => {
+              const key = `${tile.posX},${tile.posY}`;
+              const rakeIndex = game.rakeTargets.findIndex(
+                (target) => manhattan(tile, target) === 0,
+              );
+              const adjacent = isStepTarget(tile, game.position);
+              const payable = canPaveTile(tile);
+              const reachable = isWalkableTile(tile) || payable;
+              const classes = ["zazen-world__tile"];
+              if (adjacent) {
+                classes.push("zazen-world__tile--step");
+              }
+              if (reachable) {
+                classes.push("zazen-world__tile--walkable");
+              }
+              // Sand you may cross by paying for it. It was already clickable and already
+              // worked — it simply gave no sign of it: the cursor stayed an arrow and the
+              // hover mark was reserved for tiles you could step to for free, so the game's
+              // central move looked like something the board refused to do.
+              if (payable) {
+                classes.push("zazen-world__tile--payable");
+              }
+              if (previewKeys.has(key)) {
+                classes.push("zazen-world__tile--preview");
+              }
+              if (previewPaveKeys.has(key)) {
+                classes.push("zazen-world__tile--preview-pave");
+              }
+              if (previewKeys.has(key) && !previewAffordable) {
+                classes.push("zazen-world__tile--preview-denied");
+              }
+              if (
+                focusedPosition.posX === tile.posX &&
+                focusedPosition.posY === tile.posY &&
+                inspectDay !== undefined
+              ) {
+                classes.push("zazen-world__tile--inspected");
+              }
+              const { left, top } = toScreen(
+                tile.posX,
+                tile.posY,
+                mapDimensions.offsetX,
+                mapDimensions.offsetY,
+              );
+              return (
+                <div
+                  className={classes.join(" ")}
+                  key={key}
+                  style={
+                    {
+                      "--depth-light": depthLightFor(tile.posX, tile.posY),
+                      "--wind-phase": windPhaseFor(tile.posX, tile.posY),
+                      "--grow-delay": `${growDelayFor(tileIndexForPosition(tile))}ms`,
+                      left: `${left}px`,
+                      top: `${top}px`,
+                    } as React.CSSProperties
+                  }
+                  // Only the neighbouring tiles are exposed as buttons. Every tile is
+                  // clickable, but announcing 144 of them would bury the useful ones —
+                  // keyboard users get the whole garden through the Tab inspect cursor,
+                  // which reads each day out and walks there on Enter.
+                  data-rake={rakeIndex >= 0 ? "marked" : undefined}
+                  data-threatened={
+                    threatenedPaths.some((target) => manhattan(tile, target) === 0) || undefined
+                  }
+                  role={adjacent ? "button" : undefined}
+                  aria-disabled={adjacent && game.phase === "gardener" ? true : undefined}
+                  aria-label={adjacent ? `Walk to ${tile.posX}, ${tile.posY}` : undefined}
+                  onClick={
+                    reachable
+                      ? () => {
+                          handleTileClick(tile);
+                        }
+                      : undefined
+                  }
+                  onMouseEnter={() => {
+                    setHoverPosition({ posX: tile.posX, posY: tile.posY });
+                    setHoverDay(dayIndexForPosition(tile));
+                  }}
+                  onMouseLeave={() => {
+                    setHoverPosition(undefined);
+                    setHoverDay(undefined);
+                  }}
+                >
+                  <TileRenderer tile={tile} />
+                  {game.gardenerActivity === "rake" &&
+                    manhattan(tile, game.gardenerPosition) === 0 && (
+                      <span className="zazen-world__rake-dust" aria-hidden="true" />
+                    )}
+                  {game.phase === "gardener" &&
+                    game.gardenerActions.some(
+                      (action) => action.kind === "walk" && manhattan(tile, action.position) === 0,
+                    ) && <span className="zazen-world__gardener-footstep" aria-hidden="true" />}
+
+                  {/* The tile itself is a 0x0 box: it is absolutely positioned and so is
+                    everything in it. This span is the actual hit area, clipped to the
+                    diamond so neighbouring tiles never steal each other's clicks. */}
+                  <span className="zazen-world__hit" aria-hidden="true" />
+                </div>
+              );
+            })}
+            <div className="zazen-world__weather" aria-hidden="true" />
+            <div className="zazen-world__grade" aria-hidden="true" />
+            {/* Rare on purpose. Something that crosses every few seconds is scenery;
+              something that crosses every minute and a half is a thing you notice. */}
+            <div className="zazen-world__sky" aria-hidden="true">
+              <span className="zazen-world__bird" />
+              <span className="zazen-world__bird zazen-world__bird--far" />
+              <span className="zazen-world__bird zazen-world__bird--late" />
+              {MOTES.map((mote) => (
+                <span
+                  className="zazen-world__mote"
+                  key={mote}
+                  style={{ "--mote": mote } as React.CSSProperties}
+                />
+              ))}
+            </div>
+            <Gardener
+              position={game.gardenerPosition}
+              activity={game.gardenerActivity}
+              facingLeft={game.gardenerFacingLeft}
+              offsetX={mapDimensions.offsetX}
+              offsetY={mapDimensions.offsetY}
+            />
+            {companion && (
+              <ZazenCompanion
+                walking={companionWalking}
+                position={companion.position}
+                facingLeft={companion.facingLeft}
+                offsetX={game.mapDimensions.offsetX}
+                offsetY={game.mapDimensions.offsetY}
+              />
+            )}
+            <ZazenCat
+              walking={catWalking}
+              position={cat.position}
+              facingLeft={cat.facingLeft}
+              greeting={catGreeting}
+              offsetX={mapDimensions.offsetX}
+              offsetY={mapDimensions.offsetY}
+            />
+            <ZazenPilgrim
+              renderPosition={step.renderPosition}
+              facing={step.facing}
+              frame={step.frame}
+              moving={step.moving}
+              offsetX={mapDimensions.offsetX}
+              offsetY={mapDimensions.offsetY}
+            />
+          </div>
+        </div>
+      </div>
+      {!game.finaleOpen && (
+        <Journey
+          recordKey={`path-stones:best:v4:${JSON.stringify(resolvedSeed)}`}
+          complete={false}
+          steps={game.steps}
+          stonesLaid={game.stonesLaid}
+          stonesLeft={game.stonesLeft}
+          gardenerTurns={game.gardenerTurns}
+          catMet={catMet}
+          frogFreed={game.frogFreed}
+        />
+      )}
       {!game.finaleOpen && (
         <ZazenDayCard
           tile={focusedTile}
@@ -1374,27 +1660,45 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
           onSelectDay={walkToDay}
         />
       )}
+      <aside className="path-stones__source" aria-labelledby="garden-source-title">
+        <div>
+          <span className="path-stones__eyebrow">Behind the garden</span>
+          <h2 id="garden-source-title">A fortnight of @{resolvedSeed.login}’s GitHub</h2>
+          <p>
+            Each bed reflects one of {WINDOW_DAYS} days of @{resolvedSeed.login}’s public GitHub
+            activity. Moss, planting and the day cards tell that history. Paths and supplies are
+            balanced for play, even on quiet weeks.
+          </p>
+        </div>
+        <div className="path-stones__source-meta">
+          <span>Activity snapshot</span>
+          <time dateTime={resolvedSeed.generatedAt}>{resolvedSeed.generatedAt.slice(0, 10)}</time>
+          <a href={`https://github.com/${resolvedSeed.login}`} target="_blank" rel="noreferrer">
+            View @{resolvedSeed.login} on GitHub <Icon name="arrow-up-right" size={13} />
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        </div>
+      </aside>
       {!game.finaleOpen && <ZazenHaikuScroll lines={game.haikuLines} />}
-      {game.finaleOpen && (
-        <ZazenFinaleOverlay
-          lines={game.haikuLines}
-          steps={game.steps}
-          stonesLaid={game.stonesLaid}
-          stonesLeft={game.stonesLeft}
-          frogFreed={game.frogFreed}
-          catMet={catMet}
-          onWalkAgain={handleReplay}
-        />
-      )}
-      {/* Held back a beat. The stone that ends the walk has only just landed, and cutting
-          to a dialog over the top of its dust reads as the game catching you out rather
-          than as the garden running out of road. */}
-      {defeatVisible && (
+      {game.phase === "lost" && (
         <ZazenDefeatOverlay
           stonesFound={game.stonesFound.length}
           stonesLaid={game.stonesLaid}
           steps={game.steps}
           onReplay={handleReplay}
+        />
+      )}
+      {game.finaleOpen && (
+        <ZazenFinaleOverlay
+          recordKey={`path-stones:best:v4:${JSON.stringify(resolvedSeed)}`}
+          lines={game.haikuLines}
+          steps={game.steps}
+          stonesLaid={game.stonesLaid}
+          stonesLeft={game.stonesLeft}
+          gardenerTurns={game.gardenerTurns}
+          frogFreed={game.frogFreed}
+          catMet={catMet}
+          onWalkAgain={handleReplay}
         />
       )}
     </div>
