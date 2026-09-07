@@ -128,8 +128,10 @@ test("completes the garden, saves a record, and replays", async ({ page, browser
   if (browserName === "chromium") await expect(finale).toHaveScreenshot("garden-victory.png");
   await finale.getByRole("button", { name: "Walk again" }).click();
   await expect(page.getByLabel("0 of 5 stones gathered")).toBeVisible();
+  await page.locator(".path-stones__journal-toggle").click();
   await expect(page.getByText("Saved on this device")).toBeVisible();
   await page.reload();
+  await page.locator(".path-stones__journal-toggle").click();
   await expect(page.getByText("Saved on this device")).toBeVisible();
   expect(errors).toEqual([]);
 });
