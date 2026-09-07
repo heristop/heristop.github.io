@@ -367,10 +367,17 @@
 
   .path-stones .path-stones__stage .zazen-world__compass {
     top: 62px;
+    left: calc(100% + 24px);
+    box-sizing: border-box;
+    width: 190px;
     padding: 14px;
     border: 1px solid #b8a67766;
     background: #172832e8;
     box-shadow: inset 0 0 0 3px #263c41;
+
+    .zazen-world__compass-container {
+      margin-inline: auto;
+    }
 
     &::before {
       content: "MOVE";

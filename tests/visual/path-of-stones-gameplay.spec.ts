@@ -202,10 +202,13 @@ test("keeps the desktop board compact and centered on wide monitors", async ({
         page.locator(".zazen-world__map-wrapper").evaluate((el) => {
           const board = el.getBoundingClientRect();
           const controls = document.querySelector(".zazen-world__compass")!.getBoundingClientRect();
+          const turn = document.querySelector(".path-stones__turn")!.getBoundingClientRect();
           return (
             board.width === 768 &&
             Math.abs(board.left + board.width / 2 - innerWidth / 2) < 2 &&
             controls.left > board.right &&
+            Math.abs(controls.left - turn.left) < 1 &&
+            Math.abs(controls.width - turn.width) < 1 &&
             controls.top >= board.top &&
             controls.bottom <= board.bottom
           );
