@@ -12,6 +12,7 @@ import { cheapestCrossing } from "../../../../../src/components/client/garden/bo
 import {
   HAIKU_LINES,
   buildGarden,
+  randomizeFrog,
   cellToPosition,
   dayIndexToCell,
   groundForCount,
@@ -266,5 +267,33 @@ describe("buildGarden", () => {
     expect(toShrine).toBeGreaterThan(0);
     expect(tourCompletes(map, start, stones, shrine, stoneBudget)).toBe(true);
     expect(tourCompletes(map, start, stones, shrine, stoneBudget - 1)).toBe(false);
+  });
+});
+
+describe("randomizeFrog", () => {
+  it("selects varied clear banks without changing the challenge or mutating the layout", () => {
+    const layout = buildGarden(FALLBACK_SEED);
+    const original = structuredClone(layout);
+    const positions = new Set<string>();
+    for (const roll of [0, 0.25, 0.5, 0.75, 0.999]) {
+      const next = randomizeFrog(layout, roll);
+      positions.add(JSON.stringify(next.frog));
+      const frogs = next.map.filter((tile) => tile.decor === "frog");
+      expect(frogs).toHaveLength(1);
+      expect(
+        next.map.some(
+          (tile) =>
+            tile.sprite.startsWith("water") &&
+            Math.abs(tile.posX - next.frog.posX) + Math.abs(tile.posY - next.frog.posY) === 1,
+        ),
+      ).toBe(true);
+      expect(next.map.map(({ decor, ...tile }) => tile)).toEqual(
+        layout.map.map(({ decor, ...tile }) => tile),
+      );
+      expect(next.stones).toEqual(layout.stones);
+      expect(next.stoneBudget).toBe(layout.stoneBudget);
+    }
+    expect(positions.size).toBeGreaterThan(1);
+    expect(layout).toEqual(original);
   });
 });

@@ -2,20 +2,28 @@ import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import type { GardenSeed } from "../schema";
 import { FALLBACK_SEED, STONE_COUNT } from "../schema";
 import type { Direction, HaikuEntry, MapTile, Position } from "../types";
+import { MAX_GARDENER_TURNS, canReachNextReward } from "../board/challenge";
+import type { GardenerAction } from "../board/gardener";
 import type { GardenLayout } from "../board/terrain";
-import { HAIKU_LINES, STONE_REFUEL, buildGarden } from "../board/terrain";
+import { HAIKU_LINES, STONE_REFUEL, buildGarden, randomizeFrog } from "../board/terrain";
 import {
   activateShrine,
   canPaveTile,
   collectStoneAt,
-  isWalkableTile,
   layStoneAt,
   performMove,
   tileAt,
 } from "../board/rules";
 import { applyDirectionOffset, manhattan } from "../board/geometry";
 import { calculateMapDimensions } from "../board/geometry";
-import { cheapestCrossing } from "../board/routing";
+import {
+  chooseRakeTargets,
+  rakePaths,
+  GARDENER_REFILL,
+  GARDENER_STEP_MS,
+  GARDENER_RAKE_MS,
+  planGardenerTurn,
+} from "../board/gardener";
 
 interface UseZazenGameOptions {
   seed?: GardenSeed;
@@ -27,6 +35,15 @@ interface UseZazenGameOptions {
 
 interface GameState {
   announcement: string;
+  phase: "player" | "gardener" | "lost";
+  gardenerTurns: number;
+  openingTurn: boolean;
+  rakeTargets: Position[];
+  gardenerPosition: Position;
+  gardenerFacingLeft: boolean;
+  gardenerActivity: "idle" | "ready" | "walk" | "rake";
+  gardenerActions: GardenerAction[];
+  laidTrail: Position[];
   finaleOpen: boolean;
   haikuLines: readonly HaikuEntry[];
   map: MapTile[];
@@ -46,26 +63,25 @@ interface GameState {
   supplyTicks: number;
   lastSupplyDelta: number;
   frogFreed: boolean;
+  frog: Position;
 }
 
 interface ZazenGameState extends GameState {
   dismissFinale: () => void;
-  doomed: boolean;
   mapDimensions: { height: number; offsetX: number; offsetY: number; width: number };
   move: (dir: Direction) => void;
-  frog: Position;
   restart: () => void;
   shrine: Position;
   stoneBudget: number;
-  stranded: boolean;
   teleportForTest: (position: Position) => void;
 }
 
 type Action =
   | { type: "arrive"; position: Position }
   | { type: "lay"; position: Position }
-  | { type: "restart" }
-  | { type: "dismissFinale" };
+  | { type: "restart"; frogRoll: number }
+  | { type: "dismissFinale" }
+  | { type: "advanceGardener" };
 
 const describeDay = (tile: MapTile): string => {
   const day = tile.day;
@@ -181,19 +197,65 @@ const arrive = (
   return { ...state, announcement: "", position };
 };
 
+const handToGardener = (state: GameState): GameState => {
+  if (state.stonesLeft > 0 || state.finaleOpen) return state;
+  if (state.gardenerTurns >= MAX_GARDENER_TURNS) {
+    return canReachNextReward(
+      state.map,
+      state.position,
+      state.stonesLeft,
+      state.frogFreed ? undefined : state.frog,
+    )
+      ? state
+      : {
+          ...state,
+          phase: "lost",
+          announcement: "No refills remain, and no reward is within reach. Try a tighter route.",
+        };
+  }
+  const rakeTargets = chooseRakeTargets(
+    state.map,
+    state.laidTrail,
+    state.position,
+    state.gardenerTurns + 1,
+    {
+      budget: GARDENER_REFILL * (MAX_GARDENER_TURNS - state.gardenerTurns),
+      from: state.gardenerPosition,
+    },
+  );
+  const gardenerActions = planGardenerTurn(
+    state.map,
+    state.gardenerPosition,
+    rakeTargets,
+    state.position,
+  );
+  return {
+    ...state,
+    phase: "gardener",
+    gardenerActivity: "ready",
+    gardenerActions,
+    rakeTargets: gardenerActions
+      .filter((action) => action.kind === "rake")
+      .map((action) => action.position),
+    gardenerTurns: state.gardenerTurns + 1,
+    announcement: `Gardener's turn. ${rakeTargets.length} approaches to the remaining stones marked for raking. Two stepping stones are coming.`,
+  };
+};
+
 const makeReducer =
   (layout: GardenLayout) =>
   (state: GameState, action: Action): GameState => {
     const shrine = layout.shrine;
     switch (action.type) {
       case "arrive": {
-        return arrive(state, action.position, shrine, layout.frog);
+        if (state.phase !== "player" || state.finaleOpen) return state;
+        return handToGardener(arrive(state, action.position, shrine, state.frog));
       }
       // Pave, then arrive. Two steps in one action so the tile is already firm by the
       // time `arrive` reads the map — otherwise the pilgrim lands on sand he has just
       // paid for and the garden still calls it sand.
       case "lay": {
-        if (state.stonesLeft <= 0) {
+        if (state.stonesLeft <= 0 || state.phase !== "player" || state.finaleOpen) {
           return state;
         }
         const paved: GameState = {
@@ -202,15 +264,61 @@ const makeReducer =
           lastSupplyDelta: -1,
           map: layStoneAt(state.map, action.position),
           stonesLaid: state.stonesLaid + 1,
+          laidTrail: [...state.laidTrail, action.position],
           stonesLeft: state.stonesLeft - 1,
           supplyTicks: state.supplyTicks + 1,
         };
-        return arrive(paved, action.position, shrine, layout.frog);
+        return handToGardener(arrive(paved, action.position, shrine, state.frog));
       }
       // A raked garden is raked again. Nothing carries over — not the stones you found,
       // not the ones you spent, not the lines of the poem you had earned.
+      case "advanceGardener": {
+        if (state.phase !== "gardener") return state;
+        const completed = state.gardenerActivity === "rake" ? [state.gardenerPosition] : [];
+        const map = rakePaths(state.map, layout.map, completed);
+        const laidTrail = state.laidTrail.filter(
+          (position) => !completed.some((target) => manhattan(position, target) === 0),
+        );
+        const rakeTargets = state.rakeTargets.filter(
+          (position) => !completed.some((target) => manhattan(position, target) === 0),
+        );
+        const [next, ...gardenerActions] = state.gardenerActions;
+        if (next) {
+          return {
+            ...state,
+            map,
+            laidTrail,
+            rakeTargets,
+            gardenerActions,
+            gardenerPosition: next.position,
+            gardenerActivity: next.kind,
+            gardenerFacingLeft:
+              next.kind === "walk"
+                ? next.position.posX - next.position.posY <
+                  state.gardenerPosition.posX - state.gardenerPosition.posY
+                : state.gardenerFacingLeft,
+          };
+        }
+        return {
+          ...state,
+          map,
+          laidTrail,
+          phase: "player",
+          gardenerActivity: "idle",
+          gardenerActions: [],
+          rakeTargets: [],
+          stonesLeft: state.openingTurn ? state.stonesLeft : GARDENER_REFILL,
+          openingTurn: false,
+          lastSupplyDelta: state.openingTurn ? 0 : GARDENER_REFILL,
+          supplyTicks: state.openingTurn ? state.supplyTicks : state.supplyTicks + 1,
+          lastLaid: undefined,
+          announcement: state.openingTurn
+            ? "Your turn. The gardener has made his opening move. Plan your route to the stones."
+            : "Your turn. Two fresh stepping stones. Find your next crossing.",
+        };
+      }
       case "restart": {
-        return initialState(layout);
+        return initialState(randomizeFrog(layout, action.frogRoll, state.frog));
       }
       case "dismissFinale": {
         return { ...state, finaleOpen: false };
@@ -218,28 +326,64 @@ const makeReducer =
     }
   };
 
-const initialState = (layout: GardenLayout): GameState => ({
-  announcement: "",
-  finaleOpen: false,
-  frogFreed: false,
-  haikuLines: [],
-  lastLaid: undefined,
-  lastSupplyDelta: 0,
-  map: layout.map,
-  supplyTicks: 0,
-  position: layout.start,
-  shrineActivated: false,
-  stonesFound: [],
-  steps: 0,
-  stonesLaid: 0,
-  stonesLeft: layout.stoneBudget,
-});
+const initialState = (layout: GardenLayout): GameState => {
+  const gardenerPosition = { posX: 0, posY: 3 };
+  const targets = chooseRakeTargets(layout.map, [], layout.start, 1, {
+    budget: layout.stoneBudget + MAX_GARDENER_TURNS * GARDENER_REFILL,
+    limit: 1,
+    from: gardenerPosition,
+  });
+  const gardenerActions = planGardenerTurn(layout.map, gardenerPosition, targets, layout.start);
+  return {
+    announcement: "The gardener moves first. Watch him rake an approach to the stones.",
+    phase: "gardener",
+    openingTurn: true,
+    gardenerTurns: 0,
+    rakeTargets: gardenerActions
+      .filter((action) => action.kind === "rake")
+      .map((action) => action.position),
+    gardenerPosition: { posX: 0, posY: 3 },
+    gardenerFacingLeft: false,
+    gardenerActivity: "ready",
+    gardenerActions,
+    laidTrail: [],
+    finaleOpen: false,
+    frogFreed: false,
+    frog: layout.frog,
+    haikuLines: [],
+    lastLaid: undefined,
+    lastSupplyDelta: 0,
+    map: layout.map,
+    supplyTicks: 0,
+    position: layout.start,
+    shrineActivated: false,
+    stonesFound: [],
+    steps: 0,
+    stonesLaid: 0,
+    stonesLeft: layout.stoneBudget,
+  };
+};
 
 const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
   const seed = options.seed ?? FALLBACK_SEED;
   const layout = useMemo(() => buildGarden(seed), [seed]);
   const reducer = useMemo(() => makeReducer(layout), [layout]);
-  const [state, dispatch] = useReducer(reducer, layout, initialState);
+  const [state, dispatch] = useReducer(reducer, layout, (initialLayout) =>
+    initialState(randomizeFrog(initialLayout, Math.random())),
+  );
+
+  useEffect(() => {
+    if (state.phase !== "gardener") return;
+    const reduced = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const delay =
+      state.gardenerActivity === "rake"
+        ? GARDENER_RAKE_MS
+        : state.gardenerActivity === "walk"
+          ? GARDENER_STEP_MS
+          : 1100;
+    const timer = setTimeout(() => dispatch({ type: "advanceGardener" }), reduced ? 20 : delay);
+    return () => clearTimeout(timer);
+  }, [state.phase, state.gardenerActivity, state.gardenerActions]);
 
   const mapDimensions = useMemo(() => calculateMapDimensions(state.map), [state.map]);
 
@@ -297,7 +441,7 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
   }, []);
 
   const restart = useCallback(() => {
-    dispatch({ type: "restart" });
+    dispatch({ type: "restart", frogRoll: Math.random() });
   }, []);
 
   // One verb with two prices. Stepping onto firm ground is free; stepping onto raked sand
@@ -305,7 +449,7 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
   // gesture either way — the garden decides what it costs.
   const move = useCallback(
     (direction: Direction) => {
-      if (state.finaleOpen) {
+      if (state.finaleOpen || state.phase !== "player") {
         return;
       }
       const result = performMove(direction, state.position, state.map);
@@ -323,49 +467,8 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
       }
       dispatch({ position: target, type: "lay" });
     },
-    [state.finaleOpen, state.map, state.position, state.stonesLeft],
+    [state.finaleOpen, state.phase, state.map, state.position, state.stonesLeft],
   );
-
-  // Nowhere left to step and nothing left to spend. Not a failure the game inflicts —
-  // just the end of this walk, and the garden can be raked.
-  const stranded = useMemo(() => {
-    if (state.finaleOpen || state.stonesLeft > 0) {
-      return false;
-    }
-    return (["N", "E", "S", "W"] as const).every((direction) => {
-      const next = applyDirectionOffset(direction, state.position.posX, state.position.posY);
-      const tile = tileAt(state.map, next);
-      return !tile || !isWalkableTile(tile);
-    });
-  }, [state.finaleOpen, state.map, state.position, state.stonesLeft]);
-
-  // The walk is lost, and provably so: there is no stone you can still afford to reach.
-  // Not "some stone is out of reach" — every one of them is. Reaching any stone at all
-  // refuels you, so one affordable stone is enough to keep the walk alive, and declaring
-  // defeat while an affordable one remains would be the game calling a loss the player
-  // could still have played out of. It is checked again after every move, so this fires
-  // at the last honest moment rather than the first pessimistic one.
-  const doomed = useMemo(() => {
-    if (state.finaleOpen) {
-      return false;
-    }
-    const ungathered = layout.stones.filter((_, index) => !state.stonesFound.includes(index));
-    // While a stone is still out there the shrine is locked and reaching it proves
-    // nothing, so the shrine only becomes an objective once the last stone is in hand.
-    const objectives = ungathered.length > 0 ? ungathered : [layout.shrine];
-    return objectives.every((target) => {
-      const cost = cheapestCrossing(state.map, state.position, target);
-      return cost === undefined || cost > state.stonesLeft;
-    });
-  }, [
-    layout.shrine,
-    layout.stones,
-    state.finaleOpen,
-    state.map,
-    state.position,
-    state.stonesFound,
-    state.stonesLeft,
-  ]);
 
   const dismissFinale = useCallback(() => {
     dispatch({ type: "dismissFinale" });
@@ -374,14 +477,11 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
   return {
     ...state,
     dismissFinale,
-    doomed,
-    frog: layout.frog,
     mapDimensions,
     move,
     restart,
     shrine: layout.shrine,
     stoneBudget: layout.stoneBudget,
-    stranded,
     teleportForTest,
   };
 };

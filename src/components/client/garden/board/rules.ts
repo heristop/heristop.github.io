@@ -26,8 +26,7 @@ const isWalkableTile = (tile: MapTile): boolean => isClear(tile) && !isRakedSand
 // could not honour.
 const canPaveTile = (tile: MapTile): boolean => isClear(tile) && isRakedSand(tile);
 
-// Laying a stone is permanent. The garden remembers where you chose to cross, which is
-// what makes the choice cost something.
+// A laid path remains firm until a later gardener turn reclaims it.
 const layStoneAt = (map: readonly MapTile[], position: Position): MapTile[] =>
   map.map((tile) =>
     tile.posX === position.posX && tile.posY === position.posY

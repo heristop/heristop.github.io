@@ -57,8 +57,18 @@ describe("company", () => {
     expect(withCat).toBeGreaterThan(plain);
     expect(withFrog).toBeGreaterThan(plain);
     expect(withBoth).toBeGreaterThan(withCat - plain + (withFrog - plain) + plain);
-    expect(scoreWalk({ ...walk, catMet: true, frogFreed: true }).rank).toMatch(
-      /good company/i,
-    );
+    expect(scoreWalk({ ...walk, catMet: true, frogFreed: true }).rank).toMatch(/good company/i);
   });
+});
+
+it("cannot farm score by requesting gardener refills", () => {
+  const base = { steps: 20, stonesLaid: 2, stonesLeft: 0, gardenerTurns: 0 };
+  const before = scoreWalk(base);
+  const after = scoreWalk({ ...base, stonesLeft: 2, gardenerTurns: 1 });
+  expect(after.total).toBeLessThan(before.total);
+  expect(after.lines.find((line) => line.label === "Stones spared")?.points).toBe(0);
+  expect(
+    scoreWalk({ ...base, gardenerTurns: 100 }).lines.find((line) => line.label === "Garden rhythm")
+      ?.points,
+  ).toBe(0);
 });
