@@ -40,7 +40,7 @@ const FOLDERS = {
     "stone-marker-lit",
   ],
   fx: ["dust-puff", "ripple"],
-  persos: ["pilgrim", "cat-walk", "npc-2", "npc-3"],
+  persos: ["pilgrim", "cat-walk", "npc-2", "npc-2-life", "npc-3", "gardener"],
   sol: [
     "sand-0",
     "sand-1",

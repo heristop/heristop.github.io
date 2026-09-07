@@ -144,7 +144,9 @@ const groundTile = (light, mid, dark, speckle = null, speckleRate = 0, seed = 7)
     }
     const wall = x < CELL / 2 ? mid : dark;
     for (let d = 1; d <= SKIRT_DEPTH; d++) {
-      put(g, x, bottom + d, wall);
+      const seam = (d === 6 || d === 12) && (x + d) % 9 < 7;
+      const fissure = (x + (d > 6 ? 7 : 0)) % 17 === 0;
+      put(g, x, bottom + d, seam || fissure ? "l" : wall);
     }
     void dx;
   }
@@ -320,41 +322,27 @@ const pine = () =>
     });
   }, "f");
 
-// A round canopy with a lit shoulder, not a cloud of noise. Speckle only along the rim,
-// so the mass reads solid and the edge still reads as leaves.
-const ROUND_CANOPY = [4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4];
-
+// Overlapping leaf clusters give the crown an irregular silhouette and lit ledges.
 const leafyTree = (light, mid, dark) =>
   decor((g) => {
-    rect(g, 15, 44, 3, 13, "p");
-    put(g, 15, 44, "q");
-    rect(g, 12, 47, 3, 1, "p");
-    rect(g, 18, 49, 3, 1, "p");
-    const noise = speckler(21);
-    ROUND_CANOPY.forEach((half, index) => {
-      for (let step = 0; step < ROW_SCALE; step++) {
-        const y = 18 + index * ROW_SCALE + step;
-        rect(g, 16 - half, y, half * 2, 1, mid);
-        put(g, 16 - half, y, noise() < 0.5 ? light : mid);
-        put(g, 16 + half - 1, y, noise() < 0.5 ? dark : mid);
-        // A round highlight where the light actually strikes, dithered at its rim so it
-        // falls off. A rectangle of the lighter tone reads as a sticker on the canopy,
-        // not as a lit shoulder — it was the one thing keeping these from looking round.
-        for (let x = 16 - half; x < 16 + half; x++) {
-          const hx = (x - 11) / 6.5;
-          const hy = (y - 26) / 7.5;
-          const lit = hx * hx + hy * hy;
-          if (lit < 1 && dither(x, y) > lit * 0.9) {
-            put(g, x, y, light);
-          }
-        }
-        // The canopy's underside, shaded across its whole width. A dark patch in the
-        // middle instead read as a hole punched through the leaves.
-        if (index > 10) {
-          rect(g, 16 - half + 1, y, half * 2 - 2, 1, dark);
+    rect(g, 15, 36, 4, 22, "p");
+    rect(g, 15, 40, 1, 17, "k");
+    rect(g, 10, 43, 7, 2, "p");
+    rect(g, 18, 38, 7, 2, "p");
+    const clusters = [[19, 33, 10, 9], [9, 30, 8, 9], [24, 26, 7, 8],
+      [15, 22, 10, 10], [8, 21, 6, 6], [19, 15, 7, 7]];
+    for (const [cx, cy, rx, ry] of clusters) {
+      for (let y = -ry; y <= ry; y++) {
+        for (let x = -rx; x <= rx; x++) {
+          const edge = (x * x) / (rx * rx) + (y * y) / (ry * ry);
+          if (edge > 1 || (edge > 0.85 && (x + y) % 3 === 0)) continue;
+          const shade = y > ry * 0.45 || x > rx * 0.65 ? dark : mid;
+          const highlight = y < -ry * 0.15 && x < rx * 0.25;
+          put(g, cx + x, cy + y, highlight ? light : shade);
+          if (highlight && (x + y * 3) % 7 === 0) put(g, cx + x, cy + y, mid);
         }
       }
-    });
+    }
   }, dark);
 
 const maple = () => leafyTree("d", "e", "f");
@@ -448,18 +436,19 @@ const stoneMarker = (lit) =>
 // and each is a shape somebody recognises before they have read a word of the page.
 
 // The cat walks the garden on his own, so unlike everything else in this file he is a
-// character sheet rather than a prop: two frames, half the size he was as scenery. A cat
-// standing as tall as the pilgrim is not a cat, it is a bear.
+// character sheet rather than a prop. Walk, idle, and greeting each get four frames.
+// His 24px cell keeps him smaller than the pilgrim.
 const CAT_CELL = 24;
 
-const catCell = (frame) => {
+const catCell = (frame, mode = 0) => {
   const g = grid(CAT_CELL, CAT_CELL);
-  const step = frame === 0 ? 0 : 1;
+  const step = mode === 0 ? [0, 1, 0, -1][frame] : 0;
+  const tail = mode === 2 ? [0, 1, 2, 1][frame] : [0, 1, -1, 0][frame];
 
   // On four legs, side on. A cat drawn upright reads as a person in a cat suit; the whole
   // charm of one crossing a garden is the low horizontal body and the tail held up.
   rect(g, 4, 8 - step, 2, 5, "k");
-  rect(g, 3, 5 - step, 2, 4, "k");
+  rect(g, 3 + tail, 5 - step, 2, 4, "k");
 
   // Body: a low bar, thicker at the shoulder than the hip.
   for (let y = 0; y < 6; y++) {
@@ -490,14 +479,32 @@ const catCell = (frame) => {
   put(g, 19, 9, "a");
   put(g, 21, 12, "m");
 
+  if (mode === 1 && frame === 2) {
+    rect(g, 15, 9, 2, 2, "j");
+    rect(g, 19, 9, 2, 2, "j");
+    rect(g, 15, 10, 2, 1, "p");
+    rect(g, 19, 10, 2, 1, "p");
+  }
+  if (frame === 3) {
+    rect(g, 18, 3, 3, 1, ".");
+    put(g, 21, 4, "j");
+  }
+  if (mode === 2 && frame > 0) {
+    // Lift the chin toward the pilgrim while the tail curls in greeting.
+    const head = g.slice(2, 14).map(row => row.slice(13));
+    rect(g, 13, 2, 11, 12, ".");
+    blit(g, head, 13, frame === 2 ? 0 : 1);
+  }
   return outline(g, "l");
 };
 
 const catSheet = () => {
-  const g = grid(CAT_CELL * 2, CAT_CELL);
-  [0, 1].forEach((frame) => {
-    blit(g, catCell(frame), frame * CAT_CELL, 0);
-  });
+  const g = grid(CAT_CELL * 4, CAT_CELL * 3);
+  for (let mode = 0; mode < 3; mode++) {
+    for (let frame = 0; frame < 4; frame++) {
+      blit(g, catCell(frame, mode), frame * CAT_CELL, mode * CAT_CELL);
+    }
+  }
   return g;
 };
 
@@ -645,6 +652,61 @@ const monkCell = (facing, frame) => {
 };
 
 // 3 frames across, 4 facings down.
+// Four frames each: breathing/blink, planted walking feet, and a full rake stroke.
+const gardenerSheet = () => {
+  const sheet = grid(128, 120);
+  for (let mode = 0; mode < 3; mode++) {
+    for (let frame = 0; frame < 4; frame++) {
+      const g = grid(32, 40);
+      const bob = mode === 1 ? frame % 2 : mode === 2 && frame > 1 ? 2 : 0;
+      const stride = mode === 1 ? [0, 2, 0, -2][frame] : 0;
+      // Boots, cuffed trousers, forest apron and rolled linen sleeves.
+      rect(g, 7 + stride, 33, 5, 4, "q");
+      rect(g, 16 - stride, 33, 5, 4, "q");
+      rect(g, 8 + stride, 30, 3, 4, "l");
+      rect(g, 16 - stride, 30, 3, 4, "p");
+      rect(g, 5, 19 + bob, 18, 10, "f");
+      rect(g, 8, 19 + bob, 12, 14, "e");
+      rect(g, 9, 20 + bob, 2, 10, "d");
+      rect(g, 8, 25 + bob, 12, 2, "p");
+      rect(g, 13, 27 + bob, 5, 3, "f");
+      rect(g, 4, 20 + bob, 4, 7, "a");
+      rect(g, 20, 20 + bob, 4, 6, "b");
+      rect(g, 5, 27 + bob, 3, 3, "c");
+      // Friendly weathered face, white sideburns and a tiny beard.
+      rect(g, 8, 10 + bob, 13, 10, "p");
+      rect(g, 9, 11 + bob, 11, 8, "b");
+      rect(g, 9, 11 + bob, 4, 5, "a");
+      rect(g, 8, 13 + bob, 2, 5, "j");
+      rect(g, 19, 13 + bob, 2, 5, "j");
+      const blink = mode === 0 && frame === 3;
+      rect(g, 12, 13 + bob, 2, blink ? 1 : 2, "q");
+      rect(g, 17, 13 + bob, 2, blink ? 1 : 2, "q");
+      rect(g, 13, 17 + bob, 6, 3, "j");
+      put(g, 15, 17 + bob, "p");
+      // Wide straw hat, dark ribbon, sunlit crown.
+      rect(g, 7, 5 + bob, 15, 5, "c");
+      rect(g, 9, 4 + bob, 10, 4, "b");
+      rect(g, 9, 4 + bob, 7, 2, "a");
+      rect(g, 7, 8 + bob, 15, 2, "f");
+      rect(g, 3, 10 + bob, 23, 2, "c");
+      rect(g, 4, 9 + bob, 21, 1, "a");
+      // The rake moves with his hands, not as a detached floating prop.
+      const rakeX = mode === 2 ? [26, 28, 25, 23][frame] : 26;
+      const rakeY = mode === 2 ? [8, 9, 12, 11][frame] : 5;
+      rect(g, rakeX, rakeY, 2, 24, "c");
+      rect(g, rakeX, rakeY, 1, 23, "b");
+      rect(g, 21, 24 + bob, Math.max(2, rakeX - 20), 2, "b");
+      rect(g, rakeX - 4, rakeY + 24, 9, 2, "l");
+      for (let tooth = -4; tooth <= 4; tooth += 2) rect(g, rakeX + tooth, rakeY + 25, 1, 3, "j");
+      // A slight hand shift makes the idle frames feel alive without bobbing the feet.
+      if (mode === 0) rect(g, 24, 21 + (frame % 2), 3, 2, "b");
+      blit(sheet, g, frame * 32, mode * 40);
+    }
+  }
+  return sheet;
+};
+
 const pilgrimSheet = () => {
   const facings = ["S", "W", "E", "N"];
   const g = grid(MONK_CELL_W * 3, MONK_CELL_H * facings.length);
@@ -798,6 +860,40 @@ const woman = () => {
   return g;
 };
 
+// Row 0: rest, nod, raised sleeve, wave. Row 1: alternating walking strides.
+const womanSheet = () => {
+  const sheet = grid(MONK_CELL_W * 4, MONK_CELL_H * 2);
+  for (let mode = 0; mode < 2; mode++) {
+    for (let frame = 0; frame < 4; frame++) {
+      const base = woman();
+      const g = grid(MONK_CELL_W, MONK_CELL_H);
+      const lift = mode === 1 && frame % 2 === 1 ? -1 : 0;
+      blit(g, base, 0, lift);
+      if (mode === 0 && frame === 1) {
+        rect(g, 0, 0, MONK_CELL_W, 17, ".");
+        blit(g, base.slice(0, 17), 0, 1);
+      }
+      if (mode === 0 && frame >= 2) {
+        rect(g, CX + 4, 19, 2, 6, ".");
+        const wave = frame === 3 ? 1 : 0;
+        rect(g, CX + 4 + wave, 15, 2, 6, "e");
+        rect(g, CX + 4 + wave, 13, 2, 2, "b");
+        put(g, CX + 5 + wave, 20, "f");
+      }
+      if (mode === 1 && frame > 0) {
+        rect(g, CX - 5, 30 + lift, 10, 3, ".");
+        rect(g, CX - 6, 30 + lift, 12, 1, "f");
+        const stride = [0, 1, 0, -1][frame];
+        rect(g, CX - 3 + stride, 31, 2, 1, "a");
+        rect(g, CX + 1 - stride, 31, 2, 1, "a");
+        rect(g, CX - 6, 22 + (frame === 3 ? -1 : 1), 2, 2, "d");
+      }
+      blit(sheet, g, frame * MONK_CELL_W, mode * MONK_CELL_H);
+    }
+  }
+  return sheet;
+};
+
 // --- effects ----------------------------------------------------------------
 
 const dustPuff = () =>
@@ -845,7 +941,9 @@ export const SPRITES = {
   "moss-deep": sprite(groundTile("e", "f", "f", "f", 0.3, 17)),
   "moss-mid": sprite(groundTile("d", "e", "f")),
   "npc-2": sprite(woman()),
+  "npc-2-life": sprite(womanSheet()),
   "npc-3": sprite(npc("k", "l")),
+  gardener: sprite(gardenerSheet()),
   "rock-mound": sprite(rock(22, 18, "j", "k", "l")),
   "rock-small": sprite(rock(13, 10, "j", "k", "l")),
   "sand-0": sprite(rakedSand()),

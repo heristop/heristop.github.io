@@ -13,21 +13,21 @@ interface Sprite {
 const sprites: Record<string, Sprite> = SPRITES;
 
 const ALLOWED = new Set([
-  "#f2ece0",
-  "#e6dccb",
-  "#d4c7b2",
-  "#a8b295",
-  "#8b9a78",
-  "#6d7d5c",
-  "#c3cbc9",
-  "#93a3a3",
-  "#6a7c80",
-  "#cdbfba",
-  "#a8968f",
-  "#7d6c68",
-  "#c2566e",
-  "#9b3f56",
-  "#6e2b3e",
+  "#ecdcb4",
+  "#d4bd94",
+  "#ac916b",
+  "#a4b878",
+  "#748f60",
+  "#425e48",
+  "#91beb1",
+  "#5b9392",
+  "#38636e",
+  "#d6c4a7",
+  "#a9977c",
+  "#756b58",
+  "#d9838d",
+  "#ad4d64",
+  "#70354b",
   "#4a4038",
   "#2e2721",
 ]);
@@ -172,6 +172,21 @@ describe("sprites", () => {
       const used = new Set(sprites[name].rows.join("").split(""));
       for (const char of roseChars) {
         expect(used.has(char), `${name} uses rose "${char}"`).toBe(false);
+      }
+    }
+  });
+});
+
+describe('character animation sheets', () => {
+  it('provides four distinct frames for each cat behavior and NPC-2 cycle', () => {
+    for (const [name, height, rows] of [['cat-walk', 24, 3], ['npc-2-life', 40, 2]] as const) {
+      const sheet = sprites[name];
+      expect(sheet).toBeDefined();
+      expect(sheet.width).toBe(96);
+      expect(sheet.height).toBe(height * rows);
+      for (let row = 0; row < rows; row++) {
+        const frames = Array.from({ length: 4 }, (_, frame) => sheet.rows.slice(row * height, (row + 1) * height).map(line => line.slice(frame * 24, (frame + 1) * 24)).join(''));
+        expect(new Set(frames).size, `${name} row ${row}`).toBe(4);
       }
     }
   });
