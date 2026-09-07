@@ -57,5 +57,5 @@ test("a controller walks, opens help, changes sound and disconnects safely", asy
     .locator(".path-stones__input-hint")
     .screenshot({ path: `/tmp/path-stones-check/controller-${test.info().project.name}.png` });
   await input({ connected: false });
-  await expect(page.getByText("Controller ready · press a button on your gamepad")).toBeVisible();
+  await expect(page.getByText("Press a gamepad button to connect")).toBeVisible();
 });

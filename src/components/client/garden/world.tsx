@@ -1319,15 +1319,8 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         </p>
       </div>
       <div className="path-stones__battle">
-        <div className="path-stones__mission" role="status" data-complete={game.shrineActivated}>
-          <span className="path-stones__eyebrow">
-            {game.shrineActivated ? "The final crossing" : "Your quest"}
-          </span>
-          <strong>
-            {game.shrineActivated
-              ? "The shrine is awake. Find your way home."
-              : `Gather the five stones · ${game.stonesFound.length} / ${STONE_COUNT}`}
-          </strong>
+        <div className="path-stones__mission" role="group" aria-label="Play controls">
+          <span className="path-stones__eyebrow">Play controls</span>
           <span className="path-stones__movement-hint">
             <span className="path-stones__hint-pointer">
               Click a tile to travel · WASD / arrow keys to walk
@@ -1343,7 +1336,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                 ? "Controller connected"
                 : gamepad === "unsupported"
                   ? "Use keyboard or touch · controller unavailable"
-                  : "Controller ready · press a button on your gamepad"}
+                  : "Press a gamepad button to connect"}
             </span>
             {gamepad === "connected" && (
               <span className="path-stones__pad-keys">

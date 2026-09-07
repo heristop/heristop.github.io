@@ -13,7 +13,8 @@ test("discovery hints are readable, toggleable and do not move the pilgrim", asy
   await expect(journal).not.toHaveAttribute("open", "");
   await expect(page.locator(".garden-collection")).toBeHidden();
   expect((await journal.boundingBox())!.height).toBeLessThan(90);
-  await journal.locator("summary").click();
+  await journal.locator("summary").focus();
+  await page.keyboard.press("Enter");
   await expect(page.locator(".garden-collection")).toBeVisible();
   const cat = page.getByRole("button", { name: "How to discover The Familiar" });
   await cat.click();
@@ -34,4 +35,8 @@ test("discovery hints are readable, toggleable and do not move the pilgrim", asy
   const bounds = await page.locator(".garden-collection").boundingBox();
   expect(bounds!.x).toBeGreaterThanOrEqual(0);
   expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+  await journal.locator("summary").focus();
+  await page.keyboard.press("Space");
+  await expect(page.locator(".garden-collection")).toBeHidden();
+  await expect(pilgrim).toHaveText(position!);
 });
