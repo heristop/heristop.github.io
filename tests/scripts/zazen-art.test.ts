@@ -247,3 +247,19 @@ describe("ambient character sheets", () => {
     }
   });
 });
+
+describe("pilgrim rest poses", () => {
+  it("keeps the footing fixed in every gesture and direction", () => {
+    const entry = sprites["pilgrim-idle"];
+    expect([entry.width, entry.height]).toEqual([96, 160]);
+    for (let facing = 0; facing < 4; facing++) {
+      const frames = [0, 1, 2, 3].map((frame) =>
+        entry.rows
+          .slice(facing * 40, (facing + 1) * 40)
+          .map((row) => row.slice(frame * 24, (frame + 1) * 24)),
+      );
+      expect(new Set(frames.map((frame) => frame.join(""))).size).toBe(4);
+      for (const frame of frames) expect(frame.slice(33)).toEqual(frames[0].slice(33));
+    }
+  });
+});

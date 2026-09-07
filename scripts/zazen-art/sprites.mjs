@@ -813,6 +813,12 @@ const monkCell = (facing, frame) => {
 
   rect(g, CX - 4 + stride, bodyTop + 12, 3, 2, "q");
   rect(g, CX + 1 - stride, bodyTop + 12, 3, 2, "q");
+  if (frame !== 0) {
+    // Alternating cuffs and trailing fabric give the stride a readable weight shift.
+    put(g, CX - 5, bodyTop + 6 + (frame === 1 ? 1 : 0), "k");
+    put(g, CX + 5, bodyTop + 7 - (frame === 1 ? 1 : 0), "c");
+    put(g, CX - 4, bodyTop + 10, frame === 1 ? "l" : "p");
+  }
   return g;
 };
 
@@ -875,6 +881,35 @@ const gardenerSheet = () => {
       blit(sheet, g, frame * 32, mode * 40);
     }
   }
+  return sheet;
+};
+
+// Rest gestures keep the feet fixed; only the face, shoulder and satchel move.
+const pilgrimIdleSheet = () => {
+  const sheet = grid(96, 160);
+  ["S", "W", "E", "N"].forEach((facing, row) => {
+    for (let frame = 0; frame < 4; frame++) {
+      const g = monkCell(facing, 0);
+      if (frame === 1) {
+        rect(g, 8, 23, 2, 2, "j");
+        put(g, 9, 25, "k");
+      }
+      if (frame === 2 && facing !== "N") {
+        const eyes = facing === "S" ? [8, 14] : facing === "W" ? [7, 11] : [11, 15];
+        for (const x of eyes) {
+          rect(g, x, 15, 2, 3, "a");
+          rect(g, x, 16, 2, 1, "p");
+        }
+      }
+      if (frame === 3) {
+        rect(g, 15, 24, 3, 5, "l");
+        put(g, 16, 25, "b");
+        rect(g, 13, 24, 2, 2, "b");
+      }
+      if (frame === 2 && facing === "N") put(g, 8, 10, "b");
+      blit(sheet, g, frame * 24, row * 40);
+    }
+  });
   return sheet;
 };
 
@@ -1192,6 +1227,7 @@ export const SPRITES = {
   "water-still": sprite(waterFrames()),
   maple: sprite(maple()),
   pilgrim: sprite(pilgrimSheet()),
+  "pilgrim-idle": sprite(pilgrimIdleSheet()),
   pine: sprite(pine()),
   post: sprite(post()),
   "cat-walk": sprite(catSheet()),

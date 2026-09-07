@@ -40,6 +40,9 @@ test("keeps the tactical composition readable across screen sizes", async ({ pag
 test("animates animal sprite cells and respects reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/path-of-stones/");
+  const pilgrim = page.locator(".zazen-world__pilgrim-sprite--idle");
+  await expect(pilgrim).toHaveCSS("background-image", /pilgrim-idle\.png/);
+  await expect(pilgrim).toHaveCSS("animation-name", "path-stones-pilgrim-rest");
   const frog = page.locator('img[src$="/frog-life.png"]');
   const koi = page.locator('img[src$="/koi-life.png"]').first();
   await expect(frog).toBeVisible({ timeout: 20000 });
@@ -53,6 +56,7 @@ test("animates animal sprite cells and respects reduced motion", async ({ page }
     expect(cell).toEqual({ width: 32, height: 64 });
   }
   await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(pilgrim).toHaveCSS("animation-name", "none");
   for (const actor of [frog, koi]) {
     await expect(actor).toHaveCSS("animation-name", "none");
     await expect(actor).toHaveCSS("object-position", "0px 0px");

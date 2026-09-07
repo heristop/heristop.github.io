@@ -42,7 +42,16 @@ const FOLDERS = {
     "stone-marker-lit",
   ],
   fx: ["dust-puff", "ripple"],
-  persos: ["pilgrim", "cat-walk", "npc-2", "npc-2-life", "npc-3", "npc-3-life", "gardener"],
+  persos: [
+    "pilgrim",
+    "pilgrim-idle",
+    "cat-walk",
+    "npc-2",
+    "npc-2-life",
+    "npc-3",
+    "npc-3-life",
+    "gardener",
+  ],
   sol: [
     ...GROUND_VARIANTS.flatMap((name) => [1, 2, 3].map((variant) => `${name}-v${variant}`)),
     "sand-0",
