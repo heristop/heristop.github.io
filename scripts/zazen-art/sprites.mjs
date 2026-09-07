@@ -571,12 +571,10 @@ const CAT_CELL = 24;
 const catCell = (frame, mode = 0) => {
   const g = grid(CAT_CELL, CAT_CELL);
   const step = mode === 0 ? [0, 1, 0, -1][frame] : 0;
-  const tail = mode === 2 ? [0, 1, 2, 1][frame] : [0, 1, -1, 0][frame];
+  const tailCurl = mode === 2 ? [0, 0, 1, 0][frame] : [0, 1, -1, 0][frame];
 
   // On four legs, side on. A cat drawn upright reads as a person in a cat suit; the whole
   // charm of one crossing a garden is the low horizontal body and the tail held up.
-  rect(g, 4, 8 - step, 2, 5, "k");
-  rect(g, 3 + tail, 5 - step, 2, 4, "k");
 
   // Body: a low bar, thicker at the shoulder than the hip.
   for (let y = 0; y < 6; y++) {
@@ -601,17 +599,23 @@ const catCell = (frame, mode = 0) => {
     const half = y === 0 || y === 7 ? 3 : 4;
     rect(g, 17 - half, 6 + y, half * 2, 1, "j");
   }
-  rect(g, 14, 3, 3, 3, "j");
-  rect(g, 18, 3, 3, 3, "j");
-  put(g, 15, 4, "k");
-  put(g, 19, 4, "k");
+  // Short triangular ears grow directly from the skull, with no upright stalk.
+  put(g, 14, 4, "j");
+  rect(g, 14, 5, 3, 1, "j");
+  put(g, 20, 4, "j");
+  rect(g, 18, 5, 3, 1, "j");
+  put(g, 15, 5, "m");
+  put(g, 19, 5, "m");
 
   // Two marks and a nose is the whole face at this size.
   rect(g, 15, 9, 2, 2, "q");
   rect(g, 19, 9, 2, 2, "q");
   put(g, 15, 9, "a");
   put(g, 19, 9, "a");
-  put(g, 21, 12, "m");
+  // A small pink nose and whiskers, rather than a projecting muzzle.
+  put(g, 20, 11, "m");
+  put(g, 18, 12, "a");
+  put(g, 19, 12, "a");
 
   if (mode === 1 && frame === 2) {
     rect(g, 15, 9, 2, 2, "j");
@@ -620,8 +624,8 @@ const catCell = (frame, mode = 0) => {
     rect(g, 19, 10, 2, 1, "p");
   }
   if (frame === 3) {
-    rect(g, 18, 3, 3, 1, ".");
-    put(g, 21, 4, "j");
+    put(g, 20, 4, ".");
+    put(g, 19, 4, "j");
   }
   if (mode === 1 && frame === 3) {
     rect(g, 13, 16, 2, 5, ".");
@@ -634,7 +638,28 @@ const catCell = (frame, mode = 0) => {
     rect(g, 13, 2, 11, 12, ".");
     blit(g, head, 13, frame === 2 ? 0 : 1);
   }
-  return outline(g, "l");
+  const finished = outline(g, "l");
+  // A slender upright tail with a hooked tip. Only the tip curls; the base stays
+  // attached to the hip instead of wagging as one rigid block.
+  for (const [x, y] of [
+    [5, 12],
+    [4, 11],
+    [3, 10],
+    [3, 9],
+    [2, 8],
+    [2, 7],
+    [2, 6],
+    [3, 5],
+    [4, 5],
+    [5, 6 + tailCurl],
+  ]) {
+    put(finished, x, y, "j");
+    if (y >= 8) put(finished, x - 1, y, "k");
+  }
+  const lift = mode === 2 && frame > 0 ? (frame === 2 ? 2 : 1) : 0;
+  put(finished, 22, 10 - lift, "a");
+  put(finished, 22, 12 - lift, "k");
+  return finished;
 };
 
 const catSheet = () => {
