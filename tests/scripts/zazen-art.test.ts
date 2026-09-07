@@ -197,6 +197,27 @@ describe("character animation sheets", () => {
 });
 
 describe("ground variations", () => {
+  it("carries grass speckles onto every edge without a bare border", () => {
+    for (const [name, soil] of [
+      ["sand-moss", "a"],
+      ["moss-mid", "d"],
+      ["moss-deep", "e"],
+    ]) {
+      const entry = sprites[name];
+      const edges = [[], [], [], []] as string[][];
+      for (let y = 0; y < 32; y++) {
+        const half = y < 16 ? (y + 1) * 2 : (32 - y) * 2;
+        for (let inset = 0; inset < Math.min(4, half); inset++) {
+          edges[y < 16 ? 0 : 2].push(entry.rows[y][32 - half + inset]);
+          edges[y < 16 ? 1 : 3].push(entry.rows[y][31 + half - inset]);
+        }
+      }
+      for (const edge of edges) {
+        expect(edge.filter((pixel) => pixel !== soil).length / edge.length).toBeGreaterThan(0.06);
+      }
+    }
+  });
+
   it("provides four distinct interiors with identical four-sided edge bands", () => {
     for (const name of GROUND_VARIANTS) {
       const variants = [name, ...[1, 2, 3].map((v) => `${name}-v${v}`)].map((key) => sprites[key]);

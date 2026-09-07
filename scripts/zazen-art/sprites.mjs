@@ -1273,6 +1273,7 @@ for (const name of GROUND_VARIANTS) {
     const dark = moss && name !== "sand-moss" ? "f" : "c";
     const g = groundTile(light, mid, dark);
     const noise = speckler(seed);
+    const edgeNoise = speckler(719);
     for (let y = 0; y < 32; y++) {
       const half = diamondHalfWidth(y);
       for (let x = 32 - half; x < 32 + half; x++) {
@@ -1286,8 +1287,11 @@ for (const name of GROUND_VARIANTS) {
           // Fine, isolated grass pixels preserve the soil rather than forming large blobs.
           g[y][x] = light;
           const density = name === "moss-deep" ? 0.25 : name === "moss-mid" ? 0.13 : 0.19;
-          if (!rim && noise() < density) {
-            g[y][x] = name === "sand-moss" ? "d" : noise() < 0.72 ? "f" : "d";
+          // Carry the grass to the edge without a bare outline. All variants share
+          // the same edge texture so their four sides remain interchangeable.
+          const grassNoise = rim ? edgeNoise : noise;
+          if (grassNoise() < density) {
+            g[y][x] = name === "sand-moss" ? "d" : grassNoise() < 0.72 ? "f" : "d";
           }
         } else if (!rim && noise() < (name === "gravel-edge" ? 0.13 : 0.035)) {
           g[y][x] = name === "gravel-edge" ? (noise() < 0.5 ? "j" : "c") : "b";
