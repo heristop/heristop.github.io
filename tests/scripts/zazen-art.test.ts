@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PALETTE } from "../../scripts/zazen-art/palette.mjs";
-import { SPRITES } from "../../scripts/zazen-art/sprites.mjs";
+import { SPRITES, GROUND_VARIANTS } from "../../scripts/zazen-art/sprites.mjs";
 
 interface Sprite {
   width: number;
@@ -147,11 +147,7 @@ describe("sprites", () => {
     const { rows } = sprites["water-still"];
     const frame = (index: number) => rows.slice(index * 64, index * 64 + 64);
     const changed = (a: string[], b: string[]) =>
-      a.reduce(
-        (total, row, y) =>
-          total + [...row].filter((char, x) => char !== b[y][x]).length,
-        0,
-      );
+      a.reduce((total, row, y) => total + [...row].filter((char, x) => char !== b[y][x]).length, 0);
 
     const steps = Array.from({ length: 8 }, (_unused, index) =>
       changed(frame(index), frame((index + 1) % 8)),
@@ -177,16 +173,58 @@ describe("sprites", () => {
   });
 });
 
-describe('character animation sheets', () => {
-  it('provides four distinct frames for each cat behavior and NPC-2 cycle', () => {
-    for (const [name, height, rows] of [['cat-walk', 24, 3], ['npc-2-life', 40, 2]] as const) {
+describe("character animation sheets", () => {
+  it("provides four distinct frames for each cat behavior and NPC-2 cycle", () => {
+    for (const [name, height, rows] of [
+      ["cat-walk", 24, 3],
+      ["npc-2-life", 40, 2],
+    ] as const) {
       const sheet = sprites[name];
       expect(sheet).toBeDefined();
       expect(sheet.width).toBe(96);
       expect(sheet.height).toBe(height * rows);
       for (let row = 0; row < rows; row++) {
-        const frames = Array.from({ length: 4 }, (_, frame) => sheet.rows.slice(row * height, (row + 1) * height).map(line => line.slice(frame * 24, (frame + 1) * 24)).join(''));
+        const frames = Array.from({ length: 4 }, (_, frame) =>
+          sheet.rows
+            .slice(row * height, (row + 1) * height)
+            .map((line) => line.slice(frame * 24, (frame + 1) * 24))
+            .join(""),
+        );
         expect(new Set(frames).size, `${name} row ${row}`).toBe(4);
+      }
+    }
+  });
+});
+
+describe("ground variations", () => {
+  it("provides four distinct interiors with identical four-sided edge bands", () => {
+    for (const name of GROUND_VARIANTS) {
+      const variants = [name, ...[1, 2, 3].map((v) => `${name}-v${v}`)].map((key) => sprites[key]);
+      expect(new Set(variants.map((entry) => entry.rows.join(""))).size).toBe(4);
+      for (const entry of variants) {
+        expect(entry.width).toBe(64);
+        expect(entry.height).toBe(64);
+        for (let y = 0; y < 32; y++) {
+          const half = y < 16 ? (y + 1) * 2 : (32 - y) * 2;
+          for (let x = 32 - half; x < 32 + half; x++) {
+            if (half - Math.abs(x - 31.5) < 5) {
+              expect(entry.rows[y][x], `${name} edge ${x},${y}`).toBe(variants[0].rows[y][x]);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  it("keeps rake lines in phase across both isometric neighbour directions", () => {
+    for (let variant = 0; variant < 4; variant++) {
+      const entry = sprites[variant ? `sand-0-v${variant}` : "sand-0"];
+      for (let y = 0; y < 16; y++) {
+        const half = (y + 1) * 2;
+        for (const x of [32 - half, 31 + half]) {
+          const neighbourX = x < 32 ? x + 32 : x - 32;
+          expect(entry.rows[y][x]).toBe(entry.rows[y + 16][neighbourX]);
+        }
       }
     }
   });

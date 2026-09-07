@@ -1082,3 +1082,45 @@ export const SPRITES = {
   ripple: sprite(ripple()),
   torii: sprite(torii()),
 };
+
+// Each material shares a periodic edge band; only the interior varies. A neighbour
+// translates by (+/-32, 16), so rake lines use a period that divides 16.
+export const GROUND_VARIANTS = [
+  "sand-0",
+  "sand-1",
+  "sand-moss",
+  "moss-mid",
+  "moss-deep",
+  "gravel-edge",
+];
+const groundVariants = {};
+for (const name of GROUND_VARIANTS) {
+  for (let variant = 0; variant < 4; variant++) {
+    const seed = 53 + variant * 101;
+    const moss = name === "sand-moss" || name.startsWith("moss-");
+    const light =
+      name === "moss-mid" ? "d" : name === "moss-deep" ? "e" : name === "gravel-edge" ? "b" : "a";
+    const mid = name === "moss-mid" ? "e" : name === "moss-deep" ? "f" : "b";
+    const dark = moss && name !== "sand-moss" ? "f" : "c";
+    const g = moss
+      ? meadowTile(light, mid, dark, name === "moss-mid" ? "e" : "d", seed, 3 + (variant % 3))
+      : groundTile(light, mid, dark);
+    const noise = speckler(seed);
+    for (let y = 0; y < 32; y++) {
+      const half = diamondHalfWidth(y);
+      for (let x = 32 - half; x < 32 + half; x++) {
+        const rim = half - Math.abs(x - 31.5) < 5;
+        if (rim) g[y][x] = light;
+        if (name === "sand-0") {
+          g[y][x] = y % 4 === 2 ? "b" : "a";
+          // Small interior interruptions suggest a hand-drawn rake stroke.
+          if (!rim && noise() < 0.035) g[y][x] = "a";
+        } else if (!moss && !rim && noise() < (name === "gravel-edge" ? 0.13 : 0.035)) {
+          g[y][x] = name === "gravel-edge" ? (noise() < 0.5 ? "j" : "c") : "b";
+        }
+      }
+    }
+    groundVariants[variant === 0 ? name : `${name}-v${variant}`] = sprite(g);
+  }
+}
+Object.assign(SPRITES, groundVariants);

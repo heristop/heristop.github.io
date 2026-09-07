@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { PALETTE } from "./zazen-art/palette.mjs";
-import { SPRITES } from "./zazen-art/sprites.mjs";
+import { SPRITES, GROUND_VARIANTS } from "./zazen-art/sprites.mjs";
 
 const HEX_RED = [1, 3];
 const HEX_GREEN = [3, 5];
@@ -42,6 +42,7 @@ const FOLDERS = {
   fx: ["dust-puff", "ripple"],
   persos: ["pilgrim", "cat-walk", "npc-2", "npc-2-life", "npc-3", "gardener"],
   sol: [
+    ...GROUND_VARIANTS.flatMap((name) => [1, 2, 3].map((variant) => `${name}-v${variant}`)),
     "sand-0",
     "sand-1",
     "sand-moss",

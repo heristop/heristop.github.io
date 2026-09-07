@@ -297,6 +297,21 @@ const FrogBurst = () => (
   </span>
 );
 
+const VARIED_GROUNDS = new Set([
+  "sand-0",
+  "sand-1",
+  "sand-moss",
+  "moss-mid",
+  "moss-deep",
+  "gravel-edge",
+]);
+const groundArtwork = (tile: MapTile) => {
+  if (!VARIED_GROUNDS.has(tile.sprite)) return tile.sprite;
+  const hash = Math.imul(tile.posX + 1, 73856093) ^ Math.imul(tile.posY + 1, 19349663);
+  const variant = ((hash >>> 8) ^ hash) & 3;
+  return variant ? `${tile.sprite}-v${variant}` : tile.sprite;
+};
+
 const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile }) {
   const stoneAttr = tile.stone !== undefined ? { "data-stone-index": tile.stone } : {};
   // Marks the tile as carrying something that stands on the ground, so the stylesheet can
@@ -314,7 +329,7 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
   return (
     <div
       className={tileClassName(tile)}
-      style={{ backgroundImage: `url('/images/zazen/sol/${tile.sprite}.png')` }}
+      style={{ backgroundImage: `url('/images/zazen/sol/${groundArtwork(tile)}.png')` }}
       {...stoneAttr}
       {...standingAttr}
       {...glowAttr}
