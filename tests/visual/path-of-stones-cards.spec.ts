@@ -14,6 +14,12 @@ test("discovery hints are readable, toggleable and do not move the pilgrim", asy
   await expect(page.locator(".garden-collection")).toBeHidden();
   expect((await journal.boundingBox())!.height).toBeLessThan(90);
   await journal.locator("summary").focus();
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("ArrowLeft");
+  await expect(pilgrim).toHaveText(position!);
+  await expect(page.locator(".path-stones__run-score small")).toContainText(
+    "0 steps · 0 stones laid",
+  );
   await page.keyboard.press("Enter");
   await expect(page.locator(".garden-collection")).toBeVisible();
   const cat = page.getByRole("button", { name: "How to discover The Familiar" });

@@ -124,6 +124,14 @@ const KEY_DIRECTIONS: Record<string, Direction> = {
 };
 
 const handleKeyDirection = (ev: KeyboardEvent, move: (dir: Direction) => void): void => {
+  if (ev.defaultPrevented || ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  if (
+    ev.target instanceof Element &&
+    ev.target.closest(
+      "button, a, input, textarea, select, summary, [contenteditable], [role=button]",
+    )
+  )
+    return;
   const direction = KEY_DIRECTIONS[ev.key.toLowerCase()];
   if (!direction) {
     return;

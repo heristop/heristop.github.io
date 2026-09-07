@@ -150,6 +150,23 @@ describe("handleKeyDirection", () => {
     }
   });
 
+  it("leaves interactive controls and browser shortcuts alone", () => {
+    const move = vi.fn();
+    for (const tag of ["summary", "button", "a", "input"]) {
+      const control = document.createElement(tag);
+      const event = new KeyboardEvent("keydown", { key: "ArrowDown", cancelable: true });
+      control.addEventListener("keydown", (ev) => handleKeyDirection(ev as KeyboardEvent, move));
+      control.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(false);
+    }
+    for (const modifier of ["ctrlKey", "metaKey", "altKey"]) {
+      const event = new KeyboardEvent("keydown", { key: "s", [modifier]: true, cancelable: true });
+      handleKeyDirection(event, move);
+      expect(event.defaultPrevented).toBe(false);
+    }
+    expect(move).not.toHaveBeenCalled();
+  });
+
   it("ignores unrelated keys", () => {
     const move = vi.fn();
     handleKeyDirection({ key: "q", preventDefault: vi.fn() } as unknown as KeyboardEvent, move);
