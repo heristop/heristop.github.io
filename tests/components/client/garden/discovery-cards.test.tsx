@@ -52,3 +52,29 @@ it("waits for the gardener and turn announcement before revealing a queued card"
   act(() => vi.advanceTimersByTime(50));
   expect(screen.getByRole("status")).toHaveTextContent("Cat befriended");
 });
+
+it("keeps the secret out of the journal until the mermaid awakens", () => {
+  const { rerender } = render(<DiscoveryCollection catMet={false} frogFreed />);
+  expect(screen.queryByText("The Tidekeeper")).toBeNull();
+  rerender(<DiscoveryCollection catMet={false} frogFreed mermaidAwakened />);
+  expect(screen.getByText("The Tidekeeper")).toBeVisible();
+  expect(screen.getByLabelText("2 of 3 cards discovered")).toBeVisible();
+  expect(screen.getByText("Secret arcana")).toBeVisible();
+});
+
+it("reveals the secret only after the transformation signals completion", () => {
+  const complete = vi.fn();
+  const { rerender } = render(<DiscoveryReveal catMet={false} frogFreed onComplete={complete} />);
+  act(() => vi.advanceTimersByTime(1450));
+  expect(screen.getByRole("status")).toHaveTextContent("Frog freed");
+  act(() => vi.advanceTimersByTime(3600));
+  expect(complete).toHaveBeenCalledWith("frog");
+  expect(screen.queryByRole("status")).toBeNull();
+  act(() => vi.advanceTimersByTime(1600));
+  rerender(<DiscoveryReveal catMet={false} frogFreed mermaidAwakened onComplete={complete} />);
+  expect(screen.getByRole("status")).toHaveTextContent("The Tidekeeper");
+  act(() => vi.advanceTimersByTime(3600));
+  expect(screen.queryByRole("status")).toBeNull();
+  rerender(<DiscoveryReveal catMet={false} frogFreed mermaidAwakened onComplete={complete} />);
+  expect(screen.queryByRole("status")).toBeNull();
+});

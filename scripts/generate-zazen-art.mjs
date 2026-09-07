@@ -43,6 +43,7 @@ const FOLDERS = {
   ],
   fx: ["dust-puff", "ripple", "bird-flight"],
   persos: [
+    "mermaid-life",
     "pilgrim",
     "pilgrim-idle",
     "cat-walk",

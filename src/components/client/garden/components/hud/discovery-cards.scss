@@ -13,6 +13,7 @@
 
 .garden-collection__cards {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 12px;
   margin-top: 14px;
@@ -547,4 +548,26 @@
 
   .garden-collection__slot:hover .garden-card,
   .garden-collection__slot:active .garden-card { transform: none; }
+}
+
+.garden-card[data-kind="mermaid"] {
+  --card-accent: #70c8bb;
+
+  background: #b8d6ce;
+  box-shadow: 0 0 0 2px #294e54, 0 0 24px #70c8bb44;
+
+  .garden-card__art { background: linear-gradient(#36515e, #6caea6); }
+
+  .garden-card__sprite {
+    left: calc(50% - 36px);
+    bottom: 0;
+    width: 72px;
+    height: 120px;
+    background: url("/images/zazen/persos/mermaid-life.png") 0 0 / 288px 120px no-repeat;
+  }
+
+  .garden-card__reward {
+    font-size: 1.1rem;
+    color: #294e54;
+  }
 }

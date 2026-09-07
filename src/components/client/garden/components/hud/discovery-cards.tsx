@@ -2,8 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import "./discovery-cards.scss";
 import Icon from "../../../icon";
 
-type Discovery = "cat" | "frog";
+type Discovery = "cat" | "frog" | "mermaid";
 const discoveries = {
+  mermaid: {
+    name: "The Tidekeeper",
+    number: "???",
+    bonus: 0,
+    hint: "A secret beneath the surface",
+    label: "Mermaid awakened",
+    note: "The water remembers her true form.",
+    guide: "You broke the spell while the frog was in the pond.",
+  },
   cat: {
     name: "The Familiar",
     number: "01",
@@ -42,7 +51,13 @@ export function DiscoveryCard({ kind, earned }: { kind: Discovery; earned: boole
       </div>
       <strong className="garden-card__name">{card.name}</strong>
       <span className="garden-card__reward">
-        +{card.bonus} <small>points</small>
+        {kind === "mermaid" ? (
+          "Secret arcana"
+        ) : (
+          <>
+            +{card.bonus} <small>points</small>
+          </>
+        )}
       </span>
       <span className="garden-card__caption">{earned ? card.label : card.hint}</span>
       <span className="garden-card__seal">{earned ? "Discovered" : "Undiscovered"}</span>
@@ -53,24 +68,32 @@ export function DiscoveryCard({ kind, earned }: { kind: Discovery; earned: boole
 export function DiscoveryCollection({
   catMet,
   frogFreed,
+  mermaidAwakened = false,
 }: {
   catMet: boolean;
   frogFreed: boolean;
+  mermaidAwakened?: boolean;
 }) {
   const [selected, setSelected] = useState<Discovery | null>(null);
-  const count = Number(catMet) + Number(frogFreed);
-  const selectedEarned = selected === "cat" ? catMet : frogFreed;
+  const count = Number(catMet) + Number(frogFreed) + Number(mermaidAwakened);
+  const total = mermaidAwakened ? 3 : 2;
+  const kinds: Discovery[] = mermaidAwakened ? ["cat", "frog", "mermaid"] : ["cat", "frog"];
+  const selectedEarned =
+    selected === "cat" ? catMet : selected === "mermaid" ? mermaidAwakened : frogFreed;
   return (
     <div className="garden-collection">
       <div className="garden-collection__heading">
         <span className="path-stones__eyebrow">Garden arcana</span>
-        <span className="garden-collection__count" aria-label={`${count} of 2 cards discovered`}>
-          {count} / 2
+        <span
+          className="garden-collection__count"
+          aria-label={`${count} of ${total} cards discovered`}
+        >
+          {count} / {total}
         </span>
       </div>
       <div className="garden-collection__cards">
-        {(["cat", "frog"] as const).map((kind) => {
-          const earned = kind === "cat" ? catMet : frogFreed;
+        {kinds.map((kind) => {
+          const earned = kind === "cat" ? catMet : kind === "mermaid" ? mermaidAwakened : frogFreed;
           return (
             <div className="garden-collection__slot" key={kind} data-selected={selected === kind}>
               <DiscoveryCard kind={kind} earned={earned} />
@@ -95,15 +118,19 @@ export function DiscoveryCollection({
             <strong>{discoveries[selected].name}</strong>
             <p>{selectedEarned ? discoveries[selected].note : discoveries[selected].guide}</p>
             <small>
-              {selectedEarned
-                ? `+${discoveries[selected].bonus} points included in your shrine score.`
-                : `Discover this friend to earn +${discoveries[selected].bonus} points.`}
+              {selected === "mermaid"
+                ? "A hidden discovery. Your score and stone supply stay unchanged."
+                : selectedEarned
+                  ? `+${discoveries[selected].bonus} points included in your shrine score.`
+                  : `Discover this friend to earn +${discoveries[selected].bonus} points.`}
             </small>
           </div>
         )}
       </div>
-      <small className="garden-collection__pair" data-complete={count === 2}>
-        {count === 2 ? "Pair complete · +200 bonus points" : "Discover both for +200 bonus points"}
+      <small className="garden-collection__pair" data-complete={catMet && frogFreed}>
+        {catMet && frogFreed
+          ? "Pair complete · +200 bonus points"
+          : "Discover both for +200 bonus points"}
       </small>
     </div>
   );
@@ -112,11 +139,13 @@ export function DiscoveryCollection({
 export function DiscoveryReveal({
   catMet,
   frogFreed,
+  mermaidAwakened = false,
   paused = false,
   onComplete,
 }: {
   catMet: boolean;
   frogFreed: boolean;
+  mermaidAwakened?: boolean;
   paused?: boolean;
   onComplete?: (kind: Discovery) => void;
 }) {
@@ -127,20 +156,21 @@ export function DiscoveryReveal({
     const timer = window.setTimeout(() => setReady(true), 1450);
     return () => window.clearTimeout(timer);
   }, [paused]);
-  const seen = useRef({ cat: false, frog: false });
+  const seen = useRef({ cat: false, frog: false, mermaid: false });
   const [queue, setQueue] = useState<Discovery[]>([]);
   useEffect(() => {
-    if (!catMet && !frogFreed) {
-      seen.current = { cat: false, frog: false };
+    if (!catMet && !frogFreed && !mermaidAwakened) {
+      seen.current = { cat: false, frog: false, mermaid: false };
       setQueue([]);
       return;
     }
     const earned: Discovery[] = [];
     if (catMet && !seen.current.cat) earned.push("cat");
     if (frogFreed && !seen.current.frog) earned.push("frog");
-    seen.current = { cat: catMet, frog: frogFreed };
+    if (mermaidAwakened && !seen.current.mermaid) earned.push("mermaid");
+    seen.current = { cat: catMet, frog: frogFreed, mermaid: mermaidAwakened };
     if (earned.length) setQueue((pending) => [...pending, ...earned]);
-  }, [catMet, frogFreed]);
+  }, [catMet, frogFreed, mermaidAwakened]);
   const active = queue[0];
   useEffect(() => {
     if (!active || !ready || paused) return;
@@ -153,7 +183,9 @@ export function DiscoveryReveal({
   if (!active || !ready || paused) return null;
   return (
     <div className="garden-discovery" key={active} role="status" aria-live="polite">
-      <span className="garden-discovery__kicker">A new friendship</span>
+      <span className="garden-discovery__kicker">
+        {active === "mermaid" ? "A secret awakens" : "A new friendship"}
+      </span>
       <div className="garden-discovery__burst" aria-hidden="true" />
       <DiscoveryCard kind={active} earned />
       <span className="garden-discovery__note">{discoveries[active].note}</span>

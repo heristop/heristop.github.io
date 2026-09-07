@@ -654,8 +654,9 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
 
   const [companionRevealed, setCompanionRevealed] = useState(false);
   const [transforming, setTransforming] = useState(false);
+  const [mermaidAwakened, setMermaidAwakened] = useState(false);
   const catWalking = useStride(cat.position);
-  const handleDiscoveryComplete = useCallback((kind: "cat" | "frog") => {
+  const handleDiscoveryComplete = useCallback((kind: "cat" | "frog" | "mermaid") => {
     if (kind === "frog") setCompanionRevealed(true);
   }, []);
 
@@ -910,9 +911,15 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     }
   }, [catGreeting]);
 
+  const aquaticTransformation =
+    game.frogFreed && !!tileAt(game.map, game.frog)?.sprite.startsWith("water");
+
   // Keep the frog visible until its discovery card has finished.
   useEffect(() => {
-    if (!game.frogFreed) setCompanionRevealed(false);
+    if (!game.frogFreed) {
+      setCompanionRevealed(false);
+      setMermaidAwakened(false);
+    }
   }, [game.frogFreed]);
 
   useEffect(() => {
@@ -921,9 +928,12 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       return;
     }
     setTransforming(true);
-    const timer = setTimeout(() => setTransforming(false), 1600);
+    const timer = setTimeout(() => {
+      setTransforming(false);
+      if (aquaticTransformation) setMermaidAwakened(true);
+    }, 1600);
     return () => clearTimeout(timer);
-  }, [companionRevealed]);
+  }, [companionRevealed, aquaticTransformation]);
 
   // The cat's own errand. Same walkability rules as the pilgrim, and the same refusal to
   // step on a stone or the shrine — those are the player's to find, and a cat that
@@ -1178,6 +1188,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       data-awakened={game.shrineActivated || undefined}
     >
       <DiscoveryReveal
+        mermaidAwakened={mermaidAwakened}
         catMet={catMet}
         frogFreed={game.frogFreed}
         paused={game.phase !== "player"}
@@ -1644,6 +1655,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               )}
               {game.frogFreed && companionRevealed && (
                 <ZazenCompanion
+                  aquatic={aquaticTransformation}
                   transforming={transforming}
                   walking={false}
                   position={game.frog}
@@ -1687,6 +1699,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       </div>
       {!game.finaleOpen && (
         <Journey
+          mermaidAwakened={mermaidAwakened}
           recordKey={`path-stones:best:v4:${JSON.stringify(resolvedSeed)}`}
           complete={false}
           steps={game.steps}

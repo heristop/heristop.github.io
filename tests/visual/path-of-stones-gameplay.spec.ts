@@ -315,65 +315,111 @@ test("remembers the sound setting across reloads", async ({ page }) => {
   );
 });
 
-test("reveals the companion after the card and keeps her on the frog's tile", async ({ page }) => {
-  await page.clock.install();
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/path-of-stones/");
-  await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible({
-    timeout: 20000,
-  });
-  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
-  const frog = page.locator(".zazen-world__frog-actor");
-  const origin = (await frog.getAttribute("data-position"))!;
-  const [posX, posY] = origin.split(",").map(Number);
-  const map = rakePaths(layout.map, layout.map, opening);
-  const route = map
-    .filter((tile) => manhattan(tile, { posX, posY }) === 1)
-    .map((tile) => cheapestRoute(map, layout.start, tile, 1000))
-    .filter((path) => path !== undefined && path !== null)
-    .sort((a, b) => a!.cost - b!.cost || a!.path.length - b!.path.length)[0];
-  expect(route).toBeDefined();
-  let from = layout.start;
-  await page.getByRole("application").focus();
-  for (const next of route!.path) {
-    for (
-      let tick = 0;
-      tick < 100 && (await page.locator('.path-stones__turn[data-phase="gardener"]').count());
-      tick++
-    ) {
+for (const aquatic of [false, true]) {
+  test(`reveals the ${aquatic ? "secret mermaid" : "companion"} after the card on the frog tile`, async ({
+    page,
+  }) => {
+    const roll = 0.5;
+    await page.addInitScript((value) => {
+      Math.random = () => value;
+    }, roll);
+    await page.clock.install();
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/path-of-stones/");
+    await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible({
+      timeout: 20000,
+    });
+    await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
+    const frog = page.locator(".zazen-world__frog-actor");
+    if (aquatic) {
+      const candidates = layout.map.filter(
+        (tile) =>
+          manhattan(tile, layout.frog) === 1 &&
+          tile.decor === "" &&
+          tile.npc === 0 &&
+          tile.stone === undefined &&
+          !tile.shrine &&
+          (tile.walkable || tile.sprite.startsWith("water")) &&
+          layout.map.some(
+            (near) => manhattan(near, tile) <= 1 && near.sprite.startsWith("water"),
+          ) &&
+          layout.map.some((near) => manhattan(near, tile) === 1 && near.walkable) &&
+          manhattan(tile, layout.start) > 2,
+      );
+      const waterIndex = candidates.findIndex((tile) => tile.sprite.startsWith("water"));
+      expect(waterIndex).toBeGreaterThanOrEqual(0);
+      await page.evaluate(
+        (value) => {
+          Math.random = () => value;
+        },
+        (waterIndex + 0.5) / candidates.length,
+      );
+      await page.clock.runFor(2400);
+    }
+    const origin = (await frog.getAttribute("data-position"))!;
+    const [posX, posY] = origin.split(",").map(Number);
+    const map = rakePaths(layout.map, layout.map, opening).map((tile) =>
+      tile.decor === "frog" ? { ...tile, decor: "" as const } : tile,
+    );
+    const route = map
+      .filter((tile) => manhattan(tile, { posX, posY }) === 1)
+      .map((tile) => cheapestRoute(map, layout.start, tile, 1000))
+      .filter((path) => path !== undefined && path !== null)
+      .sort((a, b) => a!.cost - b!.cost || a!.path.length - b!.path.length)[0];
+    expect(route).toBeDefined();
+    let from = layout.start;
+    await page.getByRole("application").focus();
+    for (const next of route!.path) {
+      for (
+        let tick = 0;
+        tick < 100 && (await page.locator('.path-stones__turn[data-phase="gardener"]').count());
+        tick++
+      ) {
+        await page.clock.runFor(50);
+      }
+      const key =
+        next.posX > from.posX
+          ? "ArrowDown"
+          : next.posX < from.posX
+            ? "ArrowUp"
+            : next.posY > from.posY
+              ? "ArrowLeft"
+              : "ArrowRight";
+      await page.keyboard.press(key);
+      await expect(page.getByRole("application")).toContainText(
+        `Pilgrim is at position ${next.posX}, ${next.posY}`,
+      );
+      from = next;
+    }
+    const companion = page.locator(".zazen-world__companion");
+    await expect(frog).toHaveCount(1);
+    await expect(companion).toHaveCount(0);
+    for (let tick = 0; tick < 240 && !(await companion.count()); tick++) {
       await page.clock.runFor(50);
     }
-    const key =
-      next.posX > from.posX
-        ? "ArrowDown"
-        : next.posX < from.posX
-          ? "ArrowUp"
-          : next.posY > from.posY
-            ? "ArrowLeft"
-            : "ArrowRight";
-    await page.keyboard.press(key);
-    await expect(page.getByRole("application")).toContainText(
-      `Pilgrim is at position ${next.posX}, ${next.posY}`,
-    );
-    from = next;
-  }
-  const companion = page.locator(".zazen-world__companion");
-  await expect(frog).toHaveCount(1);
-  await expect(companion).toHaveCount(0);
-  for (let tick = 0; tick < 240 && !(await companion.count()); tick++) {
-    await page.clock.runFor(50);
-  }
-  await expect(page.locator('.garden-discovery .garden-card[data-kind="frog"]')).toHaveCount(0);
-  await expect(frog).toHaveCount(0);
-  await expect(companion).toHaveAttribute("data-position", origin);
-  await expect(companion).toHaveAttribute("data-transforming", "true");
-  expect(origin).not.toBe(`${from.posX},${from.posY}`);
-  await page.clock.runFor(1200);
-  await expect(companion).toHaveAttribute("data-position", origin);
-  await page.clock.runFor(500);
-  await expect(companion).not.toHaveAttribute("data-transforming", "true");
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.clock.runFor(5000);
-  await expect(companion).toHaveAttribute("data-position", origin);
-  await expect(companion).not.toHaveClass(/--walking/);
-});
+    await expect(page.locator('.garden-discovery .garden-card[data-kind="frog"]')).toHaveCount(0);
+    await expect(frog).toHaveCount(0);
+    await expect(companion).toHaveAttribute("data-position", origin);
+    await expect(companion).toHaveAttribute("data-transforming", "true");
+    expect(origin).not.toBe(`${from.posX},${from.posY}`);
+    await page.clock.runFor(1200);
+    await expect(companion).toHaveAttribute("data-position", origin);
+    await page.clock.runFor(500);
+    await expect(companion).not.toHaveAttribute("data-transforming", "true");
+    if (aquatic) {
+      await expect(companion).toHaveAttribute("data-aquatic", "true");
+      await expect(companion.locator(".zazen-world__mermaid-sprite")).toHaveCount(1);
+      await expect(page.locator(".garden-discovery")).toContainText("The Tidekeeper");
+      await page.locator(".garden-discovery").screenshot({
+        path: `/tmp/path-stones-check/mermaid-card-${test.info().project.name}.png`,
+      });
+    } else {
+      await expect(companion).not.toHaveAttribute("data-aquatic", "true");
+      await expect(page.locator('.garden-card[data-kind="mermaid"]')).toHaveCount(0);
+    }
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.clock.runFor(5000);
+    await expect(companion).toHaveAttribute("data-position", origin);
+    await expect(companion).not.toHaveClass(/--walking/);
+  });
+}

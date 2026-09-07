@@ -17,11 +17,13 @@ export default function Journey({
   recordKey,
   complete,
   summary = false,
+  mermaidAwakened = false,
   ...walk
 }: Walk & {
   recordKey: string;
   complete: boolean;
   summary?: boolean;
+  mermaidAwakened?: boolean;
 }) {
   const [best, setBest] = useState(() => readBest(recordKey));
   const [newRecord, setNewRecord] = useState(false);
@@ -60,7 +62,11 @@ export default function Journey({
           Score <strong>{score.toLocaleString("en-US")}</strong>
         </span>
         <span className="path-stones__journal-stat">
-          Cards <strong>{Number(!!walk.catMet) + Number(!!walk.frogFreed)} / 2</strong>
+          Cards{" "}
+          <strong>
+            {Number(!!walk.catMet) + Number(!!walk.frogFreed) + Number(mermaidAwakened)} /{" "}
+            {mermaidAwakened ? 3 : 2}
+          </strong>
         </span>
         <Icon name="arrow-down" size={16} aria-hidden="true" />
       </summary>
@@ -73,7 +79,11 @@ export default function Journey({
             turns
           </small>
         </div>
-        <DiscoveryCollection catMet={!!walk.catMet} frogFreed={!!walk.frogFreed} />
+        <DiscoveryCollection
+          mermaidAwakened={mermaidAwakened}
+          catMet={!!walk.catMet}
+          frogFreed={!!walk.frogFreed}
+        />
         <div className="path-stones__record" aria-live="polite">
           <span>{newRecord ? "New personal best" : "Garden best"}</span>
           <strong>{best ? best.toLocaleString("en-US") : "—"}</strong>

@@ -1234,9 +1234,32 @@ const birdSheet = () => {
   return sheet;
 };
 
+const mermaidSheet = () => {
+  const sheet = grid(96, 40);
+  for (let frame = 0; frame < 4; frame++) {
+    const g = woman();
+    rect(g, 0, 20, 24, 20, ".");
+    rect(g, 8, 20, 8, 3, "m");
+    rect(g, 7, 23, 9, 4, "g");
+    rect(g, 7, 26, 8, 4, "h");
+    rect(g, 9, 29, 7, 3, "h");
+    rect(g, 12, 31, 6, 3, "i");
+    const fin = [0, -1, 0, 1][frame];
+    rect(g, 17, 29 + fin, 3, 5, "g");
+    rect(g, 20, 27 + fin, 2, 3, "h");
+    rect(g, 20, 33 + fin, 3, 2, "h");
+    put(g, 8, 24, "a");
+    put(g, 11, 27, "g");
+    put(g, 13, 29, "g");
+    blit(sheet, g, frame * 24, 0);
+  }
+  return sheet;
+};
+
 // --- inventory --------------------------------------------------------------
 
 export const SPRITES = {
+  "mermaid-life": sprite(mermaidSheet()),
   "bird-flight": sprite(birdSheet()),
   "bamboo-a": sprite(bamboo([-6, 0, 6], 46)),
   "bamboo-b": sprite(bamboo([-4, 3], 38)),
