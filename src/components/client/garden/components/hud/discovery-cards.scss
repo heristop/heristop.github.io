@@ -441,3 +441,110 @@
 .garden-collection__slot:focus-within .garden-card {
   outline-color: #f2d487;
 }
+
+/* The sealed ink cover becomes warm paper when a friendship is discovered. */
+.garden-collection .garden-card[data-earned="false"] {
+  --card-ink: #c9bea1;
+  --card-paper: #34474a;
+
+  filter: none;
+  background: #20343d;
+  border-color: #6c715d;
+  outline-color: #af98605c;
+  box-shadow: 3px 5px 0 #0a192580, inset 0 0 0 1px #ad986c33;
+
+  .garden-card__art {
+    opacity: 1;
+    border-color: #7d816644;
+    background: #172a32;
+  }
+
+  .garden-card__moon,
+  .garden-card__star { opacity: 0.28; }
+
+  .garden-card__sprite {
+    opacity: 0.7;
+    filter: saturate(0.5) brightness(0.65);
+  }
+
+  .garden-card__ground { opacity: 0.35; }
+  .garden-card__name { color: #e6ddc1; }
+  .garden-card__reward { color: #cdb88a; }
+  .garden-card__seal { border-color: #ad986c33; }
+}
+
+.garden-collection__slot {
+  position: relative;
+  padding-bottom: 50px;
+
+  .garden-card {
+    border-radius: 3px;
+    transition: transform 180ms ease-out, outline-color 180ms ease-out, box-shadow 180ms ease-out;
+  }
+
+  &[data-selected="true"] .garden-card {
+    outline-color: #e3c184;
+    box-shadow: 3px 5px 0 #0a192580, 0 0 0 3px #b59c4b20;
+  }
+}
+
+.garden-collection .garden-collection__inspect {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  align-items: flex-end;
+  padding: 0 4px 13px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #c9be9f;
+  font-size: 13px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  svg {
+    flex-shrink: 0;
+    margin-bottom: 2px;
+    transition: transform 180ms ease-out;
+  }
+
+  &[aria-expanded="true"] {
+    color: #f0d398;
+
+    svg { transform: rotate(180deg); }
+  }
+
+  &:active { transform: none; }
+}
+
+.garden-collection__slot:active .garden-card {
+  transform: translateY(2px);
+}
+
+.garden-collection__details {
+  margin-top: 0;
+  border: 1px solid #bba36b55;
+  border-radius: 2px;
+  background: #172a33;
+}
+
+.garden-collection__count {
+  border-radius: 2px;
+  border-color: #bba36b55;
+  background: #14262f;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .garden-collection__slot:hover .garden-card {
+    transform: translateY(-3px);
+    outline-color: #d3b478;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garden-collection__slot .garden-card,
+  .garden-collection__inspect svg { transition: none; }
+
+  .garden-collection__slot:hover .garden-card,
+  .garden-collection__slot:active .garden-card { transform: none; }
+}

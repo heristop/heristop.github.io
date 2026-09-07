@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./discovery-cards.scss";
+import Icon from "../../../icon";
 
 type Discovery = "cat" | "frog";
 const discoveries = {
@@ -71,7 +72,7 @@ export function DiscoveryCollection({
         {(["cat", "frog"] as const).map((kind) => {
           const earned = kind === "cat" ? catMet : frogFreed;
           return (
-            <div className="garden-collection__slot" key={kind}>
+            <div className="garden-collection__slot" key={kind} data-selected={selected === kind}>
               <DiscoveryCard kind={kind} earned={earned} />
               <button
                 type="button"
@@ -82,7 +83,7 @@ export function DiscoveryCollection({
                 onClick={() => setSelected(selected === kind ? null : kind)}
               >
                 {selected === kind ? "Close details" : earned ? "Inspect card" : "How to discover"}
-                <span aria-hidden="true">{selected === kind ? "−" : "+"}</span>
+                <Icon name="arrow-down" size={13} aria-hidden="true" />
               </button>
             </div>
           );
