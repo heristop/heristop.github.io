@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Icon from "../../../icon";
 import { scoreWalk } from "../../score";
 import { DiscoveryCollection } from "./discovery-cards";
 import type { Walk } from "../../score";
@@ -52,21 +53,33 @@ export default function Journey({
   }
 
   return (
-    <aside className="path-stones__journey" aria-label="Run performance and challenges">
-      <div className="path-stones__run-score">
-        <span>{complete ? "Run complete" : "Score at the shrine"}</span>
-        <strong>{score.toLocaleString("en-US")}</strong>
-        <small>
-          {walk.steps} steps · {walk.stonesLaid} stones laid · {walk.gardenerTurns ?? 0} gardener
-          turns
-        </small>
+    <details className="path-stones__journey" aria-label="Run performance and challenges">
+      <summary className="path-stones__journal-toggle">
+        <span>Field journal</span>
+        <span className="path-stones__journal-stat">
+          Score <strong>{score.toLocaleString("en-US")}</strong>
+        </span>
+        <span className="path-stones__journal-stat">
+          Cards <strong>{Number(!!walk.catMet) + Number(!!walk.frogFreed)} / 2</strong>
+        </span>
+        <Icon name="arrow-down" size={16} aria-hidden="true" />
+      </summary>
+      <div className="path-stones__journal-content">
+        <div className="path-stones__run-score">
+          <span>{complete ? "Run complete" : "Score at the shrine"}</span>
+          <strong>{score.toLocaleString("en-US")}</strong>
+          <small>
+            {walk.steps} steps · {walk.stonesLaid} stones laid · {walk.gardenerTurns ?? 0} gardener
+            turns
+          </small>
+        </div>
+        <DiscoveryCollection catMet={!!walk.catMet} frogFreed={!!walk.frogFreed} />
+        <div className="path-stones__record" aria-live="polite">
+          <span>{newRecord ? "New personal best" : "Garden best"}</span>
+          <strong>{best ? best.toLocaleString("en-US") : "—"}</strong>
+          <small>{best ? "Saved on this device" : "No completed run yet"}</small>
+        </div>
       </div>
-      <DiscoveryCollection catMet={!!walk.catMet} frogFreed={!!walk.frogFreed} />
-      <div className="path-stones__record" aria-live="polite">
-        <span>{newRecord ? "New personal best" : "Garden best"}</span>
-        <strong>{best ? best.toLocaleString("en-US") : "—"}</strong>
-        <small>{best ? "Saved on this device" : "No completed run yet"}</small>
-      </div>
-    </aside>
+    </details>
   );
 }
