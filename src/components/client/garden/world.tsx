@@ -1602,12 +1602,23 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               })}
               <div className="zazen-world__weather" aria-hidden="true" />
               <div className="zazen-world__grade" aria-hidden="true" />
+              <div className="zazen-world__cloud-shadows" aria-hidden="true">
+                <span />
+              </div>
               {/* Rare on purpose. Something that crosses every few seconds is scenery;
               something that crosses every minute and a half is a thing you notice. */}
               <div className="zazen-world__sky" aria-hidden="true">
-                <span className="zazen-world__bird" />
-                <span className="zazen-world__bird zazen-world__bird--far" />
-                <span className="zazen-world__bird zazen-world__bird--late" />
+                <span className="zazen-world__cloud zazen-world__cloud--one" />
+                <span className="zazen-world__cloud zazen-world__cloud--two" />
+                <span className="zazen-world__bird">
+                  <span className="zazen-world__bird-body" />
+                </span>
+                <span className="zazen-world__bird zazen-world__bird--far">
+                  <span className="zazen-world__bird-body" />
+                </span>
+                <span className="zazen-world__bird zazen-world__bird--late">
+                  <span className="zazen-world__bird-body" />
+                </span>
                 {MOTES.map((mote) => (
                   <span
                     className="zazen-world__mote"

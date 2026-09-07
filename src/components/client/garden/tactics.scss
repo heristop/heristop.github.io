@@ -1052,3 +1052,101 @@
     animation: none;
   }
 }
+
+/* Crisp sprite poses keep the head, body and wing joints coherent in flight. */
+.path-stones .zazen-world__bird {
+  width: 24px;
+  height: 16px;
+  filter: drop-shadow(0 1px 0 #152b3844);
+}
+
+.path-stones .zazen-world__bird::before,
+.path-stones .zazen-world__bird::after {
+  content: none;
+}
+
+.zazen-world__bird-body {
+  position: absolute;
+  inset: 0;
+  background: url("/images/zazen/fx/bird-flight.png") no-repeat;
+  image-rendering: pixelated;
+  animation: garden-bird-poses 2.8s steps(1, end) infinite;
+}
+
+.path-stones .zazen-world__bird--far {
+  scale: 1;
+  opacity: 0.65;
+}
+
+.zazen-world__bird--far .zazen-world__bird-body { animation-delay: -0.7s; }
+.zazen-world__bird--late .zazen-world__bird-body { animation-delay: -1.5s; }
+
+@keyframes garden-bird-poses {
+  0%, 28%, 100% { background-position: -72px 0; }
+  4%, 18% { background-position: 0 0; }
+  8%, 22% { background-position: -24px 0; }
+  12%, 26% { background-position: -48px 0; }
+}
+
+.zazen-world__cloud {
+  position: absolute;
+  top: 5%;
+  left: -220px;
+  width: 180px;
+  height: 54px;
+  opacity: 0;
+  background: linear-gradient(#f2edcf33, #cad9ce08);
+  clip-path: polygon(0 55%, 12% 55%, 12% 34%, 27% 34%, 27% 18%, 44% 18%, 44% 0, 64% 0, 64% 24%, 80% 24%, 80% 44%, 94% 44%, 94% 63%, 100% 63%, 100% 80%, 75% 80%, 75% 92%, 20% 92%, 20% 80%, 0 80%);
+  animation: garden-cloud 72s linear infinite;
+}
+
+.zazen-world__cloud--one { animation-delay: -18s; }
+
+.zazen-world__cloud--two {
+  top: 21%;
+  scale: 0.7;
+  animation-duration: 93s;
+  animation-delay: -58s;
+}
+
+@keyframes garden-cloud {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  12%, 80% { opacity: 0.65; }
+
+  100% {
+    opacity: 0;
+    transform: translate(1150px, 85px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__bird-body,
+  .zazen-world__cloud { animation: none; }
+}
+
+.zazen-world__cloud-shadows {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+  clip-path: polygon(50% 7%, 100% 47%, 50% 87%, 0 47%);
+
+  span {
+    position: absolute;
+    top: 17%;
+    left: -220px;
+    width: 240px;
+    height: 100px;
+    background: radial-gradient(ellipse, #142f3921, transparent 70%);
+    animation: garden-cloud 72s linear -18s infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__cloud-shadows span { animation: none; }
+}

@@ -41,7 +41,7 @@ const FOLDERS = {
     "stone-marker",
     "stone-marker-lit",
   ],
-  fx: ["dust-puff", "ripple"],
+  fx: ["dust-puff", "ripple", "bird-flight"],
   persos: [
     "pilgrim",
     "pilgrim-idle",

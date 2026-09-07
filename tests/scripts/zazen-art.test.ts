@@ -60,6 +60,7 @@ const REQUIRED = [
   "pilgrim",
   "npc-2",
   "npc-3",
+  "bird-flight",
   "dust-puff",
   "ripple",
 ];
@@ -281,6 +282,21 @@ describe("pilgrim rest poses", () => {
       );
       expect(new Set(frames.map((frame) => frame.join(""))).size).toBe(4);
       for (const frame of frames) expect(frame.slice(33)).toEqual(frames[0].slice(33));
+    }
+  });
+});
+
+describe("bird flight poses", () => {
+  it("has four native-size frames with a steady head and distinct wings", () => {
+    const bird = sprites["bird-flight"];
+    expect(bird.width).toBe(96);
+    expect(bird.height).toBe(16);
+    const frames = Array.from({ length: 4 }, (_, frame) =>
+      bird.rows.map((row) => row.slice(frame * 24, (frame + 1) * 24)),
+    );
+    expect(new Set(frames.map((rows) => rows.join(""))).size).toBe(4);
+    for (const rows of frames) {
+      expect(rows[6][18]).toBe("i");
     }
   });
 });

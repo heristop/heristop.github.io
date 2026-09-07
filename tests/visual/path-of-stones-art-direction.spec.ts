@@ -95,3 +95,18 @@ test("marks gardener work with a contour while preserving the ground texture", a
     path: `/tmp/path-stones-check/gardener-contour-${test.info().project.name}.png`,
   });
 });
+
+test("uses pixel bird poses and quiet clouds with reduced-motion support", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/path-of-stones/");
+  const bird = page.locator(".zazen-world__bird-body").first();
+  const cloud = page.locator(".zazen-world__cloud").first();
+  await expect(bird).toHaveCSS("background-image", /bird-flight\.png/);
+  await expect(bird).toHaveCSS("image-rendering", "pixelated");
+  await expect(bird).toHaveCSS("animation-name", "garden-bird-poses");
+  await expect(cloud).toHaveCSS("animation-name", "garden-cloud");
+  await expect(page.locator(".zazen-world__sky")).toHaveCSS("pointer-events", "none");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(bird).toHaveCSS("animation-name", "none");
+  await expect(cloud).toHaveCSS("animation-name", "none");
+});

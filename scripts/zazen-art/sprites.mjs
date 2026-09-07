@@ -1206,9 +1206,38 @@ const ripple = () =>
     }),
   );
 
+// Four articulated wing poses, facing right, authored at native pixel size.
+const birdSheet = () => {
+  const sheet = grid(96, 16);
+  for (let frame = 0; frame < 4; frame++) {
+    const g = grid(24, 16);
+    const tips = [1, 5, 12, 7];
+    for (let step = 0; step < 8; step++) {
+      const y = Math.round(7 + ((tips[frame] - 7) * step) / 7);
+      const x = 12 - step;
+      put(g, x, y + 1, "i");
+      put(g, x, y, "a");
+      if (step < 5) put(g, x + 1, y, "b");
+      const farY = Math.round(7 + ((tips[frame] - 7) * step) / 10);
+      put(g, 13 + Math.floor(step / 2), farY, "b");
+    }
+    rect(g, 10, 7, 8, 2, "a");
+    rect(g, 11, 9, 6, 1, "h");
+    rect(g, 16, 5, 3, 3, "a");
+    put(g, 18, 6, "i");
+    put(g, 19, 7, "c");
+    rect(g, 7, 8, 4, 1, "b");
+    put(g, 6, 8, "a");
+    put(g, 7, 10, "a");
+    blit(sheet, g, frame * 24, 0);
+  }
+  return sheet;
+};
+
 // --- inventory --------------------------------------------------------------
 
 export const SPRITES = {
+  "bird-flight": sprite(birdSheet()),
   "bamboo-a": sprite(bamboo([-6, 0, 6], 46)),
   "bamboo-b": sprite(bamboo([-4, 3], 38)),
   "bridge-plank": sprite(bridgePlank()),
