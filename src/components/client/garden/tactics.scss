@@ -690,7 +690,7 @@
 @media (width >= 900px) {
   .path-stones__almanac {
     grid-template-columns: minmax(0, 1fr) 500px;
-    align-items: start;
+    align-items: stretch;
   }
 
   .path-stones .path-stones__almanac > * {

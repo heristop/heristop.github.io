@@ -20,6 +20,12 @@ test("keeps the tactical composition readable across screen sizes", async ({ pag
       expect(box!.x).toBeGreaterThanOrEqual(0);
       expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
     }
+    if (width >= 900) {
+      const day = await page.locator(".path-stones__day").boundingBox();
+      const heat = await page.locator(".path-stones__heat").boundingBox();
+      expect(Math.abs(day!.y - heat!.y)).toBeLessThan(1);
+      expect(Math.abs(day!.height - heat!.height)).toBeLessThan(1);
+    }
     if (width <= 700) {
       const board = await page.locator(".path-stones__stage").boundingBox();
       const objective = await page.locator(".path-stones__mission").boundingBox();
