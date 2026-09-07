@@ -438,6 +438,19 @@ const bamboo = (stalks, height) =>
       }
       rect(g, 16 + offset - 4, top + 6, 4, 1, "d");
       rect(g, 16 + offset + 3, top + 12, 4, 1, "d");
+      // Tapered leaves grow from alternating nodes, not a ladder of branches.
+      for (const [side, node] of [
+        [-1, top + 7],
+        [1, top + 15],
+      ]) {
+        for (let leaf = 0; leaf < 5; leaf++) {
+          const x = 17 + offset + side * (leaf + 2);
+          const y = node - Math.floor(leaf / 2);
+          put(g, x, y, leaf < 3 ? "d" : "e");
+          if (leaf < 3) put(g, x, y + 1, "e");
+        }
+      }
+      rect(g, 16 + offset, top + 1, 1, 4, "d");
     });
   }, "f");
 
@@ -454,7 +467,11 @@ const rock = (width, height, light, mid, dark) =>
   decor((g) => {
     const baseY = DECOR_HEIGHT - height - 4;
     for (let y = 0; y < height; y++) {
-      const half = Math.round((width / 2) * Math.sin(((y + 1) / (height + 1)) * Math.PI) + 2);
+      const profile = [0.35, 0.65, 0.82, 1, 1, 0.9, 0.78, 0.58];
+      const half = Math.max(
+        2,
+        Math.round((width / 2) * profile[Math.min(7, Math.floor((y / height) * 8))]),
+      );
       for (let x = 16 - half; x < 16 + half; x++) {
         const facet = y < height * 0.4 - (x - 16) * 0.2;
         put(g, x, baseY + y, facet ? light : x < 14 + y * 0.2 ? mid : dark);
@@ -473,14 +490,21 @@ const lantern = (lit) =>
     if (lit) {
       rect(g, 15, 29, 3, 5, "m");
     }
-    rect(g, 10, 22, 13, 4, "k");
+    rect(g, 12, 21, 9, 2, "j");
+    rect(g, 10, 23, 13, 2, "k");
+    rect(g, 8, 25, 17, 2, "l");
+    rect(g, 8, 24, 5, 1, "j");
+    rect(g, 21, 24, 4, 1, "k");
     rect(g, 15, 18, 3, 4, "l");
-    rect(g, 10, 22, 13, 1, "j");
+    rect(g, 12, 22, 5, 1, "a");
     rect(g, 12, 26, 1, 10, "k");
     rect(g, 19, 27, 1, 9, "l");
     rect(g, 14, 41, 1, 9, "j");
     rect(g, 12, 55, 10, 2, "k");
     rect(g, 13, 54, 3, 1, "e");
+    rect(g, 16, 37, 3, 1, "k");
+    put(g, 15, 45, "l");
+    if (lit) put(g, 16, 30, "a");
   }, "l");
 
 const torii = () =>
@@ -492,11 +516,18 @@ const torii = () =>
     rect(g, 8, 16, 2, 40, "n");
     rect(g, 22, 16, 2, 40, "n");
     rect(g, 3, 10, 27, 2, "p");
+    rect(g, 2, 8, 4, 2, "p");
+    rect(g, 27, 8, 4, 2, "p");
+    put(g, 3, 9, "m");
+    put(g, 28, 9, "n");
     rect(g, 4, 12, 25, 1, "m");
     rect(g, 6, 54, 7, 3, "l");
     rect(g, 20, 54, 7, 3, "l");
     rect(g, 14, 16, 5, 7, "p");
     rect(g, 15, 17, 3, 4, "b");
+    put(g, 16, 18, "p");
+    rect(g, 8, 49, 2, 3, "p");
+    put(g, 22, 46, "p");
   }, "o");
 
 const post = () =>
@@ -660,6 +691,10 @@ const shishiOdoshi = () =>
     rect(g, 15, 30, 3, 17, "e");
     rect(g, 15, 36, 3, 1, "f");
     rect(g, 15, 42, 3, 1, "f");
+    rect(g, 14, 48, 5, 2, "l");
+    rect(g, 14, 48, 4, 1, "h");
+    rect(g, 18, 51, 2, 4, "l");
+    put(g, 12, 54, "e");
     // the spout, tipped down towards the basin
     rect(g, 8, 34, 8, 2, "d");
     rect(g, 8, 36, 3, 2, "e");
@@ -677,6 +712,17 @@ const pagoda = () =>
     rect(g, 12, 35, 8, 1, "k");
     rect(g, 13, 27, 6, 5, "j");
     rect(g, 14, 23, 4, 4, "k");
+    // Lit ledges, recessed joints and shaded side planes keep the tiers readable.
+    rect(g, 9, 50, 13, 1, "j");
+    rect(g, 20, 51, 3, 5, "l");
+    rect(g, 18, 46, 3, 3, "k");
+    rect(g, 8, 41, 14, 1, "a");
+    rect(g, 18, 36, 3, 5, "k");
+    rect(g, 9, 32, 11, 1, "a");
+    rect(g, 17, 28, 2, 4, "k");
+    rect(g, 10, 54, 4, 2, "e");
+    put(g, 14, 53, "d");
+    rect(g, 14, 38, 2, 2, "l");
   }, "l");
 
 // --- characters -------------------------------------------------------------
