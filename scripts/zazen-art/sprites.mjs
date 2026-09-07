@@ -94,8 +94,7 @@ const dither = (x, y) => BAYER[y & 3][x & 3] / 16;
 
 // The one definition of the 2:1 slope. Row y of the diamond spans
 // [32 - halfWidth, 32 + halfWidth); halfWidth grows by 2 per row.
-const diamondHalfWidth = (y) =>
-  y < DIAMOND_HEIGHT / 2 ? (y + 1) * 2 : (DIAMOND_HEIGHT - y) * 2;
+const diamondHalfWidth = (y) => (y < DIAMOND_HEIGHT / 2 ? (y + 1) * 2 : (DIAMOND_HEIGHT - y) * 2);
 
 // The lowest diamond row occupied by a column, used to find where its wall starts.
 const bottomRowForColumn = (dx) => {
@@ -144,13 +143,77 @@ const groundTile = (light, mid, dark, speckle = null, speckleRate = 0, seed = 7)
     }
     const wall = x < CELL / 2 ? mid : dark;
     for (let d = 1; d <= SKIRT_DEPTH; d++) {
-      const seam = (d === 6 || d === 12) && (x + d) % 9 < 7;
-      const fissure = (x + (d > 6 ? 7 : 0)) % 17 === 0;
-      put(g, x, bottom + d, seam || fissure ? "l" : wall);
+      const course = Math.floor((bottom + d) / 6);
+      const seam = (bottom + d) % 6 === 0;
+      const fissure = (x + course * 9) % 19 === 0;
+      const base = d > 12 ? "l" : wall;
+      put(g, x, bottom + d, seam || fissure ? "l" : base);
+      if (d === 1) put(g, x, bottom + d, mid);
     }
     void dx;
   }
 
+  return g;
+};
+
+// Clustered materials preserve quiet areas between hand-shaped details.
+const meadowTile = (light, mid, dark, patch, seed, count = 9) => {
+  const g = groundTile(light, mid, dark);
+  const noise = speckler(seed);
+  for (let n = 0; n < count; n++) {
+    const cx = 8 + Math.floor(noise() * 48);
+    const cy = 4 + Math.floor(noise() * 24);
+    const rx = 6 + Math.floor(noise() * 7);
+    const ry = 2 + Math.floor(noise() * 3);
+    for (let dy = -ry; dy <= ry; dy++) {
+      for (let dx = -rx; dx <= rx; dx++) {
+        const x = cx + dx,
+          y = cy + dy;
+        if (y < 1 || y >= 30 || Math.abs(x - 31.5) >= diamondHalfWidth(y) - 2) continue;
+        const edge = 0.78 + noise() * 0.38;
+        const distance = (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry);
+        if (distance < edge) {
+          put(g, x, y, patch);
+          if (distance > 0.65 && dy < 0 && (x + y) % 3 === 0) put(g, x, y, light);
+        }
+      }
+    }
+    if (cy < 28 && Math.abs(cx - 31.5) < diamondHalfWidth(cy) - 4) {
+      put(g, cx, cy, mid);
+      put(g, cx + 1, cy - 1, patch);
+    }
+  }
+  return g;
+};
+
+const gravelTile = () => {
+  const g = groundTile("b", "c", "l");
+  const noise = speckler(31);
+  for (let n = 0; n < 46; n++) {
+    const x = Math.floor(noise() * 62) + 1;
+    const y = Math.floor(noise() * 28) + 2;
+    if (Math.abs(x - 31.5) >= diamondHalfWidth(y) - 3) continue;
+    put(g, x, y, "j");
+    put(g, x + 1, y, "k");
+    if (n % 3 === 0) put(g, x + 1, y + 1, "c");
+  }
+  return g;
+};
+
+const slabTile = () => {
+  const g = groundTile("j", "k", "l");
+  for (let y = 3; y < 29; y++) {
+    const half = diamondHalfWidth(y) - 3;
+    put(g, 32 - half, y, "a");
+    if (y > 18) put(g, 31 + half, y, "l");
+  }
+  [
+    [22, 12],
+    [23, 13],
+    [25, 14],
+    [26, 15],
+    [25, 16],
+  ].forEach(([x, y]) => put(g, x, y, "k"));
   return g;
 };
 
@@ -306,6 +369,12 @@ const canopyTier = (g, top, halves) => {
     for (let step = 0; step < ROW_SCALE; step++) {
       const y = top + index * ROW_SCALE + step;
       rect(g, 16 - half, y, half * 2, 1, fill);
+      if (!last && index > 1) {
+        for (let x = 17 - half; x < 15 + half; x += 4) {
+          put(g, x, y, step === 0 ? "d" : "e");
+          if (x > 17) put(g, x + 1, y, "f");
+        }
+      }
       if (!last && index > 0) {
         put(g, 16 - half, y, "d");
       }
@@ -317,6 +386,8 @@ const pine = () =>
   decor((g) => {
     rect(g, 15, 47, 3, 10, "p");
     put(g, 15, 47, "q");
+    rect(g, 15, 49, 1, 7, "k");
+    rect(g, 12, 56, 8, 2, "p");
     PINE_TIERS.forEach(({ top, halves }) => {
       canopyTier(g, top, halves);
     });
@@ -329,8 +400,14 @@ const leafyTree = (light, mid, dark) =>
     rect(g, 15, 40, 1, 17, "k");
     rect(g, 10, 43, 7, 2, "p");
     rect(g, 18, 38, 7, 2, "p");
-    const clusters = [[19, 33, 10, 9], [9, 30, 8, 9], [24, 26, 7, 8],
-      [15, 22, 10, 10], [8, 21, 6, 6], [19, 15, 7, 7]];
+    const clusters = [
+      [19, 33, 10, 9],
+      [9, 30, 8, 9],
+      [24, 26, 7, 8],
+      [15, 22, 10, 10],
+      [8, 21, 6, 6],
+      [19, 15, 7, 7],
+    ];
     for (const [cx, cy, rx, ry] of clusters) {
       for (let y = -ry; y <= ry; y++) {
         for (let x = -rx; x <= rx; x++) {
@@ -379,7 +456,10 @@ const rock = (width, height, light, mid, dark) =>
     for (let y = 0; y < height; y++) {
       const half = Math.round((width / 2) * Math.sin(((y + 1) / (height + 1)) * Math.PI) + 2);
       for (let x = 16 - half; x < 16 + half; x++) {
-        put(g, x, baseY + y, y < height / 3 ? light : x < 16 ? mid : dark);
+        const facet = y < height * 0.4 - (x - 16) * 0.2;
+        put(g, x, baseY + y, facet ? light : x < 14 + y * 0.2 ? mid : dark);
+        if (y > height * 0.7 && x < 15 && (x + y) % 5 < 2) put(g, x, baseY + y, "e");
+        if (y === Math.floor(height / 2) && x > 12 && x < 16) put(g, x, baseY + y, dark);
       }
     }
   }, "l");
@@ -395,6 +475,12 @@ const lantern = (lit) =>
     }
     rect(g, 10, 22, 13, 4, "k");
     rect(g, 15, 18, 3, 4, "l");
+    rect(g, 10, 22, 13, 1, "j");
+    rect(g, 12, 26, 1, 10, "k");
+    rect(g, 19, 27, 1, 9, "l");
+    rect(g, 14, 41, 1, 9, "j");
+    rect(g, 12, 55, 10, 2, "k");
+    rect(g, 13, 54, 3, 1, "e");
   }, "l");
 
 const torii = () =>
@@ -405,6 +491,12 @@ const torii = () =>
     rect(g, 21, 16, 5, 40, "o");
     rect(g, 8, 16, 2, 40, "n");
     rect(g, 22, 16, 2, 40, "n");
+    rect(g, 3, 10, 27, 2, "p");
+    rect(g, 4, 12, 25, 1, "m");
+    rect(g, 6, 54, 7, 3, "l");
+    rect(g, 20, 54, 7, 3, "l");
+    rect(g, 14, 16, 5, 7, "p");
+    rect(g, 15, 17, 3, 4, "b");
   }, "o");
 
 const post = () =>
@@ -419,14 +511,19 @@ const stoneMarker = (lit) =>
   decor((g) => {
     const body = lit ? "m" : "n";
     for (let y = 0; y < 22; y++) {
-      const half = Math.round(7 * Math.sin(((y + 2) / 25) * Math.PI) + 1);
+      const half = y < 5 ? 2 + y : y < 17 ? 7 : 7 - Math.floor((y - 16) / 2);
       for (let x = 16 - half; x < 16 + half; x++) {
         put(g, x, 32 + y, y < 6 ? (lit ? "a" : "m") : x < 16 ? body : "o");
       }
     }
-    if (lit) {
-      rect(g, 14, 36, 4, 2, "a");
-    }
+    // A carved sign and a beveled foot distinguish the relic from scenery rocks.
+    rect(g, 14, 40, 1, 8, "o");
+    rect(g, 15, 39, 4, 1, lit ? "a" : "m");
+    put(g, 17, 41, "m");
+    put(g, 16, 42, "m");
+    rect(g, 15, 45, 3, 1, "m");
+    rect(g, 11, 53, 10, 2, "o");
+    if (lit) rect(g, 14, 36, 4, 2, "a");
   }, "o");
 
 // --- the garden's inhabitants -----------------------------------------------
@@ -491,7 +588,7 @@ const catCell = (frame, mode = 0) => {
   }
   if (mode === 2 && frame > 0) {
     // Lift the chin toward the pilgrim while the tail curls in greeting.
-    const head = g.slice(2, 14).map(row => row.slice(13));
+    const head = g.slice(2, 14).map((row) => row.slice(13));
     rect(g, 13, 2, 11, 12, ".");
     blit(g, head, 13, frame === 2 ? 0 : 1);
   }
@@ -645,6 +742,15 @@ const monkCell = (facing, frame) => {
   const bodyTop = headTop + 9;
   rowRun(g, ROBE_HALVES, bodyTop, "p", "q");
   rect(g, CX - 5, bodyTop + 4, 10, 1, "q");
+  // Sash, lit folds and a traveling satchel read at the original sprite scale.
+  rect(g, CX - 4, bodyTop + 1, 2, 3, "k");
+  rect(g, CX - 3, bodyTop + 5, 1, 6, "l");
+  rect(g, CX + 2, bodyTop + 6, 1, 5, "q");
+  rect(g, CX - 4, bodyTop + 4, 8, 1, "c");
+  if (facing !== "N") {
+    rect(g, CX + 3, bodyTop + 3, 3, 5, "l");
+    put(g, CX + 4, bodyTop + 4, "b");
+  }
 
   rect(g, CX - 4 + stride, bodyTop + 12, 3, 2, "q");
   rect(g, CX + 1 - stride, bodyTop + 12, 3, 2, "q");
@@ -670,6 +776,9 @@ const gardenerSheet = () => {
       rect(g, 9, 20 + bob, 2, 10, "d");
       rect(g, 8, 25 + bob, 12, 2, "p");
       rect(g, 13, 27 + bob, 5, 3, "f");
+      rect(g, 14, 27 + bob, 3, 1, "d");
+      put(g, 10, 31 + bob, "f");
+      put(g, 18, 31 + bob, "f");
       rect(g, 4, 20 + bob, 4, 7, "a");
       rect(g, 20, 20 + bob, 4, 6, "b");
       rect(g, 5, 27 + bob, 3, 3, "c");
@@ -840,6 +949,10 @@ const woman = () => {
   put(g, CX + 1, bodyTop + 1, "a");
   put(g, CX + 2, bodyTop, "a");
   rect(g, CX - 1, bodyTop + 3, 2, 4, "d");
+  rect(g, CX - 3, bodyTop + 5, 6, 2, "n");
+  put(g, CX - 2, bodyTop + 5, "m");
+  put(g, CX + 2, bodyTop + 9, "d");
+  put(g, CX + 1, bodyTop + 10, "a");
 
   // Furisode: the long hanging sleeves that say this is a young woman and not a matron.
   // Two pixels wide and held clear of the body by its own outline — drawn any thicker
@@ -935,11 +1048,11 @@ export const SPRITES = {
   "bamboo-b": sprite(bamboo([-4, 3], 38)),
   "bridge-plank": sprite(bridgePlank()),
   "dust-puff": sprite(dustPuff()),
-  "gravel-edge": sprite(groundTile("b", "c", "l", "j", 0.18, 31)),
+  "gravel-edge": sprite(gravelTile()),
   "lantern-lit": sprite(lantern(true)),
   "lantern-unlit": sprite(lantern(false)),
-  "moss-deep": sprite(groundTile("e", "f", "f", "f", 0.3, 17)),
-  "moss-mid": sprite(groundTile("d", "e", "f")),
+  "moss-deep": sprite(meadowTile("e", "f", "f", "d", 17, 4)),
+  "moss-mid": sprite(meadowTile("d", "e", "f", "e", 23, 3)),
   "npc-2": sprite(woman()),
   "npc-2-life": sprite(womanSheet()),
   "npc-3": sprite(npc("k", "l")),
@@ -948,12 +1061,12 @@ export const SPRITES = {
   "rock-small": sprite(rock(13, 10, "j", "k", "l")),
   "sand-0": sprite(rakedSand()),
   "sand-1": sprite(groundTile("a", "b", "c", "c", 0.06, 11)),
-  "sand-moss": sprite(groundTile("a", "b", "c", "d", 0.22, 13)),
+  "sand-moss": sprite(meadowTile("a", "b", "c", "d", 13, 4)),
   "shrine-active": sprite(shrineTile(true)),
   "shrine-locked": sprite(shrineTile(false)),
   "stone-marker": sprite(stoneMarker(false)),
   "stone-marker-lit": sprite(stoneMarker(true)),
-  "stone-slab": sprite(groundTile("j", "k", "l")),
+  "stone-slab": sprite(slabTile()),
   "water-still": sprite(waterFrames()),
   maple: sprite(maple()),
   pilgrim: sprite(pilgrimSheet()),
