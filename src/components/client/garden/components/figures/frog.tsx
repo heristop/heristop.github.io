@@ -21,6 +21,7 @@ export default function Frog({
       style={{ left, top }}
       aria-hidden="true"
     >
+      <span className="zazen-world__frog-shadow" />
       <img src="/images/zazen/decors/frog-life.png" className="zazen-world__decor" alt="" />
     </div>
   );

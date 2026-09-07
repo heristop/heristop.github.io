@@ -1019,3 +1019,36 @@
   .path-stones .zazen-world__frog-actor { transition: none; }
   .path-stones .zazen-world__frog-actor .zazen-world__decor { animation: none; }
 }
+
+/* The shadow travels with the actor, never with the destination tile. */
+.zazen-world__frog-shadow {
+  position: absolute;
+  top: 20px;
+  left: 22px;
+  width: 20px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #102c2842 0%, #102c2824 55%, transparent 78%);
+}
+
+.zazen-world__frog-actor[data-hopping] .zazen-world__frog-shadow {
+  animation: frog-shadow 460ms ease-out both;
+}
+
+@keyframes frog-shadow {
+  0%, 100% {
+    scale: 1;
+    opacity: 1;
+  }
+
+  45% {
+    scale: 0.7;
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__frog-actor[data-hopping] .zazen-world__frog-shadow {
+    animation: none;
+  }
+}

@@ -320,7 +320,8 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
   // A fish is not standing on anything. The contact shadow is what tells the eye a tree is
   // ON the tile rather than floating over it, and under a koi it drew a hard grey ellipse
   // on the surface of the pond — a shadow cast by something that is already underwater.
-  const standing = (tile.decor !== "" && tile.decor !== "koi") || tile.npc !== 0;
+  const standing =
+    (tile.decor !== "" && tile.decor !== "koi" && tile.decor !== "frog") || tile.npc !== 0;
   const standingAttr = standing ? { "data-standing": "" } : {};
   // Anything that is its own light source. HD-2D spends most of its budget on bloom, and
   // bloom needs to know which pixels are emitting rather than merely bright.

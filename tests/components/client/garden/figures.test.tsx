@@ -1,6 +1,7 @@
 import { act, cleanup, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import useStride from "../../../../src/components/client/garden/composables/use-stride";
+import Frog from "../../../../src/components/client/garden/components/figures/frog";
 import Cat from "../../../../src/components/client/garden/components/figures/cat";
 import Companion from "../../../../src/components/client/garden/components/figures/companion";
 
@@ -41,3 +42,19 @@ for (const [name, Figure, selector] of [
     });
   });
 }
+
+describe("frog shadow", () => {
+  it("keeps the ground shadow in the same moving actor as the jumping sprite", () => {
+    const { container, rerender } = render(<Frog {...props} hopping={false} />);
+    const actor = container.querySelector(".zazen-world__frog-actor")!;
+    const shadow = container.querySelector(".zazen-world__frog-shadow")!;
+    const sprite = container.querySelector("img")!;
+    expect(shadow.parentElement).toBe(actor);
+    expect(sprite.parentElement).toBe(actor);
+    const start = (actor as HTMLElement).style.left;
+    rerender(<Frog {...props} position={{ posX: 3, posY: 3 }} hopping />);
+    expect(actor).toHaveAttribute("data-hopping", "true");
+    expect((actor as HTMLElement).style.left).not.toBe(start);
+    expect(shadow.parentElement).toBe(actor);
+  });
+});
