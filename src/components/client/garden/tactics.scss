@@ -1192,3 +1192,69 @@
   .zazen-world__mermaid-sprite,
   .zazen-world__companion[data-aquatic]::before { animation: none; }
 }
+
+.zazen-world__gardener-actor[data-activity="attack"] .zazen-world__gardener-sprite {
+  width: 64px;
+  background: url("/images/zazen/persos/gardener-strike.png") no-repeat;
+  transform-origin: 16px 100%;
+  animation: gardener-strike 800ms steps(1, end) both;
+}
+
+.zazen-world__attack-loss {
+  position: absolute;
+  z-index: 8;
+  margin: -20px 0 0 8px;
+  color: #ffd6b0;
+  padding: 3px 6px;
+  background: #643d3a;
+  border: 1px solid #df9e75;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: gardener-loss 800ms ease-out both;
+}
+
+@keyframes gardener-strike {
+  0% { background-position: 0 0; }
+  15% { background-position: -64px 0; }
+  35% { background-position: -128px 0; }
+  45% { background-position: -192px 0; }
+  65% { background-position: -256px 0; }
+  90%, 100% { background-position: -320px 0; }
+}
+
+.zazen-world__attack-loss::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 30px;
+  width: 4px;
+  height: 4px;
+  background: #e9d5a3;
+  box-shadow: -8px 2px #bda785, 7px -3px #f4e5be, 3px 7px #bda785;
+  animation: gardener-chip 440ms ease-out 360ms both;
+}
+
+@keyframes gardener-chip {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(0.5);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(1.5);
+  }
+}
+
+@keyframes gardener-loss {
+  from { transform: translateY(4px); }
+  to { transform: translateY(-12px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__gardener-actor[data-activity="attack"] .zazen-world__gardener-sprite,
+  .zazen-world__attack-loss,
+  .zazen-world__attack-loss::before { animation: none; }
+}

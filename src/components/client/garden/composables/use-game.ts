@@ -5,7 +5,13 @@ import type { Direction, HaikuEntry, MapTile, Position } from "../types";
 import { MAX_GARDENER_TURNS, canReachNextReward } from "../board/challenge";
 import type { GardenerAction } from "../board/gardener";
 import type { GardenLayout } from "../board/terrain";
-import { HAIKU_LINES, STONE_REFUEL, buildGarden, randomizeFrog } from "../board/terrain";
+import {
+  HAIKU_LINES,
+  STONE_REFUEL,
+  buildGarden,
+  randomizeFrog,
+  tourCompletes,
+} from "../board/terrain";
 import {
   activateShrine,
   canPaveTile,
@@ -37,6 +43,8 @@ interface GameState {
   announcement: string;
   phase: "player" | "gardener" | "lost";
   gardenerTurns: number;
+  attackUsed: boolean;
+  attackTicks: number;
   openingTurn: boolean;
   rakeTargets: Position[];
   gardenerPosition: Position;
@@ -198,6 +206,34 @@ const arrive = (
   return { ...state, announcement: "", position };
 };
 
+const gardenerCounterattack = (state: GameState, shrine: Position): GameState => {
+  if (
+    state.attackUsed ||
+    state.finaleOpen ||
+    state.stonesLeft < 1 ||
+    manhattan(state.position, state.gardenerPosition) > 1
+  )
+    return state;
+  const remainingBudget =
+    state.stonesLeft - 1 + GARDENER_REFILL * (MAX_GARDENER_TURNS - state.gardenerTurns);
+  const remainingStones = state.map.filter((tile) => tile.stone !== undefined);
+  if (!tourCompletes(state.map, state.position, remainingStones, shrine, remainingBudget))
+    return state;
+  return {
+    ...state,
+    attackUsed: true,
+    gardenerFacingLeft:
+      state.position.posX - state.position.posY <
+      state.gardenerPosition.posX - state.gardenerPosition.posY,
+    attackTicks: state.attackTicks + 1,
+    stonesLeft: state.stonesLeft - 1,
+    lastSupplyDelta: state.lastSupplyDelta - 1,
+    supplyTicks: state.supplyTicks + 1,
+    announcement:
+      `${state.announcement} Too close! The gardener knocks away one stepping stone. His strike is spent this round.`.trim(),
+  };
+};
+
 const handToGardener = (state: GameState): GameState => {
   if (state.stonesLeft > 0 || state.finaleOpen) return state;
   if (state.gardenerTurns >= MAX_GARDENER_TURNS) {
@@ -286,7 +322,12 @@ const makeReducer =
       }
       case "arrive": {
         if (state.phase !== "player" || state.finaleOpen) return state;
-        return handToGardener(arrive(state, action.position, shrine, state.frog));
+        return handToGardener(
+          gardenerCounterattack(
+            arrive({ ...state, lastSupplyDelta: 0 }, action.position, shrine, state.frog),
+            shrine,
+          ),
+        );
       }
       // Pave, then arrive. Two steps in one action so the tile is already firm by the
       // time `arrive` reads the map — otherwise the pilgrim lands on sand he has just
@@ -305,7 +346,9 @@ const makeReducer =
           stonesLeft: state.stonesLeft - 1,
           supplyTicks: state.supplyTicks + 1,
         };
-        return handToGardener(arrive(paved, action.position, shrine, state.frog));
+        return handToGardener(
+          gardenerCounterattack(arrive(paved, action.position, shrine, state.frog), shrine),
+        );
       }
       // A raked garden is raked again. Nothing carries over — not the stones you found,
       // not the ones you spent, not the lines of the poem you had earned.
@@ -342,6 +385,7 @@ const makeReducer =
           laidTrail,
           phase: "player",
           gardenerActivity: "idle",
+          attackUsed: false,
           gardenerActions: [],
           rakeTargets: [],
           stonesLeft: state.openingTurn ? state.stonesLeft : GARDENER_REFILL,
@@ -376,6 +420,8 @@ const initialState = (layout: GardenLayout): GameState => {
     phase: "gardener",
     openingTurn: true,
     gardenerTurns: 0,
+    attackUsed: false,
+    attackTicks: 0,
     rakeTargets: gardenerActions
       .filter((action) => action.kind === "rake")
       .map((action) => action.position),

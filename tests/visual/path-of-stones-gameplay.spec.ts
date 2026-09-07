@@ -423,3 +423,51 @@ for (const aquatic of [false, true]) {
     await expect(companion).not.toHaveClass(/--walking/);
   });
 }
+
+test("shows a gardener counterattack when the pilgrim enters his reach", async ({ page }) => {
+  await page.clock.install();
+  await page.goto("/path-of-stones/");
+  await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible({
+    timeout: 20000,
+  });
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
+  const gardener = page.locator(".zazen-world__gardener-actor");
+  const [posX, posY] = (await gardener.getAttribute("data-position"))!.split(",").map(Number);
+  const map = rakePaths(layout.map, layout.map, opening);
+  const route = map
+    .filter((tile) => manhattan(tile, { posX, posY }) === 1)
+    .map((tile) => cheapestRoute(map, layout.start, tile, layout.stoneBudget - 1))
+    .filter((path) => path !== undefined && path !== null)
+    .sort((a, b) => a!.cost - b!.cost || a!.path.length - b!.path.length)[0];
+  expect(route).toBeDefined();
+  let from = layout.start;
+  await page.getByRole("application").focus();
+  for (const next of route!.path) {
+    const key =
+      next.posX > from.posX
+        ? "ArrowDown"
+        : next.posX < from.posX
+          ? "ArrowUp"
+          : next.posY > from.posY
+            ? "ArrowLeft"
+            : "ArrowRight";
+    await page.keyboard.press(key);
+    await expect(page.getByRole("application")).toContainText(
+      `Pilgrim is at position ${next.posX}, ${next.posY}`,
+    );
+    from = next;
+    if (await page.locator(".zazen-world__attack-loss").count()) break;
+  }
+  await expect(gardener).toHaveAttribute("data-activity", "attack");
+  await expect(gardener.locator(".zazen-world__gardener-sprite")).toHaveCSS(
+    "background-image",
+    /gardener-strike\.png/,
+  );
+  await expect(gardener.locator(".zazen-world__gardener-sprite")).toHaveCSS(
+    "animation-name",
+    "gardener-strike",
+  );
+  await expect(page.locator(".zazen-world__attack-loss")).toHaveText("−1 stone");
+  await page.clock.runFor(900);
+  await expect(page.locator(".zazen-world__attack-loss")).toHaveCount(0);
+});

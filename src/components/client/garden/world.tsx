@@ -685,6 +685,19 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   });
 
   const frogHopping = useStride(game.frog);
+  const [attackVisible, setAttackVisible] = useState(false);
+  const [attackPosition, setAttackPosition] = useState<Position | undefined>(undefined);
+  useEffect(() => {
+    if (!game.attackTicks) {
+      setAttackVisible(false);
+      return;
+    }
+    setAttackPosition(game.position);
+    setAttackVisible(true);
+    const timer = setTimeout(() => setAttackVisible(false), 800);
+    return () => clearTimeout(timer);
+  }, [game.attackTicks]);
+
   const step = useZazenStep(game.position);
 
   const [hoverDay, setHoverDay] = useState<number | undefined>(undefined);
@@ -1239,8 +1252,10 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
           path. You have four rounds and three gardener refills. The gardener moves first to rake an
           approach to a stone. When you run out, he rakes up to two useful approaches on his first
           return and three on later visits, then gives you two stones. Your tile, its neighbours and
-          discoveries stay safe. In the final round, collect reachable stones or rescue the frog to
-          keep going. If no reward is reachable with an empty supply, the run ends.
+          discoveries stay safe. Keep one tile between you and the gardener: he can knock away one
+          stone per round when you step beside him. In the final round, collect reachable stones or
+          rescue the frog to keep going. If no reward is reachable with an empty supply, the run
+          ends.
         </p>
         {/* Two gauges, not two sentences. What you have gathered and what you have left
             to spend are the only live numbers on the page, and they were set at caption
@@ -1640,7 +1655,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               </div>
               <Gardener
                 position={game.gardenerPosition}
-                activity={game.gardenerActivity}
+                activity={attackVisible ? "attack" : game.gardenerActivity}
                 facingLeft={game.gardenerFacingLeft}
                 offsetX={mapDimensions.offsetX}
                 offsetY={mapDimensions.offsetY}
@@ -1685,6 +1700,21 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                 offsetX={mapDimensions.offsetX}
                 offsetY={mapDimensions.offsetY}
               />
+              {attackVisible && (
+                <span
+                  key={game.attackTicks}
+                  className="zazen-world__attack-loss"
+                  role="status"
+                  style={toScreen(
+                    (attackPosition ?? game.position).posX,
+                    (attackPosition ?? game.position).posY,
+                    mapDimensions.offsetX,
+                    mapDimensions.offsetY,
+                  )}
+                >
+                  −1 stone
+                </span>
+              )}
               <ZazenPilgrim
                 renderPosition={step.renderPosition}
                 facing={step.facing}

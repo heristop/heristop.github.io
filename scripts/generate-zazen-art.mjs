@@ -52,6 +52,7 @@ const FOLDERS = {
     "npc-3",
     "npc-3-life",
     "gardener",
+    "gardener-strike",
   ],
   sol: [
     ...GROUND_VARIANTS.flatMap((name) => [1, 2, 3].map((variant) => `${name}-v${variant}`)),

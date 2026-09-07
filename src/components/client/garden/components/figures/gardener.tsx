@@ -3,7 +3,7 @@ import { toScreen } from "../../board/geometry";
 
 interface Props {
   position: Position;
-  activity: "idle" | "ready" | "walk" | "rake";
+  activity: "idle" | "ready" | "walk" | "rake" | "attack";
   facingLeft: boolean;
   offsetX: number;
   offsetY: number;

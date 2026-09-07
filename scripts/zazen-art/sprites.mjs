@@ -1256,9 +1256,53 @@ const mermaidSheet = () => {
   return sheet;
 };
 
+const gardenerStrikeSheet = () => {
+  const idle = gardenerSheet()
+    .slice(0, 40)
+    .map((row) => row.slice(0, 32));
+  const sheet = grid(384, 40);
+  const swings = [
+    [28, 5],
+    [22, 2],
+    [43, 10],
+    [52, 22],
+    [42, 29],
+    [28, 5],
+  ];
+  for (let frame = 0; frame < 6; frame++) {
+    const g = grid(64, 40);
+    const body = idle.map((row) => [...row]);
+    rect(body, 24, 0, 8, 40, ".");
+    const lean = [0, -1, 1, 3, 2, 0][frame];
+    blit(g, body, lean, 0);
+    const handX = 22 + lean;
+    const handY = 24;
+    const [tipX, tipY] = swings[frame];
+    const length = Math.max(Math.abs(tipX - handX), Math.abs(tipY - handY));
+    for (let step = 0; step <= length; step++) {
+      const x = Math.round(handX + ((tipX - handX) * step) / length);
+      const y = Math.round(handY + ((tipY - handY) * step) / length);
+      put(g, x, y, "b");
+      put(g, x, y + 1, "c");
+    }
+    const horizontal = Math.abs(tipX - handX) > Math.abs(tipY - handY);
+    for (let tooth = -4; tooth <= 4; tooth++) {
+      put(g, tipX + (horizontal ? 0 : tooth), tipY + (horizontal ? tooth : 0), "l");
+      if (tooth % 2 === 0) {
+        put(g, tipX + (horizontal ? 1 : tooth), tipY + (horizontal ? tooth : 1), "j");
+        put(g, tipX + (horizontal ? 2 : tooth), tipY + (horizontal ? tooth : 2), "j");
+      }
+    }
+    rect(g, handX - 1, handY - 1, 3, 3, "b");
+    blit(sheet, g, frame * 64, 0);
+  }
+  return sheet;
+};
+
 // --- inventory --------------------------------------------------------------
 
 export const SPRITES = {
+  "gardener-strike": sprite(gardenerStrikeSheet()),
   "mermaid-life": sprite(mermaidSheet()),
   "bird-flight": sprite(birdSheet()),
   "bamboo-a": sprite(bamboo([-6, 0, 6], 46)),

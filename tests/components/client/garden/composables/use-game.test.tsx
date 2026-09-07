@@ -427,3 +427,62 @@ it("hops to one neighbouring tile without spending player resources", () => {
     vi.useRealTimers();
   }
 });
+
+describe("gardener counterattack", () => {
+  it("removes one stone at close range only once per round", () => {
+    vi.useFakeTimers();
+    const safety = vi.spyOn(terrain, "tourCompletes").mockReturnValue(true);
+    try {
+      const { result, unmount } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+      const gardener = result.current.gardenerPosition;
+      const target = result.current.map.find(
+        (tile) =>
+          Math.abs(tile.posX - gardener.posX) + Math.abs(tile.posY - gardener.posY) === 1 &&
+          tile.stone === undefined &&
+          !tile.shrine &&
+          Math.abs(tile.posX - result.current.frog.posX) +
+            Math.abs(tile.posY - result.current.frog.posY) >
+            1,
+      )!;
+      const before = result.current.stonesLeft;
+      act(() => result.current.teleportForTest(target));
+      expect(result.current.stonesLeft).toBe(before - 1);
+      expect(result.current.attackTicks).toBe(1);
+      expect(result.current.attackUsed).toBe(true);
+      act(() => result.current.teleportForTest(target));
+      expect(result.current.stonesLeft).toBe(before - 1);
+      expect(result.current.attackTicks).toBe(1);
+      unmount();
+    } finally {
+      safety.mockRestore();
+      vi.useRealTimers();
+    }
+  });
+
+  it("spares the player's supply when a strike would make the route impossible", () => {
+    vi.useFakeTimers();
+    try {
+      const { result, unmount } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+      const safety = vi.spyOn(terrain, "tourCompletes").mockReturnValue(false);
+      const gardener = result.current.gardenerPosition;
+      const target = result.current.map.find(
+        (tile) =>
+          Math.abs(tile.posX - gardener.posX) + Math.abs(tile.posY - gardener.posY) === 1 &&
+          tile.stone === undefined &&
+          !tile.shrine &&
+          Math.abs(tile.posX - result.current.frog.posX) +
+            Math.abs(tile.posY - result.current.frog.posY) >
+            1,
+      )!;
+      const before = result.current.stonesLeft;
+      act(() => result.current.teleportForTest(target));
+      expect(result.current.stonesLeft).toBe(before);
+      expect(result.current.attackTicks).toBe(0);
+      safety.mockRestore();
+      unmount();
+    } finally {
+      vi.restoreAllMocks();
+      vi.useRealTimers();
+    }
+  });
+});
