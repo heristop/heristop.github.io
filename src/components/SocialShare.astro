@@ -1,4 +1,5 @@
 ---
+import Icon from "./Icon.astro";
 interface Props {
   title: string;
   slug: string;
@@ -45,16 +46,8 @@ const shareLinks = [
       data-tooltip={minimal ? 'Buy me a coffee ☕' : 'Support my writing ☕ (opens in new tab)'}
     >
       <span class="social-share__link--support-shimmer" aria-hidden="true" />
-      <img
-        src="/icons/coffee.svg"
-        alt=""
-        width="20"
-        height="20"
-        class:list={[
-          'social-share__icon',
-          { 'social-share__icon--with-text': !minimal },
-        ]}
-      />
+      <Icon name="coffee" size={20} color="currentColor" aria-hidden={true}
+        class={`social-share__icon ${!minimal ? 'social-share__icon--with-text' : ''}`} />
       {!minimal && (
         <span class="social-share__text">Buy me a coffee</span>
       )}
@@ -102,16 +95,14 @@ const shareLinks = [
     data-tooltip={minimal ? 'Share' : 'Share via system dialog or copy link'}
     hidden
   >
-    <img
-      src="/icons/share.svg"
-      alt=""
-      width="20"
-      height="20"
-      class:list={[
-        'social-share__icon',
-        { 'social-share__icon--with-text': !minimal },
-      ]}
-    />
+    <span data-share-default>
+      <Icon name="share-2" size={20} color="currentColor" aria-hidden={true}
+        class={`social-share__icon ${!minimal ? 'social-share__icon--with-text' : ''}`} />
+    </span>
+    <span data-share-confirmed hidden>
+      <Icon name="check" size={20} color="currentColor" aria-hidden={true}
+        class={`social-share__icon ${!minimal ? 'social-share__icon--with-text' : ''}`} />
+    </span>
     {!minimal && (
       <span class="social-share__text">Share</span>
     )}
@@ -160,17 +151,14 @@ const shareLinks = [
         }
 
         await navigator.clipboard.writeText(url);
-        const icon = btn.querySelector('.social-share__icon');
-        if (!(icon instanceof HTMLImageElement)) {
-          return;
-        }
-
-        const originalSrc = icon.getAttribute('src');
-        icon.setAttribute('src', '/icons/feather.svg#check');
-        icon.style.filter = 'none';
+        const regular = btn.querySelector<HTMLElement>('[data-share-default]');
+        const confirmed = btn.querySelector<HTMLElement>('[data-share-confirmed]');
+        if (!regular || !confirmed) return;
+        regular.hidden = true;
+        confirmed.hidden = false;
         setTimeout(() => {
-          icon.setAttribute('src', originalSrc ?? '/icons/share.svg');
-          icon.style.filter = '';
+          regular.hidden = false;
+          confirmed.hidden = true;
         }, SHARE_FEEDBACK_DURATION);
       });
     }
