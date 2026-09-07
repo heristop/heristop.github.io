@@ -116,7 +116,10 @@ const CharacterTextReveal = ({ text, tag: Tag = "span", className, font = DEFAUL
 };
 
 const ZenTextReveal = (props: Props) => {
-  if (props.mobileStrategy === "text" && usesCoarsePointer()) {
+  const [coarsePointer, setCoarsePointer] = useState(false);
+  useEffect(() => { setCoarsePointer(usesCoarsePointer()); }, []);
+
+  if (props.mobileStrategy === "text" && coarsePointer) {
     return <SimpleTextReveal {...props} />;
   }
   return <CharacterTextReveal {...props} />;
