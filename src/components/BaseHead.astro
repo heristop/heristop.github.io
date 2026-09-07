@@ -1,5 +1,6 @@
 ---
 import '../styles/global.scss';
+import GardenTransition from './GardenTransition.astro';
 import { cloudflareToken } from '../analytics';
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -29,6 +30,8 @@ const {
   tags,
 } = Astro.props;
 ---
+
+<GardenTransition />
 
 <!-- Global Metadata -->
 <meta charset="utf-8" />
