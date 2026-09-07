@@ -1260,9 +1260,7 @@ for (const name of GROUND_VARIANTS) {
       name === "moss-mid" ? "d" : name === "moss-deep" ? "e" : name === "gravel-edge" ? "b" : "a";
     const mid = name === "moss-mid" ? "e" : name === "moss-deep" ? "f" : "b";
     const dark = moss && name !== "sand-moss" ? "f" : "c";
-    const g = moss
-      ? meadowTile(light, mid, dark, name === "moss-mid" ? "e" : "d", seed, 3 + (variant % 3))
-      : groundTile(light, mid, dark);
+    const g = groundTile(light, mid, dark);
     const noise = speckler(seed);
     for (let y = 0; y < 32; y++) {
       const half = diamondHalfWidth(y);
@@ -1273,7 +1271,14 @@ for (const name of GROUND_VARIANTS) {
           g[y][x] = y % 4 === 2 ? "b" : "a";
           // Small interior interruptions suggest a hand-drawn rake stroke.
           if (!rim && noise() < 0.035) g[y][x] = "a";
-        } else if (!moss && !rim && noise() < (name === "gravel-edge" ? 0.13 : 0.035)) {
+        } else if (moss) {
+          // Fine, isolated grass pixels preserve the soil rather than forming large blobs.
+          g[y][x] = light;
+          const density = name === "moss-deep" ? 0.25 : name === "moss-mid" ? 0.13 : 0.19;
+          if (!rim && noise() < density) {
+            g[y][x] = name === "sand-moss" ? "d" : noise() < 0.72 ? "f" : "d";
+          }
+        } else if (!rim && noise() < (name === "gravel-edge" ? 0.13 : 0.035)) {
           g[y][x] = name === "gravel-edge" ? (noise() < 0.5 ? "j" : "c") : "b";
         }
       }
