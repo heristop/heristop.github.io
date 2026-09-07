@@ -229,3 +229,21 @@ describe("ground variations", () => {
     }
   });
 });
+
+describe("ambient character sheets", () => {
+  it("keeps each actor in a fixed cell with four distinct gestures", () => {
+    for (const [name, width, height] of [
+      ["frog-life", 32, 64],
+      ["koi-life", 32, 64],
+      ["npc-3-life", 24, 40],
+    ] as const) {
+      const entry = sprites[name];
+      expect(entry.width).toBe(width * 4);
+      expect(entry.height).toBe(height);
+      const frames = [0, 1, 2, 3].map((frame) =>
+        entry.rows.map((row) => row.slice(frame * width, (frame + 1) * width)).join(""),
+      );
+      expect(new Set(frames).size).toBe(4);
+    }
+  });
+});

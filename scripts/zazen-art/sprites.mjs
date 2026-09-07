@@ -553,6 +553,12 @@ const catCell = (frame, mode = 0) => {
     rect(g, 5 + inset, 10 + y, 12 - inset * 2, 1, y > 3 ? "k" : "j");
   }
 
+  // Shared warm highlights, tabby markings and a pale chest.
+  rect(g, 7, 10, 2, 3, "c");
+  rect(g, 11, 10, 2, 2, "c");
+  rect(g, 15, 13, 2, 3, "a");
+  put(g, 7, 11, "a");
+
   // Four legs, front and back pairs swinging opposite each other.
   rect(g, 6 + step, 16, 2, 5, "k");
   rect(g, 9 - step, 16, 2, 5, "j");
@@ -585,6 +591,11 @@ const catCell = (frame, mode = 0) => {
   if (frame === 3) {
     rect(g, 18, 3, 3, 1, ".");
     put(g, 21, 4, "j");
+  }
+  if (mode === 1 && frame === 3) {
+    rect(g, 13, 16, 2, 5, ".");
+    rect(g, 14, 14, 2, 4, "j");
+    put(g, 15, 14, "a");
   }
   if (mode === 2 && frame > 0) {
     // Lift the chin toward the pilgrim while the tail curls in greeting.
@@ -747,6 +758,8 @@ const monkCell = (facing, frame) => {
   rect(g, CX - 3, bodyTop + 5, 1, 6, "l");
   rect(g, CX + 2, bodyTop + 6, 1, 5, "q");
   rect(g, CX - 4, bodyTop + 4, 8, 1, "c");
+  put(g, CX - 2, bodyTop + 4, "a");
+  put(g, CX - 4, bodyTop, "j");
   if (facing !== "N") {
     rect(g, CX + 3, bodyTop + 3, 3, 5, "l");
     put(g, CX + 4, bodyTop + 4, "b");
@@ -764,7 +777,8 @@ const gardenerSheet = () => {
   for (let mode = 0; mode < 3; mode++) {
     for (let frame = 0; frame < 4; frame++) {
       const g = grid(32, 40);
-      const bob = mode === 1 ? frame % 2 : mode === 2 && frame > 1 ? 2 : 0;
+      const bob =
+        mode === 1 ? frame % 2 : mode === 2 && frame > 1 ? 2 : mode === 0 && frame === 1 ? 1 : 0;
       const stride = mode === 1 ? [0, 2, 0, -2][frame] : 0;
       // Boots, cuffed trousers, forest apron and rolled linen sleeves.
       rect(g, 7 + stride, 33, 5, 4, "q");
@@ -810,6 +824,8 @@ const gardenerSheet = () => {
       for (let tooth = -4; tooth <= 4; tooth += 2) rect(g, rakeX + tooth, rakeY + 25, 1, 3, "j");
       // A slight hand shift makes the idle frames feel alive without bobbing the feet.
       if (mode === 0) rect(g, 24, 21 + (frame % 2), 3, 2, "b");
+      put(g, 11, 12 + bob, "a");
+      put(g, 20, 25 + bob, "c");
       blit(sheet, g, frame * 32, mode * 40);
     }
   }
@@ -830,14 +846,63 @@ const pilgrimSheet = () => {
 // Two seated figures already on the board, kept as scenery.
 const npc = (robe, accent) => {
   const g = grid(MONK_CELL_W, MONK_CELL_H);
-  rect(g, 8, 14, 8, 5, "c");
-  rect(g, 6, 12, 12, 2, accent);
-  for (let y = 0; y < 12; y++) {
-    const half = 5 + Math.round(y / 2);
-    rect(g, 12 - half, 19 + y, half * 2, 1, robe);
+  rect(g, 8, 9, 8, 10, "k");
+  rect(g, 9, 10, 6, 8, "b");
+  rect(g, 9, 10, 3, 5, "a");
+  rect(g, 7, 8, 10, 3, "p");
+  rect(g, 8, 8, 6, 1, "l");
+  put(g, 10, 13, "q");
+  put(g, 14, 13, "q");
+  for (let y = 19; y < 33; y++) {
+    const half = 4 + Math.floor((y - 19) / 4);
+    rect(g, 12 - half, y, half * 2, 1, robe);
+    put(g, 12 + half - 1, y, accent);
   }
-  rect(g, 5, 31, 14, 2, "l");
+  rect(g, 8, 19, 2, 9, "j");
+  rect(g, 7, 25, 10, 2, "f");
+  rect(g, 9, 24, 3, 2, "b");
+  rect(g, 13, 24, 3, 2, "a");
+  rect(g, 7, 33, 10, 2, "p");
   return g;
+};
+
+const ambientSheet = (kind) => {
+  const width = kind === "npc" ? 24 : 32;
+  const height = kind === "npc" ? 40 : 64;
+  const sheet = grid(width * 4, height);
+  for (let frame = 0; frame < 4; frame++) {
+    const g = kind === "frog" ? frog() : kind === "koi" ? koi() : npc("k", "l");
+    if (kind === "frog") {
+      rect(g, 13, 51, 6, 2, "d");
+      if (frame === 1) rect(g, 13, 54, 6, 2, "d");
+      if (frame === 2) {
+        rect(g, 12, 46, 2, 2, "e");
+        rect(g, 18, 46, 2, 2, "e");
+        rect(g, 12, 47, 2, 1, "f");
+        rect(g, 18, 47, 2, 1, "f");
+      }
+      if (frame === 3) rect(g, 9, 54, 3, 2, "d");
+    } else if (kind === "koi") {
+      const tail = g.slice(47, 59).map((row) => row.slice(20));
+      rect(g, 20, 47, 12, 12, ".");
+      blit(g, tail, 20, 47 + [0, -1, 0, 1][frame]);
+      put(g, 13, 50, "j");
+      if (frame % 2) put(g, 12, 56, "a");
+      if (frame === 2) put(g, 12, 49, "a");
+    } else {
+      if (frame === 2) {
+        put(g, 10, 13, "k");
+        put(g, 14, 13, "k");
+      }
+      if (frame === 1 || frame === 3) {
+        rect(g, 9, 24, 7, 2, "k");
+        rect(g, 9, 23, 3, 2, "b");
+        rect(g, 13, 23, 3, 2, frame === 1 ? "a" : "b");
+      }
+    }
+    blit(sheet, g, frame * width, 0);
+  }
+  return sheet;
 };
 
 // The kimono, narrow at the shoulder and opening to the hem. It flares less than the
@@ -953,6 +1018,8 @@ const woman = () => {
   put(g, CX - 2, bodyTop + 5, "m");
   put(g, CX + 2, bodyTop + 9, "d");
   put(g, CX + 1, bodyTop + 10, "a");
+  put(g, CX - 4, bodyTop + 8, "d");
+  put(g, CX - 4, bodyTop + 9, "a");
 
   // Furisode: the long hanging sleeves that say this is a young woman and not a matron.
   // Two pixels wide and held clear of the body by its own outline — drawn any thicker
@@ -982,6 +1049,12 @@ const womanSheet = () => {
       const g = grid(MONK_CELL_W, MONK_CELL_H);
       const lift = mode === 1 && frame % 2 === 1 ? -1 : 0;
       blit(g, base, 0, lift);
+      if (mode === 0 && frame === 0) {
+        rect(g, CX - 4, 11, 3, 2, "b");
+        rect(g, CX + 1, 11, 3, 2, "b");
+        rect(g, CX - 3, 12, 2, 2, "p");
+        rect(g, CX + 1, 12, 2, 2, "p");
+      }
       if (mode === 0 && frame === 1) {
         rect(g, 0, 0, MONK_CELL_W, 17, ".");
         blit(g, base.slice(0, 17), 0, 1);
@@ -1056,6 +1129,9 @@ export const SPRITES = {
   "npc-2": sprite(woman()),
   "npc-2-life": sprite(womanSheet()),
   "npc-3": sprite(npc("k", "l")),
+  "npc-3-life": sprite(ambientSheet("npc")),
+  "frog-life": sprite(ambientSheet("frog")),
+  "koi-life": sprite(ambientSheet("koi")),
   gardener: sprite(gardenerSheet()),
   "rock-mound": sprite(rock(22, 18, "j", "k", "l")),
   "rock-small": sprite(rock(13, 10, "j", "k", "l")),
