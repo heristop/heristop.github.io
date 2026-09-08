@@ -1,3 +1,4 @@
+import useRenderer from "./composables/use-renderer";
 import { groundArtwork } from "./rendering/artwork";
 import WebGLBoard from "./rendering/webgl-board";
 import useGardenMusic from "./composables/use-music";
@@ -638,12 +639,9 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   const lastBurstStoneRef = useRef<number>(-1);
   const hasFramedRef = useRef(false);
   const [mapScale, setMapScale] = useState(1);
-  const [webglRequested] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      new URLSearchParams(window.location.search).get("renderer") === "webgl",
-  );
-  const [webglReady, setWebglReady] = useState(false);
+  const renderer = useRenderer();
+  const webglRequested = renderer.supported && renderer.enabled;
+  const webglReady = webglRequested && renderer.ready;
 
   // The inspect cursor. undefined means "not inspecting" — the day card then reports
   // whichever day the pilgrim is standing on.
@@ -1601,6 +1599,17 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               )}
               Sound {soundOn ? "on" : "off"}
             </button>
+            {renderer.supported && (
+              <button
+                type="button"
+                aria-pressed={renderer.enabled}
+                onClick={renderer.toggle}
+                title="Soft lighting, water reflections and atmospheric effects"
+              >
+                <Icon name="sunrise" size={15} aria-hidden="true" />
+                HD-2D {renderer.enabled ? "on" : "off"}
+              </button>
+            )}
             <button type="button" aria-pressed={musicOn} onClick={toggleMusic}>
               <Icon name="music" size={15} aria-hidden="true" />
               Music {musicOn ? "on" : "off"}
@@ -1697,6 +1706,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               className="zazen-world__map"
               ref={mapRef}
               data-renderer={webglReady ? "webgl" : "dom"}
+              data-renderer-switched={renderer.hasRendered || undefined}
               role="application"
               tabIndex={0}
               aria-label="Interactive game world map"
@@ -1720,7 +1730,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               <div className="sr-only" aria-live="polite" id="position-announcer">
                 {`Pilgrim is at position ${game.position.posX}, ${game.position.posY}`}
               </div>
-              {webglRequested && <WebGLBoard scene={webglScene} onReady={setWebglReady} />}
+              {webglRequested && <WebGLBoard scene={webglScene} onReady={renderer.onReady} />}
               {tiles}
               <div className="zazen-world__weather" aria-hidden="true" />
               <div className="zazen-world__grade" aria-hidden="true" />

@@ -51,6 +51,9 @@ vi.mock("pixi.js", () => {
       this.rectangles.push(coordinates);
       return this;
     }
+    poly() {
+      return this;
+    }
     ellipse() {
       return this;
     }
@@ -105,6 +108,11 @@ vi.mock("pixi.js", () => {
     Application,
     Container,
     Text: Container,
+    ColorMatrixFilter: class {
+      contrast = vi.fn();
+      saturate = vi.fn();
+      destroy = vi.fn();
+    },
     Sprite,
     Graphics,
     Texture,
@@ -134,7 +142,7 @@ const tile = (posX: number, decor = "", npc = 0, sprite = "sand-0") => ({
 });
 const initial = (): GardenScene => ({
   map: [
-    tile(0, "lantern-lit"),
+    { ...tile(0, "lantern-lit"), stone: 0 },
     tile(1, "koi", 0, "water-still"),
     tile(2, "", 2),
     tile(3, "", 3),
@@ -191,6 +199,9 @@ it("crops and animates water, lights the empty shrine, and reuses terrain for ac
   expect(water.texture.frame).toMatchObject({ width: 64, height: 64, y: 0 });
   app().advance(450);
   expect(water.texture.frame.y).toBe(64);
+  const floor = ground.children.at(-1);
+  expect(floor.children.some((c: any) => c.label === "lantern-reflection")).toBe(true);
+  expect(floor.children.some((c: any) => c.label === "stone-aura")).toBe(true);
   expect(
     app().stage.children[2].children.filter((c: any) => c.label === "emissive-light"),
   ).toHaveLength(2);
@@ -207,6 +218,7 @@ it("crops and animates water, lights the empty shrine, and reuses terrain for ac
   renderer.destroy();
   renderer.destroy();
   expect(app().destroy).toHaveBeenCalledTimes(1);
+  expect(app().stage.filters[0].destroy).toHaveBeenCalledOnce();
   expect(host.children).toHaveLength(0);
   await renderer.update(scene);
 });

@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+// These snapshots and sprite assertions exercise the classic renderer.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("path-stones:hd2d", "off"));
+});
+
 test("mobile controls fit beside turn status and recenter both axes", async ({
   page,
   isMobile,

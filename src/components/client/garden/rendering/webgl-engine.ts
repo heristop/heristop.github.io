@@ -2,6 +2,7 @@ import {
   Application,
   Assets,
   Container,
+  ColorMatrixFilter,
   Graphics,
   Rectangle,
   Sprite,
@@ -52,6 +53,7 @@ export async function createGardenRenderer(
   let revision = 0;
   let elapsed = 0;
   let scene = initial;
+  let grade: ColorMatrixFilter | undefined;
   let lightTexture: Texture | undefined;
   let atmosphere: ReturnType<typeof createAtmosphere> | undefined;
   let renderedMap: GardenScene["map"] | undefined;
@@ -78,6 +80,7 @@ export async function createGardenRenderer(
     app.destroy(true, { children: true });
     for (const texture of frames.values()) texture.destroy(false);
     lightTexture?.destroy(true);
+    grade?.destroy();
   };
   const frame = (path: string, width: number, height: number, column = 0, row = 0) => {
     const key = `${path}:${width}:${height}:${column}:${row}`;
@@ -179,6 +182,7 @@ export async function createGardenRenderer(
         actor.from.y + (actor.to.y - actor.from.y) * progress,
       );
       actor.container.zIndex = actor.container.y + 32;
+      actor.sprite.tint = depthTint((actor.container.y + scene.offsetY) / 640);
       const idle = Math.floor(time / 300) % 4;
       if (name === "pilgrim") {
         dress(
@@ -280,7 +284,7 @@ export async function createGardenRenderer(
             base.texture = frame(groundPath, 64, 64, 0, Math.floor(time / 400) % 8);
           });
         base.position.set(p.x, p.y);
-        base.tint = depthTint((tile.posX + tile.posY) / 22);
+        base.tint = water ? 0x9cdad5 : depthTint((tile.posX + tile.posY) / 22);
         base.width = 64;
         base.height = 64;
         ground.addChild(base);
@@ -318,7 +322,7 @@ export async function createGardenRenderer(
             });
         }
       }
-      atmosphere = createAtmosphere(scene, lightTexture!);
+      atmosphere = createAtmosphere(scene, lightTexture!, textures);
       ground.addChild(atmosphere.floor);
       app.stage.addChild(atmosphere.air);
       renderedMap = scene.map;
@@ -340,6 +344,10 @@ export async function createGardenRenderer(
       roundPixels: true,
       autoStart: false,
     });
+    grade = new ColorMatrixFilter();
+    grade.contrast(0.12, false);
+    grade.saturate(0.16, true);
+    app.stage.filters = [grade];
     lightTexture = createLightTexture();
     app.stage.addChild(ground, figures);
     app.ticker.maxFPS = 60;

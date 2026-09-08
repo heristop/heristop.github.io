@@ -14,6 +14,11 @@ import {
   tileAt,
 } from "../components/client/garden/model";
 import type { Position } from "../components/client/garden/model";
+
+// These snapshots and sprite assertions exercise the classic renderer.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("path-stones:hd2d", "off"));
+});
 const seed = parseGardenSeed(
   JSON.parse(readFileSync(new URL("../../src/data/github-garden.json", import.meta.url), "utf8")),
 );

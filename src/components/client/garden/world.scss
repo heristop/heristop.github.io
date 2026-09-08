@@ -3119,3 +3119,14 @@ button.path-stones__heat-cell:focus-visible {
 }
 
 .garden-webgl__markers { filter: none; }
+
+/* Switching renderer is not a new entrance: keep the playable character visible. */
+.zazen-world__map[data-renderer-switched] .zazen-world__pilgrim {
+  animation: none;
+}
+
+/* The GPU owns the lighting grade; retain the independent cloud shadows. */
+.path-stones .zazen-world__map[data-renderer="webgl"] {
+  .zazen-world__weather { background: none; }
+  .zazen-world__grade { opacity: 0.08; }
+}

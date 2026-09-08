@@ -13,7 +13,7 @@ test("GPU board keeps React controls and survives context loss without resetting
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto("/path-of-stones/?renderer=webgl");
+  await page.goto("/path-of-stones/");
   const map = page.getByRole("application");
   await expect(map).toHaveAttribute("data-renderer", "webgl", { timeout: 20000 });
   await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible();
@@ -32,6 +32,7 @@ test("GPU board keeps React controls and survives context loss without resetting
   await expect(map).toHaveAttribute("data-renderer", "dom");
   await expect(page.locator(".garden-webgl canvas")).toHaveCount(0);
   await expect(page.locator(".zazen-world__pilgrim")).toBeVisible();
+  await expect(page.locator(".zazen-world__pilgrim")).toHaveCSS("animation-name", "none");
   await expect(page.locator("#position-announcer")).toHaveText(before!);
   expect(errors).toEqual([]);
 });
@@ -49,11 +50,39 @@ test("unsupported WebGL falls back to a playable board", async ({ page }) => {
     } as typeof original;
   });
   await page.goto("/path-of-stones/?renderer=webgl");
-  await expect(page.locator(".garden-webgl")).toHaveAttribute("data-status", "fallback");
+  await expect(page.locator(".garden-webgl")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /HD-2D/ })).toHaveCount(0);
   await expect(page.getByRole("application")).toHaveAttribute("data-renderer", "dom");
   await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible();
   await page
     .getByRole("button", { name: "Walk down and right (S or down arrow)", exact: true })
     .click();
   await expect(page.locator("#position-announcer")).toContainText("2, 1");
+});
+
+test("HD-2D toggles without resetting the run and persists beyond a diagnostic URL", async ({
+  page,
+}) => {
+  await page.goto("/path-of-stones/?renderer=webgl");
+  const map = page.getByRole("application");
+  await expect(map).toHaveAttribute("data-renderer", "webgl", { timeout: 20000 });
+  await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible();
+  await page
+    .getByRole("button", { name: "Walk down and right (S or down arrow)", exact: true })
+    .click();
+  const before = await page.locator("#position-announcer").textContent();
+  await page.getByRole("button", { name: "HD-2D on", exact: true }).click();
+  await expect(map).toHaveAttribute("data-renderer", "dom");
+  await expect(page.locator("#position-announcer")).toHaveText(before!);
+  await expect(page.locator(".garden-webgl canvas")).toHaveCount(0);
+  await page.reload();
+  await expect(map).toHaveAttribute("data-renderer", "dom");
+  await expect(page.getByRole("button", { name: "HD-2D off", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "false",
+  );
+  await page.getByRole("button", { name: "HD-2D off", exact: true }).click();
+  await expect(map).toHaveAttribute("data-renderer", "webgl");
+  await page.reload();
+  await expect(map).toHaveAttribute("data-renderer", "webgl");
 });

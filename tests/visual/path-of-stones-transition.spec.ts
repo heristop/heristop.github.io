@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+// These snapshots and sprite assertions exercise the classic renderer.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("path-stones:hd2d", "off"));
+});
+
 test.describe("Garden page transitions", () => {
   for (const reducedMotion of ["no-preference", "reduce"] as const) {
     test(`enters, returns and supports browser history (${reducedMotion})`, async ({ page }) => {

@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
 import { waitForImagesLoad, waitForPageLoad } from "../utils/test-helpers";
 
+// These snapshots and sprite assertions exercise the classic renderer.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("path-stones:hd2d", "off"));
+});
+
 // The garden is generated from a committed seed, so this snapshot is stable until the
 // seed or the art changes — both of which are deliberate, reviewable commits.
 test.beforeEach(async ({ page }) => {

@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+// These snapshots and sprite assertions exercise the classic renderer.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("path-stones:hd2d", "off"));
+});
+
 for (const width of [1440, 760, 583]) {
   test(`keeps the board stationary during route hover at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 });

@@ -20,6 +20,11 @@ import type { MapTile, Position } from "../components/client/garden/model";
 import { randomizeFrog } from "../components/client/garden/model";
 
 import { chooseRakeTargets, rakePaths } from "../components/client/garden/model";
+
+// These snapshots and sprite assertions exercise the classic renderer.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("path-stones:hd2d", "off"));
+});
 const layout = randomizeFrog(buildGarden(parseGardenSeed(seedData)), 0.5);
 const opening = chooseRakeTargets(layout.map, [], layout.start, 1, {
   budget: layout.stoneBudget + 6,

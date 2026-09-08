@@ -43,11 +43,11 @@ With a production preview running, use `pnpm benchmark:garden` to measure the op
 for another preview or `--cpu=4` to simulate a slower CPU. The report includes frame cadence,
 long frames and JavaScript/layout work; validate the 60 FPS target on physical devices too.
 
-The experimental hybrid board is available at `/path-of-stones/?renderer=webgl`.
+The hybrid WebGL board is the default when supported. The in-game **HD-2D** toggle
+switches instantly to the classic renderer and remembers the preference on this device.
 React retains rules, menus, cards, controls, accessible tile targets and atmospheric overlays;
-Pixi renders terrain, scenery and animated characters in WebGL. The default URL keeps the
-original renderer for comparison. Graphics initialization or context loss returns to that
-renderer without resetting the run. The WebGL bundle loads only for the opt-in route.
+Pixi renders terrain, scenery and animated characters in WebGL. Use `?renderer=dom` or `?renderer=webgl` for explicit comparisons. Graphics initialization or context loss returns to that
+renderer without resetting the run. The WebGL bundle loads only when HD-2D is enabled and supported.
 Compare with `pnpm benchmark:garden --url="http://127.0.0.1:4327/path-of-stones/?renderer=webgl"`. Measurements report browser frame cadence and
 main-thread work, not guaranteed GPU frame presentation. The report identifies the GPU backend;
 use `--angle=metal` on macOS to compare with the Apple GPU instead of software rendering.

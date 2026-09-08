@@ -1,7 +1,7 @@
 # Hybrid garden renderer
 
-The experiment lives at `/path-of-stones/?renderer=webgl`; the ordinary route remains the DOM
-baseline. Game state and input have one owner in React. Pixi receives snapshots and draws terrain,
+WebGL is now the default when supported, with a persistent HD-2D toggle.
+Use `?renderer=dom` for the classic baseline and `?renderer=webgl` to force the GPU preference. Game state and input have one owner in React. Pixi receives snapshots and draws terrain,
 scenery, water atlas frames and characters, with a ticker capped at 60 updates per second. React
 keeps accessible tile targets, tactical markers, discovery effects, weather overlays and the HUD.
 Textures use nearest-neighbour sampling. Figure depth follows isometric footing. Terrain is
@@ -40,7 +40,7 @@ need further profiling before changing the default. Earlier headless results use
 they must not be presented as hardware GPU performance. The benchmark now reports its backend.
 
 Run `pnpm benchmark:garden --angle=metal --url="http://127.0.0.1:4327/path-of-stones/?renderer=webgl"`
-and repeat without the query for the baseline. Drop `--angle=metal` on other platforms.
+and repeat with `?renderer=dom` for the baseline. Drop `--angle=metal` on other platforms.
 
 ## HD-2D atmosphere
 
@@ -56,3 +56,16 @@ With this atmosphere enabled, the same Metal benchmark recorded a 9.2 ms browser
 and zero intervals over 25 ms during walking on both desktop and mobile emulation. Total task
 work was 863 ms and 901 ms respectively. This is a separate single run, so differences from
 the earlier measurements should not be interpreted as a proven speedup.
+
+The default-renderer rollout adds capability detection and a stored `path-stones:hd2d`
+preference. Toggling keeps the active game and removes diagnostic renderer parameters so a
+reload respects the explicit choice. Unavailable graphics or context loss hide the toggle and
+restore the classic board. The pilgrim's entrance animation is suppressed after a renderer
+switch to prevent a temporary invisible character. This visual pass adds water caustics,
+clipped lantern reflections, collectible auras and coherent character lighting. A GPU color
+grade strengthens contrast and saturation while the redundant CSS veil is reduced.
+
+A Metal run with this pass measured walking browser-frame p95 at 9.1 ms desktop and 9.2 ms
+mobile emulation, with no intervals over 25 ms. Opening still recorded four and three such
+intervals respectively. These are local browser scheduling measurements, not guaranteed GPU
+presentation rates or measurements on a physical phone.

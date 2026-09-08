@@ -42,7 +42,11 @@ export function depthTint(depth: number) {
   );
 }
 
-export function createAtmosphere(scene: GardenScene, texture: Texture) {
+export function createAtmosphere(
+  scene: GardenScene,
+  texture: Texture,
+  sceneryTextures: ReadonlyMap<string, Texture> = new Map(),
+) {
   const floor = new Container({ label: "atmosphere-floor" });
   const air = new Container({ label: "atmosphere-air" });
   const animations: Array<(time: number) => void> = [];
@@ -90,7 +94,7 @@ export function createAtmosphere(scene: GardenScene, texture: Texture) {
       44 - index * 12,
       scene.height * 0.62,
       0xffe3a5,
-      0.065,
+      0.14,
     );
     shaft.rotation = -0.72;
     shaft.label = "sun-shaft";
@@ -110,6 +114,20 @@ export function createAtmosphere(scene: GardenScene, texture: Texture) {
     );
     shadow.rotation = 0.35;
     shadow.label = "cast-shadow";
+  }
+  for (const tile of scene.map) {
+    if (tile.stone === undefined) continue;
+    const p = place(tile.posX, tile.posY);
+    const aura = glow(floor, p.left + 32, p.top + 22, 48, 22, 0xffc985, 0.25);
+    aura.label = "stone-aura";
+    const spark = glow(air, p.left + 32, p.top - 8, 9, 9, 0xffdfa0, 0.5);
+    spark.label = "stone-spark";
+    animations.push((time) => {
+      const pulse = Math.sin(time / 1000 + tile.stone!);
+      aura.alpha = 0.2 + pulse * 0.06;
+      spark.y = p.top - 8 + Math.sin(time / 800 + tile.stone!) * 3;
+      spark.alpha = 0.45 + pulse * 0.16;
+    });
   }
   for (const tile of lights) {
     const p = place(tile.posX, tile.posY);
@@ -154,6 +172,34 @@ export function createAtmosphere(scene: GardenScene, texture: Texture) {
     const warm = lights.some(
       (light) => Math.abs(light.posX - tile.posX) + Math.abs(light.posY - tile.posY) <= 2,
     );
+    const lampTexture = sceneryTextures.get("decors/lantern-lit");
+    const nearLamp = lights.some(
+      (light) =>
+        light.decor === "lantern-lit" &&
+        Math.abs(light.posX - tile.posX) + Math.abs(light.posY - tile.posY) <= 2,
+    );
+    if (nearLamp && lampTexture) {
+      const mirror = new Container({ label: "lantern-reflection" });
+      mirror.position.set(p.left, p.top);
+      const mask = new Graphics().poly([32, 0, 64, 16, 32, 32, 0, 16]).fill(0xffffff);
+      const reflected = new Sprite(lampTexture);
+      reflected.anchor.set(0.5, 0);
+      reflected.position.set(32, 24);
+      reflected.scale.set(0.62, -0.48);
+      reflected.tint = 0xd6d7b3;
+      mirror.addChild(reflected, mask);
+      mirror.mask = mask;
+      floor.addChild(mirror);
+      animations.push((time) => {
+        reflected.x = 32 + Math.sin(time / 1200 + index) * 1.3;
+        mirror.alpha = 0.19 + Math.sin(time / 1700 + index) * 0.04;
+      });
+    }
+    const caustic = glow(floor, p.left + 32, p.top + 16, 30, 12, warm ? 0xffd590 : 0xa5e7d9, 0.14);
+    caustic.label = "water-caustic";
+    animations.push((time) => {
+      caustic.alpha = 0.08 + (Math.sin(time / 1900 + index * 1.7) + 1) * 0.045;
+    });
     const reflection = new Graphics();
     reflection.label = "water-reflection";
     reflection.position.set(p.left, p.top);

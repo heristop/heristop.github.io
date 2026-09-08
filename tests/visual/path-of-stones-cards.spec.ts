@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+// These snapshots and sprite assertions exercise the classic renderer.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("path-stones:hd2d", "off"));
+});
+
 test("discovery hints are readable, toggleable and do not move the pilgrim", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/path-of-stones/");
