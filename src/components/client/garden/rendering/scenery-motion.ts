@@ -10,3 +10,5 @@ export const sceneryAngle = (kind: SceneryKind, progress: number) => {
 
 export const sceneryLift = (progress: number) =>
   Math.sin(Math.max(0, Math.min(1, progress)) * Math.PI) * 7;
+
+export const stoneShadowScale = (progress: number) => 1 - sceneryLift(progress) / 14;

@@ -1,4 +1,4 @@
-import { sceneryAngle, sceneryDuration, sceneryLift } from "./scenery-motion";
+import { sceneryAngle, sceneryDuration, sceneryLift, stoneShadowScale } from "./scenery-motion";
 import {
   Application,
   Assets,
@@ -361,6 +361,12 @@ export async function createGardenRenderer(
             const pivotY = tree ? (decorContactY[decor] ?? 26) + 32 : 45;
             sprite.pivot.set(16, pivotY);
             sprite.position.set(32, pivotY - 32);
+            const shadow = container.children[0] as Graphics;
+            if (!tree) {
+              const footY = decorContactY[decor] ?? 24;
+              shadow.pivot.set(32, footY);
+              shadow.position.set(32, footY);
+            }
             animations.push(() => {
               const start = sceneryStarts.get(`${tile.posX},${tile.posY}`);
               const progress = start === undefined ? 1 : (elapsed - start) / sceneryDuration(kind);
@@ -368,6 +374,8 @@ export async function createGardenRenderer(
               if (tree) sprite.skew.x = angle;
               else {
                 // A billboard turning around its vertical axis, with its shadow left on the ground.
+                const shadowScale = reducedMotion.matches || progress >= 1 ? 1 : stoneShadowScale(progress);
+                shadow.scale.set(shadowScale, shadowScale);
                 sprite.scale.x = Math.cos(angle);
                 sprite.y = pivotY - 32 - (reducedMotion.matches || progress >= 1 ? 0 : sceneryLift(progress));
               }

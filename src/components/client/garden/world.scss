@@ -3189,3 +3189,20 @@ button.path-stones__heat-cell:focus-visible {
     transition: none;
   }
 }
+
+
+.zazen-world__tile-image[data-stone-index]::after {
+  display: none;
+}
+
+.zazen-world__stone-shadow {
+  position: absolute;
+  top: 20px;
+  left: 32px;
+  width: 20px;
+  height: 9px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, #142c2a42 0%, #142c2a24 55%, transparent 78%);
+  pointer-events: none;
+}

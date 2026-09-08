@@ -1,4 +1,4 @@
-import { sceneryAngle, sceneryDuration, sceneryLift, type SceneryKind } from "./rendering/scenery-motion";
+import { sceneryAngle, sceneryDuration, sceneryLift, stoneShadowScale, type SceneryKind } from "./rendering/scenery-motion";
 import useRenderer from "./composables/use-renderer";
 import { groundArtwork } from "./rendering/artwork";
 import WebGLBoard from "./rendering/webgl-board";
@@ -322,6 +322,7 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
       {...standingAttr}
       {...glowAttr}
     >
+      {tile.stone !== undefined && <span className="zazen-world__stone-shadow" aria-hidden="true" />}
       {tile.decor === "lantern-lit" && (
         <span className="zazen-world__light-pool" aria-hidden="true" />
       )}
@@ -671,6 +672,15 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         : `translateY(${-sceneryLift(frame / 60)}px) rotateY(${sceneryAngle(kind, frame / 60)}rad)`,
     })), { duration: sceneryDuration(kind) });
     animation.id = "scenery-reaction";
+    if (kind === "stone") {
+      const shadow = image.parentElement?.querySelector<HTMLElement>(".zazen-world__stone-shadow");
+      if (shadow) {
+        for (const running of shadow.getAnimations()) running.cancel();
+        shadow.animate(Array.from({ length: 61 }, (_, frame) => ({
+          transform: `translateX(-50%) scale(${stoneShadowScale(frame / 60)})`,
+        })), { duration: sceneryDuration(kind) });
+      }
+    }
   };
   const webglRequested = renderer.supported && renderer.enabled;
   const webglReady = webglRequested && renderer.ready;

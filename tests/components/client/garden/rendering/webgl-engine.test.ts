@@ -1,4 +1,4 @@
-import { sceneryAngle, sceneryLift } from "../../../../../src/components/client/garden/rendering/scenery-motion";
+import { sceneryAngle, sceneryLift, stoneShadowScale } from "../../../../../src/components/client/garden/rendering/scenery-motion";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import type { GardenScene } from "../../../../../src/components/client/garden/rendering/scene";
 
@@ -550,5 +550,24 @@ it("plays animal greetings in place and restores their resting height", async ()
   app().advance(1000);
   expect(cat.children[1].y).toBe(35);
   expect(frog.children[1].y).toBe(32);
+  renderer.destroy();
+});
+
+
+it("shrinks the stone shadow at the apex and restores it on landing without shifting its contact point", async () => {
+  expect(stoneShadowScale(0)).toBe(1);
+  expect(stoneShadowScale(0.5)).toBe(0.5);
+  expect(stoneShadowScale(1)).toBeCloseTo(1);
+  const scene = initial();
+  scene.map = [{ ...tile(0, "stone-marker"), stone: 0 }];
+  const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
+  const shadow = app().stage.children[1].children[0].children[0];
+  await renderer.update({ ...scene, interaction: { id: 1, posX: 0, posY: 0, kind: "stone" } });
+  app().advance(700);
+  expect(shadow.scale.set).toHaveBeenLastCalledWith(0.5, 0.5);
+  expect([shadow.x, shadow.y]).toEqual([32, 23]);
+  app().advance(700);
+  expect(shadow.scale.set).toHaveBeenLastCalledWith(1, 1);
+  expect([shadow.x, shadow.y]).toEqual([32, 23]);
   renderer.destroy();
 });

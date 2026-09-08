@@ -136,3 +136,17 @@ for (const renderer of ["webgl", "dom"]) {
     await expect(page.getByRole("button", { name: "Make the frog hop", exact: true })).toBeVisible();
   });
 }
+
+test("classic stone shadow shrinks at the apex while staying grounded", async ({ page }) => {
+  await page.goto("/path-of-stones/?renderer=dom");
+  const button = page.getByRole("button", { name: /^Spin stone/ }).first();
+  await button.click();
+  const scale = await page.locator(".zazen-world__stone-shadow").evaluateAll((shadows) => {
+    const shadow = shadows.find((item) => item.getAnimations().length > 0)!;
+    const animation = shadow.getAnimations()[0]!;
+    animation.pause();
+    animation.currentTime = 700;
+    return new DOMMatrix(getComputedStyle(shadow).transform).a;
+  });
+  expect(scale).toBeCloseTo(0.5);
+});
