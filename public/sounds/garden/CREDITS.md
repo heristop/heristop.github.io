@@ -15,3 +15,9 @@ Downloaded 2026-09-08. Attribution is optional under CC0; sources are retained h
 - `zen-garden.mp3`: "Revelation" by Indieteur, CC0.
   https://opengameart.org/content/revelation
   Source: `Revelation_0.mp3`. Converted to 96 kbps MP3, with gentle opening and closing fades for repeated playback. Downloaded 2026-09-08.
+
+## Gate arrival
+
+- `gate-victory.mp3`: "Victory" by celestialghost8, CC0.
+  https://opengameart.org/content/victory
+  Source: `Victory.wav`. Low-pass filter at 3800 Hz, gentle attack and ending fade, mono 96 kbps MP3. Downloaded 2026-09-08.

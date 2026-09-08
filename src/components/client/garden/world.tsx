@@ -671,7 +671,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   );
 
   const handleFinaleOpened = useCallback(() => {
-    if (soundOn) audio.playBell();
+    if (soundOn) audio.playVictory();
   }, [audio, soundOn]);
 
   // The one sound in the garden that means you spent something.
