@@ -1258,3 +1258,20 @@
   .zazen-world__attack-loss,
   .zazen-world__attack-loss::before { animation: none; }
 }
+
+/* Hover feedback must never move the hit areas under a stationary pointer. */
+.path-stones .path-stones__quote {
+  display: grid;
+  width: min(100%, 300px);
+  align-items: center;
+
+  > span {
+    grid-area: 1 / 1;
+    overflow-wrap: anywhere;
+  }
+
+  .path-stones__quote-reserve {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}

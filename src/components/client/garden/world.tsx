@@ -1346,7 +1346,10 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
           }
           role="status"
         >
-          {refusal ?? routePrice}
+          <span className="path-stones__quote-reserve" aria-hidden="true">
+            This way: 999 stones · walk until the gardener’s turn
+          </span>
+          <span>{refusal ?? routePrice}</span>
         </p>
       </div>
       <div className="path-stones__battle">
