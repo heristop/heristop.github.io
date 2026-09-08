@@ -16,5 +16,5 @@ const isActive = normalizedHref === '/'
 ---
 
 <a href={href} class:list={[className, { active: isActive }]} {...props}
-  ><slot /></a
+  ><slot />{normalizedHref === "/path-of-stones" && <span class="header__new-badge" aria-hidden="true">New</span>}</a
 >

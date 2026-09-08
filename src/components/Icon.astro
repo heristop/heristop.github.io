@@ -1,6 +1,9 @@
 ---
+import LucideIcon from "./client/icon";
+import type { IconName } from "./icon-registry";
+
 export interface Props {
-  name: string;
+  name: IconName;
   size?: number;
   color?: string;
   class?: string;
@@ -9,41 +12,11 @@ export interface Props {
   role?: 'img' | 'presentation' | 'none';
 }
 
-const DEFAULT_SIZE = 24;
-
-const {
-  name,
-  size = DEFAULT_SIZE,
-  color = 'var(--primary-color)',
-  class: className = '',
-  'aria-label': ariaLabel,
-  'aria-hidden': ariaHidden,
-  role = 'img',
-} = Astro.props;
-
-const spritePath = `/icons/feather.svg#${name}`;
+const { class: className, color = "var(--primary-color)", ...props } = Astro.props;
 ---
 
-<svg
-  class={`icon ${className}`}
-  width={size}
-  height={size}
-  fill="none"
-  stroke={color}
-  stroke-width="1.5"
-  viewBox="0 0 24 24"
-  xmlns="http://www.w3.org/2000/svg"
-  role={role}
-  aria-label={ariaLabel}
-  aria-hidden={ariaHidden}
->
-  <use href={spritePath}></use>
-</svg>
+<LucideIcon {...props} className={className} color={color} />
 
-<style>
-  .icon {
-    display: inline-block;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+<style is:global>
+  .icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 </style>
