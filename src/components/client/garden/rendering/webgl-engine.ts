@@ -335,12 +335,37 @@ export async function createGardenRenderer(
           sprite.width = w;
           sprite.height = h;
           container.addChild(sprite);
+          if (fish) {
+            const wake = new Container({ label: "koi-wake" });
+            const mask = new Graphics().poly([32, 0, 64, 16, 32, 32, 0, 16]).fill(0xffffff);
+            wake.addChild(mask);
+            wake.mask = mask;
+            container.addChild(wake);
+            // Three reusable rings trail the fish; no particles are allocated per frame.
+            for (let index = 0; index < 3; index++) {
+              const ring = new Graphics()
+                .ellipse(0, 0, 8, 2)
+                .stroke({ color: 0xc9ece0, width: 0.7, alpha: 1 });
+              ring.label = "koi-ripple";
+              ring.blendMode = "add";
+              wake.addChild(ring);
+              animations.push((time) => {
+                const phase = (time / 2400 + index / 3 + tile.posX * 0.17) % 1;
+                const drift = Math.sin((time - phase * 900) / 1200 + tile.posX) * 3;
+                ring.position.set(34 + drift + phase * 3, 22);
+                ring.scale.set(0.5 + phase, 0.6 + phase * 0.8);
+                ring.alpha = Math.sin(phase * Math.PI) * (1 - phase) * 0.32;
+              });
+            }
+          }
           if (animated)
             animations.push((time) => {
               sprite.texture = frame(path, w, h, Math.floor(time / 260 + tile.posX) % 4);
               if (fish) {
                 sprite.x = 16 + Math.sin(time / 1200 + tile.posX) * 3;
-                sprite.alpha = 0.7;
+                sprite.y = -32 + Math.sin(time / 2100 + tile.posX) * 0.6;
+                sprite.tint = 0xb9dcd2;
+                sprite.alpha = 0.76 + Math.sin(time / 2600 + tile.posX) * 0.07;
               }
             });
         }

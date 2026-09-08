@@ -62,6 +62,9 @@ vi.mock("pixi.js", () => {
     fill() {
       return this;
     }
+    stroke() {
+      return this;
+    }
   }
   class Texture {
     source: any;
@@ -454,5 +457,28 @@ it("centers trimmed nameplate glyphs on the panel rather than their baseline", a
     expect(label.anchor.set).toHaveBeenCalledWith(0.5, 0.5);
     expect(label.y).toBe(-11);
   }
+  renderer.destroy();
+});
+
+
+it("keeps koi wakes bounded, reusable and still with reduced motion", async () => {
+  const renderer = await createGardenRenderer(document.createElement("div"), initial(), vi.fn());
+  const fish = app().stage.children[1].children.find((figure: any) =>
+    figure.children.some((child: any) => child.label === "koi-wake"),
+  );
+  const wake = fish.children.find((child: any) => child.label === "koi-wake");
+  expect(wake.mask).toBe(wake.children[0]);
+  const rings = wake.children.slice(1);
+  expect(rings).toHaveLength(3);
+  const positions = () => rings.map((ring: any) => [ring.x, ring.y, ring.alpha]);
+  const start = positions();
+  app().advance(500);
+  expect(positions()).not.toEqual(start);
+  expect(wake.children.slice(1)).toEqual(rings);
+  gpu.reduced = true;
+  app().advance(500);
+  expect(positions()).toEqual(start);
+  app().advance(500);
+  expect(positions()).toEqual(start);
   renderer.destroy();
 });
