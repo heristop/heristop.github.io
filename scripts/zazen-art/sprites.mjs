@@ -1253,12 +1253,10 @@ const birdSheet = () => {
       const y = Math.round(7 + ((tipY - 7) * (x - 12)) / 7);
       rect(g, x, y, 1, 2, "i");
     }
-    // A narrow forked tail, flowing into the back instead of hanging below it.
-    rect(g, 5, 7, 7, 2, "i");
-    rect(g, 3, 6, 3, 1, "i");
-    rect(g, 3, 9, 3, 1, "i");
-    put(g, 2, 5, "i");
-    put(g, 2, 10, "i");
+    // Short tail feathers taper directly from the rump.
+    rect(g, 8, 7, 4, 2, "i");
+    put(g, 7, 7, "i");
+    put(g, 7, 9, "i");
     rect(g, 10, 7, 8, 3, "a");
     rect(g, 11, 9, 5, 1, "b");
     rect(g, 9, 7, 7, 1, "i");
