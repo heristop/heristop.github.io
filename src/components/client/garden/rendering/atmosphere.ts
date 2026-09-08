@@ -86,18 +86,37 @@ export function createAtmosphere(
     0.12,
   );
   sun.label = "sunlight";
-  for (let index = 0; index < 2; index++) {
+  animations.push((time) => {
+    sun.alpha = 0.115 + Math.sin(time / 11000) * 0.015;
+  });
+  for (let index = 0; index < 3; index++) {
     const shaft = glow(
       air,
       scene.width * (0.37 + index * 0.09),
       scene.height * 0.37,
-      44 - index * 12,
+      38 - index * 9,
       scene.height * 0.62,
       0xffe3a5,
-      0.14,
+      0.12,
     );
     shaft.rotation = -0.72;
     shaft.label = "sun-shaft";
+    animations.push((time) => {
+      shaft.alpha = 0.09 + (Math.sin(time / 8700 + index * 1.8) + 1) * 0.025;
+      shaft.x = scene.width * (0.37 + index * 0.09) + Math.sin(time / 14000) * 7;
+    });
+    // Sparse dust catches the sun; the population stays fixed across scene updates.
+    for (let speck = 0; speck < 2; speck++) {
+      const dust = glow(air, 0, 0, 3, 3, 0xffe4ac, 0);
+      dust.label = "sun-dust";
+      animations.push((time) => {
+        const phase = (time / 14000 + index * 0.31 + speck * 0.47) % 1;
+        const distance = (phase - 0.5) * scene.height * 0.45;
+        dust.x = shaft.x + Math.sin(0.72) * distance + Math.sin(phase * Math.PI * 4) * 4;
+        dust.y = scene.height * 0.37 + Math.cos(0.72) * distance;
+        dust.alpha = Math.sin(phase * Math.PI) ** 2 * 0.36;
+      });
+    }
   }
   for (const tile of scene.map) {
     if (!["pine", "maple", "sakura", "torii"].includes(tile.decor)) continue;
@@ -164,7 +183,8 @@ export function createAtmosphere(
     animations.push((time) => {
       const flicker = Math.sin(time / 830 + tile.posX) * 0.025 + Math.sin(time / 1270) * 0.01;
       pool.alpha = 0.56 + flicker;
-      halo.alpha = 0.38 + flicker;
+      halo.alpha = 0.34 + flicker;
+      core.alpha = 0.77 + flicker * 1.8;
     });
   }
   for (const [index, tile] of water.entries()) {
@@ -217,13 +237,18 @@ export function createAtmosphere(
       reflection.alpha = 0.12 + (Math.sin(time / 1150 + index * 0.8) + 1) * 0.065;
     });
     if (index % 3 === 0 && index < 18) {
-      const mist = glow(air, p.left + 32, p.top + 10, 136, 30, 0xc0d9d1, 0.11, false);
-      mist.label = "water-mist";
-      animations.push((time) => {
-        mist.x = p.left + 32 + Math.sin(time / 6500 + index) * 12;
-        mist.y = p.top + 8 + Math.cos(time / 7300 + index) * 3;
-        mist.alpha = 0.13 + (Math.sin(time / 4700 + index) + 1) * 0.018;
-      });
+      const mist = new Container({ label: "water-mist" });
+      air.addChild(mist);
+      // Overlapping thin wisps avoid a single opaque ellipse over the water and actors.
+      for (let layer = 0; layer < 3; layer++) {
+        const wisp = glow(mist, 0, 0, 100 + layer * 22, 12 + layer * 5, 0xb6d4ce, 0.06, false);
+        animations.push((time) => {
+          const phase = time / (7600 + layer * 1900) + index * 1.7 + layer * 2.1;
+          wisp.x = p.left + 32 + Math.sin(phase) * (16 + layer * 4);
+          wisp.y = p.top + 5 - layer * 5 + Math.cos(phase * 0.83) * 3;
+          wisp.alpha = 0.035 + (Math.sin(phase * 0.7) + 1) * 0.018;
+        });
+      }
     }
   }
   // Fixed population and deterministic phases: rebuilding a changed tile never restarts the sky.

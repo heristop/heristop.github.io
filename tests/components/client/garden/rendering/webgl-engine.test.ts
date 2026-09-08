@@ -387,7 +387,19 @@ it("bounds water reflections and ambient populations and gives reduced motion a 
     }
   }
   atmosphere.update(0);
-  const positions = () => air.children.map((c: any) => [c.x, c.y, c.alpha]);
+  const effects = air.children.flatMap((c: any) => [c, ...c.children]);
+  expect(air.children.filter((c: any) => c.label === "sun-dust")).toHaveLength(6);
+  for (const time of [0, 1000, 10000, 60000]) {
+    atmosphere.update(time);
+    for (const effect of effects) {
+      expect(effect.alpha).toBeGreaterThanOrEqual(0);
+      expect(effect.alpha).toBeLessThanOrEqual(1);
+      expect(Number.isFinite(effect.x)).toBe(true);
+      expect(Number.isFinite(effect.y)).toBe(true);
+    }
+  }
+  atmosphere.update(0);
+  const positions = () => effects.map((c: any) => [c.x, c.y, c.alpha]);
   const still = positions();
   atmosphere.update(10000);
   expect(positions()).not.toEqual(still);

@@ -45,8 +45,8 @@ and repeat with `?renderer=dom` for the baseline. Drop `--angle=metal` on other 
 ## HD-2D atmosphere
 
 The WebGL board adds warm emissive lantern/shrine light, directional scenery shadows, a cooler
-foreground, two soft sun shafts, water-bound reflection fragments, up to six low mist patches
-and eighteen fireflies. A single 64×64 light texture is shared by every soft effect; pixel-art
+foreground, three slowly shifting sun shafts, six sunlit dust motes, water-bound reflection fragments,
+up to six low mist patches (three thin wisps each) and eighteen fireflies. A single 64×64 light texture is shared by every soft effect; pixel-art
 textures keep nearest-neighbour sampling. Effects reuse the renderer ticker and freeze under
 reduced motion. Map rebuilds dispose their old effect containers and preserve animation phases.
 Water reflection geometry is tested against all four edges of each isometric diamond. Depth is
