@@ -82,3 +82,20 @@ it("respects diagnostic classic mode and tolerates unavailable storage", () => {
   act(() => result.current.toggle());
   expect(result.current.enabled).toBe(false);
 });
+
+it("opens the Three prototype explicitly and switches engines without losing URL context", () => {
+  available();
+  window.localStorage.setItem("path-stones:hd2d", "off");
+  window.history.replaceState({ marker: true }, "", "/path-of-stones/?renderer=three&other=1#garden");
+  const { result } = renderHook(useRenderer);
+  expect(result.current.engine).toBe("three");
+  expect(result.current.enabled).toBe(true);
+  act(() => result.current.onReady(true));
+  act(() => result.current.toggleEngine());
+  expect(result.current.engine).toBe("pixi");
+  expect(result.current.ready).toBe(false);
+  expect(result.current.enabled).toBe(true);
+  expect(window.location.search).toBe("?renderer=webgl&other=1");
+  expect(window.location.hash).toBe("#garden");
+  expect(window.history.state).toEqual({ marker: true });
+});

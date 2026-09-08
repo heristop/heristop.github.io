@@ -4,8 +4,10 @@ import type { GardenRenderer, GardenScene } from "./scene";
 export default function WebGLBoard({
   scene,
   onReady,
+  engine = "pixi",
 }: {
   scene: GardenScene;
+  engine?: "pixi" | "three";
   onReady: (ready: boolean) => void;
 }) {
   const host = useRef<HTMLDivElement>(null);
@@ -22,7 +24,11 @@ export default function WebGLBoard({
       node.dataset.status = "fallback";
       ready(false);
     };
-    void import("./webgl-engine")
+    node.dataset.status = "loading";
+    const three = engine === "three";
+    node.dataset.engine = three ? "three" : "pixi";
+    const module = three ? import("./three-engine") : import("./webgl-engine");
+    void module
       .then(async ({ createGardenRenderer }) => {
         const next = await createGardenRenderer(node, latestScene(), failed);
         if (cancelled) {
@@ -42,7 +48,7 @@ export default function WebGLBoard({
       renderer.current?.destroy();
       renderer.current = undefined;
     };
-  }, []);
+  }, [engine]);
   useEffect(() => {
     const current = renderer.current;
     if (current)

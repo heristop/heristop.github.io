@@ -37,13 +37,25 @@ export default function useRenderer() {
     if (typeof window === "undefined") return false;
     const override = new URLSearchParams(window.location.search).get("renderer");
     if (override === "dom") return false;
-    if (override === "webgl") return true;
+    if (override === "webgl" || override === "three") return true;
     try {
       return window.localStorage.getItem("path-stones:hd2d") !== "off";
     } catch {
       return true;
     }
   });
+  const [engine, setEngine] = useState<"pixi" | "three">(() =>
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).get("renderer") === "three" ? "three" : "pixi",
+  );
+  const toggleEngine = () => {
+    const next = engine === "three" ? "pixi" : "three";
+    setReady(false);
+    setEngine(next);
+    setEnabled(true);
+    const url = new URL(window.location.href);
+    url.searchParams.set("renderer", next === "three" ? "three" : "webgl");
+    window.history.replaceState(window.history.state, "", url);
+  };
   const [ready, setReady] = useState(false);
   const [hasRendered, setHasRendered] = useState(false);
   const onReady = useCallback((value: boolean) => {
@@ -65,5 +77,5 @@ export default function useRenderer() {
     url.searchParams.delete("renderer");
     window.history.replaceState(window.history.state, "", url);
   };
-  return { supported, enabled, ready, hasRendered, onReady, toggle };
+  return { supported, enabled, ready, hasRendered, onReady, toggle, engine, toggleEngine };
 }

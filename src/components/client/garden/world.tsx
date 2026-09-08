@@ -1657,6 +1657,13 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                 HD-2D {renderer.enabled ? "on" : "off"}
               </button>
             )}
+            {renderer.supported && (
+              <button type="button" onClick={renderer.toggleEngine} aria-pressed={renderer.engine === "three"}
+                title="Compare the experimental 3D board with the PixiJS renderer">
+                <Icon name="layers" size={15} aria-hidden="true" />
+                {renderer.engine === "three" ? "3D prototype" : "Try 3D"}
+              </button>
+            )}
             <button type="button" aria-pressed={musicOn} onClick={toggleMusic}>
               <Icon name="music" size={15} aria-hidden="true" />
               Music {musicOn ? "on" : "off"}
@@ -1778,7 +1785,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               <div className="sr-only" aria-live="polite" id="position-announcer">
                 {`Pilgrim is at position ${game.position.posX}, ${game.position.posY}`}
               </div>
-              {webglRequested && <WebGLBoard scene={webglScene} onReady={renderer.onReady} />}
+              {webglRequested && <WebGLBoard engine={renderer.engine} scene={webglScene} onReady={renderer.onReady} />}
               {tiles}
               {game.map.filter((tile) => ["pine", "maple", "sakura"].includes(tile.decor)).map((tile) => {
                 const point = toScreen(tile.posX, tile.posY, mapDimensions.offsetX, mapDimensions.offsetY);

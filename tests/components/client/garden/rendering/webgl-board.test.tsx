@@ -68,3 +68,23 @@ it("preserves the fallback on initialization, context and snapshot failures", as
   expect(ready).toHaveBeenLastCalledWith(false);
   expect(renderer.destroy).toHaveBeenCalledOnce();
 });
+
+const threeFactory = vi.hoisted(() => vi.fn());
+vi.mock("../../../../../src/components/client/garden/rendering/three-engine", () => ({
+  createGardenRenderer: threeFactory,
+}));
+it("disposes the previous backend and forwards the same scene when switching to Three", async () => {
+  const pixi = { update: vi.fn().mockResolvedValue(undefined), destroy: vi.fn() };
+  const three = { update: vi.fn().mockResolvedValue(undefined), destroy: vi.fn() };
+  factory.mockResolvedValue(pixi);
+  threeFactory.mockResolvedValue(three);
+  const ready = vi.fn();
+  const view = render(<WebGLBoard scene={scene} onReady={ready} />);
+  await waitFor(() => expect(ready).toHaveBeenCalledWith(true));
+  view.rerender(<WebGLBoard engine="three" scene={scene} onReady={ready} />);
+  await waitFor(() => expect(three.update).toHaveBeenCalledWith(scene));
+  expect(pixi.destroy).toHaveBeenCalledOnce();
+  expect(view.container.firstChild).toHaveAttribute("data-engine", "three");
+  view.unmount();
+  expect(three.destroy).toHaveBeenCalledOnce();
+});
