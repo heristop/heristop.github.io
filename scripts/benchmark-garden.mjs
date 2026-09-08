@@ -6,7 +6,11 @@ const option = (name, fallback) =>
 const url = option("url", "http://127.0.0.1:4327/path-of-stones/");
 const cpu = Number(option("cpu", "1"));
 if (!Number.isFinite(cpu) || cpu < 1) throw new Error("--cpu must be at least 1");
-const browser = await chromium.launch();
+const angle = option("angle", "");
+if (angle && !["metal", "gl", "vulkan", "swiftshader"].includes(angle)) {
+  throw new Error("--angle must be metal, gl, vulkan or swiftshader");
+}
+const browser = await chromium.launch({ args: angle ? [`--use-angle=${angle}`] : [] });
 const report = [];
 try {
   for (const mobile of [false, true]) {
@@ -32,6 +36,9 @@ try {
       window.__gardenBenchmark = state;
     });
     await page.goto(url);
+    if (new URL(url).searchParams.get("renderer") === "webgl") {
+      await page.locator('.zazen-world__map[data-renderer="webgl"]').waitFor({ timeout: 30000 });
+    }
     await page.locator('.path-stones__turn[data-phase="player"]').waitFor({ timeout: 30000 });
     const readFrames = async () => page.evaluate(() => window.__gardenBenchmark.samples.splice(0));
     const summarize = (frames) => {
@@ -69,6 +76,16 @@ try {
       ]),
     );
     report.push({
+      gpu: await page.evaluate(() => {
+        const canvas = document.createElement("canvas");
+        const gl = canvas.getContext("webgl2");
+        if (!gl) return "unavailable";
+        const debug = gl.getExtension("WEBGL_debug_renderer_info");
+        const name = gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER);
+        gl.getExtension("WEBGL_lose_context")?.loseContext();
+        return name;
+      }),
+      renderer: await page.locator(".zazen-world__map").getAttribute("data-renderer"),
       viewport: mobile ? "mobile emulation" : "desktop",
       cpuSlowdown: cpu,
       moved,
