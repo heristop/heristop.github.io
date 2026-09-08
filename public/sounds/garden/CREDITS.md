@@ -18,6 +18,7 @@ Downloaded 2026-09-08. Attribution is optional under CC0; sources are retained h
 
 ## Gate arrival
 
-- `gate-victory.mp3`: "Victory" by celestialghost8, CC0.
-  https://opengameart.org/content/victory
-  Source: `Victory.wav`. Low-pass filter at 3800 Hz, gentle attack and ending fade, mono 96 kbps MP3. Downloaded 2026-09-08.
+- `gate-bowl.mp3`: "Gong Bell (monkay's Singing Bowl [modified])" by qubodup, based on "SingingBowl.wav" by Monkay. CC0.
+  https://freesound.org/people/qubodup/sounds/169289/
+  https://freesound.org/people/Monkay/sounds/48325/
+  Source: Freesound public HQ MP3 preview. First six seconds, low-pass at 3200 Hz, softened attack and 3.2-second fade, mono 96 kbps MP3. Downloaded 2026-09-08.

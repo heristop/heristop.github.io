@@ -14,7 +14,7 @@ const CHIME_ATTACK_S = 0.02;
 const CHIME_RELEASE_S = 0.22;
 const CHIME_STOP_S = 0.23;
 
-// A stone leaving your hand. The chime is a reward and the fanfare is an ending, so this
+// A stone leaving your hand. The chime is a reward and the bowl is an ending, so this
 // had to be neither: a low knock with no pitch to speak of, plus a short hiss of sand
 // displaced around it. It is the only sound in the garden that costs you something, and
 // it should land in the chest rather than the ear.
@@ -78,7 +78,7 @@ const useZazenAudio = (enabled = true): ZazenAudio => {
     for (const [kind, file] of [
       ["attack", "gardener-hit"],
       ["reveal", "card-reveal"],
-      ["victory", "gate-victory"],
+      ["victory", "gate-bowl"],
     ] as const) {
       void fetch(`/sounds/garden/${file}.mp3`, { signal: controller.signal })
         .then((response) => {
@@ -125,7 +125,7 @@ const useZazenAudio = (enabled = true): ZazenAudio => {
     const source = ctx.createBufferSource();
     const gain = ctx.createGain();
     source.buffer = buffer;
-    gain.gain.value = kind === "attack" ? 0.55 : 0.45;
+    gain.gain.value = kind === "attack" ? 0.55 : kind === "victory" ? 0.3 : 0.45;
     source.connect(gain).connect(ctx.destination);
     playing.current.add(source);
     source.onended = () => {
