@@ -57,6 +57,13 @@ for (const exhaust of [false, true]) {
         if (frogFreed) return;
         const value = await page.locator(".zazen-world__frog-actor").getAttribute("data-position");
         const [posX, posY] = value!.split(",").map(Number);
+        map = map.map((tile) =>
+          tile.posX === posX && tile.posY === posY
+            ? { ...tile, decor: "frog" }
+            : manhattan(tile, layout.frog) === 0
+              ? { ...tile, decor: "" }
+              : tile,
+        );
         layout.frog = { posX, posY };
       };
       while (remaining.length && steps < 400) {
@@ -134,6 +141,12 @@ for (const exhaust of [false, true]) {
           await expect(page.locator("#position-announcer")).toHaveText(
             `Pilgrim is at position ${next.posX}, ${next.posY}`,
           );
+          // Counterattacks can spend an extra stone on arrival. Observe the wallet
+          // rather than maintaining a second copy of the combat rules in this test.
+          const wallet = await page
+            .locator('[aria-label$="stepping stones left to lay"]')
+            .getAttribute("aria-label");
+          supply = Number.parseInt(wallet!, 10);
           if (remaining.length === 1 && manhattan(next, layout.shrine) === 0) {
             remaining.pop();
             break;

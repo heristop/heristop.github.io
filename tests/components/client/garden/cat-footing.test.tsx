@@ -1,4 +1,4 @@
-import { act, cleanup, render } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
 const updates = vi.hoisted(() => ({ revision: 0 }));
@@ -43,4 +43,21 @@ it("keeps a wandering cat on its current firm tile when the map updates", () => 
   updates.revision++;
   rerender(<ZazenWorld />);
   expect(position()).toEqual(wandered);
+});
+
+it("rediscovers the cat after restarting while it remains beside the starting pilgrim", () => {
+  vi.useFakeTimers();
+  vi.spyOn(Math, "random").mockReturnValue(0);
+  vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
+  vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+  vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
+  const { container } = render(<ZazenWorld />);
+  const catCard = () =>
+    container.querySelector('.garden-collection .garden-card[data-kind="cat"]');
+  for (let tick = 0; tick < 30 && catCard()?.getAttribute("data-earned") !== "true"; tick++) {
+    act(() => vi.advanceTimersByTime(900));
+  }
+  expect(catCard()).toHaveAttribute("data-earned", "true");
+  fireEvent.click(screen.getByRole("button", { name: /Restart run/ }));
+  expect(catCard()).toHaveAttribute("data-earned", "true");
 });

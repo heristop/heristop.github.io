@@ -923,10 +923,10 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
 
   const catGreeting = manhattan(cat.position, game.position) <= 1;
   useEffect(() => {
-    if (catGreeting) {
+    if (catGreeting && !catMet) {
       setCatMet(true);
     }
-  }, [catGreeting]);
+  }, [catGreeting, catMet]);
 
   const aquaticTransformation =
     game.frogFreed && !!tileAt(game.map, game.frog)?.sprite.startsWith("water");
