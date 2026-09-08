@@ -1,43 +1,33 @@
-import { useEffect, useState } from "react";
 import type { Position } from "../../types";
 import { toScreen } from "../../board/geometry";
 
-// The woman who was a frog, once she is walking.
-//
-// She could have stayed what she is at the moment of the transformation — an npc drawn
-// into a tile — and that would have been the cheaper thing. But a figure parented to a
-// tile cannot move between tiles: the tile owns her, and the tile is not going anywhere.
-// So the instant she stands up she leaves the grid entirely and joins the pilgrim and the
-// cat on the layer above it, which is the layer for things that walk.
+// The freed woman stays on the frog’s original tile.
 
 // She is drawn from the same 24x40 cell as the pilgrim, so she takes his anchor: the
 // diamond's front vertex at y = 32, less the sprite's own footing at y = 37.
 const ANCHOR_X = 20;
 const ANCHOR_Y = -5;
-const STRIDE_MS = 460;
 
 interface Props {
   position: Position;
+  walking: boolean;
+  transforming: boolean;
+  aquatic?: boolean;
   facingLeft: boolean;
   offsetX: number;
   offsetY: number;
 }
 
-const ZazenCompanion = ({ position, facingLeft, offsetX, offsetY }: Props) => {
+const ZazenCompanion = ({
+  position,
+  walking,
+  transforming,
+  aquatic = false,
+  facingLeft,
+  offsetX,
+  offsetY,
+}: Props) => {
   const { left, top } = toScreen(position.posX, position.posY, offsetX, offsetY);
-
-  // She has one frame, so there is no walk cycle to run — but she still leans into a step
-  // and settles out of it, which is enough to read as walking rather than gliding.
-  const [walking, setWalking] = useState(false);
-  useEffect(() => {
-    setWalking(true);
-    const timer = setTimeout(() => {
-      setWalking(false);
-    }, STRIDE_MS);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [position.posX, position.posY]);
 
   return (
     <div
@@ -46,19 +36,25 @@ const ZazenCompanion = ({ position, facingLeft, offsetX, offsetY }: Props) => {
           ? "zazen-world__companion zazen-world__companion--walking"
           : "zazen-world__companion"
       }
+      data-aquatic={aquatic || undefined}
+      data-transforming={transforming || undefined}
+      data-position={`${position.posX},${position.posY}`}
       aria-hidden="true"
       style={{
-        left: `${left + ANCHOR_X}px`,
-        top: `${top + ANCHOR_Y}px`,
+        left: 0,
+        translate: `${left + ANCHOR_X}px ${top + ANCHOR_Y}px`,
+        top: 0,
       }}
     >
-      <img
-        src="/images/zazen/persos/npc-2.png"
-        alt=""
-        className="zazen-world__companion-sprite"
+      <span
+        className={
+          aquatic
+            ? "zazen-world__companion-sprite zazen-world__mermaid-sprite"
+            : "zazen-world__companion-sprite zazen-world__npc-2-sprite"
+        }
         // Mirrored rather than drawn twice. A horizontal flip is the one transform pixel
         // art survives intact — every pixel lands on another pixel.
-        style={{ transform: facingLeft ? "scaleX(-1)" : undefined }}
+        style={{ scale: facingLeft ? "-1 1" : undefined }}
       />
     </div>
   );

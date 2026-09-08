@@ -1,9 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../../src/components/client/garden/world.scss", () => ({}));
 
 import ZazenWorld, { chooseMapScale } from "../../../../src/components/client/garden/world";
+
+beforeEach(() => {
+  vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
+  vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+  vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
+});
+afterEach(() => vi.restoreAllMocks());
 
 describe("chooseMapScale", () => {
   it("only ever returns an integer, so pixel art is never resampled", () => {
@@ -18,12 +25,12 @@ describe("chooseMapScale", () => {
     expect(chooseMapScale(320, 768)).toBe(1);
   });
 
-  it("uses the extra room on a wide viewport", () => {
-    expect(chooseMapScale(1600, 768)).toBe(2);
+  it("keeps the board at its intended size on a wide viewport", () => {
+    expect(chooseMapScale(1600, 768)).toBe(1);
   });
 
-  it("caps the zoom so the garden cannot outgrow the page", () => {
-    expect(chooseMapScale(100000, 768)).toBe(3);
+  it("does not enlarge the board to fill an ultrawide monitor", () => {
+    expect(chooseMapScale(100000, 768)).toBe(1);
   });
 });
 
@@ -31,7 +38,9 @@ describe("<ZazenWorld />", () => {
   it("renders the Path of Stones heading and states the rule", () => {
     render(<ZazenWorld />);
     expect(screen.getByRole("heading", { level: 1, name: /path of stones/i })).toBeInTheDocument();
-    expect(screen.getByText(/without disturbing the sand/i)).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Current objective" })).toHaveTextContent(
+      "Gather the five stones",
+    );
   });
 
   // A resource the player cannot see is not a resource, it is a trap. The supply has to
@@ -90,5 +99,44 @@ describe("<ZazenWorld />", () => {
     render(<ZazenWorld />);
     fireEvent.keyDown(window, { key: "ArrowDown" });
     expect(screen.getByRole("application")).toBeInTheDocument();
+  });
+});
+
+describe("sound preference", () => {
+  it("restores the saved setting and persists changes", () => {
+    const getItem = vi.fn(() => "off");
+    const setItem = vi.fn();
+    vi.stubGlobal("localStorage", { getItem, setItem });
+    try {
+      const { unmount } = render(<ZazenWorld />);
+      expect(getItem).toHaveBeenCalledWith("path-stones:sound");
+      const toggle = screen.getByRole("button", { name: "Sound off" });
+      expect(toggle).toHaveAttribute("aria-pressed", "false");
+      fireEvent.click(toggle);
+      expect(setItem).toHaveBeenLastCalledWith("path-stones:sound", "on");
+      fireEvent.click(screen.getByRole("button", { name: "Sound on" }));
+      expect(setItem).toHaveBeenLastCalledWith("path-stones:sound", "off");
+      unmount();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("keeps the sound toggle usable when storage is blocked", () => {
+    const blocked = () => {
+      throw new Error("Storage blocked");
+    };
+    vi.stubGlobal("localStorage", { getItem: blocked, setItem: blocked });
+    try {
+      const { unmount } = render(<ZazenWorld />);
+      fireEvent.click(screen.getByRole("button", { name: "Sound on" }));
+      expect(screen.getByRole("button", { name: "Sound off" })).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+      unmount();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

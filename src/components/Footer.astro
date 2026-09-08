@@ -11,6 +11,7 @@ import {
   X_URL,
 } from '../consts';
 import Icon from './Icon.astro';
+import type { IconName } from './icon-registry';
 
 const currentYear = new Date().getFullYear();
 const brandMark = `{ ${SITE_TITLE.replace(' ', '_')} }`;
@@ -18,7 +19,7 @@ const brandMark = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 const normalizePath = (p: string) => (p === '/' ? '/' : p.replace(/\/$/, ''));
 const currentPath = normalizePath(Astro.url.pathname);
 
-const navEntries: { href: string; icon: string; label: string }[] = [
+const navEntries: { href: string; icon: IconName; label: string }[] = [
   { href: '/', icon: 'home', label: 'Home' },
   { href: '/blog', icon: 'book-open', label: 'Blog' },
   { href: '/projects', icon: 'layers', label: 'Projects' },

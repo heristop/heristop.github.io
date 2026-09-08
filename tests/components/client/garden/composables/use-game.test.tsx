@@ -1,18 +1,58 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { FALLBACK_SEED, STONE_COUNT } from "../../../../../src/components/client/garden/schema";
-import { HAIKU_LINES, buildGarden } from "../../../../../src/components/client/garden/board/terrain";
+import {
+  HAIKU_LINES,
+  buildGarden,
+} from "../../../../../src/components/client/garden/board/terrain";
+import * as terrain from "../../../../../src/components/client/garden/board/terrain";
 import useZazenGame from "../../../../../src/components/client/garden/composables/use-game";
+
+function finishGardener(result: { current: ReturnType<typeof useZazenGame> }) {
+  for (let tick = 0; tick < 100 && result.current.phase === "gardener"; tick++)
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+}
+function renderReadyGame(callback: () => ReturnType<typeof useZazenGame>) {
+  const fake = vi.isFakeTimers();
+  if (!fake) vi.useFakeTimers();
+  const hook = renderHook(callback);
+  finishGardener(hook.result);
+  if (!fake) vi.useRealTimers();
+  return hook;
+}
+
+it("opens with the gardener, locks movement and preserves all player supplies and refills", () => {
+  vi.useFakeTimers();
+  try {
+    const { result, unmount } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const start = result.current.position;
+    const supply = result.current.stonesLeft;
+    expect(result.current.phase).toBe("gardener");
+    expect(result.current.openingTurn).toBe(true);
+    act(() => result.current.move("S"));
+    expect(result.current.position).toEqual(start);
+    finishGardener(result);
+    expect(result.current.phase).toBe("player");
+    expect(result.current.openingTurn).toBe(false);
+    expect(result.current.stonesLeft).toBe(supply);
+    expect(result.current.gardenerTurns).toBe(0);
+    unmount();
+  } finally {
+    vi.useRealTimers();
+  }
+});
 
 describe("useZazenGame", () => {
   it("starts the pilgrim on the seed's start tile", () => {
     const { start } = buildGarden(FALLBACK_SEED);
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
     expect(result.current.position).toEqual(start);
   });
 
   it("refuses to walk off the edge of the board", () => {
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
     const corner = { posX: 0, posY: 0 };
     act(() => {
       result.current.teleportForTest(corner);
@@ -29,7 +69,7 @@ describe("useZazenGame", () => {
   });
 
   it("refuses to walk into the pond", () => {
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
     // The pond fills the far border rows, so posY 10 -> 11 is always water.
     const bank = { posX: 0, posY: 9 };
     act(() => {
@@ -46,7 +86,9 @@ describe("useZazenGame", () => {
 
   it("gathers a stone, records its haiku line and announces it", () => {
     const onStoneCollected = vi.fn();
-    const { result } = renderHook(() => useZazenGame({ onStoneCollected, seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() =>
+      useZazenGame({ onStoneCollected, seed: FALLBACK_SEED }),
+    );
     const { stones } = buildGarden(FALLBACK_SEED);
     act(() => {
       result.current.teleportForTest(stones[0]);
@@ -58,7 +100,7 @@ describe("useZazenGame", () => {
   });
 
   it("names the day a stone came from, for screen readers", () => {
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
     const { stones } = buildGarden(FALLBACK_SEED);
     act(() => {
       result.current.teleportForTest(stones[0]);
@@ -71,7 +113,7 @@ describe("useZazenGame", () => {
   // past them. The poem is the payoff of the page, so it has to read top to bottom
   // whatever route the player takes.
   it("assembles the poem in reading order however the stones are gathered", () => {
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
     const { stones } = buildGarden(FALLBACK_SEED);
     const backwards = [...stones].reverse();
     act(() => {
@@ -83,7 +125,7 @@ describe("useZazenGame", () => {
   });
 
   it("gives the first stone gathered the first line, whichever stone it is", () => {
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
     const { stones } = buildGarden(FALLBACK_SEED);
     act(() => {
       result.current.teleportForTest(stones[3]);
@@ -94,7 +136,9 @@ describe("useZazenGame", () => {
 
   it("wakes the shrine once every stone is gathered", () => {
     const onShrineActivated = vi.fn();
-    const { result } = renderHook(() => useZazenGame({ onShrineActivated, seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() =>
+      useZazenGame({ onShrineActivated, seed: FALLBACK_SEED }),
+    );
     const { stones } = buildGarden(FALLBACK_SEED);
     act(() => {
       for (const stone of stones) {
@@ -107,7 +151,7 @@ describe("useZazenGame", () => {
   });
 
   it("opens the finale on reaching the woken shrine", () => {
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
     const { stones, shrine } = buildGarden(FALLBACK_SEED);
     act(() => {
       for (const stone of stones) {
@@ -121,7 +165,7 @@ describe("useZazenGame", () => {
   });
 
   it("does not open the finale while the shrine is still locked", () => {
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
     const { shrine } = buildGarden(FALLBACK_SEED);
     act(() => {
       result.current.teleportForTest(shrine);
@@ -130,7 +174,7 @@ describe("useZazenGame", () => {
   });
 
   it("counts a stone only once", () => {
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
     const { stones } = buildGarden(FALLBACK_SEED);
     act(() => {
       result.current.teleportForTest(stones[0]);
@@ -144,7 +188,7 @@ describe("useZazenGame", () => {
   // The score reads brevity off this counter, so a move that goes nowhere must not cost
   // anything — otherwise walking into the pond a few times quietly spends your bonus.
   it("counts arrivals, not attempts", () => {
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
     expect(result.current.steps).toBe(0);
     const corner = { posX: 0, posY: 0 };
     act(() => {
@@ -160,9 +204,20 @@ describe("useZazenGame", () => {
 
   // Nobody is told she is there, so nothing about the walk may depend on her — but
   // standing beside her has to actually do something, or the easter egg is only a sprite.
+  it("moves the frog to a different bank on restart and keeps exactly one frog", () => {
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const previous = result.current.frog;
+    act(() => {
+      result.current.restart();
+    });
+    expect(result.current.frog).not.toEqual(previous);
+    expect(result.current.map.filter((tile) => tile.decor === "frog")).toHaveLength(1);
+    expect(result.current.frogFreed).toBe(false);
+  });
+
   it("turns the frog into a woman when you stand beside her, once", () => {
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
-    const { frog } = buildGarden(FALLBACK_SEED);
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { frog } = result.current;
     const before = result.current.stonesLeft;
     act(() => {
       result.current.teleportForTest({ posX: frog.posX, posY: frog.posY - 1 });
@@ -181,7 +236,7 @@ describe("useZazenGame", () => {
   // Gathering a stone hands one back. Without that the five stones are objectives; with
   // it they are fuel, and the order you take them in is the game.
   it("refunds a stone when one is gathered", () => {
-    const { result } = renderHook(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
     const { stones } = buildGarden(FALLBACK_SEED);
     const before = result.current.stonesLeft;
     act(() => {
@@ -192,7 +247,281 @@ describe("useZazenGame", () => {
   });
 
   it("falls back to a playable garden with no seed", () => {
-    const { result } = renderHook(() => useZazenGame({}));
+    const { result } = renderReadyGame(() => useZazenGame({}));
     expect(result.current.map.length).toBeGreaterThan(0);
   });
+});
+
+describe("gardener turns", () => {
+  it("keeps the player's turn when the last lay immediately collects a stone", () => {
+    const layout = buildGarden(FALLBACK_SEED);
+    const start = { posX: 1, posY: 1 };
+    const target = { posX: 2, posY: 1 };
+    const map = layout.map.map((tile) =>
+      tile.posX === target.posX && tile.posY === target.posY
+        ? { ...tile, sprite: "sand-0", walkable: true, npc: 0, decor: "stone-marker", stone: 0 }
+        : tile,
+    );
+    const mock = vi
+      .spyOn(terrain, "buildGarden")
+      .mockReturnValue({ ...layout, map, start, stoneBudget: 1 });
+    try {
+      const { result, unmount } = renderReadyGame(() => useZazenGame());
+      act(() => result.current.move("S"));
+      expect(result.current.stonesFound).toContain(0);
+      expect(result.current.stonesLeft).toBe(1);
+      finishGardener(result);
+      expect(result.current.phase).toBe("player");
+      expect(result.current.gardenerTurns).toBe(0);
+      unmount();
+    } finally {
+      mock.mockRestore();
+    }
+  });
+
+  const spendOne = (game: ReturnType<typeof useZazenGame>) => {
+    const target = game.map.find(
+      (tile) =>
+        (tile.sprite === "sand-0" || tile.sprite === "sand-1") &&
+        tile.walkable &&
+        tile.decor === "" &&
+        tile.npc === 0 &&
+        tile.stone === undefined &&
+        Math.abs(tile.posX - game.frog.posX) + Math.abs(tile.posY - game.frog.posY) > 2,
+    )!;
+    act(() => game.teleportForTest({ posX: target.posX - 1, posY: target.posY }));
+    return target;
+  };
+
+  it("hands over at zero, locks movement, rakes and refills once", () => {
+    vi.useFakeTimers();
+    try {
+      const { result, unmount } = renderReadyGame(() => useZazenGame());
+      while (result.current.stonesLeft > 0) {
+        spendOne(result.current);
+        act(() => result.current.move("S"));
+      }
+      expect(result.current.phase).toBe("gardener");
+      expect(result.current.gardenerTurns).toBe(1);
+      const position = result.current.position;
+      const steps = result.current.steps;
+      act(() => {
+        result.current.move("N");
+        result.current.move("E");
+      });
+      expect(result.current.position).toEqual(position);
+      expect(result.current.steps).toBe(steps);
+      const targets = result.current.rakeTargets;
+      for (let tick = 0; tick < 100 && result.current.phase === "gardener"; tick++) {
+        act(() => {
+          vi.advanceTimersByTime(1000);
+        });
+      }
+      expect(result.current.phase).toBe("player");
+      expect(result.current.stonesLeft).toBe(2);
+      expect(result.current.gardenerTurns).toBe(1);
+      for (const target of targets) {
+        expect(
+          result.current.map.find((tile) => tile.posX === target.posX && tile.posY === target.posY)
+            ?.laid,
+        ).toBe(false);
+      }
+      expect(
+        result.current.map.find(
+          (tile) => tile.posX === position.posX && tile.posY === position.posY,
+        )?.laid,
+      ).toBe(true);
+      unmount();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("cancels the pending gardener action when restarting", () => {
+    vi.useFakeTimers();
+    try {
+      const { result, unmount } = renderReadyGame(() => useZazenGame());
+      const supply = result.current.stonesLeft;
+      while (result.current.stonesLeft > 0) {
+        spendOne(result.current);
+        act(() => result.current.move("S"));
+      }
+      act(() => result.current.restart());
+      act(() => {
+        vi.advanceTimersByTime(2000);
+      });
+      finishGardener(result);
+      expect(result.current.phase).toBe("player");
+      expect(result.current.gardenerTurns).toBe(0);
+      expect(result.current.stonesLeft).toBe(supply);
+      expect(result.current.map.some((tile) => tile.laid)).toBe(false);
+      unmount();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+it("ends an exhausted final round and resets the refill limit on replay", () => {
+  vi.useFakeTimers();
+  const layout = buildGarden(FALLBACK_SEED);
+  const map = Array.from({ length: 24 }, (_, posX) => ({
+    posX,
+    posY: 0,
+    walkable: true,
+    sprite: posX === 0 ? "moss-mid" : "sand-0",
+    decor: posX === 23 ? "stone-marker" : "",
+    npc: 0,
+    ...(posX === 23 ? { stone: 0 } : {}),
+  }));
+  const mock = vi
+    .spyOn(terrain, "buildGarden")
+    .mockReturnValue({ ...layout, map, start: map[0], stoneBudget: 1 });
+  try {
+    const { result, unmount } = renderReadyGame(() => useZazenGame());
+    for (let tick = 0; tick < 50 && result.current.phase !== "lost"; tick++) {
+      if (result.current.phase === "gardener")
+        act(() => {
+          vi.advanceTimersByTime(1000);
+        });
+      else act(() => result.current.move("S"));
+    }
+    expect(result.current.phase).toBe("lost");
+    expect(result.current.gardenerTurns).toBe(3);
+    expect(result.current.stonesLeft).toBe(0);
+    const position = result.current.position;
+    act(() => result.current.move("N"));
+    expect(result.current.position).toEqual(position);
+    act(() => result.current.restart());
+    expect(result.current.phase).toBe("gardener");
+    finishGardener(result);
+    expect(result.current.phase).toBe("player");
+    expect(result.current.gardenerTurns).toBe(0);
+    expect(result.current.stonesLeft).toBe(1);
+    unmount();
+  } finally {
+    mock.mockRestore();
+    vi.useRealTimers();
+  }
+});
+
+it("hops to one neighbouring tile without spending player resources", () => {
+  vi.useFakeTimers();
+  const random = vi.spyOn(Math, "random").mockReturnValue(0);
+  try {
+    const { result, unmount } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+    const before = result.current;
+    act(() => {
+      vi.advanceTimersByTime(2400);
+    });
+    const after = result.current;
+    expect(
+      Math.abs(after.frog.posX - before.frog.posX) + Math.abs(after.frog.posY - before.frog.posY),
+    ).toBe(1);
+    expect(after.steps).toBe(before.steps);
+    expect(after.stonesLeft).toBe(before.stonesLeft);
+    expect(after.map.filter((tile) => tile.decor === "frog")).toHaveLength(1);
+    unmount();
+  } finally {
+    random.mockRestore();
+    vi.useRealTimers();
+  }
+});
+
+describe("gardener counterattack", () => {
+  it("removes one stone at close range only once per round", () => {
+    vi.useFakeTimers();
+    const safety = vi.spyOn(terrain, "tourCompletes").mockReturnValue(true);
+    try {
+      const { result, unmount } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+      const gardener = result.current.gardenerPosition;
+      const target = result.current.map.find(
+        (tile) =>
+          Math.abs(tile.posX - gardener.posX) + Math.abs(tile.posY - gardener.posY) === 1 &&
+          tile.stone === undefined &&
+          !tile.shrine &&
+          Math.abs(tile.posX - result.current.frog.posX) +
+            Math.abs(tile.posY - result.current.frog.posY) >
+            1,
+      )!;
+      const before = result.current.stonesLeft;
+      act(() => result.current.teleportForTest(target));
+      expect(result.current.stonesLeft).toBe(before - 1);
+      expect(result.current.attackTicks).toBe(1);
+      expect(result.current.attackUsed).toBe(true);
+      act(() => result.current.teleportForTest(target));
+      expect(result.current.stonesLeft).toBe(before - 1);
+      expect(result.current.attackTicks).toBe(1);
+      unmount();
+    } finally {
+      safety.mockRestore();
+      vi.useRealTimers();
+    }
+  });
+
+  it("spares the player's supply when a strike would make the route impossible", () => {
+    vi.useFakeTimers();
+    try {
+      const { result, unmount } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+      const safety = vi.spyOn(terrain, "tourCompletes").mockReturnValue(false);
+      const gardener = result.current.gardenerPosition;
+      const target = result.current.map.find(
+        (tile) =>
+          Math.abs(tile.posX - gardener.posX) + Math.abs(tile.posY - gardener.posY) === 1 &&
+          tile.stone === undefined &&
+          !tile.shrine &&
+          Math.abs(tile.posX - result.current.frog.posX) +
+            Math.abs(tile.posY - result.current.frog.posY) >
+            1,
+      )!;
+      const before = result.current.stonesLeft;
+      act(() => result.current.teleportForTest(target));
+      expect(result.current.stonesLeft).toBe(before);
+      expect(result.current.attackTicks).toBe(0);
+      safety.mockRestore();
+      unmount();
+    } finally {
+      vi.restoreAllMocks();
+      vi.useRealTimers();
+    }
+  });
+});
+
+it("resolves batched movement against the latest reducer state with a stable command", async () => {
+  const { findWalkablePath } =
+    await import("../../../../../src/components/client/garden/board/rules");
+  const { directionFromDelta } =
+    await import("../../../../../src/components/client/garden/board/geometry");
+  const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+  const start = result.current.position;
+  const route = result.current.map
+    .map((tile) => findWalkablePath(result.current.map, start, tile))
+    .find((path) => path && path.length >= 2)!;
+  expect(route).toBeDefined();
+  const move = result.current.move;
+  const steps = result.current.steps;
+  act(() => {
+    move(directionFromDelta(start, route[0])!);
+    move(directionFromDelta(route[0], route[1])!);
+  });
+  expect(result.current.position).toEqual(route[1]);
+  expect(result.current.steps).toBe(steps + 2);
+  expect(result.current.move).toBe(move);
+});
+
+it("toggles lanterns without spending supplies, moving or advancing the turn", () => {
+  const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+  const lantern = result.current.map.find((tile) => tile.decor === "lantern-lit")!;
+  const before = result.current;
+  act(() => result.current.toggleLantern(lantern));
+  expect(result.current.map.find((tile) => tile.posX === lantern.posX && tile.posY === lantern.posY)?.decor).toBe("lantern-unlit");
+  expect(result.current.position).toEqual(before.position);
+  expect(result.current.stonesLeft).toBe(before.stonesLeft);
+  expect(result.current.steps).toBe(before.steps);
+  expect(result.current.phase).toBe(before.phase);
+  act(() => result.current.toggleLantern(lantern));
+  expect(result.current.map.find((tile) => tile.posX === lantern.posX && tile.posY === lantern.posY)?.decor).toBe("lantern-lit");
+  const map = result.current.map;
+  act(() => result.current.toggleLantern({ posX: -1, posY: -1 }));
+  expect(result.current.map).toBe(map);
 });

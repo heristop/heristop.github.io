@@ -9,6 +9,7 @@
 // that scolds you for walking through it is not a garden anyone wants to walk through.
 
 interface Walk {
+  gardenerTurns?: number;
   steps: number;
   stonesLaid: number;
   stonesLeft: number;
@@ -71,14 +72,17 @@ const rankFor = (
 
 const scoreWalk = ({
   steps,
+  gardenerTurns,
   stonesLaid,
   stonesLeft,
   frogFreed = false,
   catMet = false,
 }: Walk): Score => {
-  const budget = stonesLaid + stonesLeft;
+  const replenished = (gardenerTurns ?? 0) * 2;
+  const budget = Math.max(0, stonesLaid + stonesLeft - replenished);
   const brisk = Math.max(0, BRISK_ALLOWANCE - steps * STEP_COST);
-  const spared = stonesLeft * SPARED_STONE_POINTS;
+  const savedOriginal = Math.max(0, stonesLeft - replenished);
+  const spared = savedOriginal * SPARED_STONE_POINTS;
 
   const lines: ScoreLine[] = [
     {
@@ -88,9 +92,7 @@ const scoreWalk = ({
     },
     {
       detail:
-        stonesLeft === 1
-          ? "one stone still in your pocket"
-          : `${stonesLeft} stones still in your pocket`,
+        savedOriginal === 1 ? "one original stone saved" : `${savedOriginal} original stones saved`,
       label: "Stones spared",
       points: spared,
     },
@@ -100,6 +102,14 @@ const scoreWalk = ({
       points: brisk,
     },
   ];
+
+  if (gardenerTurns !== undefined) {
+    lines.push({
+      label: "Garden rhythm",
+      detail: `${gardenerTurns} gardener turns`,
+      points: Math.max(0, 240 - gardenerTurns * 40),
+    });
+  }
 
   if (catMet) {
     lines.push({

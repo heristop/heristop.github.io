@@ -1623,8 +1623,7 @@
   height: 40px;
   pointer-events: none;
   transition:
-    left 460ms linear,
-    top 460ms linear;
+    translate 460ms linear;
   animation: path-stones-npc-arrive 900ms steps(4, end) 380ms both;
 }
 
@@ -1639,20 +1638,31 @@
   filter: drop-shadow(1px 1px 0 oklch(0% 0 0deg / 22%));
 }
 
-/* One frame, so the step is carried by the lean rather than by a walk cycle. */
-.zazen-world__companion--walking .zazen-world__companion-sprite {
-  animation: path-stones-companion-step 460ms var(--zen-ease-in-out, ease-in-out);
+.zazen-world__npc-2-sprite {
+  display: block;
+  width: 24px;
+  height: 40px;
+  background: url("/images/zazen/persos/npc-2-life.png") no-repeat 0 0 / 96px 80px;
+  image-rendering: pixelated;
+  animation: path-stones-companion-idle 10.4s steps(1, end) infinite;
 }
 
-@keyframes path-stones-companion-step {
-  0%,
-  100% {
-    translate: 0 0;
-  }
+.zazen-world__companion--walking .zazen-world__companion-sprite {
+  background-position: 0 -40px;
+  animation: path-stones-companion-walk 460ms steps(4) infinite;
+}
 
-  50% {
-    translate: 0 -1px;
-  }
+@keyframes path-stones-companion-idle {
+  0%, 64%, 100% { background-position: 0 0; }
+  68%, 74% { background-position: -24px 0; }
+  78%, 86% { background-position: -48px 0; }
+  82%, 90% { background-position: -72px 0; }
+  94% { background-position: -24px 0; }
+}
+
+@keyframes path-stones-companion-walk {
+  from { background-position: 0 -40px; }
+  to { background-position: -96px -40px; }
 }
 
 @keyframes path-stones-npc-arrive {
@@ -2297,10 +2307,7 @@ button.path-stones__heat-cell:focus-visible {
   }
 }
 
-/* The cat. Two frames stepped continuously — he is never quite still even when he has
-   not moved, which is the difference between a cat and an ornament of a cat. The slide
-   between tiles is on left/top rather than a transform, because a transform would fight
-   the horizontal flip that gives him his facing. */
+/* Three rows of four pixel frames: walk, idle, and greeting. */
 .zazen-world__cat {
   position: absolute;
   z-index: 2;
@@ -2308,16 +2315,16 @@ button.path-stones__heat-cell:focus-visible {
   height: 24px;
   background-image: url("/images/zazen/persos/cat-walk.png");
   background-repeat: no-repeat;
-  background-size: 48px 24px;
+  background-size: 96px 72px;
   image-rendering: pixelated;
   pointer-events: none;
   transition:
-    left 460ms linear,
-    top 460ms linear;
+    translate 460ms linear;
 
   /* The walk cycle is applied only while he is between tiles — see --walking. Sitting on
      the frame he stopped on is what a cat at rest looks like. */
-  background-position: 0 0;
+  background-position: 0 -24px;
+  animation: path-stones-cat-idle 5.6s steps(1, end) infinite;
 
   /* His footing. The contact shadow every prop gets comes from the tile it stands on, and
      he stopped standing on a tile the moment he started walking between them — so he was
@@ -2344,8 +2351,24 @@ button.path-stones__heat-cell:focus-visible {
 /* The greeting. A heart plotted pixel by pixel in box-shadows rather than drawn with a
    border-radius, because a rounded rectangle at five pixels across is a blob — and the
    one thing this board cannot have is a soft shape sitting next to hard ones. */
+.zazen-world__cat--greeting:not(.zazen-world__cat--walking) {
+  animation: path-stones-cat-greeting 1.2s steps(4) infinite;
+}
+
 .zazen-world__cat--walking {
-  animation: path-stones-cat-step 300ms steps(2) infinite;
+  animation: path-stones-cat-step 460ms steps(4) infinite;
+}
+
+@keyframes path-stones-cat-idle {
+  0%, 65%, 100% { background-position: 0 -24px; }
+  70%, 82% { background-position: -24px -24px; }
+  76% { background-position: -48px -24px; }
+  88%, 94% { background-position: -72px -24px; }
+}
+
+@keyframes path-stones-cat-greeting {
+  from { background-position: 0 -48px; }
+  to { background-position: -96px -48px; }
 }
 
 .zazen-world__cat--greeting::before {
@@ -2407,7 +2430,7 @@ button.path-stones__heat-cell:focus-visible {
   }
 
   to {
-    background-position: -48px 0;
+    background-position: -96px 0;
   }
 }
 
@@ -2428,7 +2451,8 @@ button.path-stones__heat-cell:focus-visible {
 }
 
 .zazen-world__pilgrim-sprite--idle {
-  animation: path-stones-idle-bob 2.4s var(--zen-ease-in-out, ease-in-out) infinite;
+  background-image: url("/images/zazen/persos/pilgrim-idle.png");
+  animation: path-stones-pilgrim-rest 8.4s steps(1, end) infinite;
 }
 
 /* Driven by CSS, not by rAF. The tween hook's loop stops the moment a step lands, so
@@ -2455,15 +2479,11 @@ button.path-stones__heat-cell:focus-visible {
   }
 }
 
-@keyframes path-stones-idle-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-1px);
-  }
+@keyframes path-stones-pilgrim-rest {
+  0%, 38%, 65%, 100% { background-position-x: 0; }
+  30%, 72% { background-position-x: -24px; }
+  62% { background-position-x: -48px; }
+  86%, 92% { background-position-x: -72px; }
 }
 
 /* Still water: one 64x256 strip, four frames, stepped so it never interpolates. */
@@ -3066,6 +3086,7 @@ button.path-stones__heat-cell:focus-visible {
   .zazen-world__cat--greeting::before,
   .zazen-world__companion,
   .zazen-world__companion-sprite,
+  .zazen-world__npc-2-sprite,
   .zazen-world__tile,
   .zazen-world__pilgrim,
   .zazen-world__pilgrim-sprite {
@@ -3080,5 +3101,200 @@ button.path-stones__heat-cell:focus-visible {
   .zazen-world__pilgrim-sprite--idle,
   .zazen-world__tile-image[style*="water-still"] {
     animation: none !important;
+  }
+}
+
+/* Experimental GPU board. React retains the accessible interaction plane. */
+.garden-webgl {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+  }
+}
+
+.garden-webgl__markers { filter: none; }
+
+/* Switching renderer is not a new entrance: keep the playable character visible. */
+.zazen-world__map[data-renderer-switched] .zazen-world__pilgrim {
+  animation: none;
+}
+
+/* The GPU owns the lighting grade; retain the independent cloud shadows. */
+.path-stones .zazen-world__map[data-renderer="webgl"] {
+  .zazen-world__weather { background: none; }
+  .zazen-world__grade { opacity: 0.08; }
+}
+
+
+.zazen-world__lantern-switch {
+  position: absolute;
+  z-index: 8;
+  width: 24px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.zazen-world__scenery-switch {
+  position: absolute;
+  z-index: 8;
+  width: 28px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+
+  &--stone {
+    width: 16px;
+    height: 23px;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.path-stones .zazen-world__scenery-switch:focus,
+.path-stones .zazen-world__lantern-switch:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.zazen-world__scenery-switch--animal {
+  width: 24px;
+  height: 19px;
+  transition: translate 460ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__scenery-switch--animal {
+    transition: none;
+  }
+}
+
+
+.zazen-world__tile-image[data-stone-index]::after {
+  display: none;
+}
+
+.zazen-world__stone-shadow {
+  position: absolute;
+  top: 20px;
+  left: 32px;
+  width: 20px;
+  height: 9px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, #142c2a42 0%, #142c2a24 55%, transparent 78%);
+  pointer-events: none;
+}
+
+
+@media (hover: hover) and (pointer: fine) {
+  .path-stones .zazen-world__map {
+    --garden-cursor: url("/images/zazen/fx/cursor-default.png") 3 3, default;
+
+    &[data-cursor="move"] {
+      --garden-cursor: url("/images/zazen/fx/cursor-move.png") 3 3, pointer;
+    }
+  }
+
+  .path-stones .zazen-world__map,
+  .path-stones .zazen-world__tile,
+  .path-stones .zazen-world__tile .zazen-world__hit {
+    cursor: var(--garden-cursor);
+  }
+
+  .path-stones .zazen-world__scenery-switch,
+  .path-stones .zazen-world__lantern-switch {
+    cursor: url("/images/zazen/fx/cursor-default.png") 3 3, pointer;
+  }
+}
+
+/* The collected stone remains briefly above its tile, without intercepting movement. */
+.zazen-world__pickup-stone {
+  position: absolute;
+  left: -16px;
+  top: -46px;
+  width: 32px;
+  height: 64px;
+  background: url("/images/zazen/decors/stone-marker.png") no-repeat;
+  image-rendering: pixelated;
+  transform-origin: 16px 45px;
+  animation: garden-stone-pickup 1400ms ease-in-out both;
+}
+
+.zazen-world__pickup-shadow {
+  position: absolute;
+  left: -10px;
+  top: 6px;
+  width: 20px;
+  height: 6px;
+  border-radius: 50%;
+  background: #142c2a42;
+  animation: garden-stone-pickup-shadow 1400ms ease-in-out both;
+}
+
+@keyframes garden-stone-pickup {
+  0% {
+    transform: translateY(0) rotateY(0deg);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translateY(-7px) rotateY(360deg);
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0) rotateY(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes garden-stone-pickup-shadow {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__pickup-stone,
+  .zazen-world__pickup-shadow {
+    animation: none;
+    display: none;
   }
 }

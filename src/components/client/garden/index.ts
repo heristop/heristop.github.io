@@ -12,6 +12,7 @@
 //
 // The rest of the site sees a React island and the handful of exports needed to give it a
 // seed, which is the entire surface area the page actually uses.
+// The host page also loads index.scss once, outside the React hydration graph.
 //
 // The point of a door is that there is only one. `tests/architecture.test.ts` fails the
 // build if anything outside this directory imports past it, because a barrel nobody is

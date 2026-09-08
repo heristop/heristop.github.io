@@ -94,8 +94,7 @@ const dither = (x, y) => BAYER[y & 3][x & 3] / 16;
 
 // The one definition of the 2:1 slope. Row y of the diamond spans
 // [32 - halfWidth, 32 + halfWidth); halfWidth grows by 2 per row.
-const diamondHalfWidth = (y) =>
-  y < DIAMOND_HEIGHT / 2 ? (y + 1) * 2 : (DIAMOND_HEIGHT - y) * 2;
+const diamondHalfWidth = (y) => (y < DIAMOND_HEIGHT / 2 ? (y + 1) * 2 : (DIAMOND_HEIGHT - y) * 2);
 
 // The lowest diamond row occupied by a column, used to find where its wall starts.
 const bottomRowForColumn = (dx) => {
@@ -144,11 +143,77 @@ const groundTile = (light, mid, dark, speckle = null, speckleRate = 0, seed = 7)
     }
     const wall = x < CELL / 2 ? mid : dark;
     for (let d = 1; d <= SKIRT_DEPTH; d++) {
-      put(g, x, bottom + d, wall);
+      const course = Math.floor((bottom + d) / 6);
+      const seam = (bottom + d) % 6 === 0;
+      const fissure = (x + course * 9) % 19 === 0;
+      const base = d > 12 ? "l" : wall;
+      put(g, x, bottom + d, seam || fissure ? "l" : base);
+      if (d === 1) put(g, x, bottom + d, mid);
     }
     void dx;
   }
 
+  return g;
+};
+
+// Clustered materials preserve quiet areas between hand-shaped details.
+const meadowTile = (light, mid, dark, patch, seed, count = 9) => {
+  const g = groundTile(light, mid, dark);
+  const noise = speckler(seed);
+  for (let n = 0; n < count; n++) {
+    const cx = 8 + Math.floor(noise() * 48);
+    const cy = 4 + Math.floor(noise() * 24);
+    const rx = 6 + Math.floor(noise() * 7);
+    const ry = 2 + Math.floor(noise() * 3);
+    for (let dy = -ry; dy <= ry; dy++) {
+      for (let dx = -rx; dx <= rx; dx++) {
+        const x = cx + dx,
+          y = cy + dy;
+        if (y < 1 || y >= 30 || Math.abs(x - 31.5) >= diamondHalfWidth(y) - 2) continue;
+        const edge = 0.78 + noise() * 0.38;
+        const distance = (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry);
+        if (distance < edge) {
+          put(g, x, y, patch);
+          if (distance > 0.65 && dy < 0 && (x + y) % 3 === 0) put(g, x, y, light);
+        }
+      }
+    }
+    if (cy < 28 && Math.abs(cx - 31.5) < diamondHalfWidth(cy) - 4) {
+      put(g, cx, cy, mid);
+      put(g, cx + 1, cy - 1, patch);
+    }
+  }
+  return g;
+};
+
+const gravelTile = () => {
+  const g = groundTile("b", "c", "l");
+  const noise = speckler(31);
+  for (let n = 0; n < 46; n++) {
+    const x = Math.floor(noise() * 62) + 1;
+    const y = Math.floor(noise() * 28) + 2;
+    if (Math.abs(x - 31.5) >= diamondHalfWidth(y) - 3) continue;
+    put(g, x, y, "j");
+    put(g, x + 1, y, "k");
+    if (n % 3 === 0) put(g, x + 1, y + 1, "c");
+  }
+  return g;
+};
+
+const slabTile = () => {
+  const g = groundTile("j", "k", "l");
+  for (let y = 3; y < 29; y++) {
+    const half = diamondHalfWidth(y) - 3;
+    put(g, 32 - half, y, "a");
+    if (y > 18) put(g, 31 + half, y, "l");
+  }
+  [
+    [22, 12],
+    [23, 13],
+    [25, 14],
+    [26, 15],
+    [25, 16],
+  ].forEach(([x, y]) => put(g, x, y, "k"));
   return g;
 };
 
@@ -304,6 +369,12 @@ const canopyTier = (g, top, halves) => {
     for (let step = 0; step < ROW_SCALE; step++) {
       const y = top + index * ROW_SCALE + step;
       rect(g, 16 - half, y, half * 2, 1, fill);
+      if (!last && index > 1) {
+        for (let x = 17 - half; x < 15 + half; x += 4) {
+          put(g, x, y, step === 0 ? "d" : "e");
+          if (x > 17) put(g, x + 1, y, "f");
+        }
+      }
       if (!last && index > 0) {
         put(g, 16 - half, y, "d");
       }
@@ -315,46 +386,40 @@ const pine = () =>
   decor((g) => {
     rect(g, 15, 47, 3, 10, "p");
     put(g, 15, 47, "q");
+    rect(g, 15, 49, 1, 7, "k");
+    rect(g, 12, 56, 8, 2, "p");
     PINE_TIERS.forEach(({ top, halves }) => {
       canopyTier(g, top, halves);
     });
   }, "f");
 
-// A round canopy with a lit shoulder, not a cloud of noise. Speckle only along the rim,
-// so the mass reads solid and the edge still reads as leaves.
-const ROUND_CANOPY = [4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4];
-
+// Overlapping leaf clusters give the crown an irregular silhouette and lit ledges.
 const leafyTree = (light, mid, dark) =>
   decor((g) => {
-    rect(g, 15, 44, 3, 13, "p");
-    put(g, 15, 44, "q");
-    rect(g, 12, 47, 3, 1, "p");
-    rect(g, 18, 49, 3, 1, "p");
-    const noise = speckler(21);
-    ROUND_CANOPY.forEach((half, index) => {
-      for (let step = 0; step < ROW_SCALE; step++) {
-        const y = 18 + index * ROW_SCALE + step;
-        rect(g, 16 - half, y, half * 2, 1, mid);
-        put(g, 16 - half, y, noise() < 0.5 ? light : mid);
-        put(g, 16 + half - 1, y, noise() < 0.5 ? dark : mid);
-        // A round highlight where the light actually strikes, dithered at its rim so it
-        // falls off. A rectangle of the lighter tone reads as a sticker on the canopy,
-        // not as a lit shoulder — it was the one thing keeping these from looking round.
-        for (let x = 16 - half; x < 16 + half; x++) {
-          const hx = (x - 11) / 6.5;
-          const hy = (y - 26) / 7.5;
-          const lit = hx * hx + hy * hy;
-          if (lit < 1 && dither(x, y) > lit * 0.9) {
-            put(g, x, y, light);
-          }
-        }
-        // The canopy's underside, shaded across its whole width. A dark patch in the
-        // middle instead read as a hole punched through the leaves.
-        if (index > 10) {
-          rect(g, 16 - half + 1, y, half * 2 - 2, 1, dark);
+    rect(g, 15, 36, 4, 22, "p");
+    rect(g, 15, 40, 1, 17, "k");
+    rect(g, 10, 43, 7, 2, "p");
+    rect(g, 18, 38, 7, 2, "p");
+    const clusters = [
+      [19, 33, 10, 9],
+      [9, 30, 8, 9],
+      [24, 26, 7, 8],
+      [15, 22, 10, 10],
+      [8, 21, 6, 6],
+      [19, 15, 7, 7],
+    ];
+    for (const [cx, cy, rx, ry] of clusters) {
+      for (let y = -ry; y <= ry; y++) {
+        for (let x = -rx; x <= rx; x++) {
+          const edge = (x * x) / (rx * rx) + (y * y) / (ry * ry);
+          if (edge > 1 || (edge > 0.85 && (x + y) % 3 === 0)) continue;
+          const shade = y > ry * 0.45 || x > rx * 0.65 ? dark : mid;
+          const highlight = y < -ry * 0.15 && x < rx * 0.25;
+          put(g, cx + x, cy + y, highlight ? light : shade);
+          if (highlight && (x + y * 3) % 7 === 0) put(g, cx + x, cy + y, mid);
         }
       }
-    });
+    }
   }, dark);
 
 const maple = () => leafyTree("d", "e", "f");
@@ -373,6 +438,19 @@ const bamboo = (stalks, height) =>
       }
       rect(g, 16 + offset - 4, top + 6, 4, 1, "d");
       rect(g, 16 + offset + 3, top + 12, 4, 1, "d");
+      // Tapered leaves grow from alternating nodes, not a ladder of branches.
+      for (const [side, node] of [
+        [-1, top + 7],
+        [1, top + 15],
+      ]) {
+        for (let leaf = 0; leaf < 5; leaf++) {
+          const x = 17 + offset + side * (leaf + 2);
+          const y = node - Math.floor(leaf / 2);
+          put(g, x, y, leaf < 3 ? "d" : "e");
+          if (leaf < 3) put(g, x, y + 1, "e");
+        }
+      }
+      rect(g, 16 + offset, top + 1, 1, 4, "d");
     });
   }, "f");
 
@@ -389,9 +467,16 @@ const rock = (width, height, light, mid, dark) =>
   decor((g) => {
     const baseY = DECOR_HEIGHT - height - 4;
     for (let y = 0; y < height; y++) {
-      const half = Math.round((width / 2) * Math.sin(((y + 1) / (height + 1)) * Math.PI) + 2);
+      const profile = [0.35, 0.65, 0.82, 1, 1, 0.9, 0.78, 0.58];
+      const half = Math.max(
+        2,
+        Math.round((width / 2) * profile[Math.min(7, Math.floor((y / height) * 8))]),
+      );
       for (let x = 16 - half; x < 16 + half; x++) {
-        put(g, x, baseY + y, y < height / 3 ? light : x < 16 ? mid : dark);
+        const facet = y < height * 0.4 - (x - 16) * 0.2;
+        put(g, x, baseY + y, facet ? light : x < 14 + y * 0.2 ? mid : dark);
+        if (y > height * 0.7 && x < 15 && (x + y) % 5 < 2) put(g, x, baseY + y, "e");
+        if (y === Math.floor(height / 2) && x > 12 && x < 16) put(g, x, baseY + y, dark);
       }
     }
   }, "l");
@@ -405,8 +490,21 @@ const lantern = (lit) =>
     if (lit) {
       rect(g, 15, 29, 3, 5, "m");
     }
-    rect(g, 10, 22, 13, 4, "k");
+    rect(g, 12, 21, 9, 2, "j");
+    rect(g, 10, 23, 13, 2, "k");
+    rect(g, 8, 25, 17, 2, "l");
+    rect(g, 8, 24, 5, 1, "j");
+    rect(g, 21, 24, 4, 1, "k");
     rect(g, 15, 18, 3, 4, "l");
+    rect(g, 12, 22, 5, 1, "a");
+    rect(g, 12, 26, 1, 10, "k");
+    rect(g, 19, 27, 1, 9, "l");
+    rect(g, 14, 41, 1, 9, "j");
+    rect(g, 12, 55, 10, 2, "k");
+    rect(g, 13, 54, 3, 1, "e");
+    rect(g, 16, 37, 3, 1, "k");
+    put(g, 15, 45, "l");
+    if (lit) put(g, 16, 30, "a");
   }, "l");
 
 const torii = () =>
@@ -417,6 +515,19 @@ const torii = () =>
     rect(g, 21, 16, 5, 40, "o");
     rect(g, 8, 16, 2, 40, "n");
     rect(g, 22, 16, 2, 40, "n");
+    rect(g, 3, 10, 27, 2, "p");
+    rect(g, 2, 8, 4, 2, "p");
+    rect(g, 27, 8, 4, 2, "p");
+    put(g, 3, 9, "m");
+    put(g, 28, 9, "n");
+    rect(g, 4, 12, 25, 1, "m");
+    rect(g, 6, 54, 7, 3, "l");
+    rect(g, 20, 54, 7, 3, "l");
+    rect(g, 14, 16, 5, 7, "p");
+    rect(g, 15, 17, 3, 4, "b");
+    put(g, 16, 18, "p");
+    rect(g, 8, 49, 2, 3, "p");
+    put(g, 22, 46, "p");
   }, "o");
 
 const post = () =>
@@ -431,14 +542,19 @@ const stoneMarker = (lit) =>
   decor((g) => {
     const body = lit ? "m" : "n";
     for (let y = 0; y < 22; y++) {
-      const half = Math.round(7 * Math.sin(((y + 2) / 25) * Math.PI) + 1);
+      const half = y < 5 ? 2 + y : y < 17 ? 7 : 7 - Math.floor((y - 16) / 2);
       for (let x = 16 - half; x < 16 + half; x++) {
         put(g, x, 32 + y, y < 6 ? (lit ? "a" : "m") : x < 16 ? body : "o");
       }
     }
-    if (lit) {
-      rect(g, 14, 36, 4, 2, "a");
-    }
+    // A carved sign and a beveled foot distinguish the relic from scenery rocks.
+    rect(g, 14, 40, 1, 8, "o");
+    rect(g, 15, 39, 4, 1, lit ? "a" : "m");
+    put(g, 17, 41, "m");
+    put(g, 16, 42, "m");
+    rect(g, 15, 45, 3, 1, "m");
+    rect(g, 11, 53, 10, 2, "o");
+    if (lit) rect(g, 14, 36, 4, 2, "a");
   }, "o");
 
 // --- the garden's inhabitants -----------------------------------------------
@@ -448,24 +564,29 @@ const stoneMarker = (lit) =>
 // and each is a shape somebody recognises before they have read a word of the page.
 
 // The cat walks the garden on his own, so unlike everything else in this file he is a
-// character sheet rather than a prop: two frames, half the size he was as scenery. A cat
-// standing as tall as the pilgrim is not a cat, it is a bear.
+// character sheet rather than a prop. Walk, idle, and greeting each get four frames.
+// His 24px cell keeps him smaller than the pilgrim.
 const CAT_CELL = 24;
 
-const catCell = (frame) => {
+const catCell = (frame, mode = 0) => {
   const g = grid(CAT_CELL, CAT_CELL);
-  const step = frame === 0 ? 0 : 1;
+  const step = mode === 0 ? [0, 1, 0, -1][frame] : 0;
+  const tailCurl = mode === 2 ? [0, 0, 1, 0][frame] : [0, 1, -1, 0][frame];
 
   // On four legs, side on. A cat drawn upright reads as a person in a cat suit; the whole
   // charm of one crossing a garden is the low horizontal body and the tail held up.
-  rect(g, 4, 8 - step, 2, 5, "k");
-  rect(g, 3, 5 - step, 2, 4, "k");
 
   // Body: a low bar, thicker at the shoulder than the hip.
   for (let y = 0; y < 6; y++) {
     const inset = y === 0 || y === 5 ? 1 : 0;
     rect(g, 5 + inset, 10 + y, 12 - inset * 2, 1, y > 3 ? "k" : "j");
   }
+
+  // Shared warm highlights, tabby markings and a pale chest.
+  rect(g, 7, 10, 2, 3, "c");
+  rect(g, 11, 10, 2, 2, "c");
+  rect(g, 15, 13, 2, 3, "a");
+  put(g, 7, 11, "a");
 
   // Four legs, front and back pairs swinging opposite each other.
   rect(g, 6 + step, 16, 2, 5, "k");
@@ -478,26 +599,88 @@ const catCell = (frame) => {
     const half = y === 0 || y === 7 ? 3 : 4;
     rect(g, 17 - half, 6 + y, half * 2, 1, "j");
   }
-  rect(g, 14, 3, 3, 3, "j");
-  rect(g, 18, 3, 3, 3, "j");
-  put(g, 15, 4, "k");
-  put(g, 19, 4, "k");
+  // Short triangular ears grow directly from the skull, with no upright stalk.
+  put(g, 14, 4, "j");
+  rect(g, 14, 5, 3, 1, "j");
+  put(g, 20, 4, "j");
+  rect(g, 18, 5, 3, 1, "j");
+  put(g, 15, 5, "m");
+  put(g, 19, 5, "m");
 
   // Two marks and a nose is the whole face at this size.
   rect(g, 15, 9, 2, 2, "q");
   rect(g, 19, 9, 2, 2, "q");
   put(g, 15, 9, "a");
   put(g, 19, 9, "a");
-  put(g, 21, 12, "m");
+  // A small pink nose and whiskers, rather than a projecting muzzle.
+  put(g, 20, 11, "m");
+  put(g, 18, 12, "a");
+  put(g, 19, 12, "a");
 
-  return outline(g, "l");
+  if (mode === 1 && frame === 2) {
+    rect(g, 15, 9, 2, 2, "j");
+    rect(g, 19, 9, 2, 2, "j");
+    rect(g, 15, 10, 2, 1, "p");
+    rect(g, 19, 10, 2, 1, "p");
+  }
+  if (frame === 3) {
+    put(g, 20, 4, ".");
+    put(g, 19, 4, "j");
+  }
+  if (mode === 1 && frame === 3) {
+    rect(g, 13, 16, 2, 5, ".");
+    rect(g, 14, 14, 2, 4, "j");
+    put(g, 15, 14, "a");
+  }
+  if (mode === 2 && frame > 0) {
+    // Lift the chin toward the pilgrim while the tail curls in greeting.
+    const head = g.slice(2, 14).map((row) => row.slice(13));
+    rect(g, 13, 2, 11, 12, ".");
+    blit(g, head, 13, frame === 2 ? 0 : 1);
+  }
+  const finished = outline(g, "l");
+  // A connected, tapered curve: the hip stays fixed while the hooked tip relaxes.
+  // Bridge diagonal steps so the thin tail never breaks into floating pixels.
+  const tailPoints = [
+    [6, 13],
+    [4, 12],
+    [3, 10],
+    [2, 8],
+    [2, 5],
+    [3, 3],
+    [4, 3],
+    [5, 4 + tailCurl],
+  ];
+  for (let segment = 1; segment < tailPoints.length; segment++) {
+    const [fromX, fromY] = tailPoints[segment - 1];
+    const [toX, toY] = tailPoints[segment];
+    const length = Math.max(Math.abs(toX - fromX), Math.abs(toY - fromY));
+    let previousX = fromX;
+    let previousY = fromY;
+    for (let step = 0; step <= length; step++) {
+      const x = Math.round(fromX + ((toX - fromX) * step) / length);
+      const y = Math.round(fromY + ((toY - fromY) * step) / length);
+      if (x !== previousX && y !== previousY) put(finished, x, previousY, "j");
+      // A continuous shaded edge keeps the slim tail legible against pale sand.
+      put(finished, x - 1, y, "l");
+      put(finished, x, y, y <= 4 ? "c" : "j");
+      previousX = x;
+      previousY = y;
+    }
+  }
+  const lift = mode === 2 && frame > 0 ? (frame === 2 ? 2 : 1) : 0;
+  put(finished, 22, 10 - lift, "a");
+  put(finished, 22, 12 - lift, "k");
+  return finished;
 };
 
 const catSheet = () => {
-  const g = grid(CAT_CELL * 2, CAT_CELL);
-  [0, 1].forEach((frame) => {
-    blit(g, catCell(frame), frame * CAT_CELL, 0);
-  });
+  const g = grid(CAT_CELL * 4, CAT_CELL * 3);
+  for (let mode = 0; mode < 3; mode++) {
+    for (let frame = 0; frame < 4; frame++) {
+      blit(g, catCell(frame, mode), frame * CAT_CELL, mode * CAT_CELL);
+    }
+  }
   return g;
 };
 
@@ -530,6 +713,10 @@ const koi = () =>
     rect(g, 19, 51, 3, 4, "a");
     rect(g, 22, 49, 2, 3, "a");
     rect(g, 22, 54, 2, 3, "a");
+    // Pectoral fins and a cool belly keep the silhouette in the water plane.
+    rect(g, 11, 49, 3, 1, "h");
+    rect(g, 11, 56, 3, 1, "h");
+    rect(g, 10, 55, 6, 1, "h");
     // Two patches and an eye.
     rect(g, 9, 51, 3, 2, "n");
     rect(g, 14, 53, 3, 2, "n");
@@ -545,6 +732,10 @@ const shishiOdoshi = () =>
     rect(g, 15, 30, 3, 17, "e");
     rect(g, 15, 36, 3, 1, "f");
     rect(g, 15, 42, 3, 1, "f");
+    rect(g, 14, 48, 5, 2, "l");
+    rect(g, 14, 48, 4, 1, "h");
+    rect(g, 18, 51, 2, 4, "l");
+    put(g, 12, 54, "e");
     // the spout, tipped down towards the basin
     rect(g, 8, 34, 8, 2, "d");
     rect(g, 8, 36, 3, 2, "e");
@@ -562,6 +753,17 @@ const pagoda = () =>
     rect(g, 12, 35, 8, 1, "k");
     rect(g, 13, 27, 6, 5, "j");
     rect(g, 14, 23, 4, 4, "k");
+    // Lit ledges, recessed joints and shaded side planes keep the tiers readable.
+    rect(g, 9, 50, 13, 1, "j");
+    rect(g, 20, 51, 3, 5, "l");
+    rect(g, 18, 46, 3, 3, "k");
+    rect(g, 8, 41, 14, 1, "a");
+    rect(g, 18, 36, 3, 5, "k");
+    rect(g, 9, 32, 11, 1, "a");
+    rect(g, 17, 28, 2, 4, "k");
+    rect(g, 10, 54, 4, 2, "e");
+    put(g, 14, 53, "d");
+    rect(g, 14, 38, 2, 2, "l");
   }, "l");
 
 // --- characters -------------------------------------------------------------
@@ -638,13 +840,120 @@ const monkCell = (facing, frame) => {
   const bodyTop = headTop + 9;
   rowRun(g, ROBE_HALVES, bodyTop, "p", "q");
   rect(g, CX - 5, bodyTop + 4, 10, 1, "q");
+  // Sash, lit folds and a traveling satchel read at the original sprite scale.
+  rect(g, CX - 4, bodyTop + 1, 2, 3, "k");
+  rect(g, CX - 3, bodyTop + 5, 1, 6, "l");
+  rect(g, CX + 2, bodyTop + 6, 1, 5, "q");
+  rect(g, CX - 4, bodyTop + 4, 8, 1, "c");
+  put(g, CX - 2, bodyTop + 4, "a");
+  put(g, CX - 4, bodyTop, "j");
+  if (facing !== "N") {
+    rect(g, CX + 3, bodyTop + 3, 3, 5, "l");
+    put(g, CX + 4, bodyTop + 4, "b");
+  }
 
   rect(g, CX - 4 + stride, bodyTop + 12, 3, 2, "q");
   rect(g, CX + 1 - stride, bodyTop + 12, 3, 2, "q");
+  if (frame !== 0) {
+    // Alternating cuffs and trailing fabric give the stride a readable weight shift.
+    put(g, CX - 5, bodyTop + 6 + (frame === 1 ? 1 : 0), "k");
+    put(g, CX + 5, bodyTop + 7 - (frame === 1 ? 1 : 0), "c");
+    put(g, CX - 4, bodyTop + 10, frame === 1 ? "l" : "p");
+  }
   return g;
 };
 
 // 3 frames across, 4 facings down.
+// Four frames each: breathing/blink, planted walking feet, and a full rake stroke.
+const gardenerSheet = () => {
+  const sheet = grid(128, 120);
+  for (let mode = 0; mode < 3; mode++) {
+    for (let frame = 0; frame < 4; frame++) {
+      const g = grid(32, 40);
+      const bob =
+        mode === 1 ? frame % 2 : mode === 2 && frame > 1 ? 2 : mode === 0 && frame === 1 ? 1 : 0;
+      const stride = mode === 1 ? [0, 2, 0, -2][frame] : 0;
+      // Boots, cuffed trousers, forest apron and rolled linen sleeves.
+      rect(g, 7 + stride, 33, 5, 4, "q");
+      rect(g, 16 - stride, 33, 5, 4, "q");
+      rect(g, 8 + stride, 30, 3, 4, "l");
+      rect(g, 16 - stride, 30, 3, 4, "p");
+      rect(g, 5, 19 + bob, 18, 10, "f");
+      rect(g, 8, 19 + bob, 12, 14, "e");
+      rect(g, 9, 20 + bob, 2, 10, "d");
+      rect(g, 8, 25 + bob, 12, 2, "p");
+      rect(g, 13, 27 + bob, 5, 3, "f");
+      rect(g, 14, 27 + bob, 3, 1, "d");
+      put(g, 10, 31 + bob, "f");
+      put(g, 18, 31 + bob, "f");
+      rect(g, 4, 20 + bob, 4, 7, "a");
+      rect(g, 20, 20 + bob, 4, 6, "b");
+      rect(g, 5, 27 + bob, 3, 3, "c");
+      // Friendly weathered face, white sideburns and a tiny beard.
+      rect(g, 8, 10 + bob, 13, 10, "p");
+      rect(g, 9, 11 + bob, 11, 8, "b");
+      rect(g, 9, 11 + bob, 4, 5, "a");
+      rect(g, 8, 13 + bob, 2, 5, "j");
+      rect(g, 19, 13 + bob, 2, 5, "j");
+      const blink = mode === 0 && frame === 3;
+      rect(g, 12, 13 + bob, 2, blink ? 1 : 2, "q");
+      rect(g, 17, 13 + bob, 2, blink ? 1 : 2, "q");
+      rect(g, 13, 17 + bob, 6, 3, "j");
+      put(g, 15, 17 + bob, "p");
+      // Wide straw hat, dark ribbon, sunlit crown.
+      rect(g, 7, 5 + bob, 15, 5, "c");
+      rect(g, 9, 4 + bob, 10, 4, "b");
+      rect(g, 9, 4 + bob, 7, 2, "a");
+      rect(g, 7, 8 + bob, 15, 2, "f");
+      rect(g, 3, 10 + bob, 23, 2, "c");
+      rect(g, 4, 9 + bob, 21, 1, "a");
+      // The rake moves with his hands, not as a detached floating prop.
+      const rakeX = mode === 2 ? [26, 28, 25, 23][frame] : 26;
+      const rakeY = mode === 2 ? [8, 9, 12, 11][frame] : 5;
+      rect(g, rakeX, rakeY, 2, 24, "c");
+      rect(g, rakeX, rakeY, 1, 23, "b");
+      rect(g, 21, 24 + bob, Math.max(2, rakeX - 20), 2, "b");
+      rect(g, rakeX - 4, rakeY + 24, 9, 2, "l");
+      for (let tooth = -4; tooth <= 4; tooth += 2) rect(g, rakeX + tooth, rakeY + 25, 1, 3, "j");
+      // A slight hand shift makes the idle frames feel alive without bobbing the feet.
+      if (mode === 0) rect(g, 24, 21 + (frame % 2), 3, 2, "b");
+      put(g, 11, 12 + bob, "a");
+      put(g, 20, 25 + bob, "c");
+      blit(sheet, g, frame * 32, mode * 40);
+    }
+  }
+  return sheet;
+};
+
+// Rest gestures keep the feet fixed; only the face, shoulder and satchel move.
+const pilgrimIdleSheet = () => {
+  const sheet = grid(96, 160);
+  ["S", "W", "E", "N"].forEach((facing, row) => {
+    for (let frame = 0; frame < 4; frame++) {
+      const g = monkCell(facing, 0);
+      if (frame === 1) {
+        rect(g, 8, 23, 2, 2, "j");
+        put(g, 9, 25, "k");
+      }
+      if (frame === 2 && facing !== "N") {
+        const eyes = facing === "S" ? [8, 14] : facing === "W" ? [7, 11] : [11, 15];
+        for (const x of eyes) {
+          rect(g, x, 15, 2, 3, "a");
+          rect(g, x, 16, 2, 1, "p");
+        }
+      }
+      if (frame === 3) {
+        rect(g, 15, 24, 3, 5, "l");
+        put(g, 16, 25, "b");
+        rect(g, 13, 24, 2, 2, "b");
+      }
+      if (frame === 2 && facing === "N") put(g, 8, 10, "b");
+      blit(sheet, g, frame * 24, row * 40);
+    }
+  });
+  return sheet;
+};
+
 const pilgrimSheet = () => {
   const facings = ["S", "W", "E", "N"];
   const g = grid(MONK_CELL_W * 3, MONK_CELL_H * facings.length);
@@ -659,14 +968,70 @@ const pilgrimSheet = () => {
 // Two seated figures already on the board, kept as scenery.
 const npc = (robe, accent) => {
   const g = grid(MONK_CELL_W, MONK_CELL_H);
-  rect(g, 8, 14, 8, 5, "c");
-  rect(g, 6, 12, 12, 2, accent);
-  for (let y = 0; y < 12; y++) {
-    const half = 5 + Math.round(y / 2);
-    rect(g, 12 - half, 19 + y, half * 2, 1, robe);
+  rect(g, 8, 9, 8, 10, "k");
+  rect(g, 9, 10, 6, 8, "b");
+  rect(g, 9, 10, 3, 5, "a");
+  rect(g, 7, 8, 10, 3, "p");
+  rect(g, 8, 8, 6, 1, "l");
+  put(g, 10, 13, "q");
+  put(g, 14, 13, "q");
+  for (let y = 19; y < 33; y++) {
+    const half = 4 + Math.floor((y - 19) / 4);
+    rect(g, 12 - half, y, half * 2, 1, robe);
+    put(g, 12 + half - 1, y, accent);
   }
-  rect(g, 5, 31, 14, 2, "l");
+  rect(g, 8, 19, 2, 9, "j");
+  rect(g, 7, 25, 10, 2, "f");
+  rect(g, 9, 24, 3, 2, "b");
+  rect(g, 13, 24, 3, 2, "a");
+  rect(g, 7, 33, 10, 2, "p");
   return g;
+};
+
+const ambientSheet = (kind) => {
+  const width = kind === "npc" ? 24 : 32;
+  const height = kind === "npc" ? 40 : 64;
+  const sheet = grid(width * 4, height);
+  for (let frame = 0; frame < 4; frame++) {
+    const g = kind === "frog" ? frog() : kind === "koi" ? koi() : npc("k", "l");
+    if (kind === "frog") {
+      rect(g, 13, 51, 6, 2, "d");
+      if (frame === 1) rect(g, 13, 54, 6, 2, "d");
+      if (frame === 2) {
+        rect(g, 12, 46, 2, 2, "e");
+        rect(g, 18, 46, 2, 2, "e");
+        rect(g, 12, 47, 2, 1, "f");
+        rect(g, 18, 47, 2, 1, "f");
+      }
+      if (frame === 3) rect(g, 9, 54, 3, 2, "d");
+    } else if (kind === "koi") {
+      const tail = g.slice(47, 59).map((row) => row.slice(20));
+      rect(g, 20, 47, 12, 12, ".");
+      blit(g, tail, 20, 47 + [0, -1, 0, 1][frame]);
+      // A travelling one-pixel bend links the body to the tail beat.
+      if (frame === 1 || frame === 3) {
+        const bend = frame === 1 ? -1 : 1;
+        const rear = g.slice(50, 56).map((row) => row.slice(16, 20));
+        rect(g, 16, 50, 4, 6, ".");
+        blit(g, rear, 16, 50 + bend);
+      }
+      put(g, 13, 50, "h");
+      if (frame % 2) put(g, 12, 56, "a");
+      if (frame === 2) put(g, 12, 49, "a");
+    } else {
+      if (frame === 2) {
+        put(g, 10, 13, "k");
+        put(g, 14, 13, "k");
+      }
+      if (frame === 1 || frame === 3) {
+        rect(g, 9, 24, 7, 2, "k");
+        rect(g, 9, 23, 3, 2, "b");
+        rect(g, 13, 23, 3, 2, frame === 1 ? "a" : "b");
+      }
+    }
+    blit(sheet, g, frame * width, 0);
+  }
+  return sheet;
 };
 
 // The kimono, narrow at the shoulder and opening to the hem. It flares less than the
@@ -778,6 +1143,12 @@ const woman = () => {
   put(g, CX + 1, bodyTop + 1, "a");
   put(g, CX + 2, bodyTop, "a");
   rect(g, CX - 1, bodyTop + 3, 2, 4, "d");
+  rect(g, CX - 3, bodyTop + 5, 6, 2, "n");
+  put(g, CX - 2, bodyTop + 5, "m");
+  put(g, CX + 2, bodyTop + 9, "d");
+  put(g, CX + 1, bodyTop + 10, "a");
+  put(g, CX - 4, bodyTop + 8, "d");
+  put(g, CX - 4, bodyTop + 9, "a");
 
   // Furisode: the long hanging sleeves that say this is a young woman and not a matron.
   // Two pixels wide and held clear of the body by its own outline — drawn any thicker
@@ -796,6 +1167,46 @@ const woman = () => {
   rect(g, CX - 3, bodyTop + 14, 2, 1, "a");
   rect(g, CX + 1, bodyTop + 14, 2, 1, "a");
   return g;
+};
+
+// Row 0: rest, nod, raised sleeve, wave. Row 1: alternating walking strides.
+const womanSheet = () => {
+  const sheet = grid(MONK_CELL_W * 4, MONK_CELL_H * 2);
+  for (let mode = 0; mode < 2; mode++) {
+    for (let frame = 0; frame < 4; frame++) {
+      const base = woman();
+      const g = grid(MONK_CELL_W, MONK_CELL_H);
+      const lift = mode === 1 && frame % 2 === 1 ? -1 : 0;
+      blit(g, base, 0, lift);
+      if (mode === 0 && frame === 0) {
+        rect(g, CX - 4, 11, 3, 2, "b");
+        rect(g, CX + 1, 11, 3, 2, "b");
+        rect(g, CX - 3, 12, 2, 2, "p");
+        rect(g, CX + 1, 12, 2, 2, "p");
+      }
+      if (mode === 0 && frame === 1) {
+        rect(g, 0, 0, MONK_CELL_W, 17, ".");
+        blit(g, base.slice(0, 17), 0, 1);
+      }
+      if (mode === 0 && frame >= 2) {
+        rect(g, CX + 4, 19, 2, 6, ".");
+        const wave = frame === 3 ? 1 : 0;
+        rect(g, CX + 4 + wave, 15, 2, 6, "e");
+        rect(g, CX + 4 + wave, 13, 2, 2, "b");
+        put(g, CX + 5 + wave, 20, "f");
+      }
+      if (mode === 1 && frame > 0) {
+        rect(g, CX - 5, 30 + lift, 10, 3, ".");
+        rect(g, CX - 6, 30 + lift, 12, 1, "f");
+        const stride = [0, 1, 0, -1][frame];
+        rect(g, CX - 3 + stride, 31, 2, 1, "a");
+        rect(g, CX + 1 - stride, 31, 2, 1, "a");
+        rect(g, CX - 6, 22 + (frame === 3 ? -1 : 1), 2, 2, "d");
+      }
+      blit(sheet, g, frame * MONK_CELL_W, mode * MONK_CELL_H);
+    }
+  }
+  return sheet;
 };
 
 // --- effects ----------------------------------------------------------------
@@ -832,33 +1243,171 @@ const ripple = () =>
     }),
   );
 
+// Native-size cursors share the garden palette and a precise arrow-tip hotspot.
+const gardenCursor = (move) => {
+  const g = grid(24, 24);
+  const points = [[3, 3], [3, 16], [6, 13], [9, 19], [12, 18], [9, 12], [15, 12]];
+  for (let y = 0; y < 24; y++) {
+    for (let x = 0; x < 24; x++) {
+      let inside = false;
+      for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+        const [xi, yi] = points[i];
+        const [xj, yj] = points[j];
+        if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+      }
+      if (inside) put(g, x, y, move ? "g" : "a");
+    }
+  }
+  if (move) {
+    for (let y = 15; y <= 21; y++) {
+      const half = (3 - Math.abs(y - 18)) * 2;
+      rect(g, 17 - half, y, half * 2 + 1, 1, y < 18 ? "g" : "h");
+    }
+    put(g, 17, 17, "a");
+    put(g, 17, 18, "a");
+  }
+  return outline(g, "q");
+};
+
+// Eight wing poses share a fixed shoulder and head for a stable flight silhouette.
+const birdSheet = () => {
+  const tips = [[8, 1], [6, 2], [3, 5], [5, 10], [8, 14], [7, 11], [4, 8], [2, 6]];
+  const sheet = grid(24 * tips.length, 16);
+  tips.forEach(([tipX, tipY], frame) => {
+    const g = grid(24, 16);
+    // The far wing is shorter and darker, with its own visible tip.
+    for (let x = 12; x <= 17; x++) {
+      const y = Math.round(7 + ((tipY - 7) * (x - 12)) / 7);
+      rect(g, x, y, 1, 2, "i");
+    }
+    // Short tail feathers taper directly from the rump.
+    rect(g, 8, 7, 4, 2, "i");
+    put(g, 7, 7, "i");
+    put(g, 7, 9, "i");
+    rect(g, 10, 7, 8, 3, "a");
+    rect(g, 11, 9, 5, 1, "b");
+    rect(g, 9, 7, 7, 1, "i");
+    // Swept flight feathers widen gradually into a rounded shoulder.
+    for (let x = tipX; x <= 13; x++) {
+      const fraction = (x - tipX) / (13 - tipX);
+      const y = Math.round(tipY + (7 - tipY) * fraction);
+      const breadth = 1 + Math.round(fraction * 2);
+      rect(g, x, y, 1, breadth, "i");
+      if (breadth > 1) put(g, x, y, "h");
+      if (breadth > 2) put(g, x, y + 1, "g");
+    }
+    rect(g, 16, 5, 3, 3, "a");
+    rect(g, 16, 5, 3, 1, "i");
+    put(g, 18, 6, "q");
+    rect(g, 19, 7, 2, 1, "c");
+    blit(sheet, g, frame * 24, 0);
+  });
+  return sheet;
+};
+
+const mermaidSheet = () => {
+  const sheet = grid(96, 40);
+  for (let frame = 0; frame < 4; frame++) {
+    const g = woman();
+    rect(g, 0, 20, 24, 20, ".");
+    rect(g, 8, 20, 8, 3, "m");
+    rect(g, 7, 23, 9, 4, "g");
+    rect(g, 7, 26, 8, 4, "h");
+    rect(g, 9, 29, 7, 3, "h");
+    rect(g, 12, 31, 6, 3, "i");
+    const fin = [0, -1, 0, 1][frame];
+    rect(g, 17, 29 + fin, 3, 5, "g");
+    rect(g, 20, 27 + fin, 2, 3, "h");
+    rect(g, 20, 33 + fin, 3, 2, "h");
+    put(g, 8, 24, "a");
+    put(g, 11, 27, "g");
+    put(g, 13, 29, "g");
+    blit(sheet, g, frame * 24, 0);
+  }
+  return sheet;
+};
+
+const gardenerStrikeSheet = () => {
+  const idle = gardenerSheet()
+    .slice(0, 40)
+    .map((row) => row.slice(0, 32));
+  const sheet = grid(384, 40);
+  const swings = [
+    [28, 5],
+    [22, 2],
+    [43, 10],
+    [52, 22],
+    [42, 29],
+    [28, 5],
+  ];
+  for (let frame = 0; frame < 6; frame++) {
+    const g = grid(64, 40);
+    const body = idle.map((row) => [...row]);
+    rect(body, 24, 0, 8, 40, ".");
+    const lean = [0, -1, 1, 3, 2, 0][frame];
+    blit(g, body, lean, 0);
+    const handX = 22 + lean;
+    const handY = 24;
+    const [tipX, tipY] = swings[frame];
+    const length = Math.max(Math.abs(tipX - handX), Math.abs(tipY - handY));
+    for (let step = 0; step <= length; step++) {
+      const x = Math.round(handX + ((tipX - handX) * step) / length);
+      const y = Math.round(handY + ((tipY - handY) * step) / length);
+      put(g, x, y, "b");
+      put(g, x, y + 1, "c");
+    }
+    const horizontal = Math.abs(tipX - handX) > Math.abs(tipY - handY);
+    for (let tooth = -4; tooth <= 4; tooth++) {
+      put(g, tipX + (horizontal ? 0 : tooth), tipY + (horizontal ? tooth : 0), "l");
+      if (tooth % 2 === 0) {
+        put(g, tipX + (horizontal ? 1 : tooth), tipY + (horizontal ? tooth : 1), "j");
+        put(g, tipX + (horizontal ? 2 : tooth), tipY + (horizontal ? tooth : 2), "j");
+      }
+    }
+    rect(g, handX - 1, handY - 1, 3, 3, "b");
+    blit(sheet, g, frame * 64, 0);
+  }
+  return sheet;
+};
+
 // --- inventory --------------------------------------------------------------
 
 export const SPRITES = {
+  "gardener-strike": sprite(gardenerStrikeSheet()),
+  "mermaid-life": sprite(mermaidSheet()),
+  "bird-flight": sprite(birdSheet()),
+  "cursor-default": sprite(gardenCursor(false)),
+  "cursor-move": sprite(gardenCursor(true)),
   "bamboo-a": sprite(bamboo([-6, 0, 6], 46)),
   "bamboo-b": sprite(bamboo([-4, 3], 38)),
   "bridge-plank": sprite(bridgePlank()),
   "dust-puff": sprite(dustPuff()),
-  "gravel-edge": sprite(groundTile("b", "c", "l", "j", 0.18, 31)),
+  "gravel-edge": sprite(gravelTile()),
   "lantern-lit": sprite(lantern(true)),
   "lantern-unlit": sprite(lantern(false)),
-  "moss-deep": sprite(groundTile("e", "f", "f", "f", 0.3, 17)),
-  "moss-mid": sprite(groundTile("d", "e", "f")),
+  "moss-deep": sprite(meadowTile("e", "f", "f", "d", 17, 4)),
+  "moss-mid": sprite(meadowTile("d", "e", "f", "e", 23, 3)),
   "npc-2": sprite(woman()),
+  "npc-2-life": sprite(womanSheet()),
   "npc-3": sprite(npc("k", "l")),
+  "npc-3-life": sprite(ambientSheet("npc")),
+  "frog-life": sprite(ambientSheet("frog")),
+  "koi-life": sprite(ambientSheet("koi")),
+  gardener: sprite(gardenerSheet()),
   "rock-mound": sprite(rock(22, 18, "j", "k", "l")),
   "rock-small": sprite(rock(13, 10, "j", "k", "l")),
   "sand-0": sprite(rakedSand()),
   "sand-1": sprite(groundTile("a", "b", "c", "c", 0.06, 11)),
-  "sand-moss": sprite(groundTile("a", "b", "c", "d", 0.22, 13)),
+  "sand-moss": sprite(meadowTile("a", "b", "c", "d", 13, 4)),
   "shrine-active": sprite(shrineTile(true)),
   "shrine-locked": sprite(shrineTile(false)),
   "stone-marker": sprite(stoneMarker(false)),
   "stone-marker-lit": sprite(stoneMarker(true)),
-  "stone-slab": sprite(groundTile("j", "k", "l")),
+  "stone-slab": sprite(slabTile()),
   "water-still": sprite(waterFrames()),
   maple: sprite(maple()),
   pilgrim: sprite(pilgrimSheet()),
+  "pilgrim-idle": sprite(pilgrimIdleSheet()),
   pine: sprite(pine()),
   post: sprite(post()),
   "cat-walk": sprite(catSheet()),
@@ -871,3 +1420,54 @@ export const SPRITES = {
   ripple: sprite(ripple()),
   torii: sprite(torii()),
 };
+
+// Each material shares a periodic edge band; only the interior varies. A neighbour
+// translates by (+/-32, 16), so rake lines use a period that divides 16.
+export const GROUND_VARIANTS = [
+  "sand-0",
+  "sand-1",
+  "sand-moss",
+  "moss-mid",
+  "moss-deep",
+  "gravel-edge",
+];
+const groundVariants = {};
+for (const name of GROUND_VARIANTS) {
+  for (let variant = 0; variant < 4; variant++) {
+    const seed = 53 + variant * 101;
+    const moss = name === "sand-moss" || name.startsWith("moss-");
+    const light =
+      name === "moss-mid" ? "d" : name === "moss-deep" ? "e" : name === "gravel-edge" ? "b" : "a";
+    const mid = name === "moss-mid" ? "e" : name === "moss-deep" ? "f" : "b";
+    const dark = moss && name !== "sand-moss" ? "f" : "c";
+    const g = groundTile(light, mid, dark);
+    const noise = speckler(seed);
+    const edgeNoise = speckler(719);
+    for (let y = 0; y < 32; y++) {
+      const half = diamondHalfWidth(y);
+      for (let x = 32 - half; x < 32 + half; x++) {
+        const rim = half - Math.abs(x - 31.5) < 5;
+        if (rim) g[y][x] = light;
+        if (name === "sand-0") {
+          g[y][x] = y % 4 === 2 ? "b" : "a";
+          // Small interior interruptions suggest a hand-drawn rake stroke.
+          if (!rim && noise() < 0.035) g[y][x] = "a";
+        } else if (moss) {
+          // Fine, isolated grass pixels preserve the soil rather than forming large blobs.
+          g[y][x] = light;
+          const density = name === "moss-deep" ? 0.25 : name === "moss-mid" ? 0.13 : 0.19;
+          // Carry the grass to the edge without a bare outline. All variants share
+          // the same edge texture so their four sides remain interchangeable.
+          const grassNoise = rim ? edgeNoise : noise;
+          if (grassNoise() < density) {
+            g[y][x] = name === "sand-moss" ? "d" : grassNoise() < 0.72 ? "f" : "d";
+          }
+        } else if (!rim && noise() < (name === "gravel-edge" ? 0.13 : 0.035)) {
+          g[y][x] = name === "gravel-edge" ? (noise() < 0.5 ? "j" : "c") : "b";
+        }
+      }
+    }
+    groundVariants[variant === 0 ? name : `${name}-v${variant}`] = sprite(g);
+  }
+}
+Object.assign(SPRITES, groundVariants);

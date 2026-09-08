@@ -43,6 +43,8 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Check garden tests and coverage
+        run: pnpm test:garden:coverage
       - name: Install the Chromium build mermaid renders with
         run: pnpm exec playwright install --with-deps chromium
       # Grows the Path of Stones garden from the last 100 days of activity. Never fails

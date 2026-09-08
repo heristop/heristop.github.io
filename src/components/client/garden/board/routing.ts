@@ -24,11 +24,19 @@ const cheapestCrossing = (
 ): number | undefined => {
   const byKey = new Map(map.map((tile) => [positionKey(tile), tile]));
   const cost = new Map<string, number>([[positionKey(from), 0]]);
-  const queue: Position[] = [from];
+  const queue = new Map<number, Position>([[0, from]]);
+  let head = 0;
+  let tail = 1;
+  const settled = new Set<string>();
   const targetKey = positionKey(to);
 
-  while (queue.length > 0) {
-    const current = queue.shift() as Position;
+  while (head < tail) {
+    const current = queue.get(head)!;
+    queue.delete(head++);
+    const key = positionKey(current);
+    if (settled.has(key)) continue;
+    settled.add(key);
+    if (key === targetKey) return cost.get(key);
     const currentCost = cost.get(positionKey(current)) ?? Infinity;
 
     for (const direction of DIRECTIONS) {
@@ -50,9 +58,9 @@ const cheapestCrossing = (
       }
       cost.set(nextKey, candidate);
       if (stepCost === 0) {
-        queue.unshift(next);
+        queue.set(--head, next);
       } else {
-        queue.push(next);
+        queue.set(tail++, next);
       }
     }
   }
@@ -73,6 +81,45 @@ interface Route {
   cost: number;
 }
 
+// Stable binary min-heap: equal ranks keep the original direction/insertion order.
+class RouteQueue {
+  private entries: { key: string; position: Position; rank: number; order: number }[] = [];
+  private sequence = 0;
+
+  private before(a: typeof this.entries[number], b: typeof this.entries[number]) {
+    return a.rank < b.rank || (a.rank === b.rank && a.order < b.order);
+  }
+
+  push(entry: { key: string; position: Position; rank: number }) {
+    const value = { ...entry, order: this.sequence++ };
+    let index = this.entries.length;
+    this.entries.push(value);
+    while (index > 0) {
+      const parent = (index - 1) >> 1;
+      if (!this.before(value, this.entries[parent])) break;
+      this.entries[index] = this.entries[parent];
+      index = parent;
+    }
+    this.entries[index] = value;
+  }
+
+  pop() {
+    const first = this.entries[0];
+    const last = this.entries.pop();
+    if (!last || this.entries.length === 0) return first;
+    let index = 0;
+    while (index * 2 + 1 < this.entries.length) {
+      let child = index * 2 + 1;
+      if (child + 1 < this.entries.length && this.before(this.entries[child + 1], this.entries[child])) child++;
+      if (!this.before(this.entries[child], last)) break;
+      this.entries[index] = this.entries[child];
+      index = child;
+    }
+    this.entries[index] = last;
+    return first;
+  }
+}
+
 const cheapestRoute = (
   map: readonly MapTile[],
   from: Position,
@@ -88,16 +135,15 @@ const cheapestRoute = (
   const byKey = new Map(map.map((tile) => [positionKey(tile), tile]));
   const best = new Map<string, number>([[fromKey, 0]]);
   const parents = new Map<string, Position>();
-  const queue: { key: string; position: Position; rank: number }[] = [
-    { key: fromKey, position: from, rank: 0 },
-  ];
+  const queue = new RouteQueue();
+  queue.push({ key: fromKey, position: from, rank: 0 });
 
-  while (queue.length > 0) {
-    queue.sort((left, right) => left.rank - right.rank);
-    const current = queue.shift() as { key: string; position: Position; rank: number };
+  for (let current = queue.pop(); current; current = queue.pop()) {
     if (current.rank > (best.get(current.key) ?? Infinity)) {
       continue;
     }
+
+    if (current.key === targetKey) break;
 
     for (const direction of DIRECTIONS) {
       const next = applyDirectionOffset(direction, current.position.posX, current.position.posY);
@@ -134,10 +180,10 @@ const cheapestRoute = (
   const path: Position[] = [];
   let cursor: Position | undefined = to;
   while (cursor && positionKey(cursor) !== fromKey) {
-    path.unshift(cursor);
+    path.push(cursor);
     cursor = parents.get(positionKey(cursor));
   }
-  return { cost: Math.floor(targetRank / STEP_SCALE), path };
+  return { cost: Math.floor(targetRank / STEP_SCALE), path: path.reverse() };
 };
 
 export type { Route };

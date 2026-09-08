@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import ZenTextReveal from "../../../zen-text-reveal";
 import textReveal from "../../../use-text-reveal";
 import type { HaikuEntry } from "../../types";
+import Journey from "./journey";
 import { scoreWalk } from "../../score";
 
 const { useReducedMotion } = textReveal;
@@ -33,13 +34,15 @@ const DelayedMount = ({ children, delayMs }: DelayedMountProps) => {
     };
   }, [delayMs, mounted, reducedMotion]);
 
-  if (!mounted) {
+  if (!mounted && !reducedMotion && delayMs !== 0) {
     return null;
   }
   return <>{children}</>;
 };
 
 interface Props {
+  recordKey?: string;
+  gardenerTurns?: number;
   lines: readonly HaikuEntry[];
   steps: number;
   stonesLaid: number;
@@ -54,6 +57,8 @@ const SCORE_REVEAL_MS = 2600;
 
 const ZazenFinaleOverlay = ({
   lines,
+  recordKey,
+  gardenerTurns,
   steps,
   stonesLaid,
   stonesLeft,
@@ -62,7 +67,7 @@ const ZazenFinaleOverlay = ({
   onReturn,
   onWalkAgain,
 }: Props) => {
-  const score = scoreWalk({ catMet, frogFreed, steps, stonesLaid, stonesLeft });
+  const score = scoreWalk({ gardenerTurns, catMet, frogFreed, steps, stonesLaid, stonesLeft });
   const reducedMotion = useReducedMotion();
   const [returnVisible, setReturnVisible] = useState(reducedMotion);
   // Two refs, because the two jobs pulled apart: focus lands on the primary action, but
@@ -71,12 +76,12 @@ const ZazenFinaleOverlay = ({
   const firstActionRef = useRef<HTMLButtonElement>(null);
   const returnRef = useRef<HTMLAnchorElement>(null);
 
+  if (reducedMotion && !returnVisible) {
+    setReturnVisible(true);
+  }
+
   useEffect(() => {
     if (returnVisible) {
-      return;
-    }
-    if (reducedMotion) {
-      setReturnVisible(true);
       return;
     }
     const timer = setTimeout(() => {
@@ -85,7 +90,7 @@ const ZazenFinaleOverlay = ({
     return () => {
       clearTimeout(timer);
     };
-  }, [reducedMotion, returnVisible]);
+  }, [returnVisible]);
 
   useEffect(() => {
     if (!returnVisible) {
@@ -130,6 +135,19 @@ const ZazenFinaleOverlay = ({
       <h2 id="path-stones-finale-title" className="sr-only">
         The path is complete
       </h2>
+      {recordKey && (
+        <Journey
+          recordKey={recordKey}
+          complete
+          summary
+          steps={steps}
+          stonesLaid={stonesLaid}
+          stonesLeft={stonesLeft}
+          gardenerTurns={gardenerTurns}
+          frogFreed={frogFreed}
+          catMet={catMet}
+        />
+      )}
       <div className="path-stones__finale-poem">
         {lines.map((entry, index) => (
           <DelayedMount key={entry.stoneIndex} delayMs={index * LINE_STAGGER_MS}>

@@ -49,11 +49,11 @@ const ZazenDefeatOverlay = ({ stonesFound, stonesLaid, steps, onReplay }: Props)
           ◇
         </p>
         <h2 className="path-stones__defeat-title" id="path-stones-defeat-title">
-          The walk ends here
+          The garden wins this round
         </h2>
         <p className="path-stones__defeat-line">
-          No stones left, and nothing you still have to reach can be reached without one.
-          The garden is not angry. It simply goes on being sand.
+          All three refills are spent. No stone, shrine or frog rescue is within reach. Collect
+          stones earlier and keep your return path short.
         </p>
         <dl className="path-stones__defeat-tally">
           <div>
@@ -77,10 +77,10 @@ const ZazenDefeatOverlay = ({ stonesFound, stonesLaid, steps, onReplay }: Props)
           ref={replayRef}
           onClick={onReplay}
         >
-          Rake the garden
+          Try a new route
         </button>
         <p className="path-stones__defeat-hint">
-          The same fortnight, raked afresh. Spend the sand more carefully.
+          Four rounds. Three refills. A better route is waiting.
         </p>
       </div>
     </div>

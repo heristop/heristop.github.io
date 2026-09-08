@@ -42,7 +42,12 @@ describe("the garden is a feature module", () => {
       const source = readFileSync(file, "utf8");
       for (const match of source.matchAll(/["'](\.[^"']+)["']/g)) {
         const target = resolveSpec(file, match[1]);
-        if (target.startsWith(MODULE) && target !== DOOR && target !== MODULE) {
+        if (
+          target.startsWith(MODULE) &&
+          target !== DOOR &&
+          target !== `${DOOR}.scss` &&
+          target !== MODULE
+        ) {
           trespass.push(`${file} reaches into ${target}`);
         }
       }

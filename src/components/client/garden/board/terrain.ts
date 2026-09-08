@@ -277,8 +277,8 @@ const reachableSet = (map: readonly MapTile[], start: Position): Set<string> => 
   const byKey = new Map(map.map((tile) => [positionKey(tile), tile]));
   const seen = new Set<string>([positionKey(start)]);
   const queue: Position[] = [start];
-  while (queue.length > 0) {
-    const current = queue.shift() as Position;
+  for (let head = 0; head < queue.length; head++) {
+    const current = queue[head];
     for (const next of neighboursOf(current)) {
       const nextKey = positionKey(next);
       const tile = byKey.get(nextKey);
@@ -294,21 +294,21 @@ const reachableSet = (map: readonly MapTile[], start: Position): Set<string> => 
 
 // Data decides how the garden LOOKS; this decides that it can still be WALKED. Without
 // it a quiet fortnight could wall a stone off and the game would be silently unwinnable.
-const carvePathTo = (map: MapTile[], start: Position, target: Position): void => {
+const carvePathTo = (map: MapTile[], start: Position, target: Position, avoid?: Position): void => {
   const byKey = new Map(map.map((tile) => [positionKey(tile), tile]));
   const parents = new Map<string, string>();
   const seen = new Set<string>([positionKey(start)]);
   const queue: Position[] = [start];
   const targetKey = positionKey(target);
 
-  while (queue.length > 0) {
-    const current = queue.shift() as Position;
+  for (let head = 0; head < queue.length; head++) {
+    const current = queue[head];
     if (positionKey(current) === targetKey) {
       break;
     }
     for (const next of neighboursOf(current)) {
       const nextKey = positionKey(next);
-      if (seen.has(nextKey) || !byKey.has(nextKey)) {
+      if ((avoid && manhattan(next, avoid) === 0) || seen.has(nextKey) || !byKey.has(nextKey)) {
         continue;
       }
       seen.add(nextKey);
@@ -443,13 +443,33 @@ interface GardenLayout {
   frog: Position;
 }
 
-// Nothing spare. The purse is now the smallest one that the BEST order of stones can
-// finish on, so a spare stone on top of it is not mercy — it is the whole margin between
-// "you must find the right route" and "any route will do".
-const STONE_MARGIN = 0;
-// If the shrine cannot be reached at any price the terrain is broken rather than merely
-// mean, and the carve below has already run; hand over enough to cross a whole row.
-const STONE_FALLBACK = DATA_COLS;
+// Only the frog varies between runs; the terrain and stone challenge stay seeded.
+const randomizeFrog = (layout: GardenLayout, roll: number, previous?: Position): GardenLayout => {
+  const water = layout.map.filter((tile) => tile.sprite.startsWith("water"));
+  const banks = layout.map.filter(
+    (tile) =>
+      (tile.decor === "" || tile.decor === "frog") &&
+      tile.npc === 0 &&
+      (isWalkableTile(tile) || canPaveTile(tile)) &&
+      water.some((pond) => manhattan(tile, pond) === 1),
+  );
+  const alternatives = banks.filter((tile) => !previous || manhattan(tile, previous) !== 0);
+  const candidates = alternatives.length > 0 ? alternatives : banks;
+  const chosen = candidates[Math.min(candidates.length - 1, Math.floor(roll * candidates.length))];
+  if (!chosen) return layout;
+  const frog = { posX: chosen.posX, posY: chosen.posY };
+  return {
+    ...layout,
+    frog,
+    map: layout.map.map((tile) => {
+      if (manhattan(tile, frog) === 0) return { ...tile, decor: "frog" };
+      return tile.decor === "frog" ? { ...tile, decor: "" } : tile;
+    }),
+  };
+};
+
+// Keep the opening hand readable even when dense vegetation forces long detours.
+const MAX_STARTING_STONES = 6;
 
 // What a gathered stone gives back. This is the whole shape of the game: the five stones
 // are the objective AND the fuel, so the question stops being "can I afford the crossing"
@@ -587,6 +607,27 @@ const buildGarden = (seed: GardenSeed): GardenLayout => {
 
   placeLandmarks(map, seed.days, rng);
 
+  // Keep at least a third of the beds freely walkable even in a fortnight of
+  // intense planting. Thin scenery only; never change the recorded contribution data.
+  const inner = map.filter(
+    (tile) =>
+      tile.posX > 0 && tile.posX < GRID_SIZE - 1 && tile.posY > 0 && tile.posY < GRID_SIZE - 1,
+  );
+  let clearBeds = inner.filter(isWalkableTile).length;
+  for (const tile of inner) {
+    if (clearBeds >= Math.ceil(DATA_TILES * 0.35)) break;
+    if (
+      tile.decor &&
+      tile.decor !== STONE_DECOR &&
+      !tile.shrine &&
+      tile.npc === 0 &&
+      isWalkableTile({ ...tile, decor: "" })
+    ) {
+      tile.decor = "";
+      clearBeds++;
+    }
+  }
+
   // Where the pilgrim stands must be firm whatever the day did — a garden that opens with
   // its own first step impossible is not a challenge, it is a bug.
   if (startTile && startTile.sprite === "sand-0") {
@@ -600,25 +641,47 @@ const buildGarden = (seed: GardenSeed): GardenLayout => {
     }
   }
 
+  // Dense planting must not imprison the gardener behind the pilgrim at the gate.
+  // Check his routes with sand traversable and the player's starting tile occupied.
+  const gardenerStart = { posX: 0, posY: 3 };
+  const gardenerGround = map.map((tile) => ({
+    ...tile,
+    sprite: canPaveTile(tile) ? LAID_STONE_SPRITE : tile.sprite,
+    walkable: tile.walkable && manhattan(tile, start) !== 0,
+  }));
+  const gardenerReached = reachableSet(gardenerGround, gardenerStart);
+  for (const target of stones) {
+    if (!gardenerReached.has(positionKey(target))) {
+      carvePathTo(map, gardenerStart, target, start);
+    }
+  }
+
   // Painter's order. Tiles are built border-first and then in day order, which snakes
   // back and forth across the field — rendered in that order a back tile would paint
   // over a front one. Depth in this projection is posX + posY.
   map.sort((a, b) => a.posX + a.posY - (b.posX + b.posY) || a.posX - b.posX);
 
-  // How many stones this fortnight starts you with. Run after the carve, so the answer
-  // reflects the garden the player will actually stand in, and found by walking rather
-  // than by arithmetic: the smallest purse that completes a whole tour, plus one spare.
-  //
-  // The old sum took the most expensive single destination and budgeted for that. It was
-  // measuring the wrong thing twice over — it priced each trip from the start as though
-  // the others had not happened, and it knew nothing of the stones refunding you along the
-  // way. Searching upward from one guarantees the garden is finishable and guarantees it
-  // is not comfortable, which is the only pair of properties that matters here.
-  let purse = 1;
-  while (purse <= STONE_FALLBACK && !tourCompletes(map, start, stones, shrine, purse)) {
-    purse += 1;
+  // Repair expensive layouts with authored stepping stones instead of handing out a
+  // huge purse (or clamping it below the cost of a winning route). Activity metadata
+  // and plant density stay intact; only the necessary crossings become firm.
+  for (let repairs = 0; repairs < DATA_TILES; repairs++) {
+    if (tourCompletes(map, start, stones, shrine, MAX_STARTING_STONES)) break;
+    const route = [...stones, shrine]
+      .map((target) => cheapestRoute(map, start, target, DATA_TILES))
+      .filter((path) => path !== undefined)
+      .sort((a, b) => b.cost - a.cost)[0];
+    const crossing = route?.path
+      .map((step) => map.find((tile) => manhattan(tile, step) === 0))
+      .find((tile) => tile && canPaveTile(tile) && tile.stone === undefined && !tile.shrine);
+    if (!crossing) break;
+    crossing.sprite = LAID_STONE_SPRITE;
   }
-  const stoneBudget = Math.min(purse, STONE_FALLBACK) + STONE_MARGIN;
+
+  // Find the actual minimum after repair; never silently truncate a required budget.
+  let stoneBudget = 1;
+  while (stoneBudget < DATA_TILES && !tourCompletes(map, start, stones, shrine, stoneBudget)) {
+    stoneBudget += 1;
+  }
 
   return { frog: FROG_SPOT, map, shrine, start, stoneBudget, stones };
 };
@@ -628,6 +691,7 @@ export {
   HAIKU_LINES,
   STONE_REFUEL,
   buildGarden,
+  randomizeFrog,
   tourCompletes,
   cellToPosition,
   dayIndexForPosition,

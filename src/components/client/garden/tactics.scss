@@ -1,0 +1,1316 @@
+/* A weathered atlas framing a living, pixel-scale diorama. */
+.stone-game-page {
+  background: #151f29;
+}
+
+.stone-game-nav {
+  background: #142029f5;
+  border-color: #c5b38340;
+  box-shadow: 0 1px #070f1780;
+}
+
+.path-stones {
+  --heading-color: #f1e4c5;
+  --primary-bg-color: #172731;
+  --surface-overlay: #263b40;
+
+  padding-top: 24px;
+  background: linear-gradient(#263b40, #172731 900px, #151f29 1600px);
+
+  &::before {
+    height: 1150px;
+    background: linear-gradient(#14232b15, #14232b22 40%, #172731), url("/images/zazen/sanctuary-dawn.webp") center top / cover no-repeat;
+    mask-image: linear-gradient(#000 70%, transparent);
+    opacity: 0.8;
+  }
+
+  .path-stones__header {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    place-items: center start;
+    width: min(100%, 1196px);
+    max-width: none;
+    padding: 0 0 16px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #b6a77b66;
+    text-align: left;
+  }
+
+  .path-stones__chapter {
+    grid-column: 1;
+    grid-row: 1;
+    color: #d9c69d;
+    font: 11px / 1.5 Georgia, serif;
+    letter-spacing: 0.23em;
+    text-transform: uppercase;
+
+    > span {
+      padding-inline: 3px;
+      color: #bc955d;
+    }
+  }
+
+  .path-stones__title {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 10px 0 8px;
+    font-size: clamp(42px, 5vw, 70px);
+    letter-spacing: -0.055em;
+    text-shadow: 0 2px #10222b, 0 4px 20px #0c1d2bb3;
+
+    em {
+      color: #dab77c;
+    }
+  }
+
+  .path-stones__intro {
+    grid-column: 1;
+    grid-row: 3;
+    margin: 0;
+    font: italic 17px / 1.5 Georgia, serif;
+    color: #d6d4be;
+  }
+
+  .path-stones__attribution {
+    grid-column: 1;
+    grid-row: 4;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #bec9c1;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .path-stones__gauges {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    position: relative;
+    gap: 26px;
+    padding: 18px 26px;
+    border: 1px solid #beab7a80;
+    border-radius: 2px;
+    background: #14252ef2;
+    box-shadow: inset 0 0 0 4px #20343b, inset 0 0 0 5px #b7a06b33, 0 12px 30px #0c172444;
+
+    &::before,
+    &::after {
+      content: "✦";
+      position: absolute;
+      top: -10px;
+      color: #d2b479;
+      font-size: 15px;
+    }
+
+    &::before { left: -6px; }
+    &::after { right: -6px; }
+  }
+
+  .path-stones__gauge-figure b {
+    font-size: 34px;
+  }
+
+  .path-stones__gauge-label {
+    font-size: 12px;
+    letter-spacing: 0.09em;
+  }
+
+  .path-stones__quote {
+    grid-column: 2;
+    grid-row: 4;
+    justify-self: center;
+    max-width: 300px;
+    margin-top: 10px;
+    font-size: 13px;
+    text-align: center;
+  }
+}
+
+.path-stones__battle {
+  order: 4;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(100%, 1196px);
+  margin-bottom: 24px;
+}
+
+.path-stones .path-stones__mission,
+.path-stones .path-stones__turn {
+  border: 1px solid #baab8059;
+  border-radius: 2px;
+  background: #172832eb;
+  box-shadow: inset 0 0 0 3px #23383e, 0 8px 20px #0a152929;
+}
+
+.path-stones .path-stones__mission {
+  padding: 20px;
+  text-align: left;
+  align-items: flex-start;
+}
+
+.path-stones .path-stones__mission > strong {
+  color: #f0ddad;
+  font: 23px / 1.35 Georgia, serif;
+  margin-block: 10px;
+}
+
+.path-stones .path-stones__turn {
+  padding: 18px;
+  border-top: 2px solid #af8c58;
+}
+
+.path-stones .path-stones__tools {
+  gap: 8px;
+  border-top: 1px solid #beab7a33;
+  padding-top: 10px;
+  margin-top: 12px;
+
+  button {
+    min-height: 44px;
+    border-radius: 2px;
+    color: #e5d7b9;
+    font-size: 15px;
+  }
+}
+
+.path-stones__scene-heading {
+  order: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border: 1px solid #bca57480;
+  border-radius: 2px;
+  background: #172a33;
+  color: #f0e2bf;
+  font: 15px / 1.5 Georgia, serif;
+
+  > svg {
+    flex-shrink: 0;
+    color: #dec18a;
+  }
+
+  > strong {
+    font-weight: normal;
+    font-size: 15px;
+  }
+
+  > span {
+    margin-left: auto;
+    flex-shrink: 0;
+    color: #f0d49a;
+    font-size: 17px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+}
+
+.path-stones__scene-mist {
+  position: absolute;
+  z-index: -1;
+  inset: 20% -10% -5%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 70%, #abc6ad24, transparent 60%);
+  // Keep this large background wash still; the localized clouds carry the motion.
+  opacity: 0.8;
+}
+
+.path-stones .zazen-world__map {
+  // Keep moving actors independently composited. The grade, local lights and cast
+  // provide atmosphere without filtering the whole animated board every frame.
+  filter: none;
+  isolation: isolate;
+}
+
+.path-stones .zazen-world__weather {
+  background: radial-gradient(ellipse at 20% 10%, #ffe3a657, transparent 57%), linear-gradient(135deg, transparent 35%, #10294366);
+}
+
+.path-stones .zazen-world__grade {
+  // A translucent wash keeps the warm/cool lighting without blending the entire
+  // moving scene into a second offscreen surface.
+  mix-blend-mode: normal;
+  opacity: 0.18;
+}
+
+.path-stones .zazen-world__cast {
+  background: #0a1522;
+  filter: blur(4px);
+  opacity: 0.55;
+}
+
+.path-stones .path-stones__recenter {
+  top: 70px;
+  border-radius: 2px;
+  border-color: #c2af8059;
+  background: #172a33ed;
+  color: #e7d9b4;
+}
+
+.path-stones .path-stones__rules {
+  gap: 0;
+  width: 100%;
+  margin: 14px 0 0;
+  border-block: 1px solid #bba7754d;
+  background: #152731d9;
+}
+
+.path-stones .path-stones__rule {
+  padding: 10px 12px;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid #bba77533;
+
+  &:last-child { border-right: 0; }
+}
+
+.path-stones .path-stones__journey {
+  display: block;
+  border: 1px solid #b5a37459;
+  border-radius: 2px;
+  background: #192a32;
+  padding: 0;
+  box-shadow: none;
+}
+
+.path-stones__journal-toggle {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 56px;
+  padding: 12px 18px;
+  list-style: none;
+  cursor: pointer;
+  color: #d5c59c;
+  font-size: 15px;
+
+  &::-webkit-details-marker { display: none; }
+  > span:first-child { margin-right: auto; }
+
+  transition: background-color 160ms ease;
+  touch-action: manipulation;
+
+  strong {
+    color: #f3d497;
+    font-variant-numeric: tabular-nums;
+  }
+  &:hover { background: #263c41; }
+
+  &:focus-visible {
+    outline: 2px solid #efd39a;
+    outline-offset: 3px;
+  }
+
+  svg {
+    transition: transform 180ms ease;
+    flex-shrink: 0;
+  }
+}
+
+.path-stones__journey[open] > summary {
+  background: #23383e;
+
+  svg { transform: rotate(180deg); }
+}
+
+.path-stones__journal-toggle:active { background: #30484a; }
+
+@keyframes journal-content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.path-stones__journal-content {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr 1fr;
+  gap: 20px;
+  padding: 20px;
+  border-top: 1px solid #b5a37440;
+  animation: journal-content-enter 180ms ease-out;
+}
+
+@media (width <= 700px) {
+  .path-stones__journal-toggle {
+    gap: 12px;
+    padding-inline: 12px;
+    font-size: 14px;
+  }
+
+  .path-stones__journal-content {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-stones__journal-toggle,
+  .path-stones__journal-toggle svg { transition: none; }
+
+  .path-stones__journal-content { animation: none; }
+}
+
+@media (width >= 1280px) {
+  .path-stones__battle {
+    display: grid;
+    grid-template-columns: 190px 768px 190px;
+    grid-template-rows: auto auto;
+    gap: 12px 24px;
+    align-items: start;
+  }
+
+  .path-stones .path-stones__mission {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    margin: 48px 0 0;
+    padding: 18px 15px;
+  }
+
+  .path-stones .path-stones__movement-hint,
+  .path-stones .path-stones__controller-status {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .path-stones .path-stones__controller-status {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .path-stones .path-stones__tools {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+
+    button {
+      justify-content: flex-start;
+    }
+  }
+
+  .path-stones .path-stones__turn {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin: 265px 0 0;
+    gap: 10px;
+    padding: 16px;
+
+    strong {
+      font-size: 17px;
+      line-height: 1.4;
+    }
+
+    small {
+      font-size: 15px;
+      line-height: 1.6;
+    }
+  }
+
+  .path-stones .path-stones__turn-reward {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0;
+    font-size: 24px;
+
+    small { font-size: 11px; }
+  }
+
+  .path-stones .path-stones__stage {
+    grid-column: 2;
+    grid-row: 1;
+    width: 768px;
+  }
+
+  .path-stones .path-stones__rules {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 0;
+  }
+
+  .path-stones .path-stones__stage .zazen-world__compass {
+    top: 62px;
+    left: calc(100% + 24px);
+    box-sizing: border-box;
+    width: 190px;
+    padding: 14px;
+    border: 1px solid #b8a67766;
+    background: #172832e8;
+    box-shadow: inset 0 0 0 3px #263c41;
+
+    .zazen-world__compass-container {
+      margin-inline: auto;
+    }
+
+    &::before {
+      content: "MOVE";
+      display: block;
+      margin-bottom: 12px;
+      text-align: center;
+      font: 11px / 1.5 Georgia, serif;
+      color: #cbb991;
+      letter-spacing: 0.2em;
+    }
+  }
+}
+
+@media (width >= 701px) and (width < 1280px) {
+  .path-stones__battle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .path-stones .path-stones__mission,
+  .path-stones .path-stones__turn {
+    width: 100%;
+    margin: 0;
+    height: 100%;
+  }
+
+  .path-stones .path-stones__stage,
+  .path-stones .path-stones__rules {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+
+  .path-stones .path-stones__stage .zazen-world__compass {
+    position: relative;
+    inset: auto;
+  }
+}
+
+@media (width <= 700px) {
+  .path-stones {
+    padding-top: 14px;
+
+    &::before {
+      height: 1000px;
+      background-position: 45% top;
+      opacity: 0.6;
+    }
+
+    .path-stones__header {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+      gap: 0;
+      padding-bottom: 12px;
+      margin-bottom: 8px;
+    }
+
+    .path-stones__chapter {
+      font-size: 10px;
+    }
+
+    .path-stones__title {
+      font-size: clamp(40px, 10vw, 56px);
+    }
+
+    .path-stones__intro {
+      font-size: 16px;
+    }
+
+    .path-stones__gauges {
+      grid-column: 1;
+      grid-row: 5;
+      padding: 10px 24px;
+      margin-top: 12px;
+      width: min(100%, 340px);
+      justify-content: space-around;
+    }
+
+    .path-stones__gauge-figure b {
+      font-size: 29px;
+    }
+
+    .path-stones__quote {
+      grid-column: 1;
+      grid-row: 6;
+      margin-bottom: 0;
+    }
+
+    .path-stones__mission {
+      width: 100%;
+      margin: 0;
+      padding: 15px;
+
+      > strong {
+        font-size: 21px;
+        margin-block: 6px;
+      }
+    }
+
+    .path-stones__tools {
+      flex-direction: row;
+    }
+
+    .path-stones__turn {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+    }
+
+    .path-stones__battle {
+      margin-bottom: 24px;
+    }
+
+    .path-stones__recenter {
+      top: 70px;
+    }
+
+    .path-stones__stage .zazen-world__compass {
+      background: #172b34;
+      border-color: #ae9c6855;
+      border-radius: 0 0 3px 3px;
+    }
+
+    .path-stones__stage .zazen-world__map-wrapper {
+      border-radius: 3px 3px 0 0;
+      border-color: #ae9c6855;
+    }
+  }
+}
+
+.path-stones .path-stones__turn-standard {
+  padding-block: 34px 26px;
+  background: linear-gradient(90deg, #14283200, #142832fa 15%, #142832fa 85%, #14283200);
+  border-block: 1px solid #d6b77b;
+  box-shadow: inset 0 5px #c4a1691a, inset 0 -5px #c4a1691a, 0 20px 60px #07142180;
+
+  &::before {
+    content: attr(data-round);
+    position: absolute;
+    left: 12%;
+    top: 8px;
+    color: #e3c4870f;
+    font: 140px / 1 Georgia, serif;
+    pointer-events: none;
+  }
+
+  strong {
+    font-weight: normal;
+    letter-spacing: -0.025em;
+    text-shadow: 0 2px #102029;
+  }
+}
+
+.path-stones [data-side="gardener"] .path-stones__turn-standard {
+  background: linear-gradient(90deg, #302b3200, #302b32fa 15%, #302b32fa 85%, #302b3200);
+}
+
+.path-stones .path-stones__turn-crest {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  top: -23px;
+  padding: 0;
+  border: 1px solid #d6b77b;
+  background: #20323a;
+  box-shadow: inset 0 0 0 3px #ae96552b;
+}
+
+.path-stones .path-stones__day,
+.path-stones .path-stones__heat,
+.path-stones > .path-stones__source {
+  border-radius: 2px;
+  background: #192b33;
+  border-color: #b5a37440;
+}
+
+@media (width <= 700px) {
+  .path-stones .path-stones__turn-standard {
+    padding-inline: 20px;
+
+    strong { font-size: 38px; }
+  }
+}
+
+@media (width <= 700px) {
+  .path-stones .path-stones__stage { order: 0; }
+  .path-stones .path-stones__turn { order: 1; }
+  .path-stones .path-stones__mission { order: 2; }
+  .path-stones .path-stones__rules { order: 3; }
+}
+
+.path-stones .path-stones__attribution {
+  padding: 4px 8px;
+  background: #14262fdb;
+  border-left: 1px solid #bea474;
+  color: #d0d6c9;
+}
+
+.path-stones .path-stones__quote:empty { display: none; }
+
+.path-stones .path-stones__turn[data-phase="player"] .path-stones__gardener-portrait {
+  background: #455249;
+
+  &::before {
+    width: 24px;
+    margin-inline: 8px;
+    background: url("/images/zazen/persos/pilgrim.png") 0 0 / 72px 160px no-repeat;
+  }
+}
+
+.path-stones__almanac {
+  order: 7;
+  display: grid;
+  gap: 12px;
+  width: min(100%, 760px);
+  margin-top: 16px;
+}
+
+.path-stones .path-stones__almanac > * {
+  margin: 0;
+  min-width: 0;
+  justify-self: center;
+}
+
+@media (width >= 900px) {
+  .path-stones__almanac {
+    grid-template-columns: minmax(0, 1fr) 500px;
+    align-items: stretch;
+  }
+
+  .path-stones .path-stones__almanac > * {
+    width: 100%;
+  }
+}
+
+/* Shared interaction language: ink, brass, and a short response to each action. */
+.path-stones {
+  --tactics-focus: #efd39a;
+  --tactics-edge: #af98635c;
+
+  button:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid var(--tactics-focus);
+    outline-offset: 3px;
+  }
+
+  .path-stones__tools button,
+  .path-stones__recenter {
+    border: 1px solid var(--tactics-edge);
+    background: #20353d;
+    box-shadow: inset 0 1px #d5be8a0d, 0 2px 0 #101e2980;
+    transition: background 150ms ease-out, border-color 150ms ease-out, transform 100ms ease-out;
+
+    &:hover {
+      border-color: #d0b781;
+      background: #30454a;
+    }
+
+    &:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 1px #0d1d2933;
+    }
+  }
+
+  .path-stones__controller-status {
+    justify-content: flex-start;
+    padding: 8px 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    text-align: left;
+    color: #b9c6bc;
+
+    svg { flex-shrink: 0; }
+  }
+
+  .path-stones__input-hint[data-controller="connected"] .path-stones__controller-status {
+    color: #d4e4b6;
+  }
+
+  .path-stones__gardener-portrait {
+    border-radius: 2px;
+    border-color: var(--tactics-edge);
+    animation: tactics-portrait-enter 240ms ease-out both;
+  }
+
+  .path-stones__turn {
+    transition: border-color 240ms ease-out, background-color 240ms ease-out;
+  }
+
+  .path-stones__turn[data-phase="gardener"] {
+    border-top-color: #c48d7a;
+    background-color: #302f37;
+  }
+
+  .path-stones__mission[data-complete="true"] {
+    border-color: #c9b373;
+
+    > strong { color: #e8cd91; }
+  }
+
+  .path-stones__source a {
+    text-underline-offset: 4px;
+    text-decoration-color: #c4ab6866;
+    transition: color 150ms ease-out, text-decoration-color 150ms ease-out;
+
+    &:hover {
+      color: #f1d399;
+      text-decoration-color: currentcolor;
+    }
+  }
+}
+
+@keyframes tactics-portrait-enter {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-stones .path-stones__gardener-portrait { animation: none; }
+
+  .path-stones .path-stones__tools button,
+  .path-stones .path-stones__recenter,
+  .path-stones .path-stones__turn,
+  .path-stones .path-stones__source a { transition: none; }
+}
+
+.path-stones button:focus {
+  outline-color: var(--tactics-focus);
+}
+
+.stone-game-nav :is(a, summary):focus-visible {
+  outline: 2px solid #efd39a;
+  outline-offset: 3px;
+}
+
+.stone-game-help__panel {
+  border-radius: 2px;
+  border-color: #bca77580;
+  background: #192c35;
+  box-shadow: 0 16px 40px #0b182b99, inset 0 0 0 3px #bca77512;
+  transform-origin: top right;
+}
+
+.stone-game-help[open] .stone-game-help__panel {
+  animation: tactics-guide-enter 180ms ease-out;
+}
+
+@keyframes tactics-guide-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stone-game-help[open] .stone-game-help__panel { animation: none; }
+}
+
+/* Warm pools anchor the lamps; cool fill preserves detail in the far corner. */
+.path-stones .zazen-world__grade {
+  background:
+    radial-gradient(ellipse 56% 58% at 28% 20%, #ffe3a8b0, transparent 72%),
+    radial-gradient(ellipse 75% 65% at 80% 85%, #25496799, transparent 80%),
+    linear-gradient(125deg, #f8d99026, transparent 52%, #172d4938);
+}
+
+.zazen-world__light-pool {
+  position: absolute;
+  left: -16px;
+  top: 4px;
+  width: 96px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #ffe3a880 0%, #e8ab4433 38%, transparent 72%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: lantern-pool 5.6s ease-in-out infinite;
+}
+
+@keyframes lantern-pool {
+  0%, 100% { opacity: 0.72; }
+  46% { opacity: 1; }
+  54% { opacity: 0.86; }
+}
+
+.path-stones .zazen-world__npc,
+.path-stones .zazen-world__cat,
+.path-stones .zazen-world__companion-sprite,
+.path-stones .zazen-world__gardener-sprite {
+  filter: drop-shadow(1px 1px 0 #15252b66);
+}
+
+.path-stones .zazen-world__decor[src*="frog-life"],
+.path-stones .zazen-world__decor[src*="koi-life"],
+.path-stones .zazen-world__npc[src*="npc-3-life"] {
+  object-fit: none;
+  object-position: 0 0;
+}
+
+.path-stones .zazen-world__decor[src*="frog-life"] {
+  animation: frog-expression 7.4s steps(1, end) infinite, path-stones-hop 7.4s steps(1, end) infinite;
+}
+
+/* The whole fish turns with its wake; the sprite cell only drives its fins. */
+.path-stones .zazen-world__koi {
+  position: absolute;
+  left: 16px;
+  bottom: 37px;
+  width: 32px;
+  height: 64px;
+  pointer-events: none;
+  transform-origin: 16px 53px;
+  animation: koi-cruise 9s linear var(--swim-delay, 0s) infinite;
+
+  .zazen-world__decor {
+    inset: 0;
+    opacity: 0.8;
+    filter: none;
+    animation: koi-fins 800ms steps(1, end) infinite;
+  }
+
+  &::after {
+    position: absolute;
+    top: 51px;
+    left: 22px;
+    width: 9px;
+    height: 3px;
+    border-top: 1px solid #a9dad34d;
+    border-bottom: 1px solid #a9dad326;
+    content: "";
+    transform: skewX(-28deg);
+    animation: koi-wake 1.6s ease-out infinite;
+  }
+}
+
+.zazen-world__koi-surface {
+  position: absolute;
+  top: 48px;
+  left: 7px;
+  width: 16px;
+  height: 9px;
+  background: repeating-linear-gradient(170deg, transparent 0 3px, #79bec34a 3px 4px, transparent 4px 7px);
+  clip-path: polygon(0 45%, 28% 8%, 65% 0, 100% 45%, 65% 100%, 25% 85%);
+  animation: koi-refraction 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes koi-cruise {
+  0%, 100% { transform: translate(7px, 1px) scaleX(1) rotate(-5deg); }
+  44% { transform: translate(-7px, -2px) scaleX(1) rotate(5deg); }
+  50% { transform: translate(-8px, -2px) scaleX(-1) rotate(-5deg); }
+  94% { transform: translate(7px, 1px) scaleX(-1) rotate(5deg); }
+}
+
+@keyframes koi-wake {
+  from {
+    opacity: 0.55;
+    transform: translateX(-1px) skewX(-28deg) scaleX(0.7);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(4px) skewX(-28deg) scaleX(1.3);
+  }
+}
+
+@keyframes koi-refraction {
+  from {
+    opacity: 0.4;
+    translate: 0 -1px;
+  }
+
+  to {
+    opacity: 0.85;
+    translate: 1px 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-stones .zazen-world__koi,
+  .path-stones .zazen-world__koi::after,
+  .path-stones .zazen-world__koi .zazen-world__decor,
+  .zazen-world__koi-surface {
+    animation: none;
+  }
+}
+
+.path-stones .zazen-world__npc[src*="npc-3-life"] {
+  animation: seated-expression 8s steps(1, end) infinite;
+}
+
+@keyframes frog-expression {
+  0%, 36%, 64%, 100% { object-position: 0 0; }
+  22%, 72% { object-position: -32px 0; }
+  60% { object-position: -64px 0; }
+  84% { object-position: -96px 0; }
+}
+
+@keyframes koi-fins {
+  0%, 100% { object-position: 0 0; }
+  25% { object-position: -32px 0; }
+  50% { object-position: -64px 0; }
+  75% { object-position: -96px 0; }
+}
+
+@keyframes seated-expression {
+  0%, 42%, 74%, 100% { object-position: 0 0; }
+  30% { object-position: -24px 0; }
+  70% { object-position: -48px 0; }
+  88% { object-position: -72px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-stones .zazen-world__light-pool,
+  .path-stones .zazen-world__decor[src*="-life"],
+  .path-stones .zazen-world__npc[src*="-life"] {
+    animation: none;
+  }
+}
+
+.zazen-world__frog-actor {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  z-index: 2;
+  pointer-events: none;
+  transition: translate 460ms linear;
+}
+
+.path-stones .zazen-world__frog-actor .zazen-world__decor {
+  animation: frog-expression 4.8s steps(1, end) infinite;
+}
+
+.path-stones .zazen-world__frog-actor[data-hopping] .zazen-world__decor {
+  animation: frog-travel 460ms ease-out both;
+}
+
+@keyframes frog-travel {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(-10px); }
+}
+
+.zazen-world__companion[data-transforming] {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-stones .zazen-world__frog-actor { transition: none; }
+  .path-stones .zazen-world__frog-actor .zazen-world__decor { animation: none; }
+}
+
+/* The shadow travels with the actor, never with the destination tile. */
+.zazen-world__frog-shadow {
+  position: absolute;
+  top: 20px;
+  left: 22px;
+  width: 20px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #102c2842 0%, #102c2824 55%, transparent 78%);
+}
+
+.zazen-world__frog-actor[data-hopping] .zazen-world__frog-shadow {
+  animation: frog-shadow 460ms ease-out both;
+}
+
+@keyframes frog-shadow {
+  0%, 100% {
+    scale: 1;
+    opacity: 1;
+  }
+
+  45% {
+    scale: 0.7;
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__frog-actor[data-hopping] .zazen-world__frog-shadow {
+    animation: none;
+  }
+}
+
+/* Crisp sprite poses keep the head, body and wing joints coherent in flight. */
+.path-stones .zazen-world__bird {
+  width: 24px;
+  height: 16px;
+  filter: drop-shadow(0 1px 0 #152b3844);
+}
+
+.path-stones .zazen-world__bird::before,
+.path-stones .zazen-world__bird::after {
+  content: none;
+}
+
+.zazen-world__bird-body {
+  position: absolute;
+  inset: 0;
+  background: url("/images/zazen/fx/bird-flight.png") no-repeat;
+  image-rendering: pixelated;
+  animation: garden-bird-poses 2.8s steps(1, end) infinite;
+}
+
+.path-stones .zazen-world__bird--far {
+  scale: 1;
+  opacity: 0.65;
+}
+
+.zazen-world__bird--far .zazen-world__bird-body { animation-delay: -0.7s; }
+.zazen-world__bird--late .zazen-world__bird-body { animation-delay: -1.5s; }
+
+@keyframes garden-bird-poses {
+  0%, 28% {
+    background-position: 0 0;
+    transform: translateY(0);
+  }
+
+  3%, 31% { background-position: -24px 0; }
+
+  6%, 34% { background-position: -48px 0; }
+
+  9%, 37% { background-position: -72px 0; }
+
+  12%, 40% {
+    background-position: -96px 0;
+    transform: translateY(-1px);
+  }
+
+  16%, 44% { background-position: -120px 0; }
+
+  20%, 48% { background-position: -144px 0; }
+
+  24%, 52%, 100% {
+    background-position: -168px 0;
+    transform: translateY(0);
+  }
+}
+
+@keyframes path-stones-bird {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  5% { opacity: 0.85; }
+
+  18% { transform: translate(290px, 30px) rotate(-3deg); }
+
+  35% { transform: translate(600px, 100px) rotate(2deg); }
+
+  48% { opacity: 0.85; }
+
+  56%, 100% {
+    opacity: 0;
+    transform: translate(940px, 150px);
+  }
+}
+
+.path-stones .zazen-world__bird--far {
+  filter: opacity(0.6);
+}
+
+.zazen-world__cloud {
+  position: absolute;
+  top: 5%;
+  left: -220px;
+  width: 180px;
+  height: 54px;
+  opacity: 0;
+  background: linear-gradient(#f2edcf33, #cad9ce08);
+  clip-path: polygon(0 55%, 12% 55%, 12% 34%, 27% 34%, 27% 18%, 44% 18%, 44% 0, 64% 0, 64% 24%, 80% 24%, 80% 44%, 94% 44%, 94% 63%, 100% 63%, 100% 80%, 75% 80%, 75% 92%, 20% 92%, 20% 80%, 0 80%);
+  animation: garden-cloud 72s linear infinite;
+}
+
+.zazen-world__cloud--one { animation-delay: -18s; }
+
+.zazen-world__cloud--two {
+  top: 21%;
+  scale: 0.7;
+  animation-duration: 93s;
+  animation-delay: -58s;
+}
+
+@keyframes garden-cloud {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  12%, 80% { opacity: 0.65; }
+
+  100% {
+    opacity: 0;
+    transform: translate(1150px, 85px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__bird-body,
+  .zazen-world__cloud { animation: none; }
+}
+
+.zazen-world__cloud-shadows {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+  clip-path: polygon(50% 7%, 100% 47%, 50% 87%, 0 47%);
+
+  span {
+    position: absolute;
+    top: 17%;
+    left: -220px;
+    width: 240px;
+    height: 100px;
+    background: radial-gradient(ellipse, #142f3921, transparent 70%);
+    animation: garden-cloud 72s linear -18s infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__cloud-shadows span { animation: none; }
+}
+
+.zazen-world__mermaid-sprite {
+  background: url("/images/zazen/persos/mermaid-life.png") no-repeat;
+  animation: mermaid-tail 2.4s steps(1, end) infinite;
+}
+
+.zazen-world__companion[data-aquatic]::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 28px;
+  width: 32px;
+  height: 10px;
+  border: 1px solid #b4e1d477;
+  border-radius: 50%;
+  background: #5b939226;
+  animation: mermaid-water 3s ease-out infinite;
+}
+
+@keyframes mermaid-tail {
+  0%, 100% { background-position: 0 0; }
+  25% { background-position: -24px 0; }
+  50% { background-position: -48px 0; }
+  75% { background-position: -72px 0; }
+}
+
+@keyframes mermaid-water {
+  from {
+    scale: 0.8;
+    opacity: 0.7;
+  }
+
+  to {
+    scale: 1.3;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__mermaid-sprite,
+  .zazen-world__companion[data-aquatic]::before { animation: none; }
+}
+
+.zazen-world__gardener-actor[data-activity="attack"] .zazen-world__gardener-sprite {
+  width: 64px;
+  background: url("/images/zazen/persos/gardener-strike.png") no-repeat;
+  transform-origin: 16px 100%;
+  animation: gardener-strike 800ms steps(1, end) both;
+}
+
+.zazen-world__attack-loss {
+  position: absolute;
+  z-index: 8;
+  margin: -20px 0 0 8px;
+  color: #ffd6b0;
+  padding: 3px 6px;
+  background: #643d3a;
+  border: 1px solid #df9e75;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: gardener-loss 800ms ease-out both;
+}
+
+@keyframes gardener-strike {
+  0% { background-position: 0 0; }
+  15% { background-position: -64px 0; }
+  35% { background-position: -128px 0; }
+  45% { background-position: -192px 0; }
+  65% { background-position: -256px 0; }
+  90%, 100% { background-position: -320px 0; }
+}
+
+.zazen-world__attack-loss::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 30px;
+  width: 4px;
+  height: 4px;
+  background: #e9d5a3;
+  box-shadow: -8px 2px #bda785, 7px -3px #f4e5be, 3px 7px #bda785;
+  animation: gardener-chip 440ms ease-out 360ms both;
+}
+
+@keyframes gardener-chip {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(0.5);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(1.5);
+  }
+}
+
+@keyframes gardener-loss {
+  from { transform: translateY(4px); }
+  to { transform: translateY(-12px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__gardener-actor[data-activity="attack"] .zazen-world__gardener-sprite,
+  .zazen-world__attack-loss,
+  .zazen-world__attack-loss::before { animation: none; }
+}
+
+/* Hover feedback must never move the hit areas under a stationary pointer. */
+.path-stones .path-stones__quote {
+  display: grid;
+  width: min(100%, 300px);
+  align-items: center;
+
+  > span {
+    grid-area: 1 / 1;
+    overflow-wrap: anywhere;
+  }
+
+  .path-stones__quote-reserve {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}

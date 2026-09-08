@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PALETTE } from "../../scripts/zazen-art/palette.mjs";
-import { SPRITES } from "../../scripts/zazen-art/sprites.mjs";
+import { SPRITES, GROUND_VARIANTS } from "../../scripts/zazen-art/sprites.mjs";
 
 interface Sprite {
   width: number;
@@ -13,21 +13,21 @@ interface Sprite {
 const sprites: Record<string, Sprite> = SPRITES;
 
 const ALLOWED = new Set([
-  "#f2ece0",
-  "#e6dccb",
-  "#d4c7b2",
-  "#a8b295",
-  "#8b9a78",
-  "#6d7d5c",
-  "#c3cbc9",
-  "#93a3a3",
-  "#6a7c80",
-  "#cdbfba",
-  "#a8968f",
-  "#7d6c68",
-  "#c2566e",
-  "#9b3f56",
-  "#6e2b3e",
+  "#ecdcb4",
+  "#d4bd94",
+  "#ac916b",
+  "#a4b878",
+  "#748f60",
+  "#425e48",
+  "#91beb1",
+  "#5b9392",
+  "#38636e",
+  "#d6c4a7",
+  "#a9977c",
+  "#756b58",
+  "#d9838d",
+  "#ad4d64",
+  "#70354b",
   "#4a4038",
   "#2e2721",
 ]);
@@ -60,6 +60,7 @@ const REQUIRED = [
   "pilgrim",
   "npc-2",
   "npc-3",
+  "bird-flight",
   "dust-puff",
   "ripple",
 ];
@@ -147,11 +148,7 @@ describe("sprites", () => {
     const { rows } = sprites["water-still"];
     const frame = (index: number) => rows.slice(index * 64, index * 64 + 64);
     const changed = (a: string[], b: string[]) =>
-      a.reduce(
-        (total, row, y) =>
-          total + [...row].filter((char, x) => char !== b[y][x]).length,
-        0,
-      );
+      a.reduce((total, row, y) => total + [...row].filter((char, x) => char !== b[y][x]).length, 0);
 
     const steps = Array.from({ length: 8 }, (_unused, index) =>
       changed(frame(index), frame((index + 1) % 8)),
@@ -172,6 +169,158 @@ describe("sprites", () => {
       const used = new Set(sprites[name].rows.join("").split(""));
       for (const char of roseChars) {
         expect(used.has(char), `${name} uses rose "${char}"`).toBe(false);
+      }
+    }
+  });
+});
+
+describe("character animation sheets", () => {
+  it("provides four distinct frames for each cat behavior and NPC-2 cycle", () => {
+    for (const [name, height, rows] of [
+      ["cat-walk", 24, 3],
+      ["npc-2-life", 40, 2],
+    ] as const) {
+      const sheet = sprites[name];
+      expect(sheet).toBeDefined();
+      expect(sheet.width).toBe(96);
+      expect(sheet.height).toBe(height * rows);
+      for (let row = 0; row < rows; row++) {
+        const frames = Array.from({ length: 4 }, (_, frame) =>
+          sheet.rows
+            .slice(row * height, (row + 1) * height)
+            .map((line) => line.slice(frame * 24, (frame + 1) * 24))
+            .join(""),
+        );
+        expect(new Set(frames).size, `${name} row ${row}`).toBe(4);
+      }
+    }
+  });
+});
+
+describe("ground variations", () => {
+  it("carries grass speckles onto every edge without a bare border", () => {
+    for (const [name, soil] of [
+      ["sand-moss", "a"],
+      ["moss-mid", "d"],
+      ["moss-deep", "e"],
+    ]) {
+      const entry = sprites[name];
+      const edges = [[], [], [], []] as string[][];
+      for (let y = 0; y < 32; y++) {
+        const half = y < 16 ? (y + 1) * 2 : (32 - y) * 2;
+        for (let inset = 0; inset < Math.min(4, half); inset++) {
+          edges[y < 16 ? 0 : 2].push(entry.rows[y][32 - half + inset]);
+          edges[y < 16 ? 1 : 3].push(entry.rows[y][31 + half - inset]);
+        }
+      }
+      for (const edge of edges) {
+        expect(edge.filter((pixel) => pixel !== soil).length / edge.length).toBeGreaterThan(0.06);
+      }
+    }
+  });
+
+  it("provides four distinct interiors with identical four-sided edge bands", () => {
+    for (const name of GROUND_VARIANTS) {
+      const variants = [name, ...[1, 2, 3].map((v) => `${name}-v${v}`)].map((key) => sprites[key]);
+      expect(new Set(variants.map((entry) => entry.rows.join(""))).size).toBe(4);
+      for (const entry of variants) {
+        expect(entry.width).toBe(64);
+        expect(entry.height).toBe(64);
+        for (let y = 0; y < 32; y++) {
+          const half = y < 16 ? (y + 1) * 2 : (32 - y) * 2;
+          for (let x = 32 - half; x < 32 + half; x++) {
+            if (half - Math.abs(x - 31.5) < 5) {
+              expect(entry.rows[y][x], `${name} edge ${x},${y}`).toBe(variants[0].rows[y][x]);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  it("keeps rake lines in phase across both isometric neighbour directions", () => {
+    for (let variant = 0; variant < 4; variant++) {
+      const entry = sprites[variant ? `sand-0-v${variant}` : "sand-0"];
+      for (let y = 0; y < 16; y++) {
+        const half = (y + 1) * 2;
+        for (const x of [32 - half, 31 + half]) {
+          const neighbourX = x < 32 ? x + 32 : x - 32;
+          expect(entry.rows[y][x]).toBe(entry.rows[y + 16][neighbourX]);
+        }
+      }
+    }
+  });
+});
+
+describe("ambient character sheets", () => {
+  it("keeps each actor in a fixed cell with four distinct gestures", () => {
+    for (const [name, width, height] of [
+      ["frog-life", 32, 64],
+      ["koi-life", 32, 64],
+      ["npc-3-life", 24, 40],
+    ] as const) {
+      const entry = sprites[name];
+      expect(entry.width).toBe(width * 4);
+      expect(entry.height).toBe(height);
+      const frames = [0, 1, 2, 3].map((frame) =>
+        entry.rows.map((row) => row.slice(frame * width, (frame + 1) * width)).join(""),
+      );
+      expect(new Set(frames).size).toBe(4);
+    }
+  });
+});
+
+describe("pilgrim rest poses", () => {
+  it("keeps the footing fixed in every gesture and direction", () => {
+    const entry = sprites["pilgrim-idle"];
+    expect([entry.width, entry.height]).toEqual([96, 160]);
+    for (let facing = 0; facing < 4; facing++) {
+      const frames = [0, 1, 2, 3].map((frame) =>
+        entry.rows
+          .slice(facing * 40, (facing + 1) * 40)
+          .map((row) => row.slice(frame * 24, (frame + 1) * 24)),
+      );
+      expect(new Set(frames.map((frame) => frame.join(""))).size).toBe(4);
+      for (const frame of frames) expect(frame.slice(33)).toEqual(frames[0].slice(33));
+    }
+  });
+});
+
+describe("bird flight poses", () => {
+  it("has eight native-size frames with a steady head and distinct wings", () => {
+    const bird = sprites["bird-flight"];
+    expect(bird.width).toBe(192);
+    expect(bird.height).toBe(16);
+    const frames = Array.from({ length: 8 }, (_, frame) =>
+      bird.rows.map((row) => row.slice(frame * 24, (frame + 1) * 24)),
+    );
+    expect(new Set(frames.map((rows) => rows.join(""))).size).toBe(8);
+    for (const rows of frames) {
+      expect(rows[6][18]).toBe("q");
+    }
+  });
+});
+
+describe("cat tail", () => {
+  it("keeps the fine tail connected to the hip in every pose", () => {
+    const sheet = sprites["cat-walk"];
+    for (let row = 0; row < 3; row++) {
+      for (let frame = 0; frame < 4; frame++) {
+        const pixel = (x: number, y: number) => sheet.rows[row * 24 + y][frame * 24 + x];
+        const seen = new Set<string>();
+        const queue = [[6, 13]];
+        while (queue.length) {
+          const [x, y] = queue.shift()!;
+          const key = `${x},${y}`;
+          if (x < 0 || x > 6 || y < 0 || y > 15 || seen.has(key) || pixel(x, y) === ".") continue;
+          seen.add(key);
+          queue.push([x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]);
+        }
+        for (let y = 0; y < 10; y++) {
+          for (let x = 0; x < 6; x++) {
+            if (pixel(x, y) !== ".") expect(seen.has(`${x},${y}`)).toBe(true);
+          }
+        }
       }
     }
   });

@@ -1,7 +1,10 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface ZazenAudio {
-  playBell: () => void;
+  stopEffects: () => void;
+  playAttack: () => void;
+  playReveal: () => void;
+  playVictory: () => void;
   playChime: () => void;
   playStoneDrop: () => void;
 }
@@ -12,7 +15,7 @@ const CHIME_ATTACK_S = 0.02;
 const CHIME_RELEASE_S = 0.22;
 const CHIME_STOP_S = 0.23;
 
-// A stone leaving your hand. The chime is a reward and the bell is an ending, so this
+// A stone leaving your hand. The chime is a reward and the bowl is an ending, so this
 // had to be neither: a low knock with no pitch to speak of, plus a short hiss of sand
 // displaced around it. It is the only sound in the garden that costs you something, and
 // it should land in the chest rather than the ear.
@@ -24,17 +27,8 @@ const DROP_SAND_S = 0.19;
 const DROP_SAND_GAIN = 0.055;
 const DROP_SAND_HIGHPASS = 1400;
 
-const BELL_LOWPASS_FREQ = 2000;
-const BELL_DURATION_S = 1.5;
-const BELL_STOP_PADDING_S = 0.1;
-const BELL_FUNDAMENTAL = 220;
-const BELL_OVERTONE = 880;
-const BELL_BODY = 660;
-const BELL_PEAK_FUNDAMENTAL = 0.25;
-const BELL_PEAK_OVERTONE = 0.12;
-const BELL_PEAK_BODY = 0.08;
-const BELL_ATTACK_S = 0.05;
-const BELL_FLOOR = 0.001;
+const DROP_STOP_PADDING_S = 0.1;
+const GAIN_FLOOR = 0.001;
 
 type AudioCtor = typeof AudioContext;
 
@@ -52,13 +46,21 @@ const getAudioContextCtor = (): AudioCtor | null => {
   return ctor;
 };
 
-const useZazenAudio = (): ZazenAudio => {
+const useZazenAudio = (enabled = true): ZazenAudio => {
+  const [activated, setActivated] = useState(enabled);
+  if (enabled && !activated) setActivated(true);
+  const samples = useRef<Partial<Record<"attack" | "reveal" | "victory", AudioBuffer>>>({});
+  const playing = useRef(new Set<AudioBufferSourceNode>());
   const ctxRef = useRef<AudioContext | null>(null);
+  const stopEffects = useCallback(() => {
+    playing.current.forEach((source) => source.stop());
+    playing.current.clear();
+  }, []);
 
   const ensureContext = useCallback((): AudioContext | null => {
     if (ctxRef.current) {
       if (ctxRef.current.state === "suspended") {
-        void ctxRef.current.resume();
+        void ctxRef.current.resume().catch(() => {});
       }
       return ctxRef.current;
     }
@@ -73,6 +75,75 @@ const useZazenAudio = (): ZazenAudio => {
       return null;
     }
   }, []);
+
+  useEffect(() => {
+    if (!activated) return;
+    const ctx = ensureContext();
+    if (!ctx) return;
+    const controller = new AbortController();
+    for (const [kind, file] of [
+      ["attack", "gardener-hit"],
+      ["reveal", "card-reveal"],
+      ["victory", "gate-bowl"],
+    ] as const) {
+      void fetch(`/sounds/garden/${file}.mp3`, { signal: controller.signal })
+        .then((response) => {
+          if (!response.ok) throw new Error("Sound unavailable");
+          return response.arrayBuffer();
+        })
+        .then((bytes) => ctx.decodeAudioData(bytes))
+        .then((buffer) => {
+          if (!controller.signal.aborted) samples.current[kind] = buffer;
+        })
+        .catch(() => {
+          /* A missing sound must never interrupt play. */
+        });
+    }
+    const unlock = () => {
+      void ctx.resume().catch(() => {});
+    };
+    window.addEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock);
+    return () => {
+      controller.abort();
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+      stopEffects();
+      samples.current = {};
+      void ctx.close().catch(() => {});
+      ctxRef.current = null;
+    };
+  }, [activated, ensureContext, stopEffects]);
+
+  useEffect(() => {
+    if (!enabled) {
+      stopEffects();
+    }
+  }, [enabled, stopEffects]);
+
+  const playSample = useCallback(
+    (kind: "attack" | "reveal" | "victory", delay = 0) => {
+      const ctx = ctxRef.current;
+      const buffer = samples.current[kind];
+      // Never queue a late sound if the browser has not unlocked audio yet.
+      if (!enabled || !ctx || ctx.state !== "running" || !buffer) return;
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      source.buffer = buffer;
+      gain.gain.value = kind === "attack" ? 0.55 : kind === "victory" ? 0.3 : 0.45;
+      source.connect(gain).connect(ctx.destination);
+      playing.current.add(source);
+      source.onended = () => {
+        playing.current.delete(source);
+        source.disconnect();
+        gain.disconnect();
+      };
+      source.start(ctx.currentTime + delay);
+    },
+    [enabled],
+  );
+  const playAttack = useCallback(() => playSample("attack", 0.36), [playSample]);
+  const playReveal = useCallback(() => playSample("reveal"), [playSample]);
 
   const playChime = useCallback(() => {
     const ctx = ensureContext();
@@ -96,38 +167,7 @@ const useZazenAudio = (): ZazenAudio => {
     }
   }, [ensureContext]);
 
-  const playBell = useCallback(() => {
-    const ctx = ensureContext();
-    if (!ctx) {
-      return;
-    }
-    try {
-      const now = ctx.currentTime;
-      const lowpass = ctx.createBiquadFilter();
-      lowpass.type = "lowpass";
-      lowpass.frequency.setValueAtTime(BELL_LOWPASS_FREQ, now);
-      lowpass.connect(ctx.destination);
-
-      const makeTone = (frequency: number, peak: number) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(frequency, now);
-        gain.gain.setValueAtTime(BELL_FLOOR, now);
-        gain.gain.linearRampToValueAtTime(peak, now + BELL_ATTACK_S);
-        gain.gain.exponentialRampToValueAtTime(BELL_FLOOR, now + BELL_DURATION_S);
-        osc.connect(gain).connect(lowpass);
-        osc.start(now);
-        osc.stop(now + BELL_DURATION_S + BELL_STOP_PADDING_S);
-      };
-
-      makeTone(BELL_FUNDAMENTAL, BELL_PEAK_FUNDAMENTAL);
-      makeTone(BELL_OVERTONE, BELL_PEAK_OVERTONE);
-      makeTone(BELL_BODY, BELL_PEAK_BODY);
-    } catch {
-      /* swallow */
-    }
-  }, [ensureContext]);
+  const playVictory = useCallback(() => playSample("victory"), [playSample]);
 
   const playStoneDrop = useCallback(() => {
     const ctx = ensureContext();
@@ -145,10 +185,10 @@ const useZazenAudio = (): ZazenAudio => {
       thud.frequency.setValueAtTime(DROP_THUD_FROM, now);
       thud.frequency.exponentialRampToValueAtTime(DROP_THUD_TO, now + DROP_THUD_S);
       thudGain.gain.setValueAtTime(DROP_THUD_GAIN, now);
-      thudGain.gain.exponentialRampToValueAtTime(BELL_FLOOR, now + DROP_THUD_S);
+      thudGain.gain.exponentialRampToValueAtTime(GAIN_FLOOR, now + DROP_THUD_S);
       thud.connect(thudGain).connect(ctx.destination);
       thud.start(now);
-      thud.stop(now + DROP_THUD_S + BELL_STOP_PADDING_S);
+      thud.stop(now + DROP_THUD_S + DROP_STOP_PADDING_S);
 
       // The sand. White noise through a highpass, gone almost before you hear it.
       const frames = Math.floor(ctx.sampleRate * DROP_SAND_S);
@@ -164,7 +204,7 @@ const useZazenAudio = (): ZazenAudio => {
       highpass.frequency.setValueAtTime(DROP_SAND_HIGHPASS, now);
       const sandGain = ctx.createGain();
       sandGain.gain.setValueAtTime(DROP_SAND_GAIN, now);
-      sandGain.gain.exponentialRampToValueAtTime(BELL_FLOOR, now + DROP_SAND_S);
+      sandGain.gain.exponentialRampToValueAtTime(GAIN_FLOOR, now + DROP_SAND_S);
       sand.connect(highpass).connect(sandGain).connect(ctx.destination);
       sand.start(now);
     } catch {
@@ -172,7 +212,10 @@ const useZazenAudio = (): ZazenAudio => {
     }
   }, [ensureContext]);
 
-  return { playBell, playChime, playStoneDrop };
+  return useMemo(
+    () => ({ stopEffects, playVictory, playChime, playStoneDrop, playAttack, playReveal }),
+    [stopEffects, playVictory, playChime, playStoneDrop, playAttack, playReveal],
+  );
 };
 
 export default useZazenAudio;

@@ -91,3 +91,16 @@ describe("day beds", () => {
     }
   });
 });
+
+it("normalizes partial metadata while preserving valid activity", () => {
+  const days = Array.from({ length: WINDOW_DAYS }, () => ({
+    date: "2026-09-01",
+    count: 2,
+    repo: "garden",
+    language: "TypeScript",
+  }));
+  const parsed = parseGardenSeed({ days, totalContributions: Infinity });
+  expect(parsed).toMatchObject({ generatedAt: "", login: "", totalContributions: 0 });
+  expect(parsed.days[0]).toEqual(days[0]);
+  expect(parseGardenSeed({ days: [42, ...days.slice(1)] })).toBe(FALLBACK_SEED);
+});

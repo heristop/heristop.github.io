@@ -3,5 +3,24 @@
     "no-duplicate-imports": "off",
     "init-declarations": "off",
     "import/no-named-export": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/components/client/garden/**/*.{ts,tsx}"
+      ],
+      "plugins": [
+        "unicorn",
+        "typescript",
+        "oxc",
+        "react"
+      ],
+      "rules": {
+        "react/rules-of-hooks": "error",
+        "react/exhaustive-deps": "error",
+        "react/refs": "error",
+        "react/set-state-in-effect": "error"
+      }
+    }
+  ]
 }

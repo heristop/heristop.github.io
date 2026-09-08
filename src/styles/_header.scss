@@ -926,3 +926,53 @@ body.mobile-menu-open {
     max-height: 50vh;
   }
 }
+
+
+.header__new-badge {
+  position: absolute;
+  top: -0.65rem;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid #a9b586;
+  border-radius: 5px 5px 5px 1px;
+  background: linear-gradient(135deg, #365748, #203e34);
+  color: #fff0bd;
+  box-shadow: 0 2px 5px #243d3020, inset 0 1px #ffffff18;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateX(-50%) rotate(-5deg);
+  transition: transform 180ms ease-out;
+
+  &::before {
+    content: "";
+    width: 4px;
+    height: 4px;
+    background: #e6bc79;
+    transform: rotate(45deg);
+  }
+}
+
+.header__link--mobile .header__new-badge {
+  top: 0.1rem;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .header__link:hover .header__new-badge {
+    transform: translateX(-50%) translateY(-2px) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header__new-badge {
+    transition: none;
+  }
+}

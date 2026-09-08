@@ -26,8 +26,7 @@ const isWalkableTile = (tile: MapTile): boolean => isClear(tile) && !isRakedSand
 // could not honour.
 const canPaveTile = (tile: MapTile): boolean => isClear(tile) && isRakedSand(tile);
 
-// Laying a stone is permanent. The garden remembers where you chose to cross, which is
-// what makes the choice cost something.
+// A laid path remains firm until a later gardener turn reclaims it.
 const layStoneAt = (map: readonly MapTile[], position: Position): MapTile[] =>
   map.map((tile) =>
     tile.posX === position.posX && tile.posY === position.posY
@@ -70,8 +69,8 @@ const findWalkablePath = (
   const seen = new Set<string>([positionKey(from)]);
   const queue: Position[] = [from];
 
-  while (queue.length > 0) {
-    const current = queue.shift() as Position;
+  for (let head = 0; head < queue.length; head++) {
+    const current = queue[head];
     for (const direction of ["N", "E", "S", "W"] as const) {
       const next = applyDirectionOffset(direction, current.posX, current.posY);
       const nextKey = positionKey(next);
@@ -85,10 +84,10 @@ const findWalkablePath = (
         const path: Position[] = [];
         let cursor: Position | undefined = next;
         while (cursor && positionKey(cursor) !== positionKey(from)) {
-          path.unshift(cursor);
+          path.push(cursor);
           cursor = parents.get(positionKey(cursor));
         }
-        return path;
+        return path.reverse();
       }
       queue.push(next);
     }
@@ -125,6 +124,14 @@ const KEY_DIRECTIONS: Record<string, Direction> = {
 };
 
 const handleKeyDirection = (ev: KeyboardEvent, move: (dir: Direction) => void): void => {
+  if (ev.defaultPrevented || ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  if (
+    ev.target instanceof Element &&
+    ev.target.closest(
+      "button, a, input, textarea, select, summary, [contenteditable], [role=button]",
+    )
+  )
+    return;
   const direction = KEY_DIRECTIONS[ev.key.toLowerCase()];
   if (!direction) {
     return;

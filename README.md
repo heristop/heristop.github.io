@@ -35,6 +35,23 @@ pnpm dev
 
 See `package.json` for the full list of scripts (build, lint, tests, visual tests, image optimization).
 
+Run `pnpm test:garden:coverage` to test Path of Stones and generate `coverage/garden/index.html`.
+CI requires at least 90% line, statement, function and branch coverage across the complete garden module.
+
+With a production preview running, use `pnpm benchmark:garden` to measure the opening turn and
+24 walking steps on desktop and mobile emulation. Pass `--url=http://localhost:4327/path-of-stones/`
+for another preview or `--cpu=4` to simulate a slower CPU. The report includes frame cadence,
+long frames and JavaScript/layout work; validate the 60 FPS target on physical devices too.
+
+The hybrid WebGL board is the default when supported. The in-game **HD-2D** toggle
+switches instantly to the classic renderer and remembers the preference on this device.
+React retains rules, menus, cards, controls, accessible tile targets and atmospheric overlays;
+Pixi renders terrain, scenery and animated characters in WebGL. Use `?renderer=dom` or `?renderer=webgl` for explicit comparisons. Graphics initialization or context loss returns to that
+renderer without resetting the run. The WebGL bundle loads only when HD-2D is enabled and supported.
+Compare with `pnpm benchmark:garden --url="http://127.0.0.1:4327/path-of-stones/?renderer=webgl"`. Measurements report browser frame cadence and
+main-thread work, not guaranteed GPU frame presentation. The report identifies the GPU backend;
+use `--angle=metal` on macOS to compare with the Apple GPU instead of software rendering.
+
 ## Author
 
 **Alexandre Mogère** — [GitHub](https://github.com/heristop) · [LinkedIn](https://linkedin.com/in/alexandre-mogere) · [Bluesky](https://bsky.app/profile/heristop.bsky.social)

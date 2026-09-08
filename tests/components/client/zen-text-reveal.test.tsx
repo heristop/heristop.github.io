@@ -1,5 +1,7 @@
-import { render, waitFor } from "@testing-library/react";
+import { act, render, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderToString } from "react-dom/server";
+import { hydrateRoot } from "react-dom/client";
 import ZenTextReveal from "../../../src/components/client/zen-text-reveal";
 
 type MediaQueryListener = (event: MediaQueryListEvent) => void;
@@ -35,6 +37,23 @@ beforeEach(() => {
 });
 
 describe("<ZenTextReveal />", () => {
+  it("hydrates server text on mobile without replacing mismatched markup", async () => {
+    mockMatchMedia(false);
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<ZenTextReveal text="quiet mind" mobileStrategy="text" />);
+    document.body.append(container);
+    mockMatchMedia(true);
+    const onRecoverableError = vi.fn();
+    let root: ReturnType<typeof hydrateRoot>;
+    await act(async () => {
+      root = hydrateRoot(container, <ZenTextReveal text="quiet mind" mobileStrategy="text" />, { onRecoverableError });
+    });
+    expect(onRecoverableError).not.toHaveBeenCalled();
+    expect(container.textContent).toBe("quiet mind");
+    await act(async () => { root.unmount(); });
+    container.remove();
+  });
+
   it("renders a span tag by default with aria-label", () => {
     const { container } = render(<ZenTextReveal text="quiet mind" />);
     const node = container.querySelector("span[aria-label='quiet mind']");
