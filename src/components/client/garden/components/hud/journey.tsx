@@ -25,34 +25,18 @@ export default function Journey({
   summary?: boolean;
   mermaidAwakened?: boolean;
 }) {
-  const [best, setBest] = useState(() => readBest(recordKey));
-  const [newRecord, setNewRecord] = useState(false);
   const score = scoreWalk(walk).total;
+  const record = (
+    <JourneyRecord
+      key={`${recordKey}-${complete ? score : "walking"}`}
+      recordKey={recordKey}
+      complete={complete}
+      score={score}
+      summary={summary}
+    />
+  );
 
-  useEffect(() => {
-    if (!complete) {
-      setNewRecord(false);
-      return;
-    }
-    const previous = readBest(recordKey);
-    setBest(Math.max(previous, score));
-    setNewRecord(score > previous);
-    try {
-      window.localStorage.setItem(recordKey, String(Math.max(previous, score)));
-    } catch {
-      // Records are optional; private browsing must never interrupt a completed run.
-    }
-  }, [complete, recordKey, score]);
-
-  if (summary) {
-    return (
-      <div className="path-stones__record" aria-live="polite">
-        <span>{newRecord ? "New personal best" : "Garden best"}</span>
-        <strong>{best.toLocaleString("en-US")}</strong>
-        <small>Saved on this device</small>
-      </div>
-    );
-  }
+  if (summary) return record;
 
   return (
     <details className="path-stones__journey" aria-label="Run performance and challenges">
@@ -84,12 +68,42 @@ export default function Journey({
           catMet={!!walk.catMet}
           frogFreed={!!walk.frogFreed}
         />
-        <div className="path-stones__record" aria-live="polite">
-          <span>{newRecord ? "New personal best" : "Garden best"}</span>
-          <strong>{best ? best.toLocaleString("en-US") : "—"}</strong>
-          <small>{best ? "Saved on this device" : "No completed run yet"}</small>
-        </div>
+        {record}
       </div>
     </details>
+  );
+}
+
+function JourneyRecord({
+  recordKey,
+  complete,
+  score,
+  summary,
+}: {
+  recordKey: string;
+  complete: boolean;
+  score: number;
+  summary: boolean;
+}) {
+  // Keep the pre-completion record for this result's lifetime, including effect replays.
+  const [previous] = useState(() => readBest(recordKey));
+  const best = complete ? Math.max(previous, score) : previous;
+  const newRecord = complete && score > previous;
+
+  useEffect(() => {
+    if (!complete) return;
+    try {
+      window.localStorage.setItem(recordKey, String(Math.max(readBest(recordKey), best)));
+    } catch {
+      // Records are optional; private browsing must never interrupt a completed run.
+    }
+  }, [best, complete, recordKey]);
+
+  return (
+    <div className="path-stones__record" aria-live="polite">
+      <span>{newRecord ? "New personal best" : "Garden best"}</span>
+      <strong>{best || summary ? best.toLocaleString("en-US") : "—"}</strong>
+      <small>{best || summary ? "Saved on this device" : "No completed run yet"}</small>
+    </div>
   );
 }

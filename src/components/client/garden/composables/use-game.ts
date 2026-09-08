@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import { useCallback, useEffect, useEffectEvent, useMemo, useReducer, useRef } from "react";
 import type { GardenSeed } from "../schema";
 import { FALLBACK_SEED, STONE_COUNT } from "../schema";
 import type { Direction, HaikuEntry, MapTile, Position } from "../types";
@@ -85,6 +85,7 @@ interface ZazenGameState extends GameState {
 }
 
 type Action =
+  | { type: "move"; direction: Direction }
   | { type: "arrive"; position: Position }
   | { type: "lay"; position: Position }
   | { type: "restart"; frogRoll: number }
@@ -279,11 +280,23 @@ const handToGardener = (state: GameState): GameState => {
   };
 };
 
-const makeReducer =
-  (layout: GardenLayout) =>
-  (state: GameState, action: Action): GameState => {
+const makeReducer = (layout: GardenLayout) =>
+  function reduce(state: GameState, action: Action): GameState {
     const shrine = layout.shrine;
     switch (action.type) {
+      case "move": {
+        if (state.finaleOpen || state.phase !== "player") return state;
+        const result = performMove(action.direction, state.position, state.map);
+        if (result) return reduce(state, { type: "arrive", position: result.newPosition });
+        const target = applyDirectionOffset(
+          action.direction,
+          state.position.posX,
+          state.position.posY,
+        );
+        const tile = tileAt(state.map, target);
+        if (state.stonesLeft <= 0 || !tile || !canPaveTile(tile)) return state;
+        return reduce(state, { type: "lay", position: target });
+      }
       case "hopFrog": {
         if (
           state.phase !== "player" ||
@@ -478,8 +491,10 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
 
   // Side effects live outside the reducer, which has to stay pure. Watching the state
   // it produced is also what keeps audio and petals in step with the announcement.
-  const optionsRef = useRef(options);
-  optionsRef.current = options;
+  const onStoneCollected = useEffectEvent((index: number) => options.onStoneCollected?.(index));
+  const onShrineActivated = useEffectEvent(() => options.onShrineActivated?.());
+  const onFinaleOpened = useEffectEvent(() => options.onFinaleOpened?.());
+  const onStoneLaid = useEffectEvent((position: Position) => options.onStoneLaid?.(position));
   const lastStoneCount = useRef(0);
 
   useEffect(() => {
@@ -493,20 +508,20 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
       lastStoneCount.current = state.stonesFound.length;
       const latest = state.stonesFound.at(-1);
       if (latest !== undefined) {
-        optionsRef.current.onStoneCollected?.(latest);
+        onStoneCollected(latest);
       }
     }
   }, [state.stonesFound]);
 
   useEffect(() => {
     if (state.shrineActivated) {
-      optionsRef.current.onShrineActivated?.();
+      onShrineActivated();
     }
   }, [state.shrineActivated]);
 
   useEffect(() => {
     if (state.finaleOpen) {
-      optionsRef.current.onFinaleOpened?.();
+      onFinaleOpened();
     }
   }, [state.finaleOpen]);
 
@@ -520,7 +535,7 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
     if (state.stonesLaid > lastLaidCount.current) {
       lastLaidCount.current = state.stonesLaid;
       if (state.lastLaid) {
-        optionsRef.current.onStoneLaid?.(state.lastLaid);
+        onStoneLaid(state.lastLaid);
       }
     }
   }, [state.lastLaid, state.stonesLaid]);
@@ -536,28 +551,9 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
   // One verb with two prices. Stepping onto firm ground is free; stepping onto raked sand
   // spends a stone and pays for the crossing permanently. The player performs the same
   // gesture either way — the garden decides what it costs.
-  const move = useCallback(
-    (direction: Direction) => {
-      if (state.finaleOpen || state.phase !== "player") {
-        return;
-      }
-      const result = performMove(direction, state.position, state.map);
-      if (result) {
-        dispatch({ position: result.newPosition, type: "arrive" });
-        return;
-      }
-      if (state.stonesLeft <= 0) {
-        return;
-      }
-      const target = applyDirectionOffset(direction, state.position.posX, state.position.posY);
-      const tile = tileAt(state.map, target);
-      if (!tile || !canPaveTile(tile)) {
-        return;
-      }
-      dispatch({ position: target, type: "lay" });
-    },
-    [state.finaleOpen, state.phase, state.map, state.position, state.stonesLeft],
-  );
+  const move = useCallback((direction: Direction) => {
+    dispatch({ type: "move", direction });
+  }, []);
 
   const dismissFinale = useCallback(() => {
     dispatch({ type: "dismissFinale" });

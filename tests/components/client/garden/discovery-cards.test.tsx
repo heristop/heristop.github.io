@@ -33,6 +33,26 @@ it("clears a pending reveal on restart and lets the new run earn it again", () =
   expect(screen.getByRole("status")).toHaveTextContent("Frog freed");
 });
 
+it("discards an unfinished frog reveal when a new run immediately befriends the cat", () => {
+  const complete = vi.fn();
+  const { rerender } = render(
+    <DiscoveryReveal key={0} catMet frogFreed onComplete={complete} />,
+  );
+  act(() => vi.advanceTimersByTime(1450));
+  act(() => vi.advanceTimersByTime(2600));
+  expect(screen.getByRole("status")).toHaveTextContent("Frog freed");
+  complete.mockClear();
+  rerender(<DiscoveryReveal key={1} catMet frogFreed={false} paused onComplete={complete} />);
+  act(() => vi.advanceTimersByTime(5000));
+  expect(complete).not.toHaveBeenCalled();
+  rerender(<DiscoveryReveal key={1} catMet frogFreed={false} onComplete={complete} />);
+  act(() => vi.advanceTimersByTime(1450));
+  expect(screen.getByRole("status")).toHaveTextContent("Cat befriended");
+  act(() => vi.advanceTimersByTime(5200));
+  expect(complete).toHaveBeenCalledExactlyOnceWith("cat");
+  expect(screen.queryByRole("status")).toBeNull();
+});
+
 it("keeps collected cards and shows the pair bonus only once both are earned", () => {
   const { rerender } = render(<DiscoveryCollection catMet frogFreed={false} />);
   expect(screen.getByText("Cat befriended")).toBeInTheDocument();
@@ -63,9 +83,7 @@ it("keeps the secret out of the journal until the mermaid awakens", () => {
 });
 
 it("clears secret details on restart and keeps them closed when rediscovered", () => {
-  const { rerender, container } = render(
-    <DiscoveryCollection catMet frogFreed mermaidAwakened />,
-  );
+  const { rerender, container } = render(<DiscoveryCollection catMet frogFreed mermaidAwakened />);
   fireEvent.click(screen.getByRole("button", { name: "Inspect The Tidekeeper" }));
   const details = container.querySelector("#garden-card-details");
   expect(details).toBeVisible();
@@ -133,4 +151,43 @@ it("plays each queued card sound only when its reveal becomes visible", () => {
   expect(onReveal).toHaveBeenCalledTimes(1);
   act(() => vi.advanceTimersByTime(2600));
   expect(onReveal).toHaveBeenCalledTimes(2);
+});
+
+it("uses the latest callbacks without restarting a visible reveal or replaying its sound", () => {
+  const initialComplete = vi.fn();
+  const latestComplete = vi.fn();
+  const initialReveal = vi.fn();
+  const latestReveal = vi.fn();
+  const { rerender } = render(
+    <DiscoveryReveal catMet frogFreed onComplete={initialComplete} onReveal={initialReveal} />,
+  );
+  act(() => vi.advanceTimersByTime(1450));
+  act(() => vi.advanceTimersByTime(2000));
+  rerender(
+    <DiscoveryReveal catMet frogFreed onComplete={latestComplete} onReveal={latestReveal} />,
+  );
+  expect(initialReveal).toHaveBeenCalledTimes(1);
+  expect(latestReveal).not.toHaveBeenCalled();
+  act(() => vi.advanceTimersByTime(600));
+  expect(initialComplete).not.toHaveBeenCalled();
+  expect(latestComplete).toHaveBeenCalledWith("cat");
+  expect(latestReveal).toHaveBeenCalledTimes(1);
+  expect(screen.getByRole("status")).toHaveTextContent("Frog freed");
+});
+
+it("restarts the announcement delay and reveal duration after pausing", () => {
+  const complete = vi.fn();
+  const { rerender } = render(<DiscoveryReveal catMet frogFreed={false} onComplete={complete} />);
+  act(() => vi.advanceTimersByTime(1450));
+  act(() => vi.advanceTimersByTime(2000));
+  rerender(<DiscoveryReveal catMet frogFreed={false} paused onComplete={complete} />);
+  act(() => vi.advanceTimersByTime(5000));
+  expect(complete).not.toHaveBeenCalled();
+  rerender(<DiscoveryReveal catMet frogFreed={false} onComplete={complete} />);
+  act(() => vi.advanceTimersByTime(1449));
+  expect(screen.queryByRole("status")).toBeNull();
+  act(() => vi.advanceTimersByTime(1));
+  expect(screen.getByRole("status")).toBeVisible();
+  act(() => vi.advanceTimersByTime(2600));
+  expect(complete).toHaveBeenCalledExactlyOnceWith("cat");
 });

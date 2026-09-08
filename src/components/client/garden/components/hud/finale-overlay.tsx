@@ -76,12 +76,12 @@ const ZazenFinaleOverlay = ({
   const firstActionRef = useRef<HTMLButtonElement>(null);
   const returnRef = useRef<HTMLAnchorElement>(null);
 
+  if (reducedMotion && !returnVisible) {
+    setReturnVisible(true);
+  }
+
   useEffect(() => {
     if (returnVisible) {
-      return;
-    }
-    if (reducedMotion) {
-      setReturnVisible(true);
       return;
     }
     const timer = setTimeout(() => {
@@ -90,7 +90,7 @@ const ZazenFinaleOverlay = ({
     return () => {
       clearTimeout(timer);
     };
-  }, [reducedMotion, returnVisible]);
+  }, [returnVisible]);
 
   useEffect(() => {
     if (!returnVisible) {

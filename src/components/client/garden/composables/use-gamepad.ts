@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import type { Direction } from "../types";
 
 interface Controls {
@@ -21,15 +21,19 @@ export const gamepadDirection = (pad: Pick<Gamepad, "buttons" | "axes">): Direct
 };
 
 export default function useGamepad(controls: Controls) {
-  const latest = useRef(controls);
-  useEffect(() => {
-    latest.current = controls;
-  });
-  const [status, setStatus] = useState<"waiting" | "connected" | "unsupported">("waiting");
+  const canMove = useEffectEvent(() => controls.canMove());
+  const move = useEffectEvent((direction: Direction) => controls.move(direction));
+  const invoke = useEffectEvent((action: "confirm" | "cancel" | "sound" | "help") =>
+    controls[action](),
+  );
+  const [status, setStatus] = useState<"waiting" | "connected" | "unsupported">(() =>
+    typeof navigator !== "undefined" && typeof navigator.getGamepads !== "function"
+      ? "unsupported"
+      : "waiting",
+  );
 
   useEffect(() => {
     if (typeof navigator.getGamepads !== "function") {
-      setStatus("unsupported");
       return;
     }
     let frame = 0;
@@ -81,11 +85,11 @@ export default function useGamepad(controls: Controls) {
         [9, "help"],
       ] as const;
       for (const [index, action] of actions) {
-        if (buttons[index] && !previous[index]) latest.current[action]();
+        if (buttons[index] && !previous[index]) invoke(action);
       }
       previous = buttons;
       const direction = gamepadDirection(pad);
-      if (!latest.current.canMove()) {
+      if (!canMove()) {
         armed = false;
         held = undefined;
         return;
@@ -97,7 +101,7 @@ export default function useGamepad(controls: Controls) {
       }
       if (!armed) return;
       if (direction !== held || now >= nextStep) {
-        latest.current.move(direction);
+        move(direction);
         nextStep = now + (direction !== held ? 320 : 180);
         held = direction;
       }

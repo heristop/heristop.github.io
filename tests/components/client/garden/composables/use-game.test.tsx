@@ -486,3 +486,25 @@ describe("gardener counterattack", () => {
     }
   });
 });
+
+it("resolves batched movement against the latest reducer state with a stable command", async () => {
+  const { findWalkablePath } =
+    await import("../../../../../src/components/client/garden/board/rules");
+  const { directionFromDelta } =
+    await import("../../../../../src/components/client/garden/board/geometry");
+  const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+  const start = result.current.position;
+  const route = result.current.map
+    .map((tile) => findWalkablePath(result.current.map, start, tile))
+    .find((path) => path && path.length >= 2)!;
+  expect(route).toBeDefined();
+  const move = result.current.move;
+  const steps = result.current.steps;
+  act(() => {
+    move(directionFromDelta(start, route[0])!);
+    move(directionFromDelta(route[0], route[1])!);
+  });
+  expect(result.current.position).toEqual(route[1]);
+  expect(result.current.steps).toBe(steps + 2);
+  expect(result.current.move).toBe(move);
+});

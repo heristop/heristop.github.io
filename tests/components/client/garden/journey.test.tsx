@@ -1,3 +1,4 @@
+import { StrictMode } from "react";
 import { render, screen, cleanup } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Journey from "../../../../src/components/client/garden/components/hud/journey";
@@ -43,4 +44,36 @@ describe("journey records", () => {
     rerender(<Journey {...walk} recordKey="garden-a" complete />);
     expect(screen.getByText("New personal best")).toBeInTheDocument();
   });
+});
+
+it("keeps a completed record label stable, then resets it for the next walk", () => {
+  const { rerender } = render(<Journey {...walk} recordKey="garden-a" complete />);
+  const best = window.localStorage.getItem("garden-a");
+  rerender(<Journey {...walk} recordKey="garden-a" complete />);
+  expect(screen.getByText("New personal best")).toBeInTheDocument();
+  rerender(<Journey {...walk} recordKey="garden-a" complete={false} />);
+  expect(screen.getByText("Garden best")).toBeInTheDocument();
+  expect(window.localStorage.getItem("garden-a")).toBe(best);
+  rerender(<Journey {...walk} recordKey="garden-a" complete />);
+  expect(screen.queryByText("New personal best")).not.toBeInTheDocument();
+});
+
+it("loads the correct record when switching gardens during a walk", () => {
+  window.localStorage.setItem("garden-a", "9000");
+  window.localStorage.setItem("garden-b", "8000");
+  const { rerender } = render(<Journey {...walk} recordKey="garden-a" complete={false} />);
+  expect(screen.getByText("9,000")).toBeInTheDocument();
+  rerender(<Journey {...walk} recordKey="garden-b" complete={false} />);
+  expect(screen.queryByText("9,000")).not.toBeInTheDocument();
+  expect(screen.getByText("8,000")).toBeInTheDocument();
+});
+
+it("preserves new-record feedback when Strict Mode replays persistence effects", () => {
+  render(
+    <StrictMode>
+      <Journey {...walk} recordKey="garden-a" complete summary />
+    </StrictMode>,
+  );
+  expect(screen.getByText("New personal best")).toBeInTheDocument();
+  expect(Number(window.localStorage.getItem("garden-a"))).toBeGreaterThan(0);
 });

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 interface ZazenAudio {
   stopEffects: () => void;
@@ -47,8 +47,6 @@ const getAudioContextCtor = (): AudioCtor | null => {
 };
 
 const useZazenAudio = (enabled = true): ZazenAudio => {
-  const enabledRef = useRef(enabled);
-  enabledRef.current = enabled;
   const samples = useRef<Partial<Record<"attack" | "reveal" | "victory", AudioBuffer>>>({});
   const playing = useRef(new Set<AudioBufferSourceNode>());
   const ctxRef = useRef<AudioContext | null>(null);
@@ -120,24 +118,27 @@ const useZazenAudio = (enabled = true): ZazenAudio => {
     }
   }, [enabled, stopEffects]);
 
-  const playSample = useCallback((kind: "attack" | "reveal" | "victory", delay = 0) => {
-    const ctx = ctxRef.current;
-    const buffer = samples.current[kind];
-    // Never queue a late sound if the browser has not unlocked audio yet.
-    if (!enabledRef.current || !ctx || ctx.state !== "running" || !buffer) return;
-    const source = ctx.createBufferSource();
-    const gain = ctx.createGain();
-    source.buffer = buffer;
-    gain.gain.value = kind === "attack" ? 0.55 : kind === "victory" ? 0.3 : 0.45;
-    source.connect(gain).connect(ctx.destination);
-    playing.current.add(source);
-    source.onended = () => {
-      playing.current.delete(source);
-      source.disconnect();
-      gain.disconnect();
-    };
-    source.start(ctx.currentTime + delay);
-  }, []);
+  const playSample = useCallback(
+    (kind: "attack" | "reveal" | "victory", delay = 0) => {
+      const ctx = ctxRef.current;
+      const buffer = samples.current[kind];
+      // Never queue a late sound if the browser has not unlocked audio yet.
+      if (!enabled || !ctx || ctx.state !== "running" || !buffer) return;
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      source.buffer = buffer;
+      gain.gain.value = kind === "attack" ? 0.55 : kind === "victory" ? 0.3 : 0.45;
+      source.connect(gain).connect(ctx.destination);
+      playing.current.add(source);
+      source.onended = () => {
+        playing.current.delete(source);
+        source.disconnect();
+        gain.disconnect();
+      };
+      source.start(ctx.currentTime + delay);
+    },
+    [enabled],
+  );
   const playAttack = useCallback(() => playSample("attack", 0.36), [playSample]);
   const playReveal = useCallback(() => playSample("reveal"), [playSample]);
 
@@ -208,7 +209,10 @@ const useZazenAudio = (enabled = true): ZazenAudio => {
     }
   }, [ensureContext]);
 
-  return { stopEffects, playVictory, playChime, playStoneDrop, playAttack, playReveal };
+  return useMemo(
+    () => ({ stopEffects, playVictory, playChime, playStoneDrop, playAttack, playReveal }),
+    [stopEffects, playVictory, playChime, playStoneDrop, playAttack, playReveal],
+  );
 };
 
 export default useZazenAudio;

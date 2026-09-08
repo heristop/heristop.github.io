@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import type { CSSProperties } from "react";
 import "./discovery-cards.scss";
 import Icon from "../../../icon";
@@ -78,11 +78,9 @@ export function DiscoveryCollection({
   mermaidAwakened?: boolean;
 }) {
   const [selected, setSelected] = useState<Discovery | null>(null);
-  useEffect(() => {
-    if (!mermaidAwakened) {
-      setSelected((current) => (current === "mermaid" ? null : current));
-    }
-  }, [mermaidAwakened]);
+  if (!mermaidAwakened && selected === "mermaid") {
+    setSelected(null);
+  }
   const count = Number(catMet) + Number(frogFreed) + Number(mermaidAwakened);
   const total = mermaidAwakened ? 3 : 2;
   const kinds: Discovery[] = mermaidAwakened ? ["cat", "frog", "mermaid"] : ["cat", "frog"];
@@ -159,40 +157,56 @@ export function DiscoveryReveal({
   onReveal?: () => void;
   onComplete?: (kind: Discovery) => void;
 }) {
-  const [ready, setReady] = useState(!paused);
-  useEffect(() => {
+  const [ready, setReady] = useState(false);
+  const [previousPaused, setPreviousPaused] = useState(paused);
+  if (previousPaused !== paused) {
+    setPreviousPaused(paused);
     setReady(false);
+  }
+  useEffect(() => {
     if (paused) return;
     const timer = window.setTimeout(() => setReady(true), 1450);
     return () => window.clearTimeout(timer);
   }, [paused]);
-  const seen = useRef({ cat: false, frog: false, mermaid: false });
-  const [queue, setQueue] = useState<Discovery[]>([]);
-  useEffect(() => {
-    if (!catMet && !frogFreed && !mermaidAwakened) {
-      seen.current = { cat: false, frog: false, mermaid: false };
-      setQueue([]);
-      return;
-    }
+
+  const [pending, setPending] = useState(() => ({
+    catMet,
+    frogFreed,
+    mermaidAwakened,
+    queue: (["cat", "frog", "mermaid"] as Discovery[]).filter((kind) =>
+      kind === "cat" ? catMet : kind === "frog" ? frogFreed : mermaidAwakened,
+    ),
+  }));
+  if (
+    pending.catMet !== catMet ||
+    pending.frogFreed !== frogFreed ||
+    pending.mermaidAwakened !== mermaidAwakened
+  ) {
     const earned: Discovery[] = [];
-    if (catMet && !seen.current.cat) earned.push("cat");
-    if (frogFreed && !seen.current.frog) earned.push("frog");
-    if (mermaidAwakened && !seen.current.mermaid) earned.push("mermaid");
-    seen.current = { cat: catMet, frog: frogFreed, mermaid: mermaidAwakened };
-    if (earned.length) setQueue((pending) => [...pending, ...earned]);
-  }, [catMet, frogFreed, mermaidAwakened]);
-  const active = queue[0];
+    if (catMet && !pending.catMet) earned.push("cat");
+    if (frogFreed && !pending.frogFreed) earned.push("frog");
+    if (mermaidAwakened && !pending.mermaidAwakened) earned.push("mermaid");
+    setPending({
+      catMet,
+      frogFreed,
+      mermaidAwakened,
+      queue: catMet || frogFreed || mermaidAwakened ? [...pending.queue, ...earned] : [],
+    });
+  }
+  const active = pending.queue[0];
+  const completeReveal = useEffectEvent((kind: Discovery) => {
+    setPending((current) => ({ ...current, queue: current.queue.slice(1) }));
+    onComplete?.(kind);
+  });
+  const announceReveal = useEffectEvent(() => onReveal?.());
   useEffect(() => {
     if (!active || !ready || paused) return;
-    const timer = window.setTimeout(() => {
-      setQueue((pending) => pending.slice(1));
-      onComplete?.(active);
-    }, REVEAL_MS);
+    const timer = window.setTimeout(() => completeReveal(active), REVEAL_MS);
     return () => window.clearTimeout(timer);
-  }, [active, ready, paused, onComplete]);
+  }, [active, ready, paused]);
   useEffect(() => {
-    if (active && ready && !paused) onReveal?.();
-  }, [active, ready, paused, onReveal]);
+    if (active && ready && !paused) announceReveal();
+  }, [active, ready, paused]);
   if (!active || !ready || paused) return null;
   return (
     <div

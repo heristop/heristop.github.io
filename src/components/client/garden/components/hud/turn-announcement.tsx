@@ -1,26 +1,28 @@
 import { useEffect, useState } from "react";
 import Icon from "../../../icon";
 
-export default function TurnAnnouncement({
-  phase,
-  round,
-  opening,
-}: {
+type Props = {
   phase: string;
   round: number;
   opening: boolean;
-}) {
+};
+
+export default function TurnAnnouncement(props: Props) {
+  return (
+    <TimedTurnAnnouncement key={`${props.phase}-${props.round}-${props.opening}`} {...props} />
+  );
+}
+
+function TimedTurnAnnouncement({ phase, round, opening }: Props) {
   const [visible, setVisible] = useState(true);
   useEffect(() => {
-    setVisible(true);
     const timer = setTimeout(() => setVisible(false), 1400);
     return () => clearTimeout(timer);
-  }, [phase, round, opening]);
+  }, []);
   if (!visible || phase === "lost") return null;
   const gardener = phase === "gardener";
   return (
     <div
-      key={`${phase}-${round}-${opening}`}
       className="path-stones__turn-announcement"
       data-side={gardener ? "gardener" : "player"}
       aria-hidden="true"

@@ -12,7 +12,7 @@ import useStride from "./composables/use-stride";
 import Journey from "./components/hud/journey";
 import { DiscoveryReveal } from "./components/hud/discovery-cards";
 import Icon from "../icon";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import type { GardenSeed } from "./schema";
 import { DATA_TILES, FALLBACK_SEED, GRID_SIZE, STONE_COUNT, WINDOW_DAYS } from "./schema";
 import type { Direction, MapTile, Position } from "./types";
@@ -653,13 +653,17 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   // therefore easy to walk straight past, which is the only reason stopping for him is
   // worth anything — so it is recorded once and never taken back.
   const [catMet, setCatMet] = useState(false);
+  const [runId, setRunId] = useState(0);
 
   const [companionRevealed, setCompanionRevealed] = useState(false);
   const [transforming, setTransforming] = useState(false);
   const [mermaidAwakened, setMermaidAwakened] = useState(false);
   const catWalking = useStride(cat.position);
   const handleDiscoveryComplete = useCallback((kind: "cat" | "frog" | "mermaid") => {
-    if (kind === "frog") setCompanionRevealed(true);
+    if (kind === "frog") {
+      setCompanionRevealed(true);
+      setTransforming(true);
+    }
   }, []);
 
   const handleStoneCollected = useCallback(
@@ -686,18 +690,23 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     seed,
   });
 
+  const move = game.move;
   const frogHopping = useStride(game.frog);
-  const [attackVisible, setAttackVisible] = useState(false);
-  const [attackPosition, setAttackPosition] = useState<Position | undefined>(undefined);
+  const [attack, setAttack] = useState({
+    ticks: 0,
+    position: undefined as Position | undefined,
+    visible: false,
+  });
+  if (attack.ticks !== game.attackTicks) {
+    setAttack({ ticks: game.attackTicks, position: game.position, visible: game.attackTicks > 0 });
+  }
+  const attackVisible = attack.visible;
+  const attackPosition = attack.position;
+  const playAttack = useEffectEvent(() => audio.playAttack());
   useEffect(() => {
-    if (!game.attackTicks) {
-      setAttackVisible(false);
-      return;
-    }
-    audio.playAttack();
-    setAttackPosition(game.position);
-    setAttackVisible(true);
-    const timer = setTimeout(() => setAttackVisible(false), 800);
+    if (!game.attackTicks) return;
+    playAttack();
+    const timer = setTimeout(() => setAttack((current) => ({ ...current, visible: false })), 800);
     return () => clearTimeout(timer);
   }, [game.attackTicks]);
 
@@ -733,7 +742,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       setCursorDay(undefined);
       setRoute(route_.path);
     },
-    [game.map, game.position, game.stonesLeft, game.phase, game.finaleOpen],
+    [game.map, game.position, game.phase, game.finaleOpen],
   );
 
   // Route preview. Showing where a click will take you before it happens is what makes
@@ -865,86 +874,83 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   // rather than shrinking, so on a phone it opened on an empty corner with the pilgrim
   // somewhere off to the right. This only intervenes when the pilgrim has actually left
   // the visible strip — inside it the visitor's own panning is left alone.
+  const frameActor = useEffectEvent(() => {
+    const pan = panRef.current;
+    if (!pan) return;
+    if (pan.scrollWidth <= pan.clientWidth && pan.scrollHeight <= pan.clientHeight) return;
+    const framed = hasFramedRef.current;
+    hasFramedRef.current = true;
+    const focus =
+      game.phase === "gardener" && !prefersReducedMotion()
+        ? game.gardenerPosition
+        : step.renderPosition;
+    const { left, top } = toScreen(
+      focus.posX,
+      focus.posY,
+      game.mapDimensions.offsetX,
+      game.mapDimensions.offsetY,
+    );
+    const pilgrimX = (left + PILGRIM_ANCHOR_X) * mapScale;
+    const pilgrimY = (top + 16) * mapScale;
+    const marginY = Math.min(80, pan.clientHeight / 4);
+    const margin = Math.min(96, pan.clientWidth / 4);
+    if (
+      pilgrimX >= pan.scrollLeft + margin &&
+      pilgrimX <= pan.scrollLeft + pan.clientWidth - margin &&
+      pilgrimY >= pan.scrollTop + marginY &&
+      pilgrimY <= pan.scrollTop + pan.clientHeight - marginY
+    )
+      return;
+    pan.scrollTo({
+      behavior: !framed || prefersReducedMotion() ? "auto" : "smooth",
+      left: pilgrimX - pan.clientWidth / 2,
+      top: pilgrimY - pan.clientHeight / 2,
+    });
+  });
+  useEffect(() => {
+    frameActor();
+  }, [step.renderPosition, game.mapDimensions, game.phase, game.gardenerPosition, mapScale]);
   useEffect(() => {
     const pan = panRef.current;
     if (!pan) return;
-    const frameActor = () => {
-      if (pan.scrollWidth <= pan.clientWidth && pan.scrollHeight <= pan.clientHeight) return;
-      const framed = hasFramedRef.current;
-      hasFramedRef.current = true;
-      const focus =
-        game.phase === "gardener" && !prefersReducedMotion()
-          ? game.gardenerPosition
-          : step.renderPosition;
-      const { left, top } = toScreen(
-        focus.posX,
-        focus.posY,
-        game.mapDimensions.offsetX,
-        game.mapDimensions.offsetY,
-      );
-      const pilgrimX = (left + PILGRIM_ANCHOR_X) * mapScale;
-      const pilgrimY = (top + 16) * mapScale;
-      const marginY = Math.min(80, pan.clientHeight / 4);
-      const margin = Math.min(96, pan.clientWidth / 4);
-      if (
-        pilgrimX >= pan.scrollLeft + margin &&
-        pilgrimX <= pan.scrollLeft + pan.clientWidth - margin &&
-        pilgrimY >= pan.scrollTop + marginY &&
-        pilgrimY <= pan.scrollTop + pan.clientHeight - marginY
-      )
-        return;
-      pan.scrollTo({
-        behavior: !framed || prefersReducedMotion() ? "auto" : "smooth",
-        left: pilgrimX - pan.clientWidth / 2,
-        top: pilgrimY - pan.clientHeight / 2,
-      });
-    };
-    frameActor();
+    const onResize = () => frameActor();
     const observer =
-      typeof ResizeObserver === "function" ? new ResizeObserver(frameActor) : undefined;
+      typeof ResizeObserver === "function" ? new ResizeObserver(onResize) : undefined;
     observer?.observe(pan);
-    window.addEventListener("resize", frameActor);
+    window.addEventListener("resize", onResize);
     return () => {
       observer?.disconnect();
-      window.removeEventListener("resize", frameActor);
+      window.removeEventListener("resize", onResize);
     };
-  }, [step.renderPosition, game.mapDimensions, game.phase, game.gardenerPosition, mapScale]);
+  }, []);
 
-  // Raking or a restart may remove his footing. Frog hops also update the map,
-  // so preserve his current position whenever it still offers somewhere to walk.
-  useEffect(() => {
-    setCat((current) => {
-      const footing = catFooting(game.map, current.position);
-      return footing.posX === current.position.posX && footing.posY === current.position.posY
-        ? current
-        : { facingLeft: current.facingLeft, position: footing };
-    });
-  }, [game.map]);
-
-  const catGreeting = manhattan(cat.position, game.position) <= 1;
-  useEffect(() => {
-    if (catGreeting && !catMet) {
-      setCatMet(true);
+  // Reconcile changed terrain before committing a frame, without an effect cascade.
+  const [catMap, setCatMap] = useState(game.map);
+  if (catMap !== game.map) {
+    setCatMap(game.map);
+    const footing = catFooting(game.map, cat.position);
+    if (footing.posX !== cat.position.posX || footing.posY !== cat.position.posY) {
+      setCat({ facingLeft: cat.facingLeft, position: footing });
     }
-  }, [catGreeting, catMet]);
+  }
+  const catGreeting = manhattan(cat.position, game.position) <= 1;
+  if (catGreeting && !catMet) setCatMet(true);
 
   const aquaticTransformation =
     game.frogFreed && !!tileAt(game.map, game.frog)?.sprite.startsWith("water");
 
-  // Keep the frog visible until its discovery card has finished.
-  useEffect(() => {
+  // Reset the discovery lifetime before committing a new run.
+  const [previousFrogFreed, setPreviousFrogFreed] = useState(game.frogFreed);
+  if (previousFrogFreed !== game.frogFreed) {
+    setPreviousFrogFreed(game.frogFreed);
     if (!game.frogFreed) {
       setCompanionRevealed(false);
+      setTransforming(false);
       setMermaidAwakened(false);
     }
-  }, [game.frogFreed]);
-
+  }
   useEffect(() => {
-    if (!companionRevealed) {
-      setTransforming(false);
-      return;
-    }
-    setTransforming(true);
+    if (!companionRevealed) return;
     const timer = setTimeout(() => {
       setTransforming(false);
       if (aquaticTransformation) setMermaidAwakened(true);
@@ -966,6 +972,8 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       if (Math.random() > chance) {
         return;
       }
+      const following = Math.random() < CAT_FOLLOW_CHANCE;
+      const directionRoll = Math.random();
       setCat((current) => {
         // He has noticed the pilgrim. Cats do not walk away from someone who has just
         // arrived — they stop, turn, and wait to be acknowledged.
@@ -994,11 +1002,10 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         // reads as a cursor with fur — but the rest follow the route, which is what turns
         // him from scenery you happen to pass into company you have picked up. When there
         // is no route at all he wanders, rather than standing there facing a wall.
-        const following = Math.random() < CAT_FOLLOW_CHANCE;
         const routed = following
           ? catStepToward(game.map, current.position, game.position)
           : undefined;
-        const next = routed ?? open[Math.floor(Math.random() * open.length)];
+        const next = routed ?? open[Math.floor(directionRoll * open.length)];
         return {
           // N and W both travel leftwards on screen; E and S both travel right.
           facingLeft: next.posX - next.posY < current.position.posX - current.position.posY,
@@ -1014,79 +1021,78 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   // Walk a queued route one tile per step, so Enter can send the pilgrim to a tile that
   // is not adjacent. Each step goes through game.move, so stones, the shrine and the
   // walkability rules all behave exactly as they do for a keypress.
+  if (game.phase !== "player" || game.finaleOpen) {
+    if (route.length > 0) setRoute([]);
+    if (refusal !== undefined) setRefusal(undefined);
+  }
   useEffect(() => {
-    if (game.phase !== "player" || game.finaleOpen) {
-      if (route.length > 0) setRoute([]);
-      setRefusal(undefined);
-      return;
-    }
+    if (game.phase !== "player" || game.finaleOpen) return;
     if (route.length === 0) {
       return;
     }
     const timer = setTimeout(() => {
       const [next, ...rest] = route;
       const dir = directionFromDelta(game.position, next);
-      if (dir) {
-        game.move(dir);
-      }
+      if (dir) move(dir);
       setRoute(rest);
     }, AUTO_STEP_MS);
     return () => {
       clearTimeout(timer);
     };
-  }, [game, route]);
+  }, [game.phase, game.finaleOpen, game.position, move, route]);
 
-  useEffect(() => {
-    const handleKeyPress = (ev: KeyboardEvent) => {
-      // Tab steps the inspect cursor through history, oldest to newest. It is only
-      // captured while the map itself has focus, and Escape hands focus back to the
-      // page, so this is never a keyboard trap.
-      const mapFocused =
-        mapRef.current !== null &&
-        typeof document !== "undefined" &&
-        document.activeElement === mapRef.current;
+  const onKeyPress = useEffectEvent((ev: KeyboardEvent) => {
+    // Tab steps the inspect cursor through history, oldest to newest. It is only
+    // captured while the map itself has focus, and Escape hands focus back to the
+    // page, so this is never a keyboard trap.
+    const mapFocused =
+      mapRef.current !== null &&
+      typeof document !== "undefined" &&
+      document.activeElement === mapRef.current;
 
-      if (mapFocused && ev.key === "Tab") {
-        ev.preventDefault();
-        setCursorDay((current) => {
-          const from = current ?? dayIndexForPosition(game.position) ?? 0;
-          const next = ev.shiftKey ? from - 1 : from + 1;
-          return Math.min(WINDOW_DAYS - 1, Math.max(0, next));
-        });
-        return;
-      }
-
-      if (mapFocused && ev.key === "Escape" && cursorDay !== undefined) {
-        ev.preventDefault();
-        setCursorDay(undefined);
-        return;
-      }
-
-      if (mapFocused && ev.key === "Enter" && cursorDay !== undefined) {
-        ev.preventDefault();
-        const path = cheapestRoute(
-          game.map,
-          game.position,
-          positionForDay(cursorDay),
-          game.stonesLeft,
-        )?.path;
-        if (path && path.length > 0) {
-          setRoute(path);
-        }
-        return;
-      }
-
-      handleKeyDirection(ev, (dir) => {
-        setRoute([]);
-        setCursorDay(undefined);
-        game.move(dir);
+    if (mapFocused && ev.key === "Tab") {
+      ev.preventDefault();
+      setCursorDay((current) => {
+        const from = current ?? dayIndexForPosition(game.position) ?? 0;
+        const next = ev.shiftKey ? from - 1 : from + 1;
+        return Math.min(WINDOW_DAYS - 1, Math.max(0, next));
       });
-    };
+      return;
+    }
+
+    if (mapFocused && ev.key === "Escape" && cursorDay !== undefined) {
+      ev.preventDefault();
+      setCursorDay(undefined);
+      return;
+    }
+
+    if (mapFocused && ev.key === "Enter" && cursorDay !== undefined) {
+      ev.preventDefault();
+      const path = cheapestRoute(
+        game.map,
+        game.position,
+        positionForDay(cursorDay),
+        game.stonesLeft,
+      )?.path;
+      if (path && path.length > 0) {
+        setRoute(path);
+      }
+      return;
+    }
+
+    handleKeyDirection(ev, (dir) => {
+      setRoute([]);
+      setCursorDay(undefined);
+      game.move(dir);
+    });
+  });
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => onKeyPress(event);
     globalThis.addEventListener("keydown", handleKeyPress);
     return () => {
       globalThis.removeEventListener("keydown", handleKeyPress);
     };
-  }, [cursorDay, game]);
+  }, []);
 
   // There is deliberately no swipe-to-move gesture. Sprites are only ever drawn at whole
   // pixel scales, so on a narrow screen the garden pans instead of shrinking — and a
@@ -1097,6 +1103,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   const { mapDimensions } = game;
   const handleReplay = useCallback(() => {
     audio.stopEffects();
+    setRunId((current) => current + 1);
     setCatMet(false);
     setRefusal(undefined);
     setHoverDay(undefined);
@@ -1105,7 +1112,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     setRoute([]);
     setCursorDay(undefined);
     game.restart();
-  }, [game, audio.stopEffects]);
+  }, [game, audio]);
 
   const focusPilgrim = useCallback(() => {
     const pan = panRef.current;
@@ -1206,6 +1213,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       data-awakened={game.shrineActivated || undefined}
     >
       <DiscoveryReveal
+        key={runId}
         mermaidAwakened={mermaidAwakened}
         catMet={catMet}
         frogFreed={game.frogFreed}

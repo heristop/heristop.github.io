@@ -6,10 +6,10 @@ import { prefersReducedMotion } from "./use-step";
 export default function useStride(position: Position): boolean {
   const previous = useRef(position);
   const [walking, setWalking] = useState(false);
+  const { posX, posY } = position;
   useEffect(() => {
-    const moved =
-      previous.current.posX !== position.posX || previous.current.posY !== position.posY;
-    previous.current = position;
+    const moved = previous.current.posX !== posX || previous.current.posY !== posY;
+    previous.current = { posX, posY };
     if (!moved || prefersReducedMotion()) {
       setWalking(false);
       return;
@@ -17,6 +17,6 @@ export default function useStride(position: Position): boolean {
     setWalking(true);
     const timer = setTimeout(() => setWalking(false), 460);
     return () => clearTimeout(timer);
-  }, [position.posX, position.posY]);
+  }, [posX, posY]);
   return walking;
 }
