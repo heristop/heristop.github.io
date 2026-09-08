@@ -1247,24 +1247,34 @@ const birdSheet = () => {
   const sheet = grid(96, 16);
   for (let frame = 0; frame < 4; frame++) {
     const g = grid(24, 16);
-    const tips = [1, 5, 12, 7];
-    for (let step = 0; step < 8; step++) {
-      const y = Math.round(7 + ((tips[frame] - 7) * step) / 7);
-      const x = 12 - step;
-      put(g, x, y + 1, "i");
-      put(g, x, y, "a");
-      if (step < 5) put(g, x + 1, y, "b");
-      const farY = Math.round(7 + ((tips[frame] - 7) * step) / 10);
-      put(g, 13 + Math.floor(step / 2), farY, "b");
+    // Far wing first, muted by the body: the two wings occupy different planes.
+    const wingTip = [1, 4, 13, 5][frame];
+    const tipX = [6, 4, 5, 2][frame];
+    for (let x = 12; x <= 17; x++) {
+      const y = Math.round(7 + ((wingTip - 7) * (x - 12)) / 8);
+      rect(g, x, y, 1, x < 16 ? 2 : 1, "b");
     }
-    rect(g, 10, 7, 8, 2, "a");
-    rect(g, 11, 9, 6, 1, "h");
+    // Tapered flight feathers, with a broad shoulder and a narrow swept tip.
+    for (let x = tipX; x <= 13; x++) {
+      const fraction = (x - tipX) / (13 - tipX);
+      const y = Math.round(wingTip + (7 - wingTip) * fraction);
+      const breadth = x === tipX ? 1 : 1 + Math.round(fraction * 2);
+      rect(g, x, y, 1, breadth, "a");
+      if (breadth > 1) put(g, x, y + breadth - 1, "b");
+      if (x === tipX && frame !== 3) put(g, x, y, "i");
+    }
+    // A streamlined breast, small head and pointed beak.
+    rect(g, 9, 7, 9, 2, "a");
+    rect(g, 11, 9, 6, 1, "b");
     rect(g, 16, 5, 3, 3, "a");
     put(g, 18, 6, "i");
-    put(g, 19, 7, "c");
-    rect(g, 7, 8, 4, 1, "b");
-    put(g, 6, 8, "a");
-    put(g, 7, 10, "a");
+    rect(g, 19, 7, 2, 1, "c");
+    // Forked tail feathers join the rump instead of dangling beneath it.
+    rect(g, 6, 8, 4, 1, "b");
+    rect(g, 4, 7, 3, 1, "a");
+    put(g, 3, 6, "b");
+    rect(g, 4, 9, 3, 1, "a");
+    put(g, 3, 10, "b");
     blit(sheet, g, frame * 24, 0);
   }
   return sheet;

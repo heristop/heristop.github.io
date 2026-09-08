@@ -1070,7 +1070,7 @@
   inset: 0;
   background: url("/images/zazen/fx/bird-flight.png") no-repeat;
   image-rendering: pixelated;
-  animation: garden-bird-poses 2.8s steps(1, end) infinite;
+  animation: garden-bird-poses 3.4s steps(1, end) infinite;
 }
 
 .path-stones .zazen-world__bird--far {
@@ -1082,10 +1082,35 @@
 .zazen-world__bird--late .zazen-world__bird-body { animation-delay: -1.5s; }
 
 @keyframes garden-bird-poses {
-  0%, 28%, 100% { background-position: -72px 0; }
-  4%, 18% { background-position: 0 0; }
-  8%, 22% { background-position: -24px 0; }
-  12%, 26% { background-position: -48px 0; }
+  0%, 38%, 100% { background-position: -72px 0; }
+  4%, 22% { background-position: -24px 0; }
+  8%, 26% { background-position: 0 0; }
+  12%, 30% { background-position: -24px 0; }
+  16%, 34% { background-position: -48px 0; }
+}
+
+@keyframes path-stones-bird {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  5% { opacity: 0.85; }
+
+  18% { transform: translate(290px, 34px); }
+
+  35% { transform: translate(600px, 108px); }
+
+  48% { opacity: 0.85; }
+
+  56%, 100% {
+    opacity: 0;
+    transform: translate(940px, 150px);
+  }
+}
+
+.path-stones .zazen-world__bird--far {
+  filter: opacity(0.6);
 }
 
 .zazen-world__cloud {
