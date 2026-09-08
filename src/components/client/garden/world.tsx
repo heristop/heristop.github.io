@@ -1,4 +1,4 @@
-import { sceneryAngle, sceneryDuration, type SceneryKind } from "./rendering/scenery-motion";
+import { sceneryAngle, sceneryDuration, sceneryLift, type SceneryKind } from "./rendering/scenery-motion";
 import useRenderer from "./composables/use-renderer";
 import { groundArtwork } from "./rendering/artwork";
 import WebGLBoard from "./rendering/webgl-board";
@@ -655,7 +655,9 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     }
     image.style.transformOrigin = kind === "tree" ? "16px 58px" : "16px 45px";
     const animation = image.animate(Array.from({ length: 61 }, (_, frame) => ({
-      transform: `${kind === "tree" ? "skewX" : "rotate"}(${sceneryAngle(kind, frame / 60)}rad)`,
+      transform: kind === "tree"
+        ? `skewX(${sceneryAngle(kind, frame / 60)}rad)`
+        : `translateY(${-sceneryLift(frame / 60)}px) rotateY(${sceneryAngle(kind, frame / 60)}rad)`,
     })), { duration: sceneryDuration(kind) });
     animation.id = "scenery-reaction";
   };

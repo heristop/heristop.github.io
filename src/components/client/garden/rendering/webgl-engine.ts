@@ -1,4 +1,4 @@
-import { sceneryAngle, sceneryDuration } from "./scenery-motion";
+import { sceneryAngle, sceneryDuration, sceneryLift } from "./scenery-motion";
 import {
   Application,
   Assets,
@@ -353,7 +353,11 @@ export async function createGardenRenderer(
               const progress = start === undefined ? 1 : (elapsed - start) / sceneryDuration(kind);
               const angle = reducedMotion.matches || progress >= 1 ? 0 : sceneryAngle(kind, progress);
               if (tree) sprite.skew.x = angle;
-              else sprite.rotation = angle;
+              else {
+                // A billboard turning around its vertical axis, with its shadow left on the ground.
+                sprite.scale.x = Math.cos(angle);
+                sprite.y = pivotY - 32 - (reducedMotion.matches || progress >= 1 ? 0 : sceneryLift(progress));
+              }
             });
           }
           if (fish) {

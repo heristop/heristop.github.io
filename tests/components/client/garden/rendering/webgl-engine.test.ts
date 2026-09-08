@@ -1,4 +1,4 @@
-import { sceneryAngle } from "../../../../../src/components/client/garden/rendering/scenery-motion";
+import { sceneryAngle, sceneryLift } from "../../../../../src/components/client/garden/rendering/scenery-motion";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import type { GardenScene } from "../../../../../src/components/client/garden/rendering/scene";
 
@@ -499,8 +499,11 @@ it("removes a lantern's light and water reflection when it is extinguished", asy
 });
 
 
-it("spins stones three times and settles tree gusts without moving their anchors", async () => {
-  expect(sceneryAngle("stone", 1)).toBeCloseTo(Math.PI * 6);
+it("lifts stones for two axial turns and settles tree gusts without moving their anchors", async () => {
+  expect(sceneryAngle("stone", 1)).toBeCloseTo(Math.PI * 4);
+  expect(sceneryLift(0)).toBe(0);
+  expect(sceneryLift(0.5)).toBe(7);
+  expect(sceneryLift(1)).toBeCloseTo(0);
   expect(sceneryAngle("tree", 0)).toBe(0);
   expect(sceneryAngle("tree", 1)).toBeCloseTo(0);
   const scene = initial();
@@ -512,17 +515,20 @@ it("spins stones three times and settles tree gusts without moving their anchors
   const origin = [tree.x, tree.y];
   await renderer.update({ ...scene, interaction: { id: 1, posX: 0, posY: 0, kind: "stone" } });
   app().advance(300);
-  expect(stone.rotation).toBeGreaterThan(0);
+  expect(stone.scale.x).toBeLessThan(1);
+  expect(stone.y).toBeLessThan(13);
   await renderer.update({ ...scene, interaction: { id: 2, posX: 1, posY: 0, kind: "tree" } });
   app().advance(300);
   expect(tree.skew.x).not.toBe(0);
   expect([tree.x, tree.y]).toEqual(origin);
   app().advance(2000);
   expect(tree.skew.x).toBe(0);
-  expect(stone.rotation).toBe(0);
+  expect(stone.scale.x).toBe(1);
+  expect(stone.y).toBe(13);
   gpu.reduced = true;
   await renderer.update({ ...scene, interaction: { id: 3, posX: 0, posY: 0, kind: "stone" } });
   app().advance(300);
-  expect(stone.rotation).toBe(0);
+  expect(stone.scale.x).toBe(1);
+  expect(stone.y).toBe(13);
   renderer.destroy();
 });

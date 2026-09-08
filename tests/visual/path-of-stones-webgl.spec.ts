@@ -110,7 +110,11 @@ for (const renderer of ["webgl", "dom"]) {
     await page.goto(`/path-of-stones/?renderer=${renderer}`);
     await expect(page.locator(".zazen-world__map")).toHaveAttribute("data-renderer", renderer);
     const position = await page.locator("#position-announcer").textContent();
-    await page.getByRole("button", { name: /^Rustle tree/ }).first().click();
+    const tree = page.getByRole("button", { name: /^Rustle tree/ }).first();
+    await tree.focus();
+    await expect(tree).toHaveCSS("outline-style", "none");
+    await expect(tree).toHaveCSS("box-shadow", "none");
+    await tree.click();
     await page.getByRole("button", { name: /^Spin stone/ }).first().click();
     await expect(page.locator("#position-announcer")).toHaveText(position!);
     if (renderer === "dom") {

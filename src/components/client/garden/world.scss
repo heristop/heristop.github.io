@@ -3143,9 +3143,10 @@ button.path-stones__heat-cell:focus-visible {
   background: transparent;
   cursor: pointer;
 
+  &:focus,
   &:focus-visible {
-    outline: 2px solid #ffe6a9;
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: none;
   }
 }
 
@@ -3164,8 +3165,15 @@ button.path-stones__heat-cell:focus-visible {
     height: 23px;
   }
 
+  &:focus,
   &:focus-visible {
-    outline: 2px solid #ffe6a9;
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: none;
   }
+}
+
+.path-stones .zazen-world__scenery-switch:focus,
+.path-stones .zazen-world__lantern-switch:focus {
+  outline: none;
+  box-shadow: none;
 }
