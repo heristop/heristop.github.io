@@ -120,25 +120,34 @@ export async function createGardenRenderer(
     const sprite = new Sprite();
     container.addChild(shadow, sprite);
     if (name === "pilgrim" || name === "gardener") {
-      const plateWidth = name === "pilgrim" ? 30 : 66;
+      const plateWidth = name === "pilgrim" ? 30 : 64;
+      const left = 32 - plateWidth / 2;
+      const right = 32 + plateWidth / 2;
+      const accent = name === "pilgrim" ? 0xdfc78e : 0xa9b8a4;
       const plate = new Graphics()
-        .rect(32 - plateWidth / 2, -23, plateWidth, 16)
-        .fill({ color: 0x172c32, alpha: 0.94 });
+        .poly([left + 2, -18, right - 2, -18, right, -16, right, -6,
+          right - 2, -4, left + 2, -4, left, -6, left, -16])
+        .fill({ color: accent, alpha: 0.55 })
+        .poly([left + 2, -17, right - 2, -17, right - 1, -16, right - 1, -6,
+          right - 2, -5, left + 2, -5, left + 1, -6, left + 1, -16])
+        .fill({ color: 0x172c32, alpha: 0.96 })
+        .poly([30, -2, 34, -2, 32, 0])
+        .fill({ color: accent, alpha: 0.8 });
       plate.label = "nameplate";
       const label = new Text({
         text: name === "pilgrim" ? "YOU" : "GARDENER",
         style: {
           fontFamily: "Arial, sans-serif",
-          fontSize: 9,
-          letterSpacing: 0.6,
-          fontWeight: "bold",
-          fill: 0xffe6a9,
+          fontSize: 8.5,
+          letterSpacing: 0.8,
+          fontWeight: "600",
+          fill: name === "pilgrim" ? 0xffe6a9 : 0xe3e8d6,
           stroke: { color: 0x172c32, width: 1 },
         },
         resolution: 2,
       });
       label.anchor.set(0.5, 1);
-      label.position.set(32, -10);
+      label.position.set(32, -7);
       container.addChild(plate, label);
     }
     figures.addChild(container);
