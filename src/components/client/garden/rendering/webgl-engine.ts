@@ -120,20 +120,26 @@ export async function createGardenRenderer(
     const sprite = new Sprite();
     container.addChild(shadow, sprite);
     if (name === "pilgrim" || name === "gardener") {
+      const plateWidth = name === "pilgrim" ? 30 : 66;
+      const plate = new Graphics()
+        .rect(32 - plateWidth / 2, -23, plateWidth, 16)
+        .fill({ color: 0x172c32, alpha: 0.94 });
+      plate.label = "nameplate";
       const label = new Text({
         text: name === "pilgrim" ? "YOU" : "GARDENER",
         style: {
-          fontFamily: "Georgia",
-          fontSize: 7,
+          fontFamily: "Arial, sans-serif",
+          fontSize: 9,
+          letterSpacing: 0.6,
           fontWeight: "bold",
           fill: 0xffe6a9,
-          stroke: { color: 0x233a35, width: 1 },
+          stroke: { color: 0x172c32, width: 1 },
         },
         resolution: 2,
       });
       label.anchor.set(0.5, 1);
-      label.position.set(32, -6);
-      container.addChild(label);
+      label.position.set(32, -10);
+      container.addChild(plate, label);
     }
     figures.addChild(container);
     const p = point(position, scene);

@@ -636,16 +636,16 @@
 .path-stones .zazen-world__pilgrim::after {
   content: "YOU";
   position: absolute;
-  top: -8px;
-  left: 3px;
-  font:
-    700 7px/1 Georgia,
-    serif;
-  letter-spacing: 1px;
-  color: #fff0c1;
-  text-shadow:
-    1px 1px #1c342b,
-    -1px -1px #1c342b;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 5px;
+  font: 700 9px/1 Arial, sans-serif;
+  letter-spacing: 0.6px;
+  color: #ffe6a9;
+  background: #172c32f0;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .path-stones .zazen-world__decor[data-foreground] {
@@ -818,12 +818,15 @@
 .zazen-world__gardener-label {
   position: absolute;
   left: 50%;
-  top: -1px;
+  top: -18px;
   transform: translateX(-50%);
-  color: #f4d497;
-  text-shadow: 1px 1px #213d30;
-  font: 5px "JetBrains Mono", monospace;
-  letter-spacing: 0.08em;
+  padding: 3px 5px;
+  color: #ffe6a9;
+  background: #172c32f0;
+  font: 700 9px/1 Arial, sans-serif;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+  pointer-events: none;
   opacity: 0;
 }
 
