@@ -277,7 +277,7 @@ it("animates all walking directions, gardener work and strike, frog hop and stat
     });
     app().advance(100);
     expect({ x: frog.x, y: frog.y }).toEqual(position);
-    expect(frog.children[0].y).toBe(0);
+    expect(frog.children[0].y).toBe(-5);
     expect(frog.children[1].texture.source.path).toContain(aquatic ? "mermaid-life" : "npc-2-life");
     await renderer.update({ ...scene, frogVisible: false, companionVisible: true, aquatic });
     expect(frog.children[1].alpha).toBe(1);
@@ -586,4 +586,30 @@ it("limits warm water and lantern mirrors to a two-tile Manhattan radius", () =>
   expect(children.filter((child: any) => child.label === "water-caustic").map((child: any) => child.tint))
     .toEqual([0xffd590, 0xffd590, 0xa5e7d9, 0xa5e7d9]);
   atmosphere.destroy();
+});
+
+
+it("keeps the woman's contact shadow under her feet throughout transformation and idle poses", async () => {
+  const scene = initial();
+  const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
+  const npc = app().stage.children[1].children.find((figure: any) =>
+    figure.children[1]?.texture?.source?.path?.endsWith("/npc-2-life.png"),
+  );
+  // Static NPC: sprite top -8 + opaque foot row 31.
+  expect(npc.children[0].ellipses[0]).toEqual([32, 23, 10, 3]);
+  const frog = actors()[3];
+  for (const transforming of [true, false]) {
+    await renderer.update({ ...scene, frogVisible: false, companionVisible: true, transforming });
+    for (let pose = 0; pose < 4; pose++) {
+      app().advance(300);
+      const [shadow, sprite] = frog.children;
+      expect(shadow.ellipses[0][1] + shadow.y).toBe(sprite.y - 40 + 31);
+      expect(shadow.alpha).toBe(1);
+    }
+  }
+  await renderer.update({ ...scene, frogVisible: false, companionVisible: true, aquatic: true });
+  expect(frog.children[0].alpha).toBe(0);
+  await renderer.update(scene);
+  expect(frog.children[0].y).toBe(-7);
+  renderer.destroy();
 });

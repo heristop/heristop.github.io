@@ -255,7 +255,8 @@ export async function createGardenRenderer(
         if (scene.companionVisible) {
           dress(actor, scene.aquatic ? "persos/mermaid-life" : "persos/npc-2-life", 24, 40, idle);
           actor.sprite.alpha = scene.transforming ? 0.65 + Math.sin(time / 80) * 0.25 : 1;
-          actor.shadow.y = 0;
+          // The woman's feet end at row 31: sprite top -5 + 31 = ground y26.
+          actor.shadow.y = -5;
           actor.shadow.alpha = scene.aquatic ? 0 : 1;
         } else {
           dress(actor, "decors/frog-life", 32, 64, walking ? 2 : idle);
@@ -345,7 +346,7 @@ export async function createGardenRenderer(
           const fish = decor === "koi";
           if (!fish)
             container.addChild(
-              new Graphics().ellipse(32, tile.npc ? 29 : (decorContactY[decor] ?? 24), 10, 3).fill({ color: 0x142c2a, alpha: 0.2 }),
+              new Graphics().ellipse(32, tile.npc ? (tile.npc === 2 ? 23 : 29) : (decorContactY[decor] ?? 24), 10, 3).fill({ color: 0x142c2a, alpha: 0.2 }),
             );
           const path = tile.npc
             ? `persos/npc-${tile.npc}${tile.npc === 2 || tile.npc === 3 ? "-life" : ""}`
