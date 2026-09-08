@@ -646,10 +646,10 @@ const catCell = (frame, mode = 0) => {
     [4, 12],
     [3, 10],
     [2, 8],
-    [2, 6],
-    [3, 5],
-    [4, 5],
-    [5, 6 + tailCurl],
+    [2, 5],
+    [3, 3],
+    [4, 3],
+    [5, 4 + tailCurl],
   ];
   for (let segment = 1; segment < tailPoints.length; segment++) {
     const [fromX, fromY] = tailPoints[segment - 1];
@@ -661,8 +661,9 @@ const catCell = (frame, mode = 0) => {
       const x = Math.round(fromX + ((toX - fromX) * step) / length);
       const y = Math.round(fromY + ((toY - fromY) * step) / length);
       if (x !== previousX && y !== previousY) put(finished, x, previousY, "j");
-      if (y >= 9) put(finished, x - 1, y, "k");
-      put(finished, x, y, y <= 5 ? "a" : "j");
+      // A continuous shaded edge keeps the slim tail legible against pale sand.
+      put(finished, x - 1, y, "l");
+      put(finished, x, y, y <= 4 ? "c" : "j");
       previousX = x;
       previousY = y;
     }
