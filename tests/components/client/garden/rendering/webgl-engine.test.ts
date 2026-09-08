@@ -444,3 +444,15 @@ it("anchors decor shadows to their visible feet instead of the tile front edge",
   }
   renderer.destroy();
 });
+
+
+it("centers trimmed nameplate glyphs on the panel rather than their baseline", async () => {
+  const renderer = await createGardenRenderer(document.createElement("div"), initial(), vi.fn());
+  for (const actor of actors().slice(0, 2)) {
+    const label = actor.children.at(-1);
+    expect(label.style.trim).toBe(true);
+    expect(label.anchor.set).toHaveBeenCalledWith(0.5, 0.5);
+    expect(label.y).toBe(-11);
+  }
+  renderer.destroy();
+});
