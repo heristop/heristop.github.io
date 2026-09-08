@@ -3130,3 +3130,21 @@ button.path-stones__heat-cell:focus-visible {
   .zazen-world__weather { background: none; }
   .zazen-world__grade { opacity: 0.08; }
 }
+
+
+.zazen-world__lantern-switch {
+  position: absolute;
+  z-index: 8;
+  width: 24px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #ffe6a9;
+    outline-offset: 2px;
+  }
+}

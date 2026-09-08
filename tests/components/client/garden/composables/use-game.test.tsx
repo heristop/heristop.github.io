@@ -508,3 +508,20 @@ it("resolves batched movement against the latest reducer state with a stable com
   expect(result.current.steps).toBe(steps + 2);
   expect(result.current.move).toBe(move);
 });
+
+it("toggles lanterns without spending supplies, moving or advancing the turn", () => {
+  const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+  const lantern = result.current.map.find((tile) => tile.decor === "lantern-lit")!;
+  const before = result.current;
+  act(() => result.current.toggleLantern(lantern));
+  expect(result.current.map.find((tile) => tile.posX === lantern.posX && tile.posY === lantern.posY)?.decor).toBe("lantern-unlit");
+  expect(result.current.position).toEqual(before.position);
+  expect(result.current.stonesLeft).toBe(before.stonesLeft);
+  expect(result.current.steps).toBe(before.steps);
+  expect(result.current.phase).toBe(before.phase);
+  act(() => result.current.toggleLantern(lantern));
+  expect(result.current.map.find((tile) => tile.posX === lantern.posX && tile.posY === lantern.posY)?.decor).toBe("lantern-lit");
+  const map = result.current.map;
+  act(() => result.current.toggleLantern({ posX: -1, posY: -1 }));
+  expect(result.current.map).toBe(map);
+});

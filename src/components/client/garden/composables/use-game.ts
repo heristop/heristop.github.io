@@ -76,6 +76,7 @@ interface GameState {
 
 interface ZazenGameState extends GameState {
   dismissFinale: () => void;
+  toggleLantern: (position: Position) => void;
   mapDimensions: { height: number; offsetX: number; offsetY: number; width: number };
   move: (dir: Direction) => void;
   restart: () => void;
@@ -85,6 +86,7 @@ interface ZazenGameState extends GameState {
 }
 
 type Action =
+  | { type: "toggleLantern"; position: Position }
   | { type: "move"; direction: Direction }
   | { type: "arrive"; position: Position }
   | { type: "lay"; position: Position }
@@ -284,6 +286,16 @@ const makeReducer = (layout: GardenLayout) =>
   function reduce(state: GameState, action: Action): GameState {
     const shrine = layout.shrine;
     switch (action.type) {
+      case "toggleLantern": {
+        const target = tileAt(state.map, action.position);
+        if (!target || (target.decor !== "lantern-lit" && target.decor !== "lantern-unlit"))
+          return state;
+        const decor = target.decor === "lantern-lit" ? "lantern-unlit" : "lantern-lit";
+        return {
+          ...state,
+          map: state.map.map((tile) => tile === target ? { ...tile, decor } : tile),
+        };
+      }
       case "move": {
         if (state.finaleOpen || state.phase !== "player") return state;
         const result = performMove(action.direction, state.position, state.map);
@@ -555,6 +567,10 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
     dispatch({ type: "move", direction });
   }, []);
 
+  const toggleLantern = useCallback((position: Position) => {
+    dispatch({ type: "toggleLantern", position });
+  }, []);
+
   const dismissFinale = useCallback(() => {
     dispatch({ type: "dismissFinale" });
   }, []);
@@ -562,6 +578,7 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
   return {
     ...state,
     dismissFinale,
+    toggleLantern,
     mapDimensions,
     move,
     restart,

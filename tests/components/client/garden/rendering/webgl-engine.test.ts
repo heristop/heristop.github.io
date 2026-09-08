@@ -482,3 +482,15 @@ it("keeps koi wakes bounded, reusable and still with reduced motion", async () =
   expect(positions()).toEqual(start);
   renderer.destroy();
 });
+
+it("removes a lantern's light and water reflection when it is extinguished", async () => {
+  const scene = initial();
+  const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
+  await renderer.update({ ...scene, map: scene.map.map((tile) =>
+    tile.decor === "lantern-lit" ? { ...tile, decor: "lantern-unlit" } : tile,
+  ) });
+  const floor = app().stage.children[0].children.at(-1);
+  expect(floor.children.some((child: any) => child.label === "lantern-reflection")).toBe(false);
+  expect(app().stage.children[2].children.filter((child: any) => child.label === "emissive-light")).toHaveLength(1);
+  renderer.destroy();
+});

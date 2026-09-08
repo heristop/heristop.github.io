@@ -86,3 +86,21 @@ test("HD-2D toggles without resetting the run and persists beyond a diagnostic U
   await page.reload();
   await expect(map).toHaveAttribute("data-renderer", "webgl");
 });
+
+for (const renderer of ["webgl", "dom"]) {
+  test(`lanterns toggle with pointer and keyboard without moving in ${renderer}`, async ({ page }) => {
+    await page.goto(`/path-of-stones/?renderer=${renderer}`);
+    await expect(page.locator(".zazen-world__map")).toHaveAttribute("data-renderer", renderer);
+    const lantern = page.getByRole("button", { name: /^Extinguish lantern/ }).first();
+    const name = await lantern.getAttribute("aria-label");
+    const position = await page.locator("#position-announcer").textContent();
+    await lantern.click();
+    const unlit = page.getByRole("button", { name: name!.replace("Extinguish", "Light"), exact: true });
+    await expect(unlit).toBeVisible();
+    await expect(page.locator("#position-announcer")).toHaveText(position!);
+    await unlit.focus();
+    await unlit.press("Enter");
+    await expect(page.getByRole("button", { name: name!, exact: true })).toBeVisible();
+    await expect(page.locator("#position-announcer")).toHaveText(position!);
+  });
+}

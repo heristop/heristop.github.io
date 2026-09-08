@@ -1732,6 +1732,29 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               </div>
               {webglRequested && <WebGLBoard scene={webglScene} onReady={renderer.onReady} />}
               {tiles}
+              {game.map
+                .filter((tile) => tile.decor === "lantern-lit" || tile.decor === "lantern-unlit")
+                .map((tile) => {
+                  const point = toScreen(
+                    tile.posX, tile.posY, mapDimensions.offsetX, mapDimensions.offsetY,
+                  );
+                  const lit = tile.decor === "lantern-lit";
+                  return (
+                    <button
+                      key={`lantern-${tile.posX}-${tile.posY}`}
+                      type="button"
+                      className="zazen-world__lantern-switch"
+                      aria-label={`${lit ? "Extinguish" : "Light"} lantern at ${tile.posX}, ${tile.posY}`}
+                      title={lit ? "Extinguish lantern" : "Light lantern"}
+                      style={{ left: point.left + 20, top: point.top - 16 }}
+                      onPointerDown={(event) => event.stopPropagation()}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        game.toggleLantern(tile);
+                      }}
+                    />
+                  );
+                })}
               <div className="zazen-world__weather" aria-hidden="true" />
               <div className="zazen-world__grade" aria-hidden="true" />
               <div className="zazen-world__cloud-shadows" aria-hidden="true">
