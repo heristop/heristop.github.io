@@ -141,11 +141,18 @@ export function createAtmosphere(
     aura.label = "stone-aura";
     const spark = glow(air, p.left + 32, p.top - 8, 9, 9, 0xffdfa0, 0.5);
     spark.label = "stone-spark";
+    const glint = new Container({ label: "stone-glint" });
+    air.addChild(glint);
+    glow(glint, 0, 0, 22, 3, 0xffe9b9, 0.8);
+    glow(glint, 0, 0, 3, 26, 0xffe9b9, 0.8);
     animations.push((time) => {
       const pulse = Math.sin(time / 1000 + tile.stone!);
       aura.alpha = 0.2 + pulse * 0.06;
       spark.y = p.top - 8 + Math.sin(time / 800 + tile.stone!) * 3;
       spark.alpha = 0.45 + pulse * 0.16;
+      glint.position.set(spark.x, spark.y);
+      // A brief jewel glint, staggered so the objectives never flash together.
+      glint.alpha = Math.max(0, Math.sin(time / 1800 + tile.stone! * 2.3)) ** 12 * 0.7;
     });
   }
   for (const tile of lights) {
@@ -180,6 +187,23 @@ export function createAtmosphere(
       0.8,
     );
     core.label = "light-core";
+    if (shrine) {
+      const beacon = glow(air, p.left + 32, p.top - 30, 38, 130, 0xffdf9f, 0.3);
+      beacon.label = "shrine-beacon";
+      animations.push((time) => {
+        beacon.alpha = 0.24 + Math.sin(time / 1900) * 0.06;
+      });
+      for (let index = 0; index < 8; index++) {
+        const ember = glow(air, 0, 0, 4, 4, 0xffe4ac, 0);
+        ember.label = "shrine-ember";
+        animations.push((time) => {
+          const phase = (time / 5200 + index / 8) % 1;
+          ember.x = p.left + 32 + Math.sin(phase * Math.PI * 2 + index) * 16;
+          ember.y = p.top + 16 - phase * 95;
+          ember.alpha = Math.sin(phase * Math.PI) ** 2 * 0.65;
+        });
+      }
+    }
     animations.push((time) => {
       const flicker = Math.sin(time / 830 + tile.posX) * 0.025 + Math.sin(time / 1270) * 0.01;
       pool.alpha = 0.56 + flicker;
@@ -233,6 +257,17 @@ export function createAtmosphere(
     reflection.fill({ color: warm ? 0xffdf9b : 0xc6e9de, alpha: 1 });
     reflection.blendMode = "add";
     floor.addChild(reflection);
+    if (index % 3 === 0) {
+      const glimmer = new Graphics();
+      glimmer.label = "water-glimmer";
+      glimmer.poly([0, -3, 1, -1, 5, 0, 1, 1, 0, 3, -1, 1, -5, 0, -1, -1]).fill(0xe5f5dc);
+      glimmer.blendMode = "add";
+      floor.addChild(glimmer);
+      animations.push((time) => {
+        glimmer.position.set(p.left + 32 + Math.sin(time / 2100 + index) * 6, p.top + 16);
+        glimmer.alpha = Math.max(0, Math.sin(time / 1600 + index * 1.9)) ** 8 * 0.6;
+      });
+    }
     animations.push((time) => {
       reflection.alpha = 0.12 + (Math.sin(time / 1150 + index * 0.8) + 1) * 0.065;
     });

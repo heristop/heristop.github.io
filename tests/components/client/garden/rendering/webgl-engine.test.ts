@@ -409,3 +409,20 @@ it("bounds water reflections and ambient populations and gives reduced motion a 
   expect(air.destroy).toHaveBeenCalledOnce();
   expect(floor.destroy).toHaveBeenCalledOnce();
 });
+
+it("reserves jewel glints and the shrine beacon for live objectives", () => {
+  const scene = initial();
+  const texture = createLightTexture();
+  const active = createAtmosphere(scene, texture);
+  const labels = (effect: ReturnType<typeof createAtmosphere>) =>
+    effect.air.children.map((child) => child.label);
+  expect(labels(active)).toContain("stone-glint");
+  expect(labels(active)).toContain("shrine-beacon");
+  expect(labels(active).filter((label) => label === "shrine-ember")).toHaveLength(8);
+  active.destroy();
+  scene.map = scene.map.map(({ stone: _stone, shrine: _shrine, ...tile }) => tile);
+  const quiet = createAtmosphere(scene, texture);
+  expect(labels(quiet)).not.toContain("stone-glint");
+  expect(labels(quiet)).not.toContain("shrine-beacon");
+  quiet.destroy();
+});
