@@ -639,22 +639,33 @@ const catCell = (frame, mode = 0) => {
     blit(g, head, 13, frame === 2 ? 0 : 1);
   }
   const finished = outline(g, "l");
-  // A slender upright tail with a hooked tip. Only the tip curls; the base stays
-  // attached to the hip instead of wagging as one rigid block.
-  for (const [x, y] of [
-    [5, 12],
-    [4, 11],
+  // A connected, tapered curve: the hip stays fixed while the hooked tip relaxes.
+  // Bridge diagonal steps so the thin tail never breaks into floating pixels.
+  const tailPoints = [
+    [6, 13],
+    [4, 12],
     [3, 10],
-    [3, 9],
     [2, 8],
-    [2, 7],
     [2, 6],
     [3, 5],
     [4, 5],
     [5, 6 + tailCurl],
-  ]) {
-    put(finished, x, y, "j");
-    if (y >= 8) put(finished, x - 1, y, "k");
+  ];
+  for (let segment = 1; segment < tailPoints.length; segment++) {
+    const [fromX, fromY] = tailPoints[segment - 1];
+    const [toX, toY] = tailPoints[segment];
+    const length = Math.max(Math.abs(toX - fromX), Math.abs(toY - fromY));
+    let previousX = fromX;
+    let previousY = fromY;
+    for (let step = 0; step <= length; step++) {
+      const x = Math.round(fromX + ((toX - fromX) * step) / length);
+      const y = Math.round(fromY + ((toY - fromY) * step) / length);
+      if (x !== previousX && y !== previousY) put(finished, x, previousY, "j");
+      if (y >= 9) put(finished, x - 1, y, "k");
+      put(finished, x, y, y <= 5 ? "a" : "j");
+      previousX = x;
+      previousY = y;
+    }
   }
   const lift = mode === 2 && frame > 0 ? (frame === 2 ? 2 : 1) : 0;
   put(finished, 22, 10 - lift, "a");

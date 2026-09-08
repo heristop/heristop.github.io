@@ -300,3 +300,28 @@ describe("bird flight poses", () => {
     }
   });
 });
+
+describe("cat tail", () => {
+  it("keeps the fine tail connected to the hip in every pose", () => {
+    const sheet = sprites["cat-walk"];
+    for (let row = 0; row < 3; row++) {
+      for (let frame = 0; frame < 4; frame++) {
+        const pixel = (x: number, y: number) => sheet.rows[row * 24 + y][frame * 24 + x];
+        const seen = new Set<string>();
+        const queue = [[6, 13]];
+        while (queue.length) {
+          const [x, y] = queue.shift()!;
+          const key = `${x},${y}`;
+          if (x < 0 || x > 6 || y < 0 || y > 15 || seen.has(key) || pixel(x, y) === ".") continue;
+          seen.add(key);
+          queue.push([x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]);
+        }
+        for (let y = 0; y < 10; y++) {
+          for (let x = 0; x < 6; x++) {
+            if (pixel(x, y) !== ".") expect(seen.has(`${x},${y}`)).toBe(true);
+          }
+        }
+      }
+    }
+  });
+});
