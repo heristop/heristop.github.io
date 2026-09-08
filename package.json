@@ -47,6 +47,7 @@
     "astro-icon": "^1.2.0",
     "katex": "^0.18.4",
     "lucide-react": "^1.33.0",
+    "pixi.js": "^8.20.1",
     "qrcode": "^1.5.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

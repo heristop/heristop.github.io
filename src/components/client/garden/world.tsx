@@ -1,3 +1,5 @@
+import { groundArtwork } from "./rendering/artwork";
+import WebGLBoard from "./rendering/webgl-board";
 import useGardenMusic from "./composables/use-music";
 import Frog from "./components/figures/frog";
 import useGamepad from "./composables/use-gamepad";
@@ -294,21 +296,6 @@ const FrogBurst = () => (
     ))}
   </span>
 );
-
-const VARIED_GROUNDS = new Set([
-  "sand-0",
-  "sand-1",
-  "sand-moss",
-  "moss-mid",
-  "moss-deep",
-  "gravel-edge",
-]);
-const groundArtwork = (tile: MapTile) => {
-  if (!VARIED_GROUNDS.has(tile.sprite)) return tile.sprite;
-  const hash = Math.imul(tile.posX + 1, 73856093) ^ Math.imul(tile.posY + 1, 19349663);
-  const variant = ((hash >>> 8) ^ hash) & 3;
-  return variant ? `${tile.sprite}-v${variant}` : tile.sprite;
-};
 
 const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile }) {
   const stoneAttr = tile.stone !== undefined ? { "data-stone-index": tile.stone } : {};
@@ -651,6 +638,12 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   const lastBurstStoneRef = useRef<number>(-1);
   const hasFramedRef = useRef(false);
   const [mapScale, setMapScale] = useState(1);
+  const [webglRequested] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("renderer") === "webgl",
+  );
+  const [webglReady, setWebglReady] = useState(false);
 
   // The inspect cursor. undefined means "not inspecting" — the day card then reports
   // whichever day the pilgrim is standing on.
@@ -1108,6 +1101,41 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   // tile remain the ways to move, on every device.
 
   const { mapDimensions } = game;
+  const webglScene = useMemo(
+    () => ({
+      map: game.map,
+      ...mapDimensions,
+      pilgrim: game.position,
+      cat: cat.position,
+      catFacingLeft: cat.facingLeft,
+      catGreeting,
+      gardener: game.gardenerPosition,
+      gardenerFacingLeft: game.gardenerFacingLeft,
+      gardenerActivity: attackVisible ? ("attack" as const) : game.gardenerActivity,
+      frog: game.frog,
+      frogVisible: !game.frogFreed || !companionRevealed,
+      companionVisible: game.frogFreed && companionRevealed,
+      aquatic: aquaticTransformation,
+      transforming,
+    }),
+    [
+      game.map,
+      mapDimensions,
+      game.position,
+      cat.position,
+      cat.facingLeft,
+      catGreeting,
+      game.gardenerPosition,
+      game.gardenerFacingLeft,
+      game.gardenerActivity,
+      attackVisible,
+      game.frog,
+      game.frogFreed,
+      companionRevealed,
+      aquaticTransformation,
+      transforming,
+    ],
+  );
   const handleReplay = useCallback(() => {
     audio.stopEffects();
     setRunId((current) => current + 1);
@@ -1288,7 +1316,29 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               setHoverDay(undefined);
             }}
           >
-            <TileRenderer tile={tile} />
+            {!webglReady ? (
+              <TileRenderer tile={tile} />
+            ) : (
+              <div
+                className="zazen-world__tile-image garden-webgl__markers"
+                data-stone-index={tile.stone}
+              >
+                {tile.stone !== undefined && (
+                  <span className="zazen-world__beacon" aria-hidden="true">
+                    ◆
+                  </span>
+                )}
+                {tile.laid && <LaidBurst />}
+                {tile.gathered && (
+                  <>
+                    <GatherBurst />
+                    <span className="zazen-world__reward" aria-hidden="true">
+                      +{STONE_REFUEL} stones
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
             {game.gardenerActivity === "rake" && manhattan(tile, game.gardenerPosition) === 0 && (
               <span className="zazen-world__rake-dust" aria-hidden="true" />
             )}
@@ -1305,6 +1355,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         );
       }),
     [
+      webglReady,
       game.map,
       game.rakeTargets,
       game.position,
@@ -1645,6 +1696,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
             <div
               className="zazen-world__map"
               ref={mapRef}
+              data-renderer={webglReady ? "webgl" : "dom"}
               role="application"
               tabIndex={0}
               aria-label="Interactive game world map"
@@ -1668,6 +1720,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               <div className="sr-only" aria-live="polite" id="position-announcer">
                 {`Pilgrim is at position ${game.position.posX}, ${game.position.posY}`}
               </div>
+              {webglRequested && <WebGLBoard scene={webglScene} onReady={setWebglReady} />}
               {tiles}
               <div className="zazen-world__weather" aria-hidden="true" />
               <div className="zazen-world__grade" aria-hidden="true" />
@@ -1696,14 +1749,16 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                   />
                 ))}
               </div>
-              <Gardener
-                position={game.gardenerPosition}
-                activity={attackVisible ? "attack" : game.gardenerActivity}
-                facingLeft={game.gardenerFacingLeft}
-                offsetX={mapDimensions.offsetX}
-                offsetY={mapDimensions.offsetY}
-              />
-              {(!game.frogFreed || !companionRevealed) && (
+              {!webglReady && (
+                <Gardener
+                  position={game.gardenerPosition}
+                  activity={attackVisible ? "attack" : game.gardenerActivity}
+                  facingLeft={game.gardenerFacingLeft}
+                  offsetX={mapDimensions.offsetX}
+                  offsetY={mapDimensions.offsetY}
+                />
+              )}
+              {!webglReady && (!game.frogFreed || !companionRevealed) && (
                 <Frog
                   position={game.frog}
                   hopping={frogHopping}
@@ -1711,7 +1766,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                   offsetY={mapDimensions.offsetY}
                 />
               )}
-              {game.frogFreed && companionRevealed && (
+              {!webglReady && game.frogFreed && companionRevealed && (
                 <ZazenCompanion
                   aquatic={aquaticTransformation}
                   transforming={transforming}
@@ -1735,14 +1790,16 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                   <FrogBurst />
                 </div>
               )}
-              <ZazenCat
-                walking={catWalking}
-                position={cat.position}
-                facingLeft={cat.facingLeft}
-                greeting={catGreeting}
-                offsetX={mapDimensions.offsetX}
-                offsetY={mapDimensions.offsetY}
-              />
+              {!webglReady && (
+                <ZazenCat
+                  walking={catWalking}
+                  position={cat.position}
+                  facingLeft={cat.facingLeft}
+                  greeting={catGreeting}
+                  offsetX={mapDimensions.offsetX}
+                  offsetY={mapDimensions.offsetY}
+                />
+              )}
               {attackVisible && (
                 <span
                   key={game.attackTicks}
@@ -1758,11 +1815,13 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                   −1 stone
                 </span>
               )}
-              <MovingPilgrim
-                position={game.position}
-                offsetX={mapDimensions.offsetX}
-                offsetY={mapDimensions.offsetY}
-              />
+              {!webglReady && (
+                <MovingPilgrim
+                  position={game.position}
+                  offsetX={mapDimensions.offsetX}
+                  offsetY={mapDimensions.offsetY}
+                />
+              )}
             </div>
           </div>
         </div>
