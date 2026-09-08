@@ -99,3 +99,17 @@ it("absorbs clicks without dismissing the card or passing them to the game", () 
   act(() => vi.advanceTimersByTime(1));
   expect(screen.queryByRole("status")).toBeNull();
 });
+
+it("plays each queued card sound only when its reveal becomes visible", () => {
+  const onReveal = vi.fn();
+  const { rerender } = render(<DiscoveryReveal catMet frogFreed paused onReveal={onReveal} />);
+  act(() => vi.advanceTimersByTime(5000));
+  expect(onReveal).not.toHaveBeenCalled();
+  rerender(<DiscoveryReveal catMet frogFreed onReveal={onReveal} />);
+  act(() => vi.advanceTimersByTime(1450));
+  expect(onReveal).toHaveBeenCalledTimes(1);
+  rerender(<DiscoveryReveal catMet frogFreed onReveal={onReveal} />);
+  expect(onReveal).toHaveBeenCalledTimes(1);
+  act(() => vi.advanceTimersByTime(2600));
+  expect(onReveal).toHaveBeenCalledTimes(2);
+});

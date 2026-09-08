@@ -145,11 +145,13 @@ export function DiscoveryReveal({
   mermaidAwakened = false,
   paused = false,
   onComplete,
+  onReveal,
 }: {
   catMet: boolean;
   frogFreed: boolean;
   mermaidAwakened?: boolean;
   paused?: boolean;
+  onReveal?: () => void;
   onComplete?: (kind: Discovery) => void;
 }) {
   const [ready, setReady] = useState(!paused);
@@ -183,6 +185,9 @@ export function DiscoveryReveal({
     }, REVEAL_MS);
     return () => window.clearTimeout(timer);
   }, [active, ready, paused, onComplete]);
+  useEffect(() => {
+    if (active && ready && !paused) onReveal?.();
+  }, [active, ready, paused, onReveal]);
   if (!active || !ready || paused) return null;
   return (
     <div

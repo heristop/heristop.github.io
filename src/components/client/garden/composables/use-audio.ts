@@ -1,6 +1,8 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 interface ZazenAudio {
+  playAttack: () => void;
+  playReveal: () => void;
   playBell: () => void;
   playChime: () => void;
   playStoneDrop: () => void;
@@ -52,7 +54,11 @@ const getAudioContextCtor = (): AudioCtor | null => {
   return ctor;
 };
 
-const useZazenAudio = (): ZazenAudio => {
+const useZazenAudio = (enabled = true): ZazenAudio => {
+  const enabledRef = useRef(enabled);
+  enabledRef.current = enabled;
+  const samples = useRef<Partial<Record<"attack" | "reveal", AudioBuffer>>>({});
+  const playing = useRef(new Set<AudioBufferSourceNode>());
   const ctxRef = useRef<AudioContext | null>(null);
 
   const ensureContext = useCallback((): AudioContext | null => {
@@ -73,6 +79,72 @@ const useZazenAudio = (): ZazenAudio => {
       return null;
     }
   }, []);
+
+  useEffect(() => {
+    const ctx = ensureContext();
+    if (!ctx) return;
+    const controller = new AbortController();
+    for (const [kind, file] of [
+      ["attack", "gardener-hit"],
+      ["reveal", "card-reveal"],
+    ] as const) {
+      void fetch(`/sounds/garden/${file}.mp3`, { signal: controller.signal })
+        .then((response) => {
+          if (!response.ok) throw new Error("Sound unavailable");
+          return response.arrayBuffer();
+        })
+        .then((bytes) => ctx.decodeAudioData(bytes))
+        .then((buffer) => {
+          if (!controller.signal.aborted) samples.current[kind] = buffer;
+        })
+        .catch(() => {
+          /* A missing sound must never interrupt play. */
+        });
+    }
+    const unlock = () => {
+      void ctx.resume().catch(() => {});
+    };
+    window.addEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock);
+    return () => {
+      controller.abort();
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+      playing.current.forEach((source) => source.stop());
+      playing.current.clear();
+      samples.current = {};
+      void ctx.close().catch(() => {});
+      ctxRef.current = null;
+    };
+  }, [ensureContext]);
+
+  useEffect(() => {
+    if (!enabled) {
+      playing.current.forEach((source) => source.stop());
+      playing.current.clear();
+    }
+  }, [enabled]);
+
+  const playSample = useCallback((kind: "attack" | "reveal", delay = 0) => {
+    const ctx = ctxRef.current;
+    const buffer = samples.current[kind];
+    // Never queue a late sound if the browser has not unlocked audio yet.
+    if (!enabledRef.current || !ctx || ctx.state !== "running" || !buffer) return;
+    const source = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    source.buffer = buffer;
+    gain.gain.value = kind === "attack" ? 0.55 : 0.45;
+    source.connect(gain).connect(ctx.destination);
+    playing.current.add(source);
+    source.onended = () => {
+      playing.current.delete(source);
+      source.disconnect();
+      gain.disconnect();
+    };
+    source.start(ctx.currentTime + delay);
+  }, []);
+  const playAttack = useCallback(() => playSample("attack", 0.36), [playSample]);
+  const playReveal = useCallback(() => playSample("reveal"), [playSample]);
 
   const playChime = useCallback(() => {
     const ctx = ensureContext();
@@ -172,7 +244,7 @@ const useZazenAudio = (): ZazenAudio => {
     }
   }, [ensureContext]);
 
-  return { playBell, playChime, playStoneDrop };
+  return { playBell, playChime, playStoneDrop, playAttack, playReveal };
 };
 
 export default useZazenAudio;

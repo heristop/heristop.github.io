@@ -617,7 +617,6 @@ const dispatchSakuraBurstForStone = (stoneIndex: number) => {
 };
 
 const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
-  const audio = useZazenAudio();
   const [soundOn, setSoundOn] = useState(() => {
     try {
       return window.localStorage.getItem("path-stones:sound") !== "off";
@@ -632,6 +631,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       /* Sound controls still work when browser storage is unavailable. */
     }
   }, [soundOn]);
+  const audio = useZazenAudio(soundOn);
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const panRef = useRef<HTMLDivElement>(null);
@@ -692,6 +692,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       setAttackVisible(false);
       return;
     }
+    audio.playAttack();
     setAttackPosition(game.position);
     setAttackVisible(true);
     const timer = setTimeout(() => setAttackVisible(false), 800);
@@ -1205,6 +1206,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         catMet={catMet}
         frogFreed={game.frogFreed}
         paused={game.phase !== "player"}
+        onReveal={audio.playReveal}
         onComplete={handleDiscoveryComplete}
       />
       {!game.finaleOpen && (
