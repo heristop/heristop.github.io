@@ -77,14 +77,13 @@ it("escalates from two to three approaches, but respects the remaining route bud
   expect(chooseRakeTargets(map, [], map[0], 2, { budget: 1 })).toHaveLength(1);
 });
 
-it("prioritizes the closest stone even when farther stones share another approach", () => {
+it("uses the closest stone to break ties between equally costly approaches", () => {
   const map = [
     ...Array.from({ length: 5 }, (_, x) => tile(x)),
     ...Array.from({ length: 8 }, (_, index) => tile(0, { posY: index + 3 })),
   ];
   map[4] = { ...map[4], stone: 0, laid: false };
   map[10] = { ...map[10], stone: 1, laid: false };
-  map[12] = { ...map[12], stone: 2, laid: false };
   expect(chooseRakeTargets(map, [], map[0], 1, { limit: 1 })).toEqual([{ posX: 3, posY: 2 }]);
 });
 
@@ -105,4 +104,15 @@ it("forces a paving expense before raking a nearby approach that can be bypassed
   map[16] = { ...map[16], stone: 1, laid: false };
   const targets = chooseRakeTargets(map, [], map[0], 1, { limit: 1 });
   expect(targets).toEqual([{ posX: 0, posY: 8 }]);
+});
+
+it("prefers a shared bottleneck that taxes two stone routes over one nearer route", () => {
+  const map = [
+    ...Array.from({ length: 5 }, (_, x) => tile(x)),
+    ...Array.from({ length: 8 }, (_, index) => tile(0, { posY: index + 3 })),
+  ];
+  map[4] = { ...map[4], stone: 0, laid: false };
+  map[10] = { ...map[10], stone: 1, laid: false };
+  map[12] = { ...map[12], stone: 2, laid: false };
+  expect(chooseRakeTargets(map, [], map[0], 1, { limit: 1 })).toEqual([{ posX: 0, posY: 7 }]);
 });

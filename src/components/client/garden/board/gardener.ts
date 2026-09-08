@@ -104,6 +104,12 @@ export const chooseRakeTargets = (
           changed,
           priority,
           forcesPaving: forced >= 0,
+          // Prefer bottlenecks that raise the cheapest crossing to several rewards.
+          // Proximity only breaks ties between equally costly obstructions.
+          totalAddedCost: impacts.reduce((sum, entry) => sum + entry.addedCost, 0),
+          cheapestGoalIncrease:
+            Math.min(...impacts.map((entry, goalIndex) => before[goalIndex] + entry.addedCost)) -
+            Math.min(...before),
           score:
             impact.addedCost * 100 +
             20 / (1 + impact.proximity) +
@@ -112,6 +118,8 @@ export const chooseRakeTargets = (
       })
       .sort(
         (a, b) =>
+          b.cheapestGoalIncrease - a.cheapestGoalIncrease ||
+          b.totalAddedCost - a.totalAddedCost ||
           Number(b.forcesPaving) - Number(a.forcesPaving) ||
           a.priority - b.priority ||
           b.score - a.score,
