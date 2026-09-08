@@ -571,3 +571,19 @@ it("shrinks the stone shadow at the apex and restores it on landing without shif
   expect([shadow.x, shadow.y]).toEqual([32, 23]);
   renderer.destroy();
 });
+
+it("limits warm water and lantern mirrors to a two-tile Manhattan radius", () => {
+  const scene = initial();
+  scene.map = [
+    { posX: 0, posY: 0, sprite: "moss-mid", decor: "lantern-lit", npc: 0, walkable: false },
+    ...[[2, 0], [1, 1], [2, 1], [3, 0]].map(([posX, posY]) => ({
+      posX, posY, sprite: "water-still", decor: "", npc: 0, walkable: false,
+    })),
+  ];
+  const atmosphere = createAtmosphere(scene, createLightTexture(), new Map([["decors/lantern-lit", createLightTexture()]]));
+  const children = (atmosphere.floor as any).children;
+  expect(children.filter((child: any) => child.label === "lantern-reflection")).toHaveLength(2);
+  expect(children.filter((child: any) => child.label === "water-caustic").map((child: any) => child.tint))
+    .toEqual([0xffd590, 0xffd590, 0xa5e7d9, 0xa5e7d9]);
+  atmosphere.destroy();
+});

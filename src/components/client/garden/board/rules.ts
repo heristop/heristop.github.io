@@ -69,8 +69,8 @@ const findWalkablePath = (
   const seen = new Set<string>([positionKey(from)]);
   const queue: Position[] = [from];
 
-  while (queue.length > 0) {
-    const current = queue.shift() as Position;
+  for (let head = 0; head < queue.length; head++) {
+    const current = queue[head];
     for (const direction of ["N", "E", "S", "W"] as const) {
       const next = applyDirectionOffset(direction, current.posX, current.posY);
       const nextKey = positionKey(next);
@@ -84,10 +84,10 @@ const findWalkablePath = (
         const path: Position[] = [];
         let cursor: Position | undefined = next;
         while (cursor && positionKey(cursor) !== positionKey(from)) {
-          path.unshift(cursor);
+          path.push(cursor);
           cursor = parents.get(positionKey(cursor));
         }
-        return path;
+        return path.reverse();
       }
       queue.push(next);
     }

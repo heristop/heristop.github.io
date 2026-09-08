@@ -277,8 +277,8 @@ const reachableSet = (map: readonly MapTile[], start: Position): Set<string> => 
   const byKey = new Map(map.map((tile) => [positionKey(tile), tile]));
   const seen = new Set<string>([positionKey(start)]);
   const queue: Position[] = [start];
-  while (queue.length > 0) {
-    const current = queue.shift() as Position;
+  for (let head = 0; head < queue.length; head++) {
+    const current = queue[head];
     for (const next of neighboursOf(current)) {
       const nextKey = positionKey(next);
       const tile = byKey.get(nextKey);
@@ -301,8 +301,8 @@ const carvePathTo = (map: MapTile[], start: Position, target: Position, avoid?: 
   const queue: Position[] = [start];
   const targetKey = positionKey(target);
 
-  while (queue.length > 0) {
-    const current = queue.shift() as Position;
+  for (let head = 0; head < queue.length; head++) {
+    const current = queue[head];
     if (positionKey(current) === targetKey) {
       break;
     }

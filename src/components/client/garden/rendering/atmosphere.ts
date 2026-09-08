@@ -75,6 +75,18 @@ export function createAtmosphere(
   const lights = scene.map.filter(
     (tile) => tile.decor === "lantern-lit" || tile.shrine === "active",
   );
+  // Each light influences 13 tiles. Index once instead of scanning every light per water tile.
+  const warmTiles = new Set<string>();
+  const lampTiles = new Set<string>();
+  for (const light of lights) {
+    for (let dx = -2; dx <= 2; dx++) {
+      for (let dy = -2 + Math.abs(dx); dy <= 2 - Math.abs(dx); dy++) {
+        const key = `${light.posX + dx},${light.posY + dy}`;
+        warmTiles.add(key);
+        if (light.decor === "lantern-lit") lampTiles.add(key);
+      }
+    }
+  }
   const water = scene.map.filter((tile) => tile.sprite === "water-still");
   const sun = glow(
     floor,
@@ -213,15 +225,10 @@ export function createAtmosphere(
   }
   for (const [index, tile] of water.entries()) {
     const p = place(tile.posX, tile.posY);
-    const warm = lights.some(
-      (light) => Math.abs(light.posX - tile.posX) + Math.abs(light.posY - tile.posY) <= 2,
-    );
+    const key = `${tile.posX},${tile.posY}`;
+    const warm = warmTiles.has(key);
     const lampTexture = sceneryTextures.get("decors/lantern-lit");
-    const nearLamp = lights.some(
-      (light) =>
-        light.decor === "lantern-lit" &&
-        Math.abs(light.posX - tile.posX) + Math.abs(light.posY - tile.posY) <= 2,
-    );
+    const nearLamp = lampTiles.has(key);
     if (nearLamp && lampTexture) {
       const mirror = new Container({ label: "lantern-reflection" });
       mirror.position.set(p.left, p.top);

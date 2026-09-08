@@ -69,6 +69,7 @@ export async function createGardenRenderer(
   let grade: ColorMatrixFilter | undefined;
   let lightTexture: Texture | undefined;
   let atmosphere: ReturnType<typeof createAtmosphere> | undefined;
+  const loadedMaps = new WeakSet<GardenScene["map"]>();
   let renderedMap: GardenScene["map"] | undefined;
   const ground = new Container();
   const figures = new Container({ sortableChildren: true });
@@ -282,16 +283,19 @@ export async function createGardenRenderer(
   const update = async (next: GardenScene) => {
     if (destroyed) return;
     const version = ++revision;
-    const paths = new Set(actorSheets.map((name) => `persos/${name}`));
-    paths.add("decors/frog-life");
-    for (const tile of next.map) {
-      paths.add(`sol/${groundArtwork(tile)}`);
-      if (tile.decor && tile.decor !== "frog")
-        paths.add(`decors/${tile.decor === "koi" ? "koi-life" : tile.decor}`);
-      if (tile.npc)
-        paths.add(`persos/npc-${tile.npc}${tile.npc === 2 || tile.npc === 3 ? "-life" : ""}`);
+    if (!loadedMaps.has(next.map)) {
+      const paths = new Set(actorSheets.map((name) => `persos/${name}`));
+      paths.add("decors/frog-life");
+      for (const tile of next.map) {
+        paths.add(`sol/${groundArtwork(tile)}`);
+        if (tile.decor && tile.decor !== "frog")
+          paths.add(`decors/${tile.decor === "koi" ? "koi-life" : tile.decor}`);
+        if (tile.npc)
+          paths.add(`persos/npc-${tile.npc}${tile.npc === 2 || tile.npc === 3 ? "-life" : ""}`);
+      }
+      await load(paths);
+      loadedMaps.add(next.map);
     }
-    await load(paths);
     if (destroyed || version !== revision) return;
     if (next.gardenerActivity === "attack" && scene.gardenerActivity !== "attack")
       attackStarted = elapsed;
@@ -311,8 +315,9 @@ export async function createGardenRenderer(
         atmosphere.destroy();
       }
       for (const child of ground.removeChildren()) child.destroy({ children: true });
+      const actorContainers = new Set([...actors.values()].map((actor) => actor.container));
       for (const child of figures.children.slice())
-        if (![...actors.values()].some((actor) => actor.container === child)) {
+        if (!actorContainers.has(child)) {
           figures.removeChild(child);
           child.destroy({ children: true });
         }
