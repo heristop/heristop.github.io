@@ -45,17 +45,20 @@ it("synchronizes hits, plays reveals immediately and cancels sound when muted", 
   expect(sources[0].start).toHaveBeenCalledWith(10.36);
   expect(sources[1].start).toHaveBeenCalledWith(10);
   expect(sources[2].start).toHaveBeenCalledWith(10);
+  act(() => result.current.stopEffects());
+  expect(sources.every((source) => source.stop.mock.calls.length === 1)).toBe(true);
+  act(() => result.current.playVictory());
   rerender({ enabled: false });
   expect(sources.every((source) => source.stop.mock.calls.length === 1)).toBe(true);
   act(() => {
     result.current.playReveal();
     result.current.playVictory();
   });
-  expect(sources).toHaveLength(3);
+  expect(sources).toHaveLength(4);
   rerender({ enabled: true });
   context.state = "suspended";
   act(() => result.current.playAttack());
-  expect(sources).toHaveLength(3);
+  expect(sources).toHaveLength(4);
   unmount();
   expect(context.close).toHaveBeenCalledOnce();
 });

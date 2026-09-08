@@ -14,7 +14,7 @@ Downloaded 2026-09-08. Attribution is optional under CC0; sources are retained h
 
 - `zen-garden.mp3`: "Revelation" by Indieteur, CC0.
   https://opengameart.org/content/revelation
-  Source: `Revelation_0.mp3`. Converted to 96 kbps MP3, with gentle opening and closing fades for repeated playback. Downloaded 2026-09-08.
+  Source: `Revelation_0.mp3`. Converted to 96 kbps MP3, with gentle opening and closing fades for repeated playback. The mix is attenuated to 16% (-15.92 dB), so its quiet level also works on iOS without relying on media element volume. Downloaded 2026-09-08.
 
 ## Gate arrival
 

@@ -25,7 +25,8 @@ export default function useGardenMusic() {
   useEffect(() => {
     const track = new Audio("/sounds/garden/zen-garden.mp3");
     track.loop = true;
-    track.volume = 0.16;
+    // The file is already mixed quietly: iOS ignores HTMLMediaElement.volume.
+    track.volume = 1;
     track.preload = "none";
     music.current = track;
     const unlock = () => {

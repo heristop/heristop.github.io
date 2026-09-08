@@ -910,10 +910,11 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     };
   }, [step.renderPosition, game.mapDimensions, game.phase, game.gardenerPosition, mapScale]);
 
-  // A fresh garden — or a restart — may not have firm ground where he was standing.
+  // Raking or a restart may remove his footing. Frog hops also update the map,
+  // so preserve his current position whenever it still offers somewhere to walk.
   useEffect(() => {
     setCat((current) => {
-      const footing = catFooting(game.map, CAT_START);
+      const footing = catFooting(game.map, current.position);
       return footing.posX === current.position.posX && footing.posY === current.position.posY
         ? current
         : { facingLeft: current.facingLeft, position: footing };
@@ -1095,6 +1096,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
 
   const { mapDimensions } = game;
   const handleReplay = useCallback(() => {
+    audio.stopEffects();
     setCatMet(false);
     setRefusal(undefined);
     setHoverDay(undefined);
@@ -1103,7 +1105,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     setRoute([]);
     setCursorDay(undefined);
     game.restart();
-  }, [game]);
+  }, [game, audio.stopEffects]);
 
   const focusPilgrim = useCallback(() => {
     const pan = panRef.current;

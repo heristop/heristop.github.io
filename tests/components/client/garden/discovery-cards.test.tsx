@@ -62,6 +62,27 @@ it("keeps the secret out of the journal until the mermaid awakens", () => {
   expect(screen.getByText("Secret arcana")).toBeVisible();
 });
 
+it("clears secret details on restart and keeps them closed when rediscovered", () => {
+  const { rerender, container } = render(
+    <DiscoveryCollection catMet frogFreed mermaidAwakened />,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Inspect The Tidekeeper" }));
+  const details = container.querySelector("#garden-card-details");
+  expect(details).toBeVisible();
+  expect(details).toHaveTextContent("The Tidekeeper");
+
+  rerender(<DiscoveryCollection catMet={false} frogFreed={false} />);
+  expect(details).not.toBeVisible();
+  expect(screen.queryByText("The Tidekeeper")).toBeNull();
+
+  rerender(<DiscoveryCollection catMet={false} frogFreed mermaidAwakened />);
+  expect(details).not.toBeVisible();
+  expect(screen.getByRole("button", { name: "Inspect The Tidekeeper" })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
+});
+
 it("reveals the secret only after the transformation signals completion", () => {
   const complete = vi.fn();
   const { rerender } = render(<DiscoveryReveal catMet={false} frogFreed onComplete={complete} />);

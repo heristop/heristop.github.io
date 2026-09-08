@@ -38,7 +38,7 @@ it("waits for interaction, loops quietly and remembers its independent toggle", 
   const { result, unmount } = renderHook(() => useGardenMusic());
   expect(track.play).not.toHaveBeenCalled();
   expect(track.loop).toBe(true);
-  expect(track.volume).toBeLessThan(0.2);
+  expect(track.volume).toBe(1);
   fireEvent.pointerDown(window);
   expect(track.play).toHaveBeenCalledOnce();
   act(() => result.current.toggleMusic());

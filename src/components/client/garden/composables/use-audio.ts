@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 
 interface ZazenAudio {
+  stopEffects: () => void;
   playAttack: () => void;
   playReveal: () => void;
   playVictory: () => void;
@@ -51,11 +52,15 @@ const useZazenAudio = (enabled = true): ZazenAudio => {
   const samples = useRef<Partial<Record<"attack" | "reveal" | "victory", AudioBuffer>>>({});
   const playing = useRef(new Set<AudioBufferSourceNode>());
   const ctxRef = useRef<AudioContext | null>(null);
+  const stopEffects = useCallback(() => {
+    playing.current.forEach((source) => source.stop());
+    playing.current.clear();
+  }, []);
 
   const ensureContext = useCallback((): AudioContext | null => {
     if (ctxRef.current) {
       if (ctxRef.current.state === "suspended") {
-        void ctxRef.current.resume();
+        void ctxRef.current.resume().catch(() => {});
       }
       return ctxRef.current;
     }
@@ -102,20 +107,18 @@ const useZazenAudio = (enabled = true): ZazenAudio => {
       controller.abort();
       window.removeEventListener("pointerdown", unlock);
       window.removeEventListener("keydown", unlock);
-      playing.current.forEach((source) => source.stop());
-      playing.current.clear();
+      stopEffects();
       samples.current = {};
       void ctx.close().catch(() => {});
       ctxRef.current = null;
     };
-  }, [ensureContext]);
+  }, [ensureContext, stopEffects]);
 
   useEffect(() => {
     if (!enabled) {
-      playing.current.forEach((source) => source.stop());
-      playing.current.clear();
+      stopEffects();
     }
-  }, [enabled]);
+  }, [enabled, stopEffects]);
 
   const playSample = useCallback((kind: "attack" | "reveal" | "victory", delay = 0) => {
     const ctx = ctxRef.current;
@@ -205,7 +208,7 @@ const useZazenAudio = (enabled = true): ZazenAudio => {
     }
   }, [ensureContext]);
 
-  return { playVictory, playChime, playStoneDrop, playAttack, playReveal };
+  return { stopEffects, playVictory, playChime, playStoneDrop, playAttack, playReveal };
 };
 
 export default useZazenAudio;

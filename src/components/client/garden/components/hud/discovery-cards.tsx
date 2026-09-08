@@ -78,6 +78,11 @@ export function DiscoveryCollection({
   mermaidAwakened?: boolean;
 }) {
   const [selected, setSelected] = useState<Discovery | null>(null);
+  useEffect(() => {
+    if (!mermaidAwakened) {
+      setSelected((current) => (current === "mermaid" ? null : current));
+    }
+  }, [mermaidAwakened]);
   const count = Number(catMet) + Number(frogFreed) + Number(mermaidAwakened);
   const total = mermaidAwakened ? 3 : 2;
   const kinds: Discovery[] = mermaidAwakened ? ["cat", "frog", "mermaid"] : ["cat", "frog"];
