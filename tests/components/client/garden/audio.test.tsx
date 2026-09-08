@@ -4,6 +4,42 @@ import useZazenAudio from "../../../../src/components/client/garden/composables/
 
 afterEach(() => vi.unstubAllGlobals());
 
+it("defers audio resources until enabled and keeps them across later mute toggles", async () => {
+  const context = {
+    state: "running",
+    close: vi.fn().mockResolvedValue(undefined),
+    decodeAudioData: vi.fn().mockResolvedValue({}),
+  };
+  const created = vi.fn();
+  vi.stubGlobal(
+    "AudioContext",
+    class {
+      constructor() {
+        created();
+        return context;
+      }
+    },
+  );
+  const fetchSound = vi.fn().mockResolvedValue({
+    ok: true,
+    arrayBuffer: async () => new ArrayBuffer(0),
+  });
+  vi.stubGlobal("fetch", fetchSound);
+  const { rerender, unmount } = renderHook(({ enabled }) => useZazenAudio(enabled), {
+    initialProps: { enabled: false },
+  });
+  expect(created).not.toHaveBeenCalled();
+  expect(fetchSound).not.toHaveBeenCalled();
+  rerender({ enabled: true });
+  await waitFor(() => expect(context.decodeAudioData).toHaveBeenCalledTimes(3));
+  rerender({ enabled: false });
+  rerender({ enabled: true });
+  expect(created).toHaveBeenCalledOnce();
+  expect(fetchSound).toHaveBeenCalledTimes(3);
+  unmount();
+  expect(context.close).toHaveBeenCalledOnce();
+});
+
 it("synchronizes hits, plays reveals immediately and cancels sound when muted", async () => {
   const sources: { start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn> }[] = [];
   const gain = { gain: { value: 0 }, connect: vi.fn(), disconnect: vi.fn() };

@@ -1,9 +1,6 @@
 import useGardenMusic from "./composables/use-music";
 import Frog from "./components/figures/frog";
 import useGamepad from "./composables/use-gamepad";
-import "./world.scss";
-import "./diorama.scss";
-import "./tactics.scss";
 import { MAX_GARDENER_TURNS } from "./board/challenge";
 import { chooseRakeTargets } from "./board/gardener";
 import Gardener from "./components/figures/gardener";
@@ -1195,6 +1192,127 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       game.gardenerPosition,
     ],
   );
+  const { posX: focusedX, posY: focusedY } = focusedPosition;
+  // Actor animation frames do not change terrain, tile controls or route markers.
+  const tiles = useMemo(
+    () =>
+      game.map.map((tile) => {
+        const key = `${tile.posX},${tile.posY}`;
+        const rakeIndex = game.rakeTargets.findIndex((target) => manhattan(tile, target) === 0);
+        const adjacent = isStepTarget(tile, game.position);
+        const payable = canPaveTile(tile);
+        const reachable = isWalkableTile(tile) || payable;
+        const classes = ["zazen-world__tile"];
+        if (adjacent) {
+          classes.push("zazen-world__tile--step");
+        }
+        if (reachable) {
+          classes.push("zazen-world__tile--walkable");
+        }
+        // Sand you may cross by paying for it. It was already clickable and already
+        // worked — it simply gave no sign of it: the cursor stayed an arrow and the
+        // hover mark was reserved for tiles you could step to for free, so the game's
+        // central move looked like something the board refused to do.
+        if (payable) {
+          classes.push("zazen-world__tile--payable");
+        }
+        if (previewKeys.has(key)) {
+          classes.push("zazen-world__tile--preview");
+        }
+        if (previewPaveKeys.has(key)) {
+          classes.push("zazen-world__tile--preview-pave");
+        }
+        if (previewKeys.has(key) && !previewAffordable) {
+          classes.push("zazen-world__tile--preview-denied");
+        }
+        if (focusedX === tile.posX && focusedY === tile.posY && inspectDay !== undefined) {
+          classes.push("zazen-world__tile--inspected");
+        }
+        const { left, top } = toScreen(
+          tile.posX,
+          tile.posY,
+          mapDimensions.offsetX,
+          mapDimensions.offsetY,
+        );
+        return (
+          <div
+            className={classes.join(" ")}
+            key={key}
+            style={
+              {
+                "--depth-light": depthLightFor(tile.posX, tile.posY),
+                "--wind-phase": windPhaseFor(tile.posX, tile.posY),
+                "--grow-delay": `${growDelayFor(tileIndexForPosition(tile))}ms`,
+                left: `${left}px`,
+                top: `${top}px`,
+              } as React.CSSProperties
+            }
+            // Only the neighbouring tiles are exposed as buttons. Every tile is
+            // clickable, but announcing 144 of them would bury the useful ones —
+            // keyboard users get the whole garden through the Tab inspect cursor,
+            // which reads each day out and walks there on Enter.
+            data-rake={rakeIndex >= 0 ? "marked" : undefined}
+            data-working={
+              (game.gardenerActivity === "rake" && manhattan(tile, game.gardenerPosition) === 0) ||
+              undefined
+            }
+            data-threatened={
+              threatenedPaths.some((target) => manhattan(tile, target) === 0) || undefined
+            }
+            role={adjacent ? "button" : undefined}
+            aria-disabled={adjacent && game.phase === "gardener" ? true : undefined}
+            aria-label={adjacent ? `Walk to ${tile.posX}, ${tile.posY}` : undefined}
+            onClick={
+              reachable
+                ? () => {
+                    handleTileClick(tile);
+                  }
+                : undefined
+            }
+            onMouseEnter={() => {
+              setHoverPosition({ posX: tile.posX, posY: tile.posY });
+              setHoverDay(dayIndexForPosition(tile));
+            }}
+            onMouseLeave={() => {
+              setHoverPosition(undefined);
+              setHoverDay(undefined);
+            }}
+          >
+            <TileRenderer tile={tile} />
+            {game.gardenerActivity === "rake" && manhattan(tile, game.gardenerPosition) === 0 && (
+              <span className="zazen-world__rake-dust" aria-hidden="true" />
+            )}
+            {game.phase === "gardener" &&
+              game.gardenerActions.some(
+                (action) => action.kind === "walk" && manhattan(tile, action.position) === 0,
+              ) && <span className="zazen-world__gardener-footstep" aria-hidden="true" />}
+
+            {/* The tile itself is a 0x0 box: it is absolutely positioned and so is
+      everything in it. This span is the actual hit area, clipped to the
+      diamond so neighbouring tiles never steal each other's clicks. */}
+            <span className="zazen-world__hit" aria-hidden="true" />
+          </div>
+        );
+      }),
+    [
+      game.map,
+      game.rakeTargets,
+      game.position,
+      game.phase,
+      game.gardenerActivity,
+      game.gardenerPosition,
+      game.gardenerActions,
+      previewKeys,
+      previewPaveKeys,
+      previewAffordable,
+      focusedX,
+      focusedY,
+      inspectDay,
+      mapDimensions,
+      threatenedPaths,
+      handleTileClick,
+    ],
+  );
   const refillsLeft = Math.max(0, MAX_GARDENER_TURNS - game.gardenerTurns);
 
   const stonesLabel = `${game.stonesFound.length} of ${STONE_COUNT} stones gathered`;
@@ -1540,113 +1658,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               <div className="sr-only" aria-live="polite" id="position-announcer">
                 {`Pilgrim is at position ${game.position.posX}, ${game.position.posY}`}
               </div>
-              {game.map.map((tile) => {
-                const key = `${tile.posX},${tile.posY}`;
-                const rakeIndex = game.rakeTargets.findIndex(
-                  (target) => manhattan(tile, target) === 0,
-                );
-                const adjacent = isStepTarget(tile, game.position);
-                const payable = canPaveTile(tile);
-                const reachable = isWalkableTile(tile) || payable;
-                const classes = ["zazen-world__tile"];
-                if (adjacent) {
-                  classes.push("zazen-world__tile--step");
-                }
-                if (reachable) {
-                  classes.push("zazen-world__tile--walkable");
-                }
-                // Sand you may cross by paying for it. It was already clickable and already
-                // worked — it simply gave no sign of it: the cursor stayed an arrow and the
-                // hover mark was reserved for tiles you could step to for free, so the game's
-                // central move looked like something the board refused to do.
-                if (payable) {
-                  classes.push("zazen-world__tile--payable");
-                }
-                if (previewKeys.has(key)) {
-                  classes.push("zazen-world__tile--preview");
-                }
-                if (previewPaveKeys.has(key)) {
-                  classes.push("zazen-world__tile--preview-pave");
-                }
-                if (previewKeys.has(key) && !previewAffordable) {
-                  classes.push("zazen-world__tile--preview-denied");
-                }
-                if (
-                  focusedPosition.posX === tile.posX &&
-                  focusedPosition.posY === tile.posY &&
-                  inspectDay !== undefined
-                ) {
-                  classes.push("zazen-world__tile--inspected");
-                }
-                const { left, top } = toScreen(
-                  tile.posX,
-                  tile.posY,
-                  mapDimensions.offsetX,
-                  mapDimensions.offsetY,
-                );
-                return (
-                  <div
-                    className={classes.join(" ")}
-                    key={key}
-                    style={
-                      {
-                        "--depth-light": depthLightFor(tile.posX, tile.posY),
-                        "--wind-phase": windPhaseFor(tile.posX, tile.posY),
-                        "--grow-delay": `${growDelayFor(tileIndexForPosition(tile))}ms`,
-                        left: `${left}px`,
-                        top: `${top}px`,
-                      } as React.CSSProperties
-                    }
-                    // Only the neighbouring tiles are exposed as buttons. Every tile is
-                    // clickable, but announcing 144 of them would bury the useful ones —
-                    // keyboard users get the whole garden through the Tab inspect cursor,
-                    // which reads each day out and walks there on Enter.
-                    data-rake={rakeIndex >= 0 ? "marked" : undefined}
-                    data-working={
-                      (game.gardenerActivity === "rake" &&
-                        manhattan(tile, game.gardenerPosition) === 0) ||
-                      undefined
-                    }
-                    data-threatened={
-                      threatenedPaths.some((target) => manhattan(tile, target) === 0) || undefined
-                    }
-                    role={adjacent ? "button" : undefined}
-                    aria-disabled={adjacent && game.phase === "gardener" ? true : undefined}
-                    aria-label={adjacent ? `Walk to ${tile.posX}, ${tile.posY}` : undefined}
-                    onClick={
-                      reachable
-                        ? () => {
-                            handleTileClick(tile);
-                          }
-                        : undefined
-                    }
-                    onMouseEnter={() => {
-                      setHoverPosition({ posX: tile.posX, posY: tile.posY });
-                      setHoverDay(dayIndexForPosition(tile));
-                    }}
-                    onMouseLeave={() => {
-                      setHoverPosition(undefined);
-                      setHoverDay(undefined);
-                    }}
-                  >
-                    <TileRenderer tile={tile} />
-                    {game.gardenerActivity === "rake" &&
-                      manhattan(tile, game.gardenerPosition) === 0 && (
-                        <span className="zazen-world__rake-dust" aria-hidden="true" />
-                      )}
-                    {game.phase === "gardener" &&
-                      game.gardenerActions.some(
-                        (action) =>
-                          action.kind === "walk" && manhattan(tile, action.position) === 0,
-                      ) && <span className="zazen-world__gardener-footstep" aria-hidden="true" />}
-
-                    {/* The tile itself is a 0x0 box: it is absolutely positioned and so is
-                    everything in it. This span is the actual hit area, clipped to the
-                    diamond so neighbouring tiles never steal each other's clicks. */}
-                    <span className="zazen-world__hit" aria-hidden="true" />
-                  </div>
-                );
-              })}
+              {tiles}
               <div className="zazen-world__weather" aria-hidden="true" />
               <div className="zazen-world__grade" aria-hidden="true" />
               <div className="zazen-world__cloud-shadows" aria-hidden="true">

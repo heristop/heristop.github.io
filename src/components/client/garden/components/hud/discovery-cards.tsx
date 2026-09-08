@@ -1,6 +1,5 @@
 import { useEffect, useEffectEvent, useState } from "react";
 import type { CSSProperties } from "react";
-import "./discovery-cards.scss";
 import Icon from "../../../icon";
 
 const REVEAL_MS = 2600;

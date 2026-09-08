@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface ZazenAudio {
   stopEffects: () => void;
@@ -47,6 +47,8 @@ const getAudioContextCtor = (): AudioCtor | null => {
 };
 
 const useZazenAudio = (enabled = true): ZazenAudio => {
+  const [activated, setActivated] = useState(enabled);
+  if (enabled && !activated) setActivated(true);
   const samples = useRef<Partial<Record<"attack" | "reveal" | "victory", AudioBuffer>>>({});
   const playing = useRef(new Set<AudioBufferSourceNode>());
   const ctxRef = useRef<AudioContext | null>(null);
@@ -75,6 +77,7 @@ const useZazenAudio = (enabled = true): ZazenAudio => {
   }, []);
 
   useEffect(() => {
+    if (!activated) return;
     const ctx = ensureContext();
     if (!ctx) return;
     const controller = new AbortController();
@@ -110,7 +113,7 @@ const useZazenAudio = (enabled = true): ZazenAudio => {
       void ctx.close().catch(() => {});
       ctxRef.current = null;
     };
-  }, [ensureContext, stopEffects]);
+  }, [activated, ensureContext, stopEffects]);
 
   useEffect(() => {
     if (!enabled) {
