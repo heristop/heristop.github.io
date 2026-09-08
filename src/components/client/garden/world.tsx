@@ -1751,6 +1751,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               className="zazen-world__map"
               ref={mapRef}
               data-renderer={webglReady ? "webgl" : "dom"}
+              data-cursor={game.phase === "player" && !game.finaleOpen && preview && preview.path.length > 0 && previewAffordable ? "move" : "default"}
               data-renderer-switched={renderer.hasRendered || undefined}
               role="application"
               tabIndex={0}

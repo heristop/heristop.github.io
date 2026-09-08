@@ -1243,6 +1243,32 @@ const ripple = () =>
     }),
   );
 
+// Native-size cursors share the garden palette and a precise arrow-tip hotspot.
+const gardenCursor = (move) => {
+  const g = grid(24, 24);
+  const points = [[3, 3], [3, 16], [6, 13], [9, 19], [12, 18], [9, 12], [15, 12]];
+  for (let y = 0; y < 24; y++) {
+    for (let x = 0; x < 24; x++) {
+      let inside = false;
+      for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+        const [xi, yi] = points[i];
+        const [xj, yj] = points[j];
+        if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+      }
+      if (inside) put(g, x, y, move ? "g" : "a");
+    }
+  }
+  if (move) {
+    for (let y = 15; y <= 21; y++) {
+      const half = (3 - Math.abs(y - 18)) * 2;
+      rect(g, 17 - half, y, half * 2 + 1, 1, y < 18 ? "g" : "h");
+    }
+    put(g, 17, 17, "a");
+    put(g, 17, 18, "a");
+  }
+  return outline(g, "q");
+};
+
 // Eight wing poses share a fixed shoulder and head for a stable flight silhouette.
 const birdSheet = () => {
   const tips = [[8, 1], [6, 2], [3, 5], [5, 10], [8, 14], [7, 11], [4, 8], [2, 6]];
@@ -1350,6 +1376,8 @@ export const SPRITES = {
   "gardener-strike": sprite(gardenerStrikeSheet()),
   "mermaid-life": sprite(mermaidSheet()),
   "bird-flight": sprite(birdSheet()),
+  "cursor-default": sprite(gardenCursor(false)),
+  "cursor-move": sprite(gardenCursor(true)),
   "bamboo-a": sprite(bamboo([-6, 0, 6], 46)),
   "bamboo-b": sprite(bamboo([-4, 3], 38)),
   "bridge-plank": sprite(bridgePlank()),

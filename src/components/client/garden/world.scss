@@ -3206,3 +3206,25 @@ button.path-stones__heat-cell:focus-visible {
   background: radial-gradient(ellipse at center, #142c2a42 0%, #142c2a24 55%, transparent 78%);
   pointer-events: none;
 }
+
+
+@media (hover: hover) and (pointer: fine) {
+  .path-stones .zazen-world__map {
+    --garden-cursor: url("/images/zazen/fx/cursor-default.png") 3 3, default;
+
+    &[data-cursor="move"] {
+      --garden-cursor: url("/images/zazen/fx/cursor-move.png") 3 3, pointer;
+    }
+  }
+
+  .path-stones .zazen-world__map,
+  .path-stones .zazen-world__tile,
+  .path-stones .zazen-world__tile .zazen-world__hit {
+    cursor: var(--garden-cursor);
+  }
+
+  .path-stones .zazen-world__scenery-switch,
+  .path-stones .zazen-world__lantern-switch {
+    cursor: url("/images/zazen/fx/cursor-default.png") 3 3, pointer;
+  }
+}

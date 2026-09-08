@@ -150,3 +150,21 @@ test("classic stone shadow shrinks at the apex while staying grounded", async ({
   });
   expect(scale).toBeCloseTo(0.5);
 });
+
+for (const renderer of ["webgl", "dom"]) {
+  test(`cursor distinguishes walkable destinations in ${renderer}`, async ({ page, isMobile }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(`/path-of-stones/?renderer=${renderer}`);
+    const map = page.locator(".zazen-world__map");
+    await expect(map).toHaveAttribute("data-renderer", renderer, { timeout: 20000 });
+    await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible({ timeout: 20000 });
+    const destination = page.locator('[data-scenery-key="2,1"] .zazen-world__hit');
+    await destination.hover();
+    await expect(map).toHaveAttribute("data-cursor", "move");
+    if (!isMobile) await expect(destination).toHaveCSS("cursor", /cursor-move\.png/);
+    const current = page.locator('[data-scenery-key="1,1"] .zazen-world__hit');
+    await current.hover();
+    await expect(map).toHaveAttribute("data-cursor", "default");
+    if (!isMobile) await expect(current).toHaveCSS("cursor", /cursor-default\.png/);
+  });
+}
