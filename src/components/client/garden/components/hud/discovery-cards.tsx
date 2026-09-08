@@ -203,7 +203,22 @@ export function DiscoveryReveal({
       <span className="garden-discovery__kicker">
         {active === "mermaid" ? "A secret awakens" : "A new friendship"}
       </span>
-      <div className="garden-discovery__burst" aria-hidden="true" />
+      <div className="garden-discovery__burst" aria-hidden="true">
+        {[24, 28, 50, 57, 76, 82].map((top, index) => (
+          <span
+            className="garden-discovery__spark"
+            key={top}
+            style={
+              {
+                top: `${top}%`,
+                left: index % 2 ? "91%" : "7%",
+                "--spark-drift": index % 2 ? "12px" : "-12px",
+                animationDelay: `${160 + index * 45}ms`,
+              } as CSSProperties
+            }
+          />
+        ))}
+      </div>
       <DiscoveryCard kind={active} earned />
       <span className="garden-discovery__note">{discoveries[active].note}</span>
     </div>

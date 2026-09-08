@@ -198,7 +198,7 @@
       z-index: 3;
       inset: 0;
       border-radius: inherit;
-      background: linear-gradient(115deg, transparent 30%, #fff7dba0 45%, transparent 60%);
+      background: linear-gradient(115deg, transparent 44%, #fff7db66 49%, transparent 54%);
       background-size: 350% 100%;
       animation: garden-card-foil 800ms 300ms both;
     }
@@ -248,10 +248,39 @@
 
 .garden-discovery__burst {
   position: absolute;
-  inset: -60px -70px;
+  inset: 35px 0 40px;
   z-index: -1;
-  background: radial-gradient(ellipse, #e7c78277, #132f2ecc 45%, transparent 70%);
-  animation: garden-card-glow 950ms ease-out both;
+  pointer-events: none;
+}
+
+.garden-discovery__spark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #f2d995;
+  opacity: 0;
+  animation: garden-card-spark 650ms ease-out both;
+
+  &:nth-child(odd) {
+    width: 8px;
+    height: 8px;
+    background: #fff0c5;
+    clip-path: polygon(37.5% 0, 62.5% 0, 62.5% 37.5%, 100% 37.5%, 100% 62.5%, 62.5% 62.5%, 62.5% 100%, 37.5% 100%, 37.5% 62.5%, 0 62.5%, 0 37.5%, 37.5% 37.5%);
+  }
+}
+
+@keyframes garden-card-spark {
+  0% {
+    opacity: 0;
+    transform: translate(0, 4px);
+  }
+
+  20% { opacity: 1; }
+
+  100% {
+    opacity: 0;
+    transform: translate(var(--spark-drift), -14px);
+  }
 }
 
 @keyframes garden-card-deal {
@@ -270,14 +299,6 @@
 @keyframes garden-card-hop {
   0%, 100% { transform: translateY(0); }
   45% { transform: translateY(-7px) rotate(4deg); }
-}
-
-@keyframes garden-card-glow {
-  from { opacity: 0;
-    transform: scale(0.3); }
-
-  to { opacity: 1;
-    transform: scale(1); }
 }
 
 @keyframes garden-discovery-fade {
@@ -301,7 +322,8 @@
   .garden-discovery .garden-card,
   .garden-discovery .garden-card::after,
   .garden-discovery .garden-card__sprite,
-  .garden-discovery__burst {
+  .garden-discovery__burst,
+  .garden-discovery__spark {
     animation: none;
   }
 
@@ -556,7 +578,7 @@
   --card-accent: #70c8bb;
 
   background: #b8d6ce;
-  box-shadow: 0 0 0 2px #294e54, 0 0 24px #70c8bb44;
+  box-shadow: 0 0 0 2px #294e54, 0 4px 0 #294e5455;
 
   .garden-card__art { background: linear-gradient(#36515e, #6caea6); }
 
