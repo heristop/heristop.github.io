@@ -98,3 +98,82 @@ it("synchronizes hits, plays reveals immediately and cancels sound when muted", 
   unmount();
   expect(context.close).toHaveBeenCalledOnce();
 });
+
+it("synthesizes a short reward and a sand impact, and resumes suspended audio", () => {
+  const param = () => ({
+    setValueAtTime: vi.fn(),
+    linearRampToValueAtTime: vi.fn(),
+    exponentialRampToValueAtTime: vi.fn(),
+  });
+  const nodes: { start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn> }[] = [];
+  const node = () => {
+    const value = {
+      frequency: param(),
+      gain: param(),
+      connect: vi.fn(),
+      start: vi.fn(),
+      stop: vi.fn(),
+    };
+    value.connect.mockReturnValue(value);
+    nodes.push(value);
+    return value;
+  };
+  const channel = new Float32Array(100);
+  const context = {
+    state: "suspended",
+    currentTime: 5,
+    sampleRate: 500,
+    destination: {},
+    resume: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn().mockResolvedValue(undefined),
+    createOscillator: vi.fn(node),
+    createGain: vi.fn(node),
+    createBufferSource: vi.fn(node),
+    createBiquadFilter: vi.fn(node),
+    createBuffer: vi.fn(() => ({ getChannelData: () => channel })),
+  };
+  vi.stubGlobal(
+    "AudioContext",
+    class {
+      constructor() {
+        return context;
+      }
+    },
+  );
+  vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+  const { result, unmount } = renderHook(() => useZazenAudio());
+  act(() => {
+    result.current.playChime();
+    result.current.playStoneDrop();
+  });
+  expect(context.resume).toHaveBeenCalled();
+  expect(context.createOscillator).toHaveBeenCalledTimes(2);
+  const scheduled = nodes.filter((n) => n.start.mock.calls.length);
+  expect(scheduled).toHaveLength(3);
+  expect(scheduled.every((n) => n.start.mock.calls[0][0] === 5)).toBe(true);
+  expect(scheduled[0].stop.mock.calls[0][0]).toBeGreaterThan(5);
+  expect(channel.some((value) => value !== 0)).toBe(true);
+  act(() => window.dispatchEvent(new Event("pointerdown")));
+  expect(context.resume).toHaveBeenCalledTimes(3);
+  unmount();
+});
+
+it.each(["missing", "blocked"])("keeps gameplay calls safe when audio is %s", (kind) => {
+  vi.stubGlobal(
+    "AudioContext",
+    kind === "missing"
+      ? undefined
+      : class {
+          constructor() {
+            throw new Error("blocked");
+          }
+        },
+  );
+  vi.stubGlobal("webkitAudioContext", undefined);
+  const { result } = renderHook(() => useZazenAudio());
+  expect(() => {
+    result.current.playChime();
+    result.current.playStoneDrop();
+    result.current.playAttack();
+  }).not.toThrow();
+});

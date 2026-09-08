@@ -35,6 +35,9 @@ pnpm dev
 
 See `package.json` for the full list of scripts (build, lint, tests, visual tests, image optimization).
 
+Run `pnpm test:garden:coverage` to test Path of Stones and generate `coverage/garden/index.html`.
+CI requires at least 90% line, statement, function and branch coverage across the complete garden module.
+
 ## Author
 
 **Alexandre Mogère** — [GitHub](https://github.com/heristop) · [LinkedIn](https://linkedin.com/in/alexandre-mogere) · [Bluesky](https://bsky.app/profile/heristop.bsky.social)
