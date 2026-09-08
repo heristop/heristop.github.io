@@ -329,7 +329,7 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
         <>
           <GatherBurst />
           <span className="zazen-world__reward" aria-hidden="true">
-            +{STONE_REFUEL} stones
+            +{STONE_REFUEL} {STONE_REFUEL === 1 ? "stone" : "stones"}
           </span>
         </>
       )}
@@ -1331,7 +1331,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                   <>
                     <GatherBurst />
                     <span className="zazen-world__reward" aria-hidden="true">
-                      +{STONE_REFUEL} stones
+                      +{STONE_REFUEL} {STONE_REFUEL === 1 ? "stone" : "stones"}
                     </span>
                   </>
                 )}
