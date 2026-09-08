@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import "./discovery-cards.scss";
 import Icon from "../../../icon";
+
+const REVEAL_MS = 2600;
 
 type Discovery = "cat" | "frog" | "mermaid";
 const discoveries = {
@@ -177,12 +180,26 @@ export function DiscoveryReveal({
     const timer = window.setTimeout(() => {
       setQueue((pending) => pending.slice(1));
       onComplete?.(active);
-    }, 3600);
+    }, REVEAL_MS);
     return () => window.clearTimeout(timer);
   }, [active, ready, paused, onComplete]);
   if (!active || !ready || paused) return null;
   return (
-    <div className="garden-discovery" key={active} role="status" aria-live="polite">
+    <div
+      className="garden-discovery"
+      key={active}
+      role="status"
+      aria-live="polite"
+      style={{ "--discovery-duration": `${REVEAL_MS}ms` } as CSSProperties}
+      onPointerDown={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      }}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      }}
+    >
       <span className="garden-discovery__kicker">
         {active === "mermaid" ? "A secret awakens" : "A new friendship"}
       </span>

@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import {
   DiscoveryCollection,
@@ -17,9 +17,9 @@ it("queues both discoveries and never replays them on ordinary rerenders", () =>
   rerender(<DiscoveryReveal catMet frogFreed />);
   act(() => vi.advanceTimersByTime(1450));
   expect(screen.getByRole("status")).toHaveTextContent("Cat befriended");
-  act(() => vi.advanceTimersByTime(3600));
+  act(() => vi.advanceTimersByTime(2600));
   expect(screen.getByRole("status")).toHaveTextContent("Frog freed");
-  act(() => vi.advanceTimersByTime(3600));
+  act(() => vi.advanceTimersByTime(2600));
   rerender(<DiscoveryReveal catMet frogFreed />);
   expect(screen.queryByRole("status")).toBeNull();
 });
@@ -67,14 +67,35 @@ it("reveals the secret only after the transformation signals completion", () => 
   const { rerender } = render(<DiscoveryReveal catMet={false} frogFreed onComplete={complete} />);
   act(() => vi.advanceTimersByTime(1450));
   expect(screen.getByRole("status")).toHaveTextContent("Frog freed");
-  act(() => vi.advanceTimersByTime(3600));
+  act(() => vi.advanceTimersByTime(2600));
   expect(complete).toHaveBeenCalledWith("frog");
   expect(screen.queryByRole("status")).toBeNull();
   act(() => vi.advanceTimersByTime(1600));
   rerender(<DiscoveryReveal catMet={false} frogFreed mermaidAwakened onComplete={complete} />);
   expect(screen.getByRole("status")).toHaveTextContent("The Tidekeeper");
-  act(() => vi.advanceTimersByTime(3600));
+  act(() => vi.advanceTimersByTime(2600));
   expect(screen.queryByRole("status")).toBeNull();
   rerender(<DiscoveryReveal catMet={false} frogFreed mermaidAwakened onComplete={complete} />);
+  expect(screen.queryByRole("status")).toBeNull();
+});
+
+it("absorbs clicks without dismissing the card or passing them to the game", () => {
+  const click = vi.fn();
+  const pointer = vi.fn();
+  render(
+    <div onClick={click} onPointerDown={pointer}>
+      <DiscoveryReveal catMet frogFreed={false} />
+    </div>,
+  );
+  act(() => vi.advanceTimersByTime(1450));
+  const card = screen.getByText("The Familiar");
+  fireEvent.pointerDown(card);
+  fireEvent.click(card);
+  expect(click).not.toHaveBeenCalled();
+  expect(pointer).not.toHaveBeenCalled();
+  expect(screen.getByRole("status")).toBeVisible();
+  act(() => vi.advanceTimersByTime(2599));
+  expect(screen.getByRole("status")).toBeVisible();
+  act(() => vi.advanceTimersByTime(1));
   expect(screen.queryByRole("status")).toBeNull();
 });

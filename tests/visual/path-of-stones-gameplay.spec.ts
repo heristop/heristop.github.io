@@ -410,6 +410,12 @@ for (const aquatic of [false, true]) {
       await expect(companion).toHaveAttribute("data-aquatic", "true");
       await expect(companion.locator(".zazen-world__mermaid-sprite")).toHaveCount(1);
       await expect(page.locator(".garden-discovery")).toContainText("The Tidekeeper");
+      const reveal = page.locator(".garden-discovery");
+      await expect(reveal).toHaveCSS("pointer-events", "auto");
+      const beforeClick = await page.locator("#position-announcer").textContent();
+      await reveal.locator(".garden-card").click({ force: true });
+      await expect(page.locator("#position-announcer")).toHaveText(beforeClick!);
+      await expect(reveal).toBeVisible();
       await page.locator(".garden-discovery").screenshot({
         path: `/tmp/path-stones-check/mermaid-card-${test.info().project.name}.png`,
       });
