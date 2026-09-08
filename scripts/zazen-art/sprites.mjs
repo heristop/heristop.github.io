@@ -1242,41 +1242,41 @@ const ripple = () =>
     }),
   );
 
-// Four articulated wing poses, facing right, authored at native pixel size.
+// Eight wing poses share a fixed shoulder and head for a stable flight silhouette.
 const birdSheet = () => {
-  const sheet = grid(96, 16);
-  for (let frame = 0; frame < 4; frame++) {
+  const tips = [[8, 1], [6, 2], [3, 5], [5, 10], [8, 14], [7, 11], [4, 8], [2, 6]];
+  const sheet = grid(24 * tips.length, 16);
+  tips.forEach(([tipX, tipY], frame) => {
     const g = grid(24, 16);
-    // Far wing first, muted by the body: the two wings occupy different planes.
-    const wingTip = [1, 4, 13, 5][frame];
-    const tipX = [6, 4, 5, 2][frame];
+    // The far wing is shorter and darker, with its own visible tip.
     for (let x = 12; x <= 17; x++) {
-      const y = Math.round(7 + ((wingTip - 7) * (x - 12)) / 8);
-      rect(g, x, y, 1, x < 16 ? 2 : 1, "b");
+      const y = Math.round(7 + ((tipY - 7) * (x - 12)) / 7);
+      rect(g, x, y, 1, 2, "i");
     }
-    // Tapered flight feathers, with a broad shoulder and a narrow swept tip.
+    // A narrow forked tail, flowing into the back instead of hanging below it.
+    rect(g, 5, 7, 7, 2, "i");
+    rect(g, 3, 6, 3, 1, "i");
+    rect(g, 3, 9, 3, 1, "i");
+    put(g, 2, 5, "i");
+    put(g, 2, 10, "i");
+    rect(g, 10, 7, 8, 3, "a");
+    rect(g, 11, 9, 5, 1, "b");
+    rect(g, 9, 7, 7, 1, "i");
+    // Swept flight feathers widen gradually into a rounded shoulder.
     for (let x = tipX; x <= 13; x++) {
       const fraction = (x - tipX) / (13 - tipX);
-      const y = Math.round(wingTip + (7 - wingTip) * fraction);
-      const breadth = x === tipX ? 1 : 1 + Math.round(fraction * 2);
-      rect(g, x, y, 1, breadth, "a");
-      if (breadth > 1) put(g, x, y + breadth - 1, "b");
-      if (x === tipX && frame !== 3) put(g, x, y, "i");
+      const y = Math.round(tipY + (7 - tipY) * fraction);
+      const breadth = 1 + Math.round(fraction * 2);
+      rect(g, x, y, 1, breadth, "i");
+      if (breadth > 1) put(g, x, y, "h");
+      if (breadth > 2) put(g, x, y + 1, "g");
     }
-    // A streamlined breast, small head and pointed beak.
-    rect(g, 9, 7, 9, 2, "a");
-    rect(g, 11, 9, 6, 1, "b");
     rect(g, 16, 5, 3, 3, "a");
-    put(g, 18, 6, "i");
+    rect(g, 16, 5, 3, 1, "i");
+    put(g, 18, 6, "q");
     rect(g, 19, 7, 2, 1, "c");
-    // Forked tail feathers join the rump instead of dangling beneath it.
-    rect(g, 6, 8, 4, 1, "b");
-    rect(g, 4, 7, 3, 1, "a");
-    put(g, 3, 6, "b");
-    rect(g, 4, 9, 3, 1, "a");
-    put(g, 3, 10, "b");
     blit(sheet, g, frame * 24, 0);
-  }
+  });
   return sheet;
 };
 
