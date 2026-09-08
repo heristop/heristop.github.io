@@ -35,7 +35,7 @@ it("keeps a wandering cat on its current firm tile when the map updates", () => 
   vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
   const { container, rerender } = render(<ZazenWorld />);
   const cat = container.querySelector<HTMLElement>(".zazen-world__cat")!;
-  const position = () => [cat.style.left, cat.style.top];
+  const position = () => cat.style.translate;
   const start = position();
   act(() => vi.advanceTimersByTime(900));
   const wandered = position();

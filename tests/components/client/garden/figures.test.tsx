@@ -51,10 +51,10 @@ describe("frog shadow", () => {
     const sprite = container.querySelector("img")!;
     expect(shadow.parentElement).toBe(actor);
     expect(sprite.parentElement).toBe(actor);
-    const start = (actor as HTMLElement).style.left;
+    const start = (actor as HTMLElement).style.translate;
     rerender(<Frog {...props} position={{ posX: 3, posY: 3 }} hopping />);
     expect(actor).toHaveAttribute("data-hopping", "true");
-    expect((actor as HTMLElement).style.left).not.toBe(start);
+    expect((actor as HTMLElement).style.translate).not.toBe(start);
     expect(shadow.parentElement).toBe(actor);
   });
 });

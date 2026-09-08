@@ -42,8 +42,9 @@ const ZazenPilgrim = ({ renderPosition, facing, frame, moving, offsetX, offsetY 
       aria-hidden="true"
       style={{
         height: `${CELL_HEIGHT}px`,
-        left: `${left + ANCHOR_X}px`,
-        top: `${top + ANCHOR_Y}px`,
+        left: 0,
+        top: 0,
+        translate: `${left + ANCHOR_X}px ${top + ANCHOR_Y}px`,
         width: `${CELL_WIDTH}px`,
       }}
     >

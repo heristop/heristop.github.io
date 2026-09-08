@@ -18,7 +18,7 @@ export default function Frog({
       className="zazen-world__frog-actor"
       data-hopping={hopping || undefined}
       data-position={`${position.posX},${position.posY}`}
-      style={{ left, top }}
+      style={{ left: 0, top: 0, translate: `${left}px ${top}px` }}
       aria-hidden="true"
     >
       <span className="zazen-world__frog-shadow" />

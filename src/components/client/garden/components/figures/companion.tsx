@@ -41,8 +41,9 @@ const ZazenCompanion = ({
       data-position={`${position.posX},${position.posY}`}
       aria-hidden="true"
       style={{
-        left: `${left + ANCHOR_X}px`,
-        top: `${top + ANCHOR_Y}px`,
+        left: 0,
+        translate: `${left + ANCHOR_X}px ${top + ANCHOR_Y}px`,
+        top: 0,
       }}
     >
       <span

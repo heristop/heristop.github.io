@@ -11,6 +11,7 @@ const harness = vi.hoisted(() => ({
   callbacks: undefined as Parameters<typeof useGame>[0] | undefined,
   move: vi.fn(),
   restart: vi.fn(),
+  hudRender: vi.fn(),
   audio: {
     playChime: vi.fn(),
     playStoneDrop: vi.fn(),
@@ -20,6 +21,16 @@ const harness = vi.hoisted(() => ({
     stopEffects: vi.fn(),
   },
 }));
+vi.mock("../../../../src/components/client/garden/components/hud/heatmap", async (load) => {
+  const { default: Heatmap } =
+    await load<typeof import("../../../../src/components/client/garden/components/hud/heatmap")>();
+  return {
+    default: (props: React.ComponentProps<typeof Heatmap>) => {
+      harness.hudRender();
+      return <Heatmap {...props} />;
+    },
+  };
+});
 vi.mock("../../../../src/components/client/garden/composables/use-audio", () => ({
   default: () => harness.audio,
 }));
@@ -104,6 +115,19 @@ afterEach(() => {
 const tick = (ms: number) => act(() => vi.advanceTimersByTime(ms));
 const tileElement = (container: HTMLElement, index: number) =>
   container.querySelectorAll<HTMLElement>(".zazen-world__tile")[index];
+
+it("animates a step without rendering the history HUD on every frame", () => {
+  vi.mocked(window.matchMedia).mockReturnValue({ matches: false } as MediaQueryList);
+  const { container, rerender } = render(<World />);
+  harness.overrides = { position: { posX: 2, posY: 1 } };
+  rerender(<World />);
+  const actor = container.querySelector<HTMLElement>(".zazen-world__pilgrim")!;
+  const start = actor.style.translate;
+  harness.hudRender.mockClear();
+  tick(100);
+  expect(actor.style.translate).not.toBe(start);
+  expect(harness.hudRender).not.toHaveBeenCalled();
+});
 
 it("lets the inspect cursor walk history, clamps at its ends, and clears on escape", () => {
   harness.overrides = { stonesLeft: 1000 };

@@ -38,6 +38,11 @@ See `package.json` for the full list of scripts (build, lint, tests, visual test
 Run `pnpm test:garden:coverage` to test Path of Stones and generate `coverage/garden/index.html`.
 CI requires at least 90% line, statement, function and branch coverage across the complete garden module.
 
+With a production preview running, use `pnpm benchmark:garden` to measure the opening turn and
+24 walking steps on desktop and mobile emulation. Pass `--url=http://localhost:4327/path-of-stones/`
+for another preview or `--cpu=4` to simulate a slower CPU. The report includes frame cadence,
+long frames and JavaScript/layout work; validate the 60 FPS target on physical devices too.
+
 ## Author
 
 **Alexandre Mogère** — [GitHub](https://github.com/heristop) · [LinkedIn](https://linkedin.com/in/alexandre-mogere) · [Bluesky](https://bsky.app/profile/heristop.bsky.social)

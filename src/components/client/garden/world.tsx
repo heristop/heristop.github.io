@@ -614,6 +614,20 @@ const dispatchSakuraBurstForStone = (stoneIndex: number) => {
   );
 };
 
+// Frame updates belong to the moving actor, not the board and its HUD.
+const MovingPilgrim = React.memo(function MovingPilgrim({
+  position,
+  offsetX,
+  offsetY,
+}: {
+  position: Position;
+  offsetX: number;
+  offsetY: number;
+}) {
+  const step = useZazenStep(position);
+  return <ZazenPilgrim {...step} offsetX={offsetX} offsetY={offsetY} />;
+});
+
 const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   const [soundOn, setSoundOn] = useState(() => {
     try {
@@ -706,8 +720,6 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     const timer = setTimeout(() => setAttack((current) => ({ ...current, visible: false })), 800);
     return () => clearTimeout(timer);
   }, [game.attackTicks]);
-
-  const step = useZazenStep(game.position);
 
   const [hoverDay, setHoverDay] = useState<number | undefined>(undefined);
   const [hoverPosition, setHoverPosition] = useState<Position | undefined>(undefined);
@@ -878,9 +890,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     const framed = hasFramedRef.current;
     hasFramedRef.current = true;
     const focus =
-      game.phase === "gardener" && !prefersReducedMotion()
-        ? game.gardenerPosition
-        : step.renderPosition;
+      game.phase === "gardener" && !prefersReducedMotion() ? game.gardenerPosition : game.position;
     const { left, top } = toScreen(
       focus.posX,
       focus.posY,
@@ -906,7 +916,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   });
   useEffect(() => {
     frameActor();
-  }, [step.renderPosition, game.mapDimensions, game.phase, game.gardenerPosition, mapScale]);
+  }, [game.position, game.mapDimensions, game.phase, game.gardenerPosition, mapScale]);
   useEffect(() => {
     const pan = panRef.current;
     if (!pan) return;
@@ -1748,11 +1758,8 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                   −1 stone
                 </span>
               )}
-              <ZazenPilgrim
-                renderPosition={step.renderPosition}
-                facing={step.facing}
-                frame={step.frame}
-                moving={step.moving}
+              <MovingPilgrim
+                position={game.position}
                 offsetX={mapDimensions.offsetX}
                 offsetY={mapDimensions.offsetY}
               />

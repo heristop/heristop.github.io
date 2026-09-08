@@ -1623,8 +1623,7 @@
   height: 40px;
   pointer-events: none;
   transition:
-    left 460ms linear,
-    top 460ms linear;
+    translate 460ms linear;
   animation: path-stones-npc-arrive 900ms steps(4, end) 380ms both;
 }
 
@@ -2320,8 +2319,7 @@ button.path-stones__heat-cell:focus-visible {
   image-rendering: pixelated;
   pointer-events: none;
   transition:
-    left 460ms linear,
-    top 460ms linear;
+    translate 460ms linear;
 
   /* The walk cycle is applied only while he is between tiles — see --walking. Sitting on
      the frame he stopped on is what a cat at rest looks like. */

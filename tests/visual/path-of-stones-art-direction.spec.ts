@@ -7,6 +7,7 @@ test("keeps the tactical composition readable across screen sizes", async ({ pag
     timeout: 20000,
   });
   await expect(page.locator(".path-stones__turn-announcement")).toHaveCount(0);
+  await page.evaluate(() => document.fonts.ready);
   const sizes = isMobile ? [390, 700] : [1024, 1200, 1280, 1920];
   for (const width of sizes) {
     await page.setViewportSize({ width, height: 900 });
@@ -21,10 +22,14 @@ test("keeps the tactical composition readable across screen sizes", async ({ pag
       expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
     }
     if (width >= 900) {
-      const day = await page.locator(".path-stones__day").boundingBox();
-      const heat = await page.locator(".path-stones__heat").boundingBox();
-      expect(Math.abs(day!.y - heat!.y)).toBeLessThan(1);
-      expect(Math.abs(day!.height - heat!.height)).toBeLessThan(1);
+      // Compare one layout snapshot, not two frames separated by a font/resize update.
+      const difference = await page.evaluate(() => {
+        const day = document.querySelector(".path-stones__day")!.getBoundingClientRect();
+        const heat = document.querySelector(".path-stones__heat")!.getBoundingClientRect();
+        return { y: Math.abs(day.y - heat.y), height: Math.abs(day.height - heat.height) };
+      });
+      expect(difference.y).toBeLessThan(1);
+      expect(difference.height).toBeLessThan(1);
     }
     if (width <= 700) {
       const board = await page.locator(".path-stones__stage").boundingBox();
@@ -109,4 +114,22 @@ test("uses pixel bird poses and quiet clouds with reduced-motion support", async
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(bird).toHaveCSS("animation-name", "none");
   await expect(cloud).toHaveCSS("animation-name", "none");
+});
+
+test("keeps the pilgrim on its tile when reduced motion disables decorative transforms", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/path-of-stones/");
+  await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible();
+  const position = () => page.locator('.zazen-world__pilgrim').evaluate((actor) => {
+    const board = actor.closest('.zazen-world__map')!.getBoundingClientRect();
+    const rect = actor.getBoundingClientRect();
+    return { x: rect.x - board.x, y: rect.y - board.y };
+  });
+  const before = await position();
+  expect(before.x).toBeGreaterThan(0);
+  expect(before.y).toBeGreaterThan(0);
+  await page.keyboard.press('ArrowDown');
+  await expect(page.locator('#position-announcer')).toHaveText('Pilgrim is at position 2, 1');
+  await expect.poll(async () => (await position()).x - before.x).toBeCloseTo(32, 0);
+  await expect.poll(async () => (await position()).y - before.y).toBeCloseTo(16, 0);
 });

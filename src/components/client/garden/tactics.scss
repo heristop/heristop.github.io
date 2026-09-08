@@ -216,11 +216,15 @@
   inset: 20% -10% -5%;
   pointer-events: none;
   background: radial-gradient(ellipse at 50% 70%, #abc6ad24, transparent 60%);
-  animation: sanctuary-breath 18s ease-in-out infinite alternate;
+  // Keep this large background wash still; the localized clouds carry the motion.
+  opacity: 0.8;
 }
 
 .path-stones .zazen-world__map {
-  filter: contrast(1.08) saturate(1.12) brightness(0.95) drop-shadow(0 22px 16px #08152299);
+  // Keep moving actors independently composited. The grade, local lights and cast
+  // provide atmosphere without filtering the whole animated board every frame.
+  filter: none;
+  isolation: isolate;
 }
 
 .path-stones .zazen-world__weather {
@@ -228,7 +232,10 @@
 }
 
 .path-stones .zazen-world__grade {
-  opacity: 0.85;
+  // A translucent wash keeps the warm/cool lighting without blending the entire
+  // moving scene into a second offscreen surface.
+  mix-blend-mode: normal;
+  opacity: 0.18;
 }
 
 .path-stones .zazen-world__cast {
@@ -578,18 +585,6 @@
       border-color: #ae9c6855;
     }
   }
-}
-
-@keyframes sanctuary-breath {
-  from { opacity: 0.6;
-    transform: translateX(-12px); }
-
-  to { opacity: 1;
-    transform: translateX(12px); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .path-stones__scene-mist { animation: none; }
 }
 
 .path-stones .path-stones__turn-standard {
@@ -995,7 +990,7 @@
   height: 64px;
   z-index: 2;
   pointer-events: none;
-  transition: left 460ms linear, top 460ms linear;
+  transition: translate 460ms linear;
 }
 
 .path-stones .zazen-world__frog-actor .zazen-world__decor {

@@ -37,11 +37,12 @@ const ZazenCat = ({ position, walking, facingLeft, greeting, offsetX, offsetY }:
       className={classes.join(" ")}
       aria-hidden="true"
       style={{
-        left: `${left + ANCHOR_X}px`,
+        left: 0,
+        translate: `${left + ANCHOR_X}px ${top + ANCHOR_Y}px`,
         // Mirrored rather than drawn twice. A horizontal flip is the one transform pixel
         // art survives intact — every pixel lands on another pixel.
         scale: facingLeft ? "-1 1" : undefined,
-        top: `${top + ANCHOR_Y}px`,
+        top: 0,
       }}
     />
   );

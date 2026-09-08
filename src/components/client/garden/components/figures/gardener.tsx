@@ -17,7 +17,7 @@ export default function Gardener({ position, activity, facingLeft, offsetX, offs
       data-activity={activity}
       data-position={`${position.posX},${position.posY}`}
       aria-hidden="true"
-      style={{ left: left + 16, top: top - 5, zIndex: 2 }}
+      style={{ left: 0, top: 0, translate: `${left + 16}px ${top - 5}px`, zIndex: 2 }}
     >
       <span className="zazen-world__gardener-label">GARDENER</span>
       <span

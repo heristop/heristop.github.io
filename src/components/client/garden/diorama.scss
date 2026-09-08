@@ -789,7 +789,7 @@
   width: 32px;
   height: 40px;
   pointer-events: none;
-  transition: left 240ms linear, top 240ms linear;
+  transition: translate 240ms linear;
 
   &::before {
     content: "";
