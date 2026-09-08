@@ -1,3 +1,4 @@
+import useGardenMusic from "./composables/use-music";
 import Frog from "./components/figures/frog";
 import useGamepad from "./composables/use-gamepad";
 import "./world.scss";
@@ -632,6 +633,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     }
   }, [soundOn]);
   const audio = useZazenAudio(soundOn);
+  const { musicOn, toggleMusic } = useGardenMusic();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const panRef = useRef<HTMLDivElement>(null);
@@ -1409,6 +1411,10 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                 <Icon name="volume-x" size={15} aria-hidden="true" />
               )}
               Sound {soundOn ? "on" : "off"}
+            </button>
+            <button type="button" aria-pressed={musicOn} onClick={toggleMusic}>
+              <Icon name="music" size={15} aria-hidden="true" />
+              Music {musicOn ? "on" : "off"}
             </button>
             <button type="button" onClick={handleReplay}>
               <Icon name="rotate-ccw" size={15} aria-hidden="true" /> Restart run

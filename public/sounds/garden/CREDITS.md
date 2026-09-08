@@ -9,3 +9,9 @@ Both files are adaptations of CC0 assets (https://creativecommons.org/publicdoma
   https://opengameart.org/content/magic-spell-sfx
 
 Downloaded 2026-09-08. Attribution is optional under CC0; sources are retained here for provenance.
+
+## Background music
+
+- `zen-garden.mp3`: "Revelation" by Indieteur, CC0.
+  https://opengameart.org/content/revelation
+  Source: `Revelation_0.mp3`. Converted to 96 kbps MP3, with gentle opening and closing fades for repeated playback. Downloaded 2026-09-08.
