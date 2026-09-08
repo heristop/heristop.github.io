@@ -1,3 +1,4 @@
+import { sceneryAngle, sceneryDuration, type SceneryKind } from "./rendering/scenery-motion";
 import useRenderer from "./composables/use-renderer";
 import { groundArtwork } from "./rendering/artwork";
 import WebGLBoard from "./rendering/webgl-board";
@@ -640,6 +641,24 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   const hasFramedRef = useRef(false);
   const [mapScale, setMapScale] = useState(1);
   const renderer = useRenderer();
+  const [interaction, setInteraction] = useState<{
+    id: number; posX: number; posY: number; kind: SceneryKind;
+  }>();
+  const playScenery = (tile: MapTile, kind: SceneryKind) => {
+    setInteraction((previous) => ({ id: (previous?.id ?? 0) + 1, posX: tile.posX, posY: tile.posY, kind }));
+    const image = mapRef.current?.querySelector<HTMLElement>(
+      `[data-scenery-key="${tile.posX},${tile.posY}"] .zazen-world__decor`,
+    );
+    if (!image || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    for (const animation of image.getAnimations()) {
+      if (animation.id === "scenery-reaction") animation.cancel();
+    }
+    image.style.transformOrigin = kind === "tree" ? "16px 58px" : "16px 45px";
+    const animation = image.animate(Array.from({ length: 61 }, (_, frame) => ({
+      transform: `${kind === "tree" ? "skewX" : "rotate"}(${sceneryAngle(kind, frame / 60)}rad)`,
+    })), { duration: sceneryDuration(kind) });
+    animation.id = "scenery-reaction";
+  };
   const webglRequested = renderer.supported && renderer.enabled;
   const webglReady = webglRequested && renderer.ready;
 
@@ -1102,6 +1121,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   const webglScene = useMemo(
     () => ({
       map: game.map,
+      interaction,
       ...mapDimensions,
       pilgrim: game.position,
       cat: cat.position,
@@ -1118,6 +1138,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     }),
     [
       game.map,
+      interaction,
       mapDimensions,
       game.position,
       cat.position,
@@ -1273,6 +1294,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         return (
           <div
             className={classes.join(" ")}
+            data-scenery-key={`${tile.posX},${tile.posY}`}
             key={key}
             style={
               {
@@ -1732,6 +1754,19 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               </div>
               {webglRequested && <WebGLBoard scene={webglScene} onReady={renderer.onReady} />}
               {tiles}
+              {game.map.filter((tile) => tile.stone !== undefined || ["pine", "maple", "sakura"].includes(tile.decor)).map((tile) => {
+                const point = toScreen(tile.posX, tile.posY, mapDimensions.offsetX, mapDimensions.offsetY);
+                const kind = tile.stone !== undefined ? "stone" : "tree";
+                return <button
+                  key={`scenery-${tile.posX}-${tile.posY}`}
+                  type="button"
+                  className={`zazen-world__scenery-switch zazen-world__scenery-switch--${kind}`}
+                  aria-label={`${kind === "tree" ? "Rustle tree" : "Spin stone"} at ${tile.posX}, ${tile.posY}`}
+                  style={{ left: point.left + (kind === "tree" ? 18 : 24), top: point.top + (kind === "tree" ? -24 : 0) }}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={(event) => { event.stopPropagation(); playScenery(tile, kind); }}
+                />;
+              })}
               {game.map
                 .filter((tile) => tile.decor === "lantern-lit" || tile.decor === "lantern-unlit")
                 .map((tile) => {

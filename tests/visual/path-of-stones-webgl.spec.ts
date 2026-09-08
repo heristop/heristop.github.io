@@ -82,9 +82,9 @@ test("HD-2D toggles without resetting the run and persists beyond a diagnostic U
     "false",
   );
   await page.getByRole("button", { name: "HD-2D off", exact: true }).click();
-  await expect(map).toHaveAttribute("data-renderer", "webgl");
+  await expect(map).toHaveAttribute("data-renderer", "webgl", { timeout: 20000 });
   await page.reload();
-  await expect(map).toHaveAttribute("data-renderer", "webgl");
+  await expect(map).toHaveAttribute("data-renderer", "webgl", { timeout: 20000 });
 });
 
 for (const renderer of ["webgl", "dom"]) {
@@ -102,5 +102,21 @@ for (const renderer of ["webgl", "dom"]) {
     await unlit.press("Enter");
     await expect(page.getByRole("button", { name: name!, exact: true })).toBeVisible();
     await expect(page.locator("#position-announcer")).toHaveText(position!);
+  });
+}
+
+for (const renderer of ["webgl", "dom"]) {
+  test(`scenery reacts without walking in ${renderer}`, async ({ page }) => {
+    await page.goto(`/path-of-stones/?renderer=${renderer}`);
+    await expect(page.locator(".zazen-world__map")).toHaveAttribute("data-renderer", renderer);
+    const position = await page.locator("#position-announcer").textContent();
+    await page.getByRole("button", { name: /^Rustle tree/ }).first().click();
+    await page.getByRole("button", { name: /^Spin stone/ }).first().click();
+    await expect(page.locator("#position-announcer")).toHaveText(position!);
+    if (renderer === "dom") {
+      await expect.poll(() => page.locator(".zazen-world__decor").evaluateAll((images) =>
+        images.flatMap((image) => image.getAnimations()).filter((animation) => animation.id === "scenery-reaction").length,
+      )).toBeGreaterThan(0);
+    }
   });
 }

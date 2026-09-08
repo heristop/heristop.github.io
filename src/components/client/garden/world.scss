@@ -3148,3 +3148,24 @@ button.path-stones__heat-cell:focus-visible {
     outline-offset: 2px;
   }
 }
+
+.zazen-world__scenery-switch {
+  position: absolute;
+  z-index: 8;
+  width: 28px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+
+  &--stone {
+    width: 16px;
+    height: 23px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #ffe6a9;
+    outline-offset: 2px;
+  }
+}

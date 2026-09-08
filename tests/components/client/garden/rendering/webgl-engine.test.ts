@@ -1,3 +1,4 @@
+import { sceneryAngle } from "../../../../../src/components/client/garden/rendering/scenery-motion";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import type { GardenScene } from "../../../../../src/components/client/garden/rendering/scene";
 
@@ -25,6 +26,8 @@ vi.mock("pixi.js", () => {
     };
     scale = { set: vi.fn() };
     anchor = { set: vi.fn() };
+    pivot = { set: vi.fn() };
+    skew = { x: 0, y: 0 };
     destroy = vi.fn();
     addChild(...children: any[]) {
       this.children.push(...children);
@@ -492,5 +495,34 @@ it("removes a lantern's light and water reflection when it is extinguished", asy
   const floor = app().stage.children[0].children.at(-1);
   expect(floor.children.some((child: any) => child.label === "lantern-reflection")).toBe(false);
   expect(app().stage.children[2].children.filter((child: any) => child.label === "emissive-light")).toHaveLength(1);
+  renderer.destroy();
+});
+
+
+it("spins stones three times and settles tree gusts without moving their anchors", async () => {
+  expect(sceneryAngle("stone", 1)).toBeCloseTo(Math.PI * 6);
+  expect(sceneryAngle("tree", 0)).toBe(0);
+  expect(sceneryAngle("tree", 1)).toBeCloseTo(0);
+  const scene = initial();
+  scene.map = [{ ...tile(0, "stone-marker"), stone: 0 }, tile(1, "pine")];
+  const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
+  const figures = app().stage.children[1].children;
+  const stone = figures[0].children[1];
+  const tree = figures[1].children[1];
+  const origin = [tree.x, tree.y];
+  await renderer.update({ ...scene, interaction: { id: 1, posX: 0, posY: 0, kind: "stone" } });
+  app().advance(300);
+  expect(stone.rotation).toBeGreaterThan(0);
+  await renderer.update({ ...scene, interaction: { id: 2, posX: 1, posY: 0, kind: "tree" } });
+  app().advance(300);
+  expect(tree.skew.x).not.toBe(0);
+  expect([tree.x, tree.y]).toEqual(origin);
+  app().advance(2000);
+  expect(tree.skew.x).toBe(0);
+  expect(stone.rotation).toBe(0);
+  gpu.reduced = true;
+  await renderer.update({ ...scene, interaction: { id: 3, posX: 0, posY: 0, kind: "stone" } });
+  app().advance(300);
+  expect(stone.rotation).toBe(0);
   renderer.destroy();
 });

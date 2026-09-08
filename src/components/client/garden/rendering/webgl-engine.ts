@@ -1,3 +1,4 @@
+import { sceneryAngle, sceneryDuration } from "./scenery-motion";
 import {
   Application,
   Assets,
@@ -61,6 +62,8 @@ export async function createGardenRenderer(
   let destroyed = false;
   let revision = 0;
   let elapsed = 0;
+  const sceneryStarts = new Map<string, number>();
+  let interactionId = initial.interaction?.id;
   let scene = initial;
   let grade: ColorMatrixFilter | undefined;
   let lightTexture: Texture | undefined;
@@ -283,6 +286,10 @@ export async function createGardenRenderer(
       attackStarted = elapsed;
     if (scene.width !== next.width || scene.height !== next.height)
       app.renderer.resize(next.width, next.height);
+    if (next.interaction && next.interaction.id !== interactionId) {
+      interactionId = next.interaction.id;
+      sceneryStarts.set(`${next.interaction.posX},${next.interaction.posY}`, elapsed);
+    }
     scene = next;
     if (renderedMap !== scene.map) {
       if (atmosphere) {
@@ -335,6 +342,20 @@ export async function createGardenRenderer(
           sprite.width = w;
           sprite.height = h;
           container.addChild(sprite);
+          const tree = ["pine", "maple", "sakura"].includes(decor);
+          if (tree || tile.stone !== undefined) {
+            const kind = tree ? "tree" : "stone";
+            const pivotY = tree ? 58 : 45;
+            sprite.pivot.set(16, pivotY);
+            sprite.position.set(32, pivotY - 32);
+            animations.push(() => {
+              const start = sceneryStarts.get(`${tile.posX},${tile.posY}`);
+              const progress = start === undefined ? 1 : (elapsed - start) / sceneryDuration(kind);
+              const angle = reducedMotion.matches || progress >= 1 ? 0 : sceneryAngle(kind, progress);
+              if (tree) sprite.skew.x = angle;
+              else sprite.rotation = angle;
+            });
+          }
           if (fish) {
             const wake = new Container({ label: "koi-wake" });
             const mask = new Graphics().poly([32, 0, 64, 16, 32, 32, 0, 16]).fill(0xffffff);
