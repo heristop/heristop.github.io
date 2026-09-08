@@ -29,6 +29,15 @@ const point = (p: Position, scene: GardenScene) => ({
   y: (p.posX + p.posY) * 16 - scene.offsetY,
 });
 
+// Visible foot rows in the 32×64 artwork, after its -32px vertical placement.
+const decorContactY: Readonly<Record<string, number>> = {
+  pine: 26, maple: 26, sakura: 26,
+  "bamboo-a": 31, "bamboo-b": 31, reed: 28,
+  "rock-small": 28, "rock-mound": 28,
+  "lantern-lit": 25, "lantern-unlit": 25, torii: 25,
+  "stone-marker": 23, "stone-marker-lit": 23,
+};
+
 type Actor = {
   container: Container;
   sprite: Sprite;
@@ -231,11 +240,15 @@ export async function createGardenRenderer(
         if (scene.companionVisible) {
           dress(actor, scene.aquatic ? "persos/mermaid-life" : "persos/npc-2-life", 24, 40, idle);
           actor.sprite.alpha = scene.transforming ? 0.65 + Math.sin(time / 80) * 0.25 : 1;
+          actor.shadow.y = 0;
           actor.shadow.alpha = scene.aquatic ? 0 : 1;
         } else {
           dress(actor, "decors/frog-life", 32, 64, walking ? 2 : idle);
           actor.sprite.y = 32 - (walking ? Math.sin(progress * Math.PI) * 12 : 0);
           actor.sprite.alpha = 1;
+          // Frog artwork ends at row 56, eight pixels above the frame bottom.
+          // Only the sprite hops; the contact shadow follows the ground trajectory.
+          actor.shadow.y = -7;
           actor.shadow.alpha = walking ? 0.65 : 1;
         }
       }
@@ -297,7 +310,7 @@ export async function createGardenRenderer(
           const fish = decor === "koi";
           if (!fish)
             container.addChild(
-              new Graphics().ellipse(32, 29, 10, 3).fill({ color: 0x142c2a, alpha: 0.2 }),
+              new Graphics().ellipse(32, tile.npc ? 29 : (decorContactY[decor] ?? 24), 10, 3).fill({ color: 0x142c2a, alpha: 0.2 }),
             );
           const path = tile.npc
             ? `persos/npc-${tile.npc}${tile.npc === 2 || tile.npc === 3 ? "-life" : ""}`

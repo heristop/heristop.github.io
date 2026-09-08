@@ -54,7 +54,9 @@ vi.mock("pixi.js", () => {
     poly() {
       return this;
     }
-    ellipse() {
+    ellipses: number[][] = [];
+    ellipse(...coordinates: number[]) {
+      this.ellipses.push(coordinates);
       return this;
     }
     fill() {
@@ -246,6 +248,7 @@ it("animates all walking directions, gardener work and strike, frog hop and stat
     app().advance(70);
     expect(actors()[0].children[1].texture.source.path).toContain("persos/pilgrim.png");
     expect(actors()[3].children[1].y).toBeLessThan(32);
+    expect(actors()[3].children[0].y).toBe(-7);
     app().advance(500);
   }
   for (const gardenerActivity of ["rake", "attack", "idle"] as const) {
@@ -268,6 +271,7 @@ it("animates all walking directions, gardener work and strike, frog hop and stat
     });
     app().advance(100);
     expect({ x: frog.x, y: frog.y }).toEqual(position);
+    expect(frog.children[0].y).toBe(0);
     expect(frog.children[1].texture.source.path).toContain(aquatic ? "mermaid-life" : "npc-2-life");
     await renderer.update({ ...scene, frogVisible: false, companionVisible: true, aquatic });
     expect(frog.children[1].alpha).toBe(1);
@@ -425,4 +429,18 @@ it("reserves jewel glints and the shrine beacon for live objectives", () => {
   expect(labels(quiet)).not.toContain("stone-glint");
   expect(labels(quiet)).not.toContain("shrine-beacon");
   quiet.destroy();
+});
+
+it("anchors decor shadows to their visible feet instead of the tile front edge", async () => {
+  const scene = initial();
+  scene.map = [tile(0, "pagoda"), tile(1, "pine"), tile(2, "stone-marker")];
+  const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
+  const figures = app().stage.children[1].children;
+  for (const [decor, foot] of [["pagoda", 24], ["pine", 26], ["stone-marker", 23]] as const) {
+    const figure = figures.find((item: any) =>
+      item.children[1]?.texture?.source?.path?.endsWith(`/${decor}.png`),
+    );
+    expect(figure.children[0].ellipses[0]).toEqual([32, foot, 10, 3]);
+  }
+  renderer.destroy();
 });
