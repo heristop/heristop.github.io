@@ -250,6 +250,8 @@ const LaidBurst = () => (
 // on exactly one render, and that is the render this element first exists on.
 const GatherBurst = () => (
   <span className="zazen-world__gather" aria-hidden="true">
+    <span className="zazen-world__pickup-shadow" />
+    <span className="zazen-world__pickup-stone" />
     <span className="zazen-world__gather-ring" />
     <span className="zazen-world__gather-ring zazen-world__gather-ring--late" />
     {GRAINS.map(([x, y]) => (
@@ -1778,15 +1780,15 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               </div>
               {webglRequested && <WebGLBoard scene={webglScene} onReady={renderer.onReady} />}
               {tiles}
-              {game.map.filter((tile) => tile.stone !== undefined || ["pine", "maple", "sakura"].includes(tile.decor)).map((tile) => {
+              {game.map.filter((tile) => ["pine", "maple", "sakura"].includes(tile.decor)).map((tile) => {
                 const point = toScreen(tile.posX, tile.posY, mapDimensions.offsetX, mapDimensions.offsetY);
-                const kind = tile.stone !== undefined ? "stone" : "tree";
+                const kind = "tree";
                 return <button
                   key={`scenery-${tile.posX}-${tile.posY}`}
                   type="button"
                   className={`zazen-world__scenery-switch zazen-world__scenery-switch--${kind}`}
-                  aria-label={`${kind === "tree" ? "Rustle tree" : "Spin stone"} at ${tile.posX}, ${tile.posY}`}
-                  style={{ left: point.left + (kind === "tree" ? 18 : 24), top: point.top + (kind === "tree" ? -24 : 0) }}
+                  aria-label={`Rustle tree at ${tile.posX}, ${tile.posY}`}
+                  style={{ left: point.left + 18, top: point.top - 24 }}
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={(event) => { event.stopPropagation(); playScenery(tile, kind); }}
                 />;

@@ -3228,3 +3228,73 @@ button.path-stones__heat-cell:focus-visible {
     cursor: url("/images/zazen/fx/cursor-default.png") 3 3, pointer;
   }
 }
+
+/* The collected stone remains briefly above its tile, without intercepting movement. */
+.zazen-world__pickup-stone {
+  position: absolute;
+  left: -16px;
+  top: -46px;
+  width: 32px;
+  height: 64px;
+  background: url("/images/zazen/decors/stone-marker.png") no-repeat;
+  image-rendering: pixelated;
+  transform-origin: 16px 45px;
+  animation: garden-stone-pickup 1400ms ease-in-out both;
+}
+
+.zazen-world__pickup-shadow {
+  position: absolute;
+  left: -10px;
+  top: 6px;
+  width: 20px;
+  height: 6px;
+  border-radius: 50%;
+  background: #142c2a42;
+  animation: garden-stone-pickup-shadow 1400ms ease-in-out both;
+}
+
+@keyframes garden-stone-pickup {
+  0% {
+    transform: translateY(0) rotateY(0deg);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translateY(-7px) rotateY(360deg);
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0) rotateY(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes garden-stone-pickup-shadow {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__pickup-stone,
+  .zazen-world__pickup-shadow {
+    animation: none;
+    display: none;
+  }
+}

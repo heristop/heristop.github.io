@@ -115,7 +115,7 @@ for (const renderer of ["webgl", "dom"]) {
     await expect(tree).toHaveCSS("outline-style", "none");
     await expect(tree).toHaveCSS("box-shadow", "none");
     await tree.click();
-    await page.getByRole("button", { name: /^Spin stone/ }).first().click();
+    await expect(page.getByRole("button", { name: /^Spin stone/ })).toHaveCount(0);
     await expect(page.locator("#position-announcer")).toHaveText(position!);
     if (renderer === "dom") {
       await expect.poll(() => page.locator(".zazen-world__decor").evaluateAll((images) =>
@@ -137,20 +137,6 @@ for (const renderer of ["webgl", "dom"]) {
   });
 }
 
-test("classic stone shadow shrinks at the apex while staying grounded", async ({ page }) => {
-  await page.goto("/path-of-stones/?renderer=dom");
-  const button = page.getByRole("button", { name: /^Spin stone/ }).first();
-  await button.click();
-  const scale = await page.locator(".zazen-world__stone-shadow").evaluateAll((shadows) => {
-    const shadow = shadows.find((item) => item.getAnimations().length > 0)!;
-    const animation = shadow.getAnimations()[0]!;
-    animation.pause();
-    animation.currentTime = 700;
-    return new DOMMatrix(getComputedStyle(shadow).transform).a;
-  });
-  expect(scale).toBeCloseTo(0.5);
-});
-
 for (const renderer of ["webgl", "dom"]) {
   test(`cursor distinguishes walkable destinations in ${renderer}`, async ({ page, isMobile }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
@@ -166,5 +152,50 @@ for (const renderer of ["webgl", "dom"]) {
     await current.hover();
     await expect(map).toHaveAttribute("data-cursor", "default");
     if (!isMobile) await expect(current).toHaveCSS("cursor", /cursor-default\.png/);
+  });
+}
+
+for (const renderer of ["webgl", "dom"]) {
+  test(`clicking a stone walks to it and animates its collection in ${renderer}`, async ({ page }) => {
+    test.setTimeout(90000);
+    await page.goto(`/path-of-stones/?renderer=${renderer}`);
+    const map = page.locator(".zazen-world__map");
+    await expect(map).toHaveAttribute("data-renderer", renderer, { timeout: 20000 });
+    await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible({ timeout: 20000 });
+    await expect(page.locator(".zazen-world__pickup-stone")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^Spin stone/ })).toHaveCount(0);
+    const stones = page.locator('[data-scenery-key]').filter({ has: page.locator('[data-stone-index]') });
+    let collected = false;
+    const positions = await stones.evaluateAll((tiles) => tiles.map((tile) => tile.getAttribute("data-scenery-key")!).sort((a, b) => {
+      const distance = (key: string) => key.split(",").map(Number).reduce((sum, value) => sum + Math.abs(value - 1), 0);
+      return distance(a) - distance(b);
+    }));
+    for (const key of positions) {
+      const tile = page.locator(`[data-scenery-key="${key}"]`);
+      await tile.locator(".zazen-world__hit").hover();
+      await page.waitForTimeout(150);
+      if (await map.getAttribute("data-cursor") !== "move") continue;
+      const position = await tile.getAttribute("data-scenery-key");
+      await tile.locator(".zazen-world__hit").click();
+      await expect.poll(async () => {
+        if (await tile.locator(".zazen-world__pickup-stone").count()) return true;
+        // A gardener retaliation can interrupt a long route; resume after his turn.
+        if (await page.locator('.path-stones__turn[data-phase="player"]').count())
+          await tile.locator(".zazen-world__hit").click();
+        return false;
+      }, { timeout: 70000, intervals: [1000] }).toBe(true);
+      await expect(page.locator("#position-announcer")).toContainText(position!.replace(",", ", "));
+      const shadow = tile.locator(".zazen-world__pickup-shadow");
+      const scale = await shadow.evaluate((element) => {
+        const animation = element.getAnimations()[0];
+        animation.pause();
+        animation.currentTime = 700;
+        return new DOMMatrix(getComputedStyle(element).transform).a;
+      });
+      expect(scale).toBeCloseTo(0.5);
+      collected = true;
+      break;
+    }
+    expect(collected).toBe(true);
   });
 }
