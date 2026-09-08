@@ -41,3 +41,18 @@ they must not be presented as hardware GPU performance. The benchmark now report
 
 Run `pnpm benchmark:garden --angle=metal --url="http://127.0.0.1:4327/path-of-stones/?renderer=webgl"`
 and repeat without the query for the baseline. Drop `--angle=metal` on other platforms.
+
+## HD-2D atmosphere
+
+The WebGL board adds warm emissive lantern/shrine light, directional scenery shadows, a cooler
+foreground, two soft sun shafts, water-bound reflection fragments, up to six low mist patches
+and eighteen fireflies. A single 64×64 light texture is shared by every soft effect; pixel-art
+textures keep nearest-neighbour sampling. Effects reuse the renderer ticker and freeze under
+reduced motion. Map rebuilds dispose their old effect containers and preserve animation phases.
+Water reflection geometry is tested against all four edges of each isometric diamond. Depth is
+an optical effect; no terrain elevation or rules were changed.
+
+With this atmosphere enabled, the same Metal benchmark recorded a 9.2 ms browser-frame p95
+and zero intervals over 25 ms during walking on both desktop and mobile emulation. Total task
+work was 863 ms and 901 ms respectively. This is a separate single run, so differences from
+the earlier measurements should not be interpreted as a proven speedup.

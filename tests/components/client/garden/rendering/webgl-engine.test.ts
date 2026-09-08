@@ -9,6 +9,9 @@ const gpu = vi.hoisted(() => ({
 }));
 vi.mock("pixi.js", () => {
   class Container {
+    constructor(options = {}) {
+      Object.assign(this, options);
+    }
     children: any[] = [];
     x = 0;
     y = 0;
@@ -43,6 +46,11 @@ vi.mock("pixi.js", () => {
     }
   }
   class Graphics extends Container {
+    rectangles: number[][] = [];
+    rect(...coordinates: number[]) {
+      this.rectangles.push(coordinates);
+      return this;
+    }
     ellipse() {
       return this;
     }
@@ -100,10 +108,21 @@ vi.mock("pixi.js", () => {
     Sprite,
     Graphics,
     Texture,
+    BufferImageSource: class {
+      constructor(options: unknown) {
+        Object.assign(this, options);
+      }
+    },
     Rectangle,
     Assets: { load: gpu.load },
   };
 });
+import {
+  createAtmosphere,
+  createLightTexture,
+  depthTint,
+  lightPixels,
+} from "../../../../../src/components/client/garden/rendering/atmosphere";
 import { createGardenRenderer } from "../../../../../src/components/client/garden/rendering/webgl-engine";
 const tile = (posX: number, decor = "", npc = 0, sprite = "sand-0") => ({
   posX,
@@ -172,9 +191,9 @@ it("crops and animates water, lights the empty shrine, and reuses terrain for ac
   expect(water.texture.frame).toMatchObject({ width: 64, height: 64, y: 0 });
   app().advance(450);
   expect(water.texture.frame.y).toBe(64);
-  expect(app().stage.children[1].children.filter((c: any) => c.blendMode === "add")).toHaveLength(
-    2,
-  );
+  expect(
+    app().stage.children[2].children.filter((c: any) => c.label === "emissive-light"),
+  ).toHaveLength(2);
   const [pilgrim] = actors();
   expect(pilgrim.x).toBe(352);
   await renderer.update({ ...scene, pilgrim: { posX: 2, posY: 1 }, catGreeting: true });
@@ -314,4 +333,55 @@ it("cleans up failed asset initialization and rejects unsupported graphics", asy
   await expect(
     createGardenRenderer(document.createElement("div"), initial(), vi.fn()),
   ).rejects.toThrow("no gpu");
+});
+
+it("uses a smooth bounded light falloff without modifying pixel-art sampling", () => {
+  const pixels = lightPixels(8);
+  const alpha = (x: number, y: number) => pixels[(y * 8 + x) * 4 + 3]!;
+  expect(alpha(0, 0)).toBe(0);
+  expect(alpha(3, 3)).toBeGreaterThan(alpha(2, 3));
+  expect(alpha(2, 3)).toBeGreaterThan(alpha(1, 3));
+  expect(alpha(3, 3)).toBe(alpha(4, 4));
+  const texture = createLightTexture();
+  expect(texture.source).toMatchObject({
+    width: 64,
+    height: 64,
+    scaleMode: "linear",
+    alphaMode: "no-premultiply-alpha",
+  });
+  expect(depthTint(-1)).toBe(depthTint(0));
+  expect(depthTint(2)).toBe(depthTint(1));
+  expect(depthTint(0)).not.toBe(depthTint(1));
+});
+
+it("bounds water reflections and ambient populations and gives reduced motion a stable scene", () => {
+  const scene = initial();
+  scene.map = Array.from({ length: 30 }, (_, i) =>
+    tile(i, i === 0 ? "torii" : "", 0, "water-still"),
+  );
+  const atmosphere = createAtmosphere(scene, createLightTexture());
+  const air = atmosphere.air as any;
+  const floor = atmosphere.floor as any;
+  expect(air.children.filter((c: any) => c.label === "firefly")).toHaveLength(18);
+  expect(air.children.filter((c: any) => c.label === "water-mist")).toHaveLength(6);
+  expect(floor.children.some((c: any) => c.label === "cast-shadow")).toBe(true);
+  for (const reflection of floor.children.filter((c: any) => c.label === "water-reflection")) {
+    for (const [x, y, w, h] of reflection.rectangles) {
+      for (const edgeY of [y, y + h]) {
+        const half = Math.min(edgeY, 32 - edgeY) * 2;
+        expect(x).toBeGreaterThanOrEqual(32 - half);
+        expect(x + w).toBeLessThanOrEqual(32 + half);
+      }
+    }
+  }
+  atmosphere.update(0);
+  const positions = () => air.children.map((c: any) => [c.x, c.y, c.alpha]);
+  const still = positions();
+  atmosphere.update(10000);
+  expect(positions()).not.toEqual(still);
+  atmosphere.update(0);
+  expect(positions()).toEqual(still);
+  atmosphere.destroy();
+  expect(air.destroy).toHaveBeenCalledOnce();
+  expect(floor.destroy).toHaveBeenCalledOnce();
 });

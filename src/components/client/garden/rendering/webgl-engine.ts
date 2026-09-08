@@ -8,6 +8,7 @@ import {
   Texture,
   Text,
 } from "pixi.js";
+import { createAtmosphere, createLightTexture, depthTint } from "./atmosphere";
 import { groundArtwork } from "./artwork";
 import type { GardenRenderer, GardenScene } from "./scene";
 import type { Position } from "../types";
@@ -51,6 +52,8 @@ export async function createGardenRenderer(
   let revision = 0;
   let elapsed = 0;
   let scene = initial;
+  let lightTexture: Texture | undefined;
+  let atmosphere: ReturnType<typeof createAtmosphere> | undefined;
   let renderedMap: GardenScene["map"] | undefined;
   const ground = new Container();
   const figures = new Container({ sortableChildren: true });
@@ -74,6 +77,7 @@ export async function createGardenRenderer(
     app.canvas.removeEventListener("webglcontextlost", contextLost);
     app.destroy(true, { children: true });
     for (const texture of frames.values()) texture.destroy(false);
+    lightTexture?.destroy(true);
   };
   const frame = (path: string, width: number, height: number, column = 0, row = 0) => {
     const key = `${path}:${width}:${height}:${column}:${row}`;
@@ -164,6 +168,7 @@ export async function createGardenRenderer(
   const tick = () => {
     const time = reducedMotion.matches ? 0 : elapsed;
     for (const animate of animations) animate(time);
+    atmosphere?.update(time);
     for (const [name, actor] of actors) {
       const progress = reducedMotion.matches
         ? 1
@@ -253,6 +258,11 @@ export async function createGardenRenderer(
       app.renderer.resize(next.width, next.height);
     scene = next;
     if (renderedMap !== scene.map) {
+      if (atmosphere) {
+        ground.removeChild(atmosphere.floor);
+        app.stage.removeChild(atmosphere.air);
+        atmosphere.destroy();
+      }
       for (const child of ground.removeChildren()) child.destroy({ children: true });
       for (const child of figures.children.slice())
         if (![...actors.values()].some((actor) => actor.container === child)) {
@@ -270,6 +280,7 @@ export async function createGardenRenderer(
             base.texture = frame(groundPath, 64, 64, 0, Math.floor(time / 400) % 8);
           });
         base.position.set(p.x, p.y);
+        base.tint = depthTint((tile.posX + tile.posY) / 22);
         base.width = 64;
         base.height = 64;
         ground.addChild(base);
@@ -293,6 +304,7 @@ export async function createGardenRenderer(
           const h = tile.npc ? 40 : 64;
           sprite.texture = animated ? frame(path, w, h) : textures.get(path)!;
           sprite.position.set(tile.npc ? 20 : 16, 32 - h);
+          sprite.tint = depthTint((tile.posX + tile.posY) / 30);
           sprite.width = w;
           sprite.height = h;
           container.addChild(sprite);
@@ -305,21 +317,10 @@ export async function createGardenRenderer(
               }
             });
         }
-        if (decor === "lantern-lit" || tile.shrine === "active") {
-          const light = new Graphics()
-            .ellipse(32, 16, 27, 14)
-            .fill({ color: 0xffd580, alpha: 0.13 })
-            .ellipse(32, 16, 17, 8)
-            .fill({ color: 0xffd580, alpha: 0.15 });
-          light.position.set(p.x, p.y);
-          light.zIndex = p.y + 1;
-          light.blendMode = "add";
-          figures.addChild(light);
-          animations.push((time) => {
-            light.alpha = 0.8 + Math.sin(time / 700 + tile.posX) * 0.15;
-          });
-        }
       }
+      atmosphere = createAtmosphere(scene, lightTexture!);
+      ground.addChild(atmosphere.floor);
+      app.stage.addChild(atmosphere.air);
       renderedMap = scene.map;
     }
     move("pilgrim", scene.pilgrim, 200);
@@ -339,6 +340,7 @@ export async function createGardenRenderer(
       roundPixels: true,
       autoStart: false,
     });
+    lightTexture = createLightTexture();
     app.stage.addChild(ground, figures);
     app.ticker.maxFPS = 60;
     app.ticker.add(() => {
