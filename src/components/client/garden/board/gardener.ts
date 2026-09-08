@@ -46,7 +46,9 @@ export const chooseRakeTargets = (
 ): Position[] => {
   const stones = map.filter((tile) => tile.stone !== undefined);
   const shrine = map.find((tile) => tile.shrine !== undefined);
-  const goals = stones.length ? stones : shrine ? [shrine] : [];
+  const goals = (stones.length ? stones : shrine ? [shrine] : []).toSorted(
+    (a, b) => manhattan(player, a) - manhattan(player, b) || a.posX - b.posX || a.posY - b.posY,
+  );
   if (!goals.length) return [];
   if (
     options.budget !== undefined &&
@@ -84,23 +86,31 @@ export const chooseRakeTargets = (
         const changed = working.map((cell) =>
           cell === tile ? { ...cell, sprite: "sand-0", laid: false } : cell,
         );
-        const addedCost = goals.reduce(
-          (sum, goal, goalIndex) =>
-            sum +
-            Math.max(0, (cheapestCrossing(changed, player, goal) ?? 1000) - before[goalIndex]),
-          0,
+        const impacts = goals.map((goal, goalIndex) => ({
+          addedCost: Math.max(
+            0,
+            (cheapestCrossing(changed, player, goal) ?? 1000) - before[goalIndex],
+          ),
+          proximity: manhattan(tile, goal),
+        }));
+        // First obstruct the nearest reward's route or immediate approach. Only move
+        // to a farther reward when no safe, reachable candidate serves the closer one.
+        const affected = impacts.findIndex(
+          (impact) => impact.addedCost > 0 || impact.proximity <= 1,
         );
-        const proximity = Math.min(...goals.map((goal) => manhattan(tile, goal)));
+        const priority = affected < 0 ? goals.length : affected;
+        const impact = impacts[affected < 0 ? 0 : affected];
         return {
           tile,
           changed,
+          priority,
           score:
-            addedCost * 100 +
-            20 / (1 + proximity) +
+            impact.addedCost * 100 +
+            20 / (1 + impact.proximity) +
             (trail.some((step) => manhattan(step, tile) === 0) ? 1 : 0),
         };
       })
-      .sort((a, b) => b.score - a.score);
+      .sort((a, b) => a.priority - b.priority || b.score - a.score);
     const from = selected.at(-1) ?? options.from;
     const best = ranked.find((candidate) => {
       if (from && !planGardenerTurn(working, from, [candidate.tile], player).length) return false;

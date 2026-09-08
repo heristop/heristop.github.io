@@ -76,3 +76,20 @@ it("escalates from two to three approaches, but respects the remaining route bud
   expect(chooseRakeTargets(map, [], map[0], 2)).toHaveLength(3);
   expect(chooseRakeTargets(map, [], map[0], 2, { budget: 1 })).toHaveLength(1);
 });
+
+it("prioritizes the closest stone even when farther stones share another approach", () => {
+  const map = [
+    ...Array.from({ length: 5 }, (_, x) => tile(x)),
+    ...Array.from({ length: 8 }, (_, index) => tile(0, { posY: index + 3 })),
+  ];
+  map[4] = { ...map[4], stone: 0, laid: false };
+  map[10] = { ...map[10], stone: 1, laid: false };
+  map[12] = { ...map[12], stone: 2, laid: false };
+  expect(chooseRakeTargets(map, [], map[0], 1, { limit: 1 })).toEqual([{ posX: 3, posY: 2 }]);
+});
+
+it("switches to the gate approach once no stones remain", () => {
+  const map = Array.from({ length: 8 }, (_, x) => tile(x));
+  map[7] = tile(7, { shrine: "active", laid: false });
+  expect(chooseRakeTargets(map, [], map[0], 1, { limit: 1 })).toEqual([{ posX: 6, posY: 2 }]);
+});
