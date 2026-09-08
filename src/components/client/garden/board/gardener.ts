@@ -93,24 +93,29 @@ export const chooseRakeTargets = (
           ),
           proximity: manhattan(tile, goal),
         }));
-        // First obstruct the nearest reward's route or immediate approach. Only move
-        // to a farther reward when no safe, reachable candidate serves the closer one.
-        const affected = impacts.findIndex(
-          (impact) => impact.addedCost > 0 || impact.proximity <= 1,
-        );
+        // A real extra paving cost comes before cosmetic pressure near a stone.
+        const forced = impacts.findIndex((impact) => impact.addedCost > 0);
+        const affected =
+          forced >= 0 ? forced : impacts.findIndex((impact) => impact.proximity <= 1);
         const priority = affected < 0 ? goals.length : affected;
         const impact = impacts[affected < 0 ? 0 : affected];
         return {
           tile,
           changed,
           priority,
+          forcesPaving: forced >= 0,
           score:
             impact.addedCost * 100 +
             20 / (1 + impact.proximity) +
             (trail.some((step) => manhattan(step, tile) === 0) ? 1 : 0),
         };
       })
-      .sort((a, b) => a.priority - b.priority || b.score - a.score);
+      .sort(
+        (a, b) =>
+          Number(b.forcesPaving) - Number(a.forcesPaving) ||
+          a.priority - b.priority ||
+          b.score - a.score,
+      );
     const from = selected.at(-1) ?? options.from;
     const best = ranked.find((candidate) => {
       if (from && !planGardenerTurn(working, from, [candidate.tile], player).length) return false;

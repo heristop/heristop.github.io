@@ -93,3 +93,16 @@ it("switches to the gate approach once no stones remain", () => {
   map[7] = tile(7, { shrine: "active", laid: false });
   expect(chooseRakeTargets(map, [], map[0], 1, { limit: 1 })).toEqual([{ posX: 6, posY: 2 }]);
 });
+
+it("forces a paving expense before raking a nearby approach that can be bypassed for free", () => {
+  const map = [
+    ...Array.from({ length: 12 }, (_, index) =>
+      tile(index % 4, { posY: 2 + Math.floor(index / 4) }),
+    ),
+    ...Array.from({ length: 5 }, (_, index) => tile(0, { posY: 5 + index })),
+  ];
+  map[3] = { ...map[3], stone: 0, laid: false };
+  map[16] = { ...map[16], stone: 1, laid: false };
+  const targets = chooseRakeTargets(map, [], map[0], 1, { limit: 1 });
+  expect(targets).toEqual([{ posX: 0, posY: 8 }]);
+});
