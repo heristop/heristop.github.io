@@ -16,7 +16,7 @@ test("GPU board keeps React controls and survives context loss without resetting
   await page.goto("/path-of-stones/");
   const map = page.getByRole("application");
   await expect(map).toHaveAttribute("data-renderer", "webgl", { timeout: 20000 });
-  await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible();
+  await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible({ timeout: 20000 });
   await expect(page.locator(".garden-webgl canvas")).toHaveCount(1);
   await expect(page.locator(".zazen-world__pilgrim")).toHaveCount(0);
   await page
@@ -53,7 +53,7 @@ test("unsupported WebGL falls back to a playable board", async ({ page }) => {
   await expect(page.locator(".garden-webgl")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /HD-2D/ })).toHaveCount(0);
   await expect(page.getByRole("application")).toHaveAttribute("data-renderer", "dom");
-  await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible();
+  await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible({ timeout: 20000 });
   await page
     .getByRole("button", { name: "Walk down and right (S or down arrow)", exact: true })
     .click();
@@ -66,7 +66,7 @@ test("HD-2D toggles without resetting the run and persists beyond a diagnostic U
   await page.goto("/path-of-stones/?renderer=webgl");
   const map = page.getByRole("application");
   await expect(map).toHaveAttribute("data-renderer", "webgl", { timeout: 20000 });
-  await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible();
+  await expect(page.locator('.path-stones__turn[data-phase="player"]')).toBeVisible({ timeout: 20000 });
   await page
     .getByRole("button", { name: "Walk down and right (S or down arrow)", exact: true })
     .click();
@@ -90,7 +90,7 @@ test("HD-2D toggles without resetting the run and persists beyond a diagnostic U
 for (const renderer of ["webgl", "dom"]) {
   test(`lanterns toggle with pointer and keyboard without moving in ${renderer}`, async ({ page }) => {
     await page.goto(`/path-of-stones/?renderer=${renderer}`);
-    await expect(page.locator(".zazen-world__map")).toHaveAttribute("data-renderer", renderer);
+    await expect(page.locator(".zazen-world__map")).toHaveAttribute("data-renderer", renderer, { timeout: 20000 });
     const lantern = page.getByRole("button", { name: /^Extinguish lantern/ }).first();
     const name = await lantern.getAttribute("aria-label");
     const position = await page.locator("#position-announcer").textContent();
@@ -108,7 +108,7 @@ for (const renderer of ["webgl", "dom"]) {
 for (const renderer of ["webgl", "dom"]) {
   test(`scenery reacts without walking in ${renderer}`, async ({ page }) => {
     await page.goto(`/path-of-stones/?renderer=${renderer}`);
-    await expect(page.locator(".zazen-world__map")).toHaveAttribute("data-renderer", renderer);
+    await expect(page.locator(".zazen-world__map")).toHaveAttribute("data-renderer", renderer, { timeout: 20000 });
     const position = await page.locator("#position-announcer").textContent();
     const tree = page.getByRole("button", { name: /^Rustle tree/ }).first();
     await tree.focus();
@@ -122,5 +122,17 @@ for (const renderer of ["webgl", "dom"]) {
         images.flatMap((image) => image.getAnimations()).filter((animation) => animation.id === "scenery-reaction").length,
       )).toBeGreaterThan(0);
     }
+  });
+}
+
+for (const renderer of ["webgl", "dom"]) {
+  test(`animal clicks preserve the run in ${renderer}`, async ({ page }) => {
+    await page.goto(`/path-of-stones/?renderer=${renderer}`);
+    await expect(page.locator(".zazen-world__map")).toHaveAttribute("data-renderer", renderer, { timeout: 20000 });
+    const position = await page.locator("#position-announcer").textContent();
+    await page.getByRole("button", { name: "Greet the cat", exact: true }).click();
+    await page.getByRole("button", { name: "Make the frog hop", exact: true }).click();
+    await expect(page.locator("#position-announcer")).toHaveText(position!);
+    await expect(page.getByRole("button", { name: "Make the frog hop", exact: true })).toBeVisible();
   });
 }

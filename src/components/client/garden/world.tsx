@@ -374,7 +374,7 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
             { "--life-delay": `${-((tile.posX * 3 + tile.posY) % 7)}s` } as React.CSSProperties
           }
           data-foreground={
-            (tile.posX + tile.posY > 8 && ["pine", "maple", "sakura"].includes(tile.decor)) ||
+            (tile.posX + tile.posY > 8 && ["pine", "maple", "sakura", "bamboo-a", "bamboo-b", "reed"].includes(tile.decor)) ||
             undefined
           }
         />
@@ -644,18 +644,29 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
   const [interaction, setInteraction] = useState<{
     id: number; posX: number; posY: number; kind: SceneryKind;
   }>();
-  const playScenery = (tile: MapTile, kind: SceneryKind) => {
+  const playScenery = (tile: Position, kind: SceneryKind) => {
     setInteraction((previous) => ({ id: (previous?.id ?? 0) + 1, posX: tile.posX, posY: tile.posY, kind }));
     const image = mapRef.current?.querySelector<HTMLElement>(
-      `[data-scenery-key="${tile.posX},${tile.posY}"] .zazen-world__decor`,
+      kind === "cat" ? ".zazen-world__cat" : kind === "frog" ? ".zazen-world__frog-actor .zazen-world__decor" :
+        `[data-scenery-key="${tile.posX},${tile.posY}"] .zazen-world__decor`,
     );
     if (!image || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     for (const animation of image.getAnimations()) {
       if (animation.id === "scenery-reaction") animation.cancel();
     }
+    if (kind === "cat") {
+      const animation = image.animate([
+        { backgroundPosition: "0px -48px" },
+        { backgroundPosition: "-24px -48px" },
+        { backgroundPosition: "-48px -48px" },
+        { backgroundPosition: "-72px -48px" },
+      ], { duration: sceneryDuration(kind), easing: "steps(1, end)" });
+      animation.id = "scenery-reaction";
+      return;
+    }
     image.style.transformOrigin = kind === "tree" ? "16px 58px" : "16px 45px";
     const animation = image.animate(Array.from({ length: 61 }, (_, frame) => ({
-      transform: kind === "tree"
+      transform: kind === "frog" ? `translateY(${-sceneryLift(frame / 60) * 1.4}px)` : kind === "tree"
         ? `skewX(${sceneryAngle(kind, frame / 60)}rad)`
         : `translateY(${-sceneryLift(frame / 60)}px) rotateY(${sceneryAngle(kind, frame / 60)}rad)`,
     })), { duration: sceneryDuration(kind) });
@@ -1767,6 +1778,21 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                   style={{ left: point.left + (kind === "tree" ? 18 : 24), top: point.top + (kind === "tree" ? -24 : 0) }}
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={(event) => { event.stopPropagation(); playScenery(tile, kind); }}
+                />;
+              })}
+              {([
+                { kind: "cat" as const, position: cat.position, visible: true },
+                { kind: "frog" as const, position: game.frog, visible: !game.frogFreed && !frogHopping },
+              ]).filter((animal) => animal.visible).map(({ kind, position }) => {
+                const point = toScreen(position.posX, position.posY, mapDimensions.offsetX, mapDimensions.offsetY);
+                return <button
+                  key={kind}
+                  type="button"
+                  className="zazen-world__scenery-switch zazen-world__scenery-switch--animal"
+                  aria-label={kind === "cat" ? "Greet the cat" : "Make the frog hop"}
+                  style={{ left: 0, top: 0, translate: `${point.left + 20}px ${point.top + (kind === "cat" ? 10 : 11)}px` }}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={(event) => { event.stopPropagation(); playScenery(position, kind); }}
                 />;
               })}
               {game.map

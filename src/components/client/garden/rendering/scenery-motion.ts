@@ -1,5 +1,5 @@
-export type SceneryKind = "tree" | "stone";
-export const sceneryDuration = (kind: SceneryKind) => kind === "tree" ? 1800 : 1400;
+export type SceneryKind = "tree" | "stone" | "cat" | "frog";
+export const sceneryDuration = (kind: SceneryKind) => kind === "tree" ? 1800 : kind === "cat" ? 900 : kind === "frog" ? 700 : 1400;
 
 export const sceneryAngle = (kind: SceneryKind, progress: number) => {
   const t = Math.max(0, Math.min(1, progress));

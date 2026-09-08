@@ -532,3 +532,23 @@ it("lifts stones for two axial turns and settles tree gusts without moving their
   expect(stone.y).toBe(13);
   renderer.destroy();
 });
+
+it("plays animal greetings in place and restores their resting height", async () => {
+  const scene = initial();
+  const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
+  const cat = actors()[2];
+  const frog = actors()[3];
+  const origin = [frog.x, frog.y];
+  await renderer.update({ ...scene, interaction: { id: 1, ...scene.cat, kind: "cat" } });
+  app().advance(250);
+  expect(cat.children[1].y).toBeLessThan(35);
+  await renderer.update({ ...scene, interaction: { id: 2, ...scene.frog, kind: "frog" } });
+  app().advance(250);
+  expect(frog.children[1].y).toBeLessThan(32);
+  expect([frog.x, frog.y]).toEqual(origin);
+  expect(frog.children[0].y).toBe(-7);
+  app().advance(1000);
+  expect(cat.children[1].y).toBe(35);
+  expect(frog.children[1].y).toBe(32);
+  renderer.destroy();
+});

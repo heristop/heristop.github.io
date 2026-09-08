@@ -3177,3 +3177,15 @@ button.path-stones__heat-cell:focus-visible {
   outline: none;
   box-shadow: none;
 }
+
+.zazen-world__scenery-switch--animal {
+  width: 24px;
+  height: 19px;
+  transition: translate 460ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__scenery-switch--animal {
+    transition: none;
+  }
+}

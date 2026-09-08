@@ -1,7 +1,7 @@
 import type { MapTile, Position } from "../types";
 
 export interface GardenScene {
-  interaction?: { id: number; posX: number; posY: number; kind: "tree" | "stone" };
+  interaction?: { id: number; posX: number; posY: number; kind: "tree" | "stone" | "cat" | "frog" };
   map: readonly MapTile[];
   width: number;
   height: number;

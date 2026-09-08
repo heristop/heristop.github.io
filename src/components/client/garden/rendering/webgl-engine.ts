@@ -63,6 +63,7 @@ export async function createGardenRenderer(
   let revision = 0;
   let elapsed = 0;
   const sceneryStarts = new Map<string, number>();
+  const animalStarts = new Map<string, number>();
   let interactionId = initial.interaction?.id;
   let scene = initial;
   let grade: ColorMatrixFilter | undefined;
@@ -265,6 +266,16 @@ export async function createGardenRenderer(
           actor.shadow.alpha = walking ? 0.65 : 1;
         }
       }
+      if (name === "cat" || (name === "frog" && !scene.companionVisible)) {
+        const started = animalStarts.get(name);
+        const reaction = started === undefined ? 1 : (elapsed - started) / sceneryDuration(name);
+        if (name === "cat") actor.shadow.alpha = 1;
+        if (!reducedMotion.matches && !walking && reaction < 1) {
+          if (name === "cat") dress(actor, "persos/cat-walk", 24, 24, Math.min(3, Math.floor(reaction * 4)), 2, scene.catFacingLeft);
+          actor.sprite.y -= sceneryLift(reaction) * (name === "frog" ? 1.4 : 0.6);
+          actor.shadow.alpha = 0.65;
+        }
+      }
     }
   };
   let attackStarted = 0;
@@ -288,7 +299,9 @@ export async function createGardenRenderer(
       app.renderer.resize(next.width, next.height);
     if (next.interaction && next.interaction.id !== interactionId) {
       interactionId = next.interaction.id;
-      sceneryStarts.set(`${next.interaction.posX},${next.interaction.posY}`, elapsed);
+      if (next.interaction.kind === "cat" || next.interaction.kind === "frog")
+        animalStarts.set(next.interaction.kind, elapsed);
+      else sceneryStarts.set(`${next.interaction.posX},${next.interaction.posY}`, elapsed);
     }
     scene = next;
     if (renderedMap !== scene.map) {
@@ -342,10 +355,10 @@ export async function createGardenRenderer(
           sprite.width = w;
           sprite.height = h;
           container.addChild(sprite);
-          const tree = ["pine", "maple", "sakura"].includes(decor);
+          const tree = ["pine", "maple", "sakura", "bamboo-a", "bamboo-b", "reed"].includes(decor);
           if (tree || tile.stone !== undefined) {
             const kind = tree ? "tree" : "stone";
-            const pivotY = tree ? 58 : 45;
+            const pivotY = tree ? (decorContactY[decor] ?? 26) + 32 : 45;
             sprite.pivot.set(16, pivotY);
             sprite.position.set(32, pivotY - 32);
             animations.push(() => {
