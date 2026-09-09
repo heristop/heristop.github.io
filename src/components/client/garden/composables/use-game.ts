@@ -1,3 +1,4 @@
+import { activityLabel } from "../activity";
 import { useCallback, useEffect, useEffectEvent, useMemo, useReducer, useRef } from "react";
 import type { GardenSeed } from "../schema";
 import { FALLBACK_SEED, STONE_COUNT } from "../schema";
@@ -45,6 +46,7 @@ interface GameState {
   gardenerTurns: number;
   attackUsed: boolean;
   attackTicks: number;
+  lastAttackLoss: 0 | 1;
   openingTurn: boolean;
   rakeTargets: Position[];
   gardenerPosition: Position;
@@ -100,9 +102,9 @@ const describeDay = (tile: MapTile): string => {
   if (!day || day.count === 0) {
     return "";
   }
-  const where = day.repo === "" ? "" : ` in ${day.repo}`;
-  const plural = day.count === 1 ? "" : "s";
-  return ` From ${day.date}, ${day.count} commit${plural}${where}.`;
+  const repos = day.projects?.map((project) => project.repo).join(", ") || day.repo;
+  const where = repos ? ` Public activity: ${repos}.` : "";
+  return ` From ${day.date}, ${activityLabel(day)}.${where}`;
 };
 
 // A reducer rather than a fistful of setState calls: arriving on a tile has to update
@@ -209,19 +211,23 @@ const arrive = (
   return { ...state, announcement: "", position };
 };
 
-const gardenerCounterattack = (state: GameState, shrine: Position): GameState => {
-  if (
-    state.attackUsed ||
-    state.finaleOpen ||
-    state.stonesLeft < 1 ||
-    manhattan(state.position, state.gardenerPosition) > 1
-  )
-    return state;
+const gardenerCounterattack = (
+  state: GameState,
+  shrine: Position,
+  previous: Position,
+): GameState => {
+  const near = manhattan(state.position, state.gardenerPosition) <= 1;
+  const alreadyNear = manhattan(previous, state.gardenerPosition) <= 1;
+  if (state.finaleOpen || !near || (state.attackUsed && alreadyNear)) return state;
   const remainingBudget =
     state.stonesLeft - 1 + GARDENER_REFILL * (MAX_GARDENER_TURNS - state.gardenerTurns);
   const remainingStones = state.map.filter((tile) => tile.stone !== undefined);
-  if (!tourCompletes(state.map, state.position, remainingStones, shrine, remainingBudget))
-    return state;
+  const loss =
+    !state.attackUsed &&
+    state.stonesLeft > 0 &&
+    tourCompletes(state.map, state.position, remainingStones, shrine, remainingBudget)
+      ? 1
+      : 0;
   return {
     ...state,
     attackUsed: true,
@@ -229,11 +235,15 @@ const gardenerCounterattack = (state: GameState, shrine: Position): GameState =>
       state.position.posX - state.position.posY <
       state.gardenerPosition.posX - state.gardenerPosition.posY,
     attackTicks: state.attackTicks + 1,
-    stonesLeft: state.stonesLeft - 1,
-    lastSupplyDelta: state.lastSupplyDelta - 1,
-    supplyTicks: state.supplyTicks + 1,
-    announcement:
-      `${state.announcement} Too close! The gardener knocks away one stepping stone. His strike is spent this round.`.trim(),
+    lastAttackLoss: loss,
+    stonesLeft: state.stonesLeft - loss,
+    lastSupplyDelta: state.lastSupplyDelta - loss,
+    supplyTicks: state.supplyTicks + loss,
+    announcement: `${state.announcement} ${
+      loss
+        ? "Too close! The gardener knocks away one stepping stone. He can take only one stone this round."
+        : "Too close! The gardener swings his rake. No stepping stone lost."
+    }`.trim(),
   };
 };
 
@@ -293,7 +303,7 @@ const makeReducer = (layout: GardenLayout) =>
         const decor = target.decor === "lantern-lit" ? "lantern-unlit" : "lantern-lit";
         return {
           ...state,
-          map: state.map.map((tile) => tile === target ? { ...tile, decor } : tile),
+          map: state.map.map((tile) => (tile === target ? { ...tile, decor } : tile)),
         };
       }
       case "move": {
@@ -351,6 +361,7 @@ const makeReducer = (layout: GardenLayout) =>
           gardenerCounterattack(
             arrive({ ...state, lastSupplyDelta: 0 }, action.position, shrine, state.frog),
             shrine,
+            state.position,
           ),
         );
       }
@@ -372,7 +383,11 @@ const makeReducer = (layout: GardenLayout) =>
           supplyTicks: state.supplyTicks + 1,
         };
         return handToGardener(
-          gardenerCounterattack(arrive(paved, action.position, shrine, state.frog), shrine),
+          gardenerCounterattack(
+            arrive(paved, action.position, shrine, state.frog),
+            shrine,
+            state.position,
+          ),
         );
       }
       // A raked garden is raked again. Nothing carries over — not the stones you found,
@@ -447,6 +462,7 @@ const initialState = (layout: GardenLayout): GameState => {
     gardenerTurns: 0,
     attackUsed: false,
     attackTicks: 0,
+    lastAttackLoss: 0,
     rakeTargets: gardenerActions
       .filter((action) => action.kind === "rake")
       .map((action) => action.position),
@@ -590,3 +606,5 @@ const useZazenGame = (options: UseZazenGameOptions = {}): ZazenGameState => {
 
 export default useZazenGame;
 export type { UseZazenGameOptions, ZazenGameState };
+
+export { makeReducer, initialState };

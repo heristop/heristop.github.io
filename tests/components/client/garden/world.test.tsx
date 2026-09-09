@@ -1,6 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("../../../../src/components/client/garden/composables/use-daily-haiku", () => ({
+  default: () => undefined,
+}));
+
 vi.mock("../../../../src/components/client/garden/world.scss", () => ({}));
 
 import ZazenWorld, { chooseMapScale } from "../../../../src/components/client/garden/world";
@@ -139,4 +143,12 @@ describe("sound preference", () => {
       vi.unstubAllGlobals();
     }
   });
+});
+
+it("shows the covered dates and a failed refresh without passing saved data off as current", async () => {
+  const { FALLBACK_SEED } = await import("../../../../src/components/client/garden/schema");
+  render(<ZazenWorld seed={{ ...FALLBACK_SEED, source: "calendar", fetchStatus: "stale", checkedAt: "2026-09-10T05:00:00Z" }} />);
+  expect(screen.getByText("Refresh failed · showing saved activity")).toBeInTheDocument();
+  expect(screen.getByText("Last attempt 2026-09-10 05:00 UTC")).toBeInTheDocument();
+  expect(screen.getByText(/2026-05-28 – 2026-06-10 · UTC/)).toBeInTheDocument();
 });

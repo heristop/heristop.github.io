@@ -6,7 +6,6 @@ import {
   STONE_COUNT,
   WINDOW_DAYS,
 } from "../../../../../src/components/client/garden/schema";
-import type { MapTile, Position } from "../../../../../src/components/client/garden/types";
 import { isWalkableTile } from "../../../../../src/components/client/garden/board/rules";
 import { cheapestCrossing } from "../../../../../src/components/client/garden/board/routing";
 import {
@@ -29,33 +28,6 @@ const seedWith = (counts: readonly number[]): GardenSeed => ({
   login: "test",
   totalContributions: counts.reduce((sum, count) => sum + count, 0),
 });
-
-const key = (position: Position): string => `${position.posX},${position.posY}`;
-
-const reachableFrom = (map: readonly MapTile[], start: Position): Set<string> => {
-  const byKey = new Map(map.map((tile) => [key(tile), tile]));
-  const seen = new Set<string>([key(start)]);
-  const queue: Position[] = [start];
-  while (queue.length > 0) {
-    const current = queue.shift() as Position;
-    const neighbours: Position[] = [
-      { posX: current.posX - 1, posY: current.posY },
-      { posX: current.posX + 1, posY: current.posY },
-      { posX: current.posX, posY: current.posY - 1 },
-      { posX: current.posX, posY: current.posY + 1 },
-    ];
-    for (const next of neighbours) {
-      const id = key(next);
-      const tile = byKey.get(id);
-      if (!tile || seen.has(id) || !isWalkableTile(tile)) {
-        continue;
-      }
-      seen.add(id);
-      queue.push(next);
-    }
-  }
-  return seen;
-};
 
 describe("dayIndexToCell", () => {
   it("runs the first row left to right", () => {
@@ -127,18 +99,18 @@ describe("buildGarden", () => {
     expect(HAIKU_LINES).toHaveLength(STONE_COUNT);
   });
 
-  it("spreads stones at least three tiles apart", () => {
+  it("spreads stones at least five tiles apart", () => {
     const { stones } = buildGarden(FALLBACK_SEED);
     for (let i = 0; i < stones.length; i++) {
       for (let j = i + 1; j < stones.length; j++) {
         const distance =
           Math.abs(stones[i].posX - stones[j].posX) + Math.abs(stones[i].posY - stones[j].posY);
-        expect(distance).toBeGreaterThanOrEqual(3);
+        expect(distance).toBeGreaterThanOrEqual(5);
       }
     }
   });
 
-  it("places the shrine on the newest day", () => {
+  it("places a locked shrine away from the stones", () => {
     const { shrine, map } = buildGarden(FALLBACK_SEED);
     const tile = map.find((t) => t.posX === shrine.posX && t.posY === shrine.posY);
     expect(tile?.shrine).toBe("locked");
@@ -181,13 +153,10 @@ describe("buildGarden", () => {
         const toStone = cheapestCrossing(map, start, stone);
         expect(toStone, "a stone sat somewhere no crossing could reach").toBeDefined();
       }
-      // The promise is not that every destination is affordable from the doorstep — a
-      // gathered stone hands stones back, so it never had to be. It is that a whole tour
-      // finishes on the purse handed out, taking the stones in the least thoughtful order
-      // there is.
+      // Rewards and later gardener refills are part of the available tour budget.
       expect(
-        tourCompletes(map, start, stones, shrine, stoneBudget),
-        `no tour finished on ${stoneBudget} stones`,
+        tourCompletes(map, start, stones, shrine, stoneBudget + 6),
+        `no tour finished on ${stoneBudget} starting stones plus refills`,
       ).toBe(true);
     }
   });
@@ -203,7 +172,7 @@ describe("buildGarden", () => {
       const { map, start, stones, shrine, stoneBudget } = buildGarden(seedWith(counts));
       const cost = cheapestCrossing(map, start, shrine);
       expect(cost, "even a busy fortnight must cost something").toBeGreaterThan(0);
-      expect(tourCompletes(map, start, stones, shrine, stoneBudget)).toBe(true);
+      expect(tourCompletes(map, start, stones, shrine, stoneBudget + 6)).toBe(true);
     }
   });
 
@@ -235,17 +204,15 @@ describe("buildGarden", () => {
       const cost = cheapestCrossing(map, start, shrine);
       expect(cost, "the shrine must never be free").toBeGreaterThan(0);
       expect(cost ?? Infinity, "nor should it be a paving job").toBeLessThanOrEqual(8);
-      // The purse is the smallest one the garden can be finished on, exactly. Sufficient,
-      // so no fortnight is ever a dead end; and minimal, so no fortnight is ever a stroll
-      // — one stone fewer and no order of the five works at all. Asserting a number here
-      // instead would only be asserting today's terrain.
+      // The opening reserve alone cannot finish; the scheduled refills keep a full
+      // tour affordable, while actual gardener interactions are tested in simulations.
       expect(
-        tourCompletes(map, start, stones, shrine, stoneBudget),
+        tourCompletes(map, start, stones, shrine, stoneBudget + 6),
         "the garden must be finishable on what it hands you",
       ).toBe(true);
       expect(
-        tourCompletes(map, start, stones, shrine, stoneBudget - 1),
-        "and must not be finishable on one stone less",
+        tourCompletes(map, start, stones, shrine, stoneBudget),
+        "the opening reserve alone should not bypass the gardener",
       ).toBe(false);
 
       // Neither a lawn nor a desert. The board is only a puzzle while both kinds of
@@ -265,8 +232,8 @@ describe("buildGarden", () => {
     const { map, start, stones, shrine, stoneBudget } = buildGarden(seedWith(counts));
     const toShrine = cheapestCrossing(map, start, shrine);
     expect(toShrine).toBeGreaterThan(0);
-    expect(tourCompletes(map, start, stones, shrine, stoneBudget)).toBe(true);
-    expect(tourCompletes(map, start, stones, shrine, stoneBudget - 1)).toBe(false);
+    expect(tourCompletes(map, start, stones, shrine, stoneBudget + 6)).toBe(true);
+    expect(tourCompletes(map, start, stones, shrine, stoneBudget)).toBe(false);
   });
 });
 

@@ -197,14 +197,14 @@ afterEach(() => {
 const app = () => gpu.apps.at(-1)!;
 const actors = () =>
   ["pilgrim", "gardener", "cat", "frog"].map((name) =>
-    app().stage.children[1].children.find((child: any) => child.label === name),
+    app().stage.children[2].children.find((child: any) => child.label === name),
   );
 
 it("plays one fountain splash per click without restarting it on actor updates", async () => {
   const scene = initial();
   scene.map = [tile(0, "shishi-odoshi")];
   const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
-  const water = app().stage.children[1].children[0].children.find((child: any) => child.label === "fountain-water");
+  const water = app().stage.children[2].children[0].children.find((child: any) => child.label === "fountain-water");
   const spray = water.children.find((child: any) => child.label === "fountain-spray");
   expect(spray).toBeDefined();
   expect(spray.children.every((drop: any) => drop.alpha === 0)).toBe(true);
@@ -265,7 +265,7 @@ it("crops and animates water, lights the empty shrine, and reuses terrain for ac
   expect(floor.children.some((c: any) => c.label === "lantern-reflection")).toBe(true);
   expect(floor.children.some((c: any) => c.label === "stone-aura")).toBe(true);
   expect(
-    app().stage.children[2].children.filter((c: any) => c.label === "emissive-light"),
+    app().stage.children[3].children.filter((c: any) => c.label === "emissive-light"),
   ).toHaveLength(2);
   const [pilgrim] = actors();
   expect(pilgrim.x).toBe(352);
@@ -372,7 +372,7 @@ it("discards stale asset loads and cleans replaced scenery without destroying ac
   await outdated;
   expect(oldGround.destroy).toHaveBeenCalled();
   expect(actors()[0]).toBe(pilgrim);
-  expect(app().stage.children[1].children[4].children[1].texture.source.path).toContain("maple");
+  expect(app().stage.children[2].children[4].children[1].texture.source.path).toContain("maple");
   renderer.destroy();
 });
 
@@ -495,7 +495,7 @@ it("anchors decor shadows to their visible feet instead of the tile front edge",
   const scene = initial();
   scene.map = [tile(0, "pagoda"), tile(1, "pine"), tile(2, "stone-marker")];
   const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
-  const figures = app().stage.children[1].children;
+  const figures = app().stage.children[2].children;
   for (const [decor, foot] of [["pagoda", 24], ["pine", 26], ["stone-marker", 23]] as const) {
     const figure = figures.find((item: any) =>
       item.children[1]?.texture?.source?.path?.endsWith(`/${decor}.png`),
@@ -522,7 +522,7 @@ it("centers trimmed nameplate glyphs on the panel rather than their baseline", a
 
 it("keeps koi wakes bounded, reusable and still with reduced motion", async () => {
   const renderer = await createGardenRenderer(document.createElement("div"), initial(), vi.fn());
-  const fish = app().stage.children[1].children.find((figure: any) =>
+  const fish = app().stage.children[2].children.find((figure: any) =>
     figure.children.some((child: any) => child.label === "koi-wake"),
   );
   const wake = fish.children.find((child: any) => child.label === "koi-wake");
@@ -550,7 +550,7 @@ it("removes a lantern's light and water reflection when it is extinguished", asy
   ) });
   const floor = app().stage.children[0].children.at(-1);
   expect(floor.children.some((child: any) => child.label === "lantern-reflection")).toBe(false);
-  expect(app().stage.children[2].children.filter((child: any) => child.label === "emissive-light")).toHaveLength(1);
+  expect(app().stage.children[3].children.filter((child: any) => child.label === "emissive-light")).toHaveLength(1);
   renderer.destroy();
 });
 
@@ -565,7 +565,7 @@ it("lifts stones for two axial turns and settles tree gusts without moving their
   const scene = initial();
   scene.map = [{ ...tile(0, "stone-marker"), stone: 0 }, tile(1, "pine")];
   const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
-  const figures = app().stage.children[1].children;
+  const figures = app().stage.children[2].children;
   const stone = figures[0].children[1];
   const tree = figures[1].children[1];
   const origin = [tree.x, tree.y];
@@ -620,7 +620,7 @@ it("shrinks the stone shadow at the apex and restores it on landing without shif
   const scene = initial();
   scene.map = [{ ...tile(0, "stone-marker"), stone: 0 }];
   const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
-  const shadow = app().stage.children[1].children[0].children[0];
+  const shadow = app().stage.children[2].children[0].children[0];
   await renderer.update({ ...scene, interaction: { id: 1, posX: 0, posY: 0, kind: "stone" } });
   app().advance(700);
   expect(shadow.scale.set).toHaveBeenLastCalledWith(0.5, 0.5);
@@ -651,7 +651,7 @@ it("limits warm water and lantern mirrors to a two-tile Manhattan radius", () =>
 it("keeps the woman's contact shadow under her feet throughout transformation and idle poses", async () => {
   const scene = initial();
   const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
-  const npc = app().stage.children[1].children.find((figure: any) =>
+  const npc = app().stage.children[2].children.find((figure: any) =>
     figure.children[1]?.texture?.source?.path?.endsWith("/npc-2-life.png"),
   );
   // Static NPC: sprite top -8 + opaque foot row 31.
@@ -662,7 +662,7 @@ it("keeps the woman's contact shadow under her feet throughout transformation an
     for (let pose = 0; pose < 4; pose++) {
       app().advance(300);
       const [shadow, sprite] = frog.children;
-      expect(shadow.ellipses[0][1] + shadow.y).toBeCloseTo(sprite.y - (40 - 31) * 1.35);
+      expect(shadow.ellipses[0][1] + shadow.y).toBeCloseTo(sprite.y - (40 - 31) * 1.6);
       expect(shadow.alpha).toBe(1);
     }
   }
@@ -670,5 +670,54 @@ it("keeps the woman's contact shadow under her feet throughout transformation an
   expect(frog.children[0].alpha).toBe(0);
   await renderer.update(scene);
   expect(frog.children[0].y).toBe(-7);
+  renderer.destroy();
+});
+
+it("draws activity on raked sand and removes its tufts when that crossing is paved", async () => {
+  const scene = initial();
+  scene.map = [{ ...tile(0), day: { date: "2026-09-09", count: 5, repo: "", language: "" } }];
+  const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
+  const ground = app().stage.children[0];
+  const tufts = ground.children.find((child: any) => child.rectangles?.length === 6);
+  expect(tufts).toBeDefined();
+  await renderer.update({ ...scene, map: [{ ...scene.map[0], sprite: "stone-slab", laid: true }] });
+  expect(tufts.destroy).toHaveBeenCalled();
+  expect(ground.children.some((child: any) => child.rectangles?.length === 6)).toBe(false);
+  renderer.destroy();
+});
+
+it("draws sand furrows below actors, fades them and clears them on reset", async () => {
+  const scene = initial();
+  const now = vi.spyOn(Date, "now").mockReturnValue(1000);
+  const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
+  await renderer.update({ ...scene, rakeTrail: [{ posX: 2, posY: 0, dx: 1, dy: 0, born: 1000 }] });
+  const layer = app().stage.children.find((child: any) => child.label === "rake-trails");
+  expect(app().stage.children.indexOf(layer)).toBeLessThan(app().stage.children.findIndex((child: any) => child.children.includes(actors()[1])));
+  expect(layer.children).toHaveLength(1);
+  expect(layer.children[0].alpha).toBe(0.65);
+  now.mockReturnValue(1400);
+  app().advance(400);
+  expect(layer.children[0].alpha).toBeCloseTo(0.325);
+  expect(layer.children[0].children[1].y).toBe(-2);
+  gpu.reduced = true;
+  app().advance(16);
+  expect(layer.children[0].alpha).toBe(0);
+  await renderer.update({ ...scene, rakeTrail: [] });
+  expect(layer.children).toHaveLength(0);
+  renderer.destroy();
+});
+
+it("animates walking frames and a small footfall lift within a gardener step", async () => {
+  const scene = initial();
+  const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
+  await renderer.update({ ...scene, gardener: { ...scene.gardener, posX: scene.gardener.posX + 1 }, gardenerActivity: "walk" });
+  const sprite = actors()[1].children[1];
+  const startingY = sprite.y;
+  app().advance(120);
+  expect(sprite.texture.frame.y).toBe(40);
+  expect(sprite.texture.frame.x).toBe(32);
+  expect(sprite.y).toBeCloseTo(startingY - 1.4);
+  app().advance(120);
+  expect(sprite.y).toBeCloseTo(startingY);
   renderer.destroy();
 });

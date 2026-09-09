@@ -1,3 +1,4 @@
+import { gardenFingerprint } from "../activity";
 import type { GardenDay, GardenSeed } from "../schema";
 import {
   DATA_COLS,
@@ -7,6 +8,7 @@ import {
   STONE_COUNT,
   WINDOW_DAYS,
   dayForTile,
+  firstTileOfDay,
   tileForDay,
 } from "../schema";
 import type { MapTile, Position } from "../types";
@@ -16,7 +18,7 @@ import { createRng, hashString } from "./rng";
 import { manhattan } from "./geometry";
 
 const BORDER = 1;
-const MIN_STONE_SEPARATION = 3;
+const MIN_STONE_SEPARATION = 5;
 const PLANT_CHANCE = 0.55;
 const PLANT_THRESHOLD = 9;
 const BORDER_DECOR_CHANCE = 0.45;
@@ -85,18 +87,9 @@ const HAIKU_LINES: readonly string[] = [
   "the river's oldest vow.",
 ];
 
-// Each language gets its own species, so the planting is legible rather than decorative.
-const PLANT_BY_LANGUAGE: Record<string, string> = {
-  Astro: "reed",
-  JavaScript: "maple",
-  PHP: "pine",
-  Python: "bamboo-b",
-  Rust: "rock-mound",
-  TypeScript: "bamboo-a",
-  Vue: "maple",
-};
-const DEFAULT_PLANT = "reed";
-const BORDER_DECOR_OPTIONS = ["pine", "rock-small", "reed", "maple"];
+// Species are decorative: activity controls density, never the choice of plant.
+const PLANTS = ["reed", "maple", "pine", "bamboo-b", "rock-mound", "bamboo-a"];
+const BORDER_DECOR_OPTIONS = [...PLANTS, "rock-small"];
 
 // Boustrophedon: rows alternate direction so consecutive days are always adjacent, which
 // makes a commit streak render as one unbroken mossy trail. Row-major would break that
@@ -154,12 +147,17 @@ const isInnerCell = (posX: number, posY: number): boolean =>
 
 // The outer ring is authored landscape, not data: it frames the garden, holds the pond,
 // and keeps the data field away from the map edge.
-const buildBorderTile = (posX: number, posY: number, rng: () => number): MapTile => {
+const buildBorderTile = (
+  posX: number,
+  posY: number,
+  rng: () => number,
+  speciesRng: () => number,
+): MapTile => {
   if (posY >= GRID_SIZE - POND_DEPTH) {
     return { decor: "", npc: 0, posX, posY, sprite: "water-still", walkable: false };
   }
   const decorate = rng() < BORDER_DECOR_CHANCE;
-  const decorIndex = Math.floor(rng() * BORDER_DECOR_OPTIONS.length);
+  const decorIndex = Math.floor(speciesRng() * BORDER_DECOR_OPTIONS.length);
   return {
     decor: decorate ? BORDER_DECOR_OPTIONS[decorIndex] : "",
     npc: 0,
@@ -175,11 +173,12 @@ const buildDataTile = (
   position: Position,
   rng: () => number,
   firm: boolean,
+  speciesRng: () => number,
 ): MapTile => {
   const count = day?.count ?? 0;
   const planted = count >= PLANT_THRESHOLD && rng() < PLANT_CHANCE;
   const tile: MapTile = {
-    decor: planted ? (PLANT_BY_LANGUAGE[day?.language ?? ""] ?? DEFAULT_PLANT) : "",
+    decor: planted ? PLANTS[Math.floor(speciesRng() * PLANTS.length)] : "",
     npc: 0,
     posX: position.posX,
     posY: position.posY,
@@ -196,72 +195,67 @@ const buildDataTile = (
   return tile;
 };
 
-// Greedy pick of the busiest days, spread out so the five stones do not clump. Top-up
-// passes guarantee exactly STONE_COUNT stones even for an empty history — the haiku has
-// five lines and the game loop depends on that count.
-//
-// The first and last days are excluded: they carry the pilgrim's start and the shrine.
-// The newest day is both the shrine tile and, usually, the busiest — without this the
-// shrine would overwrite a stone and the board would come up one short.
-const pickStoneIndices = (
+// Spread objectives across the field instead of chaining the busiest neighbouring beds.
+// No three stones share a straight line, and the route spans both board axes.
+const spreadOut = (positions: readonly Position[]): boolean => {
+  for (let i = 0; i < positions.length; i++) {
+    for (let j = i + 1; j < positions.length; j++) {
+      const a = positions[i],
+        b = positions[j];
+      if (manhattan(a, b) < MIN_STONE_SEPARATION) return false;
+      for (const c of positions.slice(j + 1)) {
+        if ((b.posX - a.posX) * (c.posY - a.posY) === (b.posY - a.posY) * (c.posX - a.posX))
+          return false;
+      }
+    }
+  }
+  return (
+    positions.length < STONE_COUNT ||
+    (Math.max(...positions.map((p) => p.posX)) - Math.min(...positions.map((p) => p.posX)) >= 7 &&
+      Math.max(...positions.map((p) => p.posY)) - Math.min(...positions.map((p) => p.posY)) >= 6)
+  );
+};
+
+const pickStonePositions = (
   days: readonly (GardenDay | null)[],
   firm: ReadonlySet<number>,
-): number[] => {
-  const FIRST = 1;
-  const LAST = WINDOW_DAYS - 1;
-  const chosen: number[] = [];
-
-  const accepts = (index: number, separation: number): boolean => {
-    const candidate = positionForDay(index);
-    return chosen.every((other) => manhattan(candidate, positionForDay(other)) >= separation);
+  rng: () => number,
+): Position[] => {
+  let best: number[] = [];
+  let bestScore = -Infinity;
+  const peak = Math.max(1, ...days.map((day) => Math.log1p(day?.count ?? 0)));
+  const choose = (chosen: number[], next: number): void => {
+    if (chosen.length === STONE_COUNT) {
+      const raked = chosen.filter((day) => !firm.has(day)).length;
+      const activity = chosen.reduce(
+        (sum, day) => sum + Math.log1p(days[day]?.count ?? 0) / peak,
+        0,
+      );
+      const score = activity + rng() * 3 - Math.abs(raked - 2) * 4;
+      if (score > bestScore) {
+        bestScore = score;
+        best = chosen;
+      }
+      return;
+    }
+    for (let day = next; day < WINDOW_DAYS - 1; day++) {
+      const candidate = [...chosen, day];
+      if (spreadOut(candidate.map(positionForDay))) choose(candidate, day + 1);
+    }
   };
-
-  // Only the days that own a bed. A seed carrying more days than the window would
-  // otherwise rank days nothing renders, and the garden would come out all sand.
-  const ranked = days
-    .slice(0, WINDOW_DAYS)
-    .map((day, index) => ({ count: day?.count ?? 0, index }))
-    .filter((entry) => entry.count > 0 && entry.index >= FIRST && entry.index < LAST)
-    .sort((a, b) => b.count - a.count || a.index - b.index);
-
-  // Busiest days first, but firm ones before sand at every stage. The two rankings break
-  // ties in opposite directions — firmness prefers the recent day, busyness the older one
-  // — so on a fortnight of equal days every stone used to land in the half that had been
-  // left raked, and the budget had to stretch to reach them all.
-  for (const preferFirm of [true, false]) {
-    for (const entry of ranked) {
-      if (chosen.length === STONE_COUNT) {
-        break;
-      }
-      if (preferFirm && !firm.has(entry.index)) {
-        continue;
-      }
-      if (!chosen.includes(entry.index) && accepts(entry.index, MIN_STONE_SEPARATION)) {
-        chosen.push(entry.index);
-      }
-    }
-  }
-
-  // Not enough busy days: fill from a fixed sweep of the field, then relax the spacing.
-  // Top up from firm ground before reaching for sand. A stone stranded in the middle of a
-  // raked bed has to be paid for twice — once to reach it and once to leave — and because
-  // the budget is set by the dearest thing the game asks you to reach, one badly placed
-  // stone inflates it for the whole garden. On a lopsided fortnight that was the
-  // difference between four stones spent of five and four spent of ten.
-  for (const preferFirm of [true, false]) {
-    for (const separation of [MIN_STONE_SEPARATION, 1]) {
-      for (let index = FIRST; index < LAST && chosen.length < STONE_COUNT; index++) {
-        if (preferFirm && !firm.has(index)) {
-          continue;
-        }
-        if (!chosen.includes(index) && accepts(index, separation)) {
-          chosen.push(index);
-        }
-      }
-    }
-  }
-
-  return chosen.slice(0, STONE_COUNT);
+  choose([], 1);
+  const positions = best.map(positionForDay);
+  // Vary positions within their actual day beds while preserving the spacing rules.
+  best.forEach((day, index) => {
+    const options = Array.from(
+      { length: firstTileOfDay(day + 1) - firstTileOfDay(day) },
+      (_, offset) => positionForTile(firstTileOfDay(day) + offset),
+    ).filter((position) =>
+      spreadOut(positions.map((other, i) => (i === index ? position : other))),
+    );
+    positions[index] = options[Math.floor(rng() * options.length)] ?? positions[index];
+  });
+  return positions;
 };
 
 const positionKey = (position: Position): string => `${position.posX},${position.posY}`;
@@ -450,11 +444,24 @@ const randomizeFrog = (layout: GardenLayout, roll: number, previous?: Position):
     (tile) =>
       (tile.decor === "" || tile.decor === "frog") &&
       tile.npc === 0 &&
+      !tile.shrine &&
+      tile.stone === undefined &&
+      manhattan(tile, layout.start) !== 0 &&
       (isWalkableTile(tile) || canPaveTile(tile)) &&
       water.some((pond) => manhattan(tile, pond) === 1),
   );
-  const alternatives = banks.filter((tile) => !previous || manhattan(tile, previous) !== 0);
-  const candidates = alternatives.length > 0 ? alternatives : banks;
+  const safeBanks = banks.filter((bank) => {
+    const map = layout.map.map((tile) =>
+      manhattan(tile, bank) === 0
+        ? { ...tile, decor: "frog" }
+        : tile.decor === "frog"
+          ? { ...tile, decor: "" }
+          : tile,
+    );
+    return tourCompletes(map, layout.start, layout.stones, layout.shrine, MAX_TOUR_BUDGET);
+  });
+  const alternatives = safeBanks.filter((tile) => !previous || manhattan(tile, previous) !== 0);
+  const candidates = alternatives.length > 0 ? alternatives : safeBanks;
   const chosen = candidates[Math.min(candidates.length - 1, Math.floor(roll * candidates.length))];
   if (!chosen) return layout;
   const frog = { posX: chosen.posX, posY: chosen.posY };
@@ -468,8 +475,8 @@ const randomizeFrog = (layout: GardenLayout, roll: number, previous?: Position):
   };
 };
 
-// Keep the opening hand readable even when dense vegetation forces long detours.
-const MAX_STARTING_STONES = 6;
+// Cap the baseline tour cost before distributing its reserve across rounds.
+const MAX_TOUR_BUDGET = 6;
 
 // What a gathered stone gives back. This is the whole shape of the game: the five stones
 // are the objective AND the fuel, so the question stops being "can I afford the crossing"
@@ -544,14 +551,16 @@ const tourCompletes = (
 };
 
 const buildGarden = (seed: GardenSeed): GardenLayout => {
-  const rng = createRng(hashString(`${seed.login}:${seed.generatedAt}:${seed.totalContributions}`));
+  const randomSeed = hashString(gardenFingerprint(seed));
+  const rng = createRng(randomSeed);
+  const speciesRng = createRng(hashString(`${randomSeed}:species`));
   const map: MapTile[] = [];
 
   // Border first, in a fixed order, so the rng stream is deterministic.
   for (let posX = 0; posX < GRID_SIZE; posX++) {
     for (let posY = 0; posY < GRID_SIZE; posY++) {
       if (!isInnerCell(posX, posY)) {
-        map.push(buildBorderTile(posX, posY, rng));
+        map.push(buildBorderTile(posX, posY, rng, speciesRng));
       }
     }
   }
@@ -563,14 +572,13 @@ const buildGarden = (seed: GardenSeed): GardenLayout => {
   for (let index = 0; index < DATA_TILES; index++) {
     const position = positionForTile(index);
     const day = dayForTile(index);
-    const tile = buildDataTile(seed.days[day] ?? null, position, rng, firm.has(day));
+    const tile = buildDataTile(seed.days[day] ?? null, position, rng, firm.has(day), speciesRng);
     map.push(tile);
     byKey.set(positionKey(tile), tile);
   }
 
   const stones: Position[] = [];
-  pickStoneIndices(seed.days, firm).forEach((dayIndex, stoneIndex) => {
-    const position = positionForDay(dayIndex);
+  pickStonePositions(seed.days, firm, rng).forEach((position, stoneIndex) => {
     const tile = byKey.get(positionKey(position));
     if (!tile) {
       return;
@@ -587,7 +595,10 @@ const buildGarden = (seed: GardenSeed): GardenLayout => {
   // in the far half of the field — the walk has to be a journey — but which tile is drawn
   // from the same seeded stream as everything else, so it moves when the fortnight does
   // and never between two visitors on the same day.
-  const farHalf = Array.from({ length: Math.floor(DATA_TILES / 2) }, (_u, i) => i + DATA_TILES / 2);
+  const farHalf = Array.from(
+    { length: Math.floor(DATA_TILES / 2) },
+    (_u, i) => i + DATA_TILES / 2,
+  ).filter((index) => stones.every((stone) => manhattan(stone, positionForTile(index)) >= 3));
   const shrineTileIndex = farHalf[Math.floor(rng() * farHalf.length)] ?? DATA_TILES - 1;
   const shrine = positionForTile(shrineTileIndex);
   const shrineTile = byKey.get(positionKey(shrine));
@@ -665,7 +676,7 @@ const buildGarden = (seed: GardenSeed): GardenLayout => {
   // huge purse (or clamping it below the cost of a winning route). Activity metadata
   // and plant density stay intact; only the necessary crossings become firm.
   for (let repairs = 0; repairs < DATA_TILES; repairs++) {
-    if (tourCompletes(map, start, stones, shrine, MAX_STARTING_STONES)) break;
+    if (tourCompletes(map, start, stones, shrine, MAX_TOUR_BUDGET)) break;
     const route = [...stones, shrine]
       .map((target) => cheapestRoute(map, start, target, DATA_TILES))
       .filter((path) => path !== undefined)
@@ -677,11 +688,13 @@ const buildGarden = (seed: GardenSeed): GardenLayout => {
     crossing.sprite = LAID_STONE_SPRITE;
   }
 
-  // Find the actual minimum after repair; never silently truncate a required budget.
-  let stoneBudget = 1;
-  while (stoneBudget < DATA_TILES && !tourCompletes(map, start, stones, shrine, stoneBudget)) {
-    stoneBudget += 1;
+  // The whole tour budget includes later refills. Giving it all at the start lets a
+  // single cheap chain bypass the gardener; reserve four stones for his later visits.
+  let tourBudget = 1;
+  while (tourBudget < DATA_TILES && !tourCompletes(map, start, stones, shrine, tourBudget)) {
+    tourBudget += 1;
   }
+  const stoneBudget = Math.max(1, tourBudget - 4);
 
   return { frog: FROG_SPOT, map, shrine, start, stoneBudget, stones };
 };

@@ -1,7 +1,7 @@
 import { GRID_SIZE } from "../schema";
 import type { MapTile, Position } from "../types";
 import { manhattan } from "./geometry";
-import { cheapestCrossing } from "./routing";
+import { cheapestRoute } from "./routing";
 import { tourCompletes } from "./terrain";
 import { tileAt, findWalkablePath, canPaveTile } from "./rules";
 
@@ -9,6 +9,31 @@ export const GARDENER_REFILL = 2;
 export const GARDENER_STEP_MS = 240;
 export const GARDENER_RAKE_MS = 720;
 export type GardenerAction = { kind: "walk" | "rake"; position: Position };
+
+const canRakeTile = (tile: MapTile): boolean => {
+  if (
+    !tile.walkable ||
+    tile.sprite === "sand-0" ||
+    tile.sprite === "sand-1" ||
+    tile.decor ||
+    tile.npc ||
+    tile.stone !== undefined ||
+    tile.shrine ||
+    tile.gathered ||
+    tile.transformed
+  )
+    return false;
+  return Boolean(
+    tile.laid ||
+    tile.sprite.startsWith("moss") ||
+    tile.sprite === "sand-moss" ||
+    (tile.sprite === "gravel-edge" &&
+      tile.posX > 0 &&
+      tile.posX < GRID_SIZE - 1 &&
+      tile.posY > 0 &&
+      tile.posY < GRID_SIZE - 1),
+  );
+};
 
 export const planGardenerTurn = (
   map: readonly MapTile[],
@@ -25,6 +50,8 @@ export const planGardenerTurn = (
   const actions: GardenerAction[] = [];
   let position = from;
   for (const target of targets) {
+    const tile = tileAt(map, target);
+    if (!tile || !canRakeTile(tile) || manhattan(target, player) === 0) continue;
     const path = findWalkablePath(ground, position, target);
     if (!path) continue;
     actions.push(...path.map((step) => ({ kind: "walk" as const, position: step })), {
@@ -36,10 +63,53 @@ export const planGardenerTurn = (
   return actions;
 };
 
+// At most three rakes: compare every visit order, keeping the closest finish first
+// in the ranking, then minimizing actual walking around obstacles and the player.
+const orderRakeTargets = (
+  map: readonly MapTile[],
+  traversable: readonly MapTile[],
+  targets: Position[],
+  player: Position,
+  goal: Position,
+  from?: Position,
+): Position[] => {
+  const distances = new Map(
+    targets.map((target) => [
+      target,
+      findWalkablePath(traversable, target, goal)?.length ?? Infinity,
+    ]),
+  );
+  let best = targets.toSorted((a, b) => distances.get(b)! - distances.get(a)!);
+  if (!from || targets.length < 2) return best;
+  const closest = Math.min(...distances.values());
+  let fewestSteps = Infinity;
+  const visit = (order: Position[], remaining: Position[]) => {
+    if (remaining.length) {
+      remaining.forEach((target, i) =>
+        visit(
+          [...order, target],
+          remaining.filter((_, j) => i !== j),
+        ),
+      );
+      return;
+    }
+    if (distances.get(order.at(-1)!) !== closest) return;
+    const actions = planGardenerTurn(map, from, order, player);
+    if (actions.filter((action) => action.kind === "rake").length !== targets.length) return;
+    const steps = actions.length - targets.length;
+    if (steps < fewestSteps) {
+      best = order;
+      fewestSteps = steps;
+    }
+  };
+  visit([], best);
+  return best;
+};
+
 // Target useful approaches, not arbitrary old slabs. Never remove a discovery or structure.
 export const chooseRakeTargets = (
   map: readonly MapTile[],
-  trail: readonly Position[],
+  _trail: readonly Position[],
   player: Position,
   turnNumber = 1,
   options: { budget?: number; limit?: number; from?: Position } = {},
@@ -58,86 +128,65 @@ export const chooseRakeTargets = (
     return [];
   let working = [...map];
   const selected: Position[] = [];
-  const limit = options.limit ?? (turnNumber > 1 ? 3 : 2);
+  let focus: Position | undefined;
+  const limit = Math.max(0, Math.min(3, options.limit ?? (turnNumber > 1 ? 3 : 2)));
+  // Raking changes paving cost, never this graph's connectivity.
+  const traversable = map.map((tile) => ({
+    ...tile,
+    sprite: canPaveTile(tile) ? "stone-slab" : tile.sprite,
+  }));
+  const goalDistances = new Map(
+    goals.map((goal) => [goal, findWalkablePath(traversable, player, goal)?.length]),
+  );
   for (let index = 0; index < limit; index++) {
-    const before = goals.map((goal) => cheapestCrossing(working, player, goal) ?? 1000);
-    const candidates = working.filter(
-      (tile) =>
-        (tile.laid ||
-          tile.sprite.startsWith("moss") ||
-          tile.sprite === "sand-moss" ||
-          (tile.sprite === "gravel-edge" &&
-            tile.posX > 0 &&
-            tile.posX < GRID_SIZE - 1 &&
-            tile.posY > 0 &&
-            tile.posY < GRID_SIZE - 1)) &&
-        tile.walkable &&
-        manhattan(tile, player) > 1 &&
-        tile.decor === "" &&
-        tile.npc === 0 &&
-        tile.stone === undefined &&
-        !tile.shrine &&
-        !tile.gathered &&
-        !tile.transformed &&
-        !selected.some((target) => manhattan(tile, target) === 0),
-    );
-    const ranked = candidates
-      .map((tile) => {
-        const changed = working.map((cell) =>
-          cell === tile ? { ...cell, sprite: "sand-0", laid: false } : cell,
-        );
-        const impacts = goals.map((goal, goalIndex) => ({
-          addedCost: Math.max(
-            0,
-            (cheapestCrossing(changed, player, goal) ?? 1000) - before[goalIndex],
-          ),
-          proximity: manhattan(tile, goal),
-        }));
-        // A real extra paving cost comes before cosmetic pressure near a stone.
-        const forced = impacts.findIndex((impact) => impact.addedCost > 0);
-        const affected =
-          forced >= 0 ? forced : impacts.findIndex((impact) => impact.proximity <= 1);
-        const priority = affected < 0 ? goals.length : affected;
-        const impact = impacts[affected < 0 ? 0 : affected];
-        return {
-          tile,
-          changed,
-          priority,
-          forcesPaving: forced >= 0,
-          // Prefer bottlenecks that raise the cheapest crossing to several rewards.
-          // Proximity only breaks ties between equally costly obstructions.
-          totalAddedCost: impacts.reduce((sum, entry) => sum + entry.addedCost, 0),
-          cheapestGoalIncrease:
-            Math.min(...impacts.map((entry, goalIndex) => before[goalIndex] + entry.addedCost)) -
-            Math.min(...before),
-          score:
-            impact.addedCost * 100 +
-            20 / (1 + impact.proximity) +
-            (trail.some((step) => manhattan(step, tile) === 0) ? 1 : 0),
-        };
+    // Distance selects the stone; paving cost selects the player's route to it.
+    // Keep these priorities separate so a distant bottleneck never wins on a score.
+    const routes = goals
+      .filter((goal) => !focus || manhattan(goal, focus) === 0)
+      .flatMap((goal) => {
+        const distance = goalDistances.get(goal);
+        const route = cheapestRoute(working, player, goal, GRID_SIZE * GRID_SIZE);
+        return distance !== undefined && route ? [{ ...route, goal, distance }] : [];
       })
-      .sort(
-        (a, b) =>
-          b.cheapestGoalIncrease - a.cheapestGoalIncrease ||
-          b.totalAddedCost - a.totalAddedCost ||
-          Number(b.forcesPaving) - Number(a.forcesPaving) ||
-          a.priority - b.priority ||
-          b.score - a.score,
-      );
+      .sort((a, b) => a.distance - b.distance || a.cost - b.cost || a.path.length - b.path.length);
     const from = selected.at(-1) ?? options.from;
-    const best = ranked.find((candidate) => {
-      if (from && !planGardenerTurn(working, from, [candidate.tile], player).length) return false;
-      return (
-        options.budget === undefined ||
-        !shrine ||
-        tourCompletes(candidate.changed, player, stones, shrine, options.budget)
-      );
-    });
+    const candidates = routes.flatMap((route) =>
+      route.path
+        .slice(0, -1)
+        .toReversed()
+        .map((position) => ({ position, goal: route.goal })),
+    );
+    let best: { tile: MapTile; changed: MapTile[]; goal: Position } | undefined;
+    const examined = new Set<string>();
+    for (const { position, goal } of candidates) {
+      const key = `${position.posX},${position.posY}`;
+      if (examined.has(key)) continue;
+      examined.add(key);
+      const tile = tileAt(working, position);
+      if (
+        !tile ||
+        !canRakeTile(tile) ||
+        manhattan(tile, player) === 0 ||
+        selected.some((target) => manhattan(target, tile) === 0)
+      )
+        continue;
+      if (from && !planGardenerTurn(working, from, [tile], player).length) continue;
+      const changed = rakePaths(working, working, [tile]);
+      if (
+        options.budget !== undefined &&
+        shrine &&
+        !tourCompletes(changed, player, stones, shrine, options.budget)
+      )
+        continue;
+      best = { tile, changed, goal };
+      break;
+    }
     if (!best) break;
+    focus = best.goal;
     selected.push({ posX: best.tile.posX, posY: best.tile.posY });
     working = best.changed;
   }
-  return selected;
+  return focus ? orderRakeTargets(map, traversable, selected, player, focus, options.from) : [];
 };
 
 export const rakePaths = (
@@ -146,7 +195,7 @@ export const rakePaths = (
   targets: readonly Position[],
 ): MapTile[] =>
   map.map((tile) => {
-    if (!targets.some((target) => manhattan(tile, target) === 0)) return tile;
+    if (!canRakeTile(tile) || !targets.some((target) => manhattan(tile, target) === 0)) return tile;
     return {
       ...tile,
       laid: false,

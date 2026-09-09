@@ -48,7 +48,27 @@ describe("activity-independent challenge", () => {
           map.filter((tile) => tile.stone !== undefined),
           `${name}/${variant} relics`,
         ).toHaveLength(5);
-        expect(stoneBudget).toBeLessThanOrEqual(6);
+        expect(stoneBudget).toBeLessThanOrEqual(2);
+        expect(
+          Math.max(...stones.map((stone) => stone.posX)) -
+            Math.min(...stones.map((stone) => stone.posX)),
+        ).toBeGreaterThanOrEqual(7);
+        expect(
+          Math.max(...stones.map((stone) => stone.posY)) -
+            Math.min(...stones.map((stone) => stone.posY)),
+        ).toBeGreaterThanOrEqual(6);
+        for (let i = 0; i < stones.length; i++) {
+          for (let j = i + 1; j < stones.length; j++) {
+            const a = stones[i],
+              b = stones[j];
+            expect(Math.abs(a.posX - b.posX) + Math.abs(a.posY - b.posY)).toBeGreaterThanOrEqual(5);
+            for (const c of stones.slice(j + 1)) {
+              expect(
+                (b.posX - a.posX) * (c.posY - a.posY) - (b.posY - a.posY) * (c.posX - a.posX),
+              ).not.toBe(0);
+            }
+          }
+        }
         const beds = map.filter(
           (tile) => tile.posX > 0 && tile.posX < 11 && tile.posY > 0 && tile.posY < 11,
         );
@@ -57,7 +77,7 @@ describe("activity-independent challenge", () => {
         expect(firmRatio).toBeLessThan(0.75);
         expect(cheapestCrossing(map, start, shrine)).toBeGreaterThan(0);
         expect(
-          tourCompletes(map, start, stones, shrine, stoneBudget),
+          tourCompletes(map, start, stones, shrine, stoneBudget + 6),
           `${name}/${variant} budget=${stoneBudget} `,
         ).toBe(true);
         const targets = chooseRakeTargets(map, [], start, 1, {

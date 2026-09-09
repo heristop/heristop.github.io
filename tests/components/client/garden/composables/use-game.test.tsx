@@ -6,7 +6,7 @@ import {
   buildGarden,
 } from "../../../../../src/components/client/garden/board/terrain";
 import * as terrain from "../../../../../src/components/client/garden/board/terrain";
-import useZazenGame from "../../../../../src/components/client/garden/composables/use-game";
+import useZazenGame, { initialState as terrainState, makeReducer as terrainReducer } from "../../../../../src/components/client/garden/composables/use-game";
 
 function finishGardener(result: { current: ReturnType<typeof useZazenGame> }) {
   for (let tick = 0; tick < 100 && result.current.phase === "gardener"; tick++)
@@ -106,7 +106,7 @@ describe("useZazenGame", () => {
       result.current.teleportForTest(stones[0]);
     });
     expect(result.current.announcement).toMatch(/\d{4}-\d{2}-\d{2}/);
-    expect(result.current.announcement).toMatch(/commits/);
+    expect(result.current.announcement).toMatch(/contributions/);
   });
 
   // Stones sit on the busiest days, which has nothing to do with the order you walk
@@ -305,6 +305,7 @@ describe("gardener turns", () => {
       expect(result.current.gardenerTurns).toBe(1);
       const position = result.current.position;
       const steps = result.current.steps;
+      const playerTile = result.current.map.find(tile => tile.posX === position.posX && tile.posY === position.posY);
       act(() => {
         result.current.move("N");
         result.current.move("E");
@@ -329,8 +330,8 @@ describe("gardener turns", () => {
       expect(
         result.current.map.find(
           (tile) => tile.posX === position.posX && tile.posY === position.posY,
-        )?.laid,
-      ).toBe(true);
+        ),
+      ).toEqual(playerTile);
       unmount();
     } finally {
       vi.useRealTimers();
@@ -477,7 +478,8 @@ describe("gardener counterattack", () => {
       const before = result.current.stonesLeft;
       act(() => result.current.teleportForTest(target));
       expect(result.current.stonesLeft).toBe(before);
-      expect(result.current.attackTicks).toBe(0);
+      expect(result.current.attackTicks).toBe(1);
+      expect(result.current.lastAttackLoss).toBe(0);
       safety.mockRestore();
       unmount();
     } finally {
@@ -488,14 +490,18 @@ describe("gardener counterattack", () => {
 });
 
 it("resolves batched movement against the latest reducer state with a stable command", async () => {
-  const { findWalkablePath } =
-    await import("../../../../../src/components/client/garden/board/rules");
+  const { cheapestRoute } =
+    await import("../../../../../src/components/client/garden/board/routing");
   const { directionFromDelta } =
     await import("../../../../../src/components/client/garden/board/geometry");
+  // Leave enough supply for two moves even when this seed puts the guard beside them.
+  const layout = buildGarden(FALLBACK_SEED);
+  const build = vi.spyOn(terrain, "buildGarden").mockReturnValue({ ...layout, stoneBudget: 3 });
   const { result } = renderReadyGame(() => useZazenGame({ seed: FALLBACK_SEED }));
+  build.mockRestore();
   const start = result.current.position;
   const route = result.current.map
-    .map((tile) => findWalkablePath(result.current.map, start, tile))
+    .map((tile) => cheapestRoute(result.current.map, start, tile, 3)?.path)
     .find((path) => path && path.length >= 2)!;
   expect(route).toBeDefined();
   const move = result.current.move;
@@ -524,4 +530,40 @@ it("toggles lanterns without spending supplies, moving or advancing the turn", (
   const map = result.current.map;
   act(() => result.current.toggleLantern({ posX: -1, posY: -1 }));
   expect(result.current.map).toBe(map);
+});
+
+it("still swings visibly when approaching on sand spends the player's last stone", () => {
+  const layout = buildGarden(FALLBACK_SEED);
+  const start = { posX: 0, posY: 0 };
+  const target = { posX: 1, posY: 0 };
+  const map = [start, target, { posX: 2, posY: 0 }].map((position, i) => ({ ...position, walkable: true, sprite: i === 1 ? "sand-0" : "moss-mid", npc: 0, decor: "" }));
+  const custom = { ...layout, map, start, stoneBudget: 1, stones: [] };
+  const state = { ...terrainState(custom), phase: "player" as const, gardenerActivity: "idle" as const, gardenerPosition: map[2], gardenerActions: [] };
+  const attacked = terrainReducer(custom)(state, { type: "move", direction: "S" });
+  expect(attacked.attackTicks).toBe(1);
+  expect(attacked.lastAttackLoss).toBe(0);
+  expect(attacked.stonesLeft).toBe(0);
+  expect(attacked.position).toEqual(target);
+});
+
+it("swings again on a new close pass without charging a second stone that round", () => {
+  const layout = buildGarden(FALLBACK_SEED);
+  const map = Array.from({ length: 5 }, (_, posX) => ({ posX, posY: 0,
+    walkable: true, sprite: "moss-mid", npc: 0, decor: "" }));
+  const custom = { ...layout, map, start: map[0], shrine: map[4], stones: [], stoneBudget: 5 };
+  const reduce = terrainReducer(custom);
+  let state = { ...terrainState(custom), phase: "player" as const,
+    gardenerActivity: "idle" as const, gardenerPosition: map[2], gardenerActions: [] };
+  state = reduce(state, { type: "move", direction: "S" }) as typeof state;
+  expect(state.attackTicks).toBe(1);
+  expect(state.lastAttackLoss).toBe(1);
+  expect(state.stonesLeft).toBe(4);
+  state = reduce(state, { type: "move", direction: "N" }) as typeof state;
+  state = reduce(state, { type: "move", direction: "S" }) as typeof state;
+  expect(state.attackTicks).toBe(2);
+  expect(state.lastAttackLoss).toBe(0);
+  expect(state.stonesLeft).toBe(4);
+  // Remaining beside him is one encounter, not a new attack on every step.
+  state = reduce(state, { type: "move", direction: "S" }) as typeof state;
+  expect(state.attackTicks).toBe(2);
 });

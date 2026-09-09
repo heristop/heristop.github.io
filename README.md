@@ -38,6 +38,33 @@ See `package.json` for the full list of scripts (build, lint, tests, visual test
 Run `pnpm test:garden:coverage` to test Path of Stones and generate `coverage/garden/index.html`.
 CI requires at least 90% line, statement, function and branch coverage across the complete garden module.
 
+The garden uses the last fourteen completed UTC days. `pnpm fetch:github` refreshes the
+snapshot; GitHub Actions also refreshes it daily at 05:00 UTC and on pushes to `master`.
+Calendar counts are contributions, while the partial fallback counts public push events.
+Repository names and primary languages come from recent public activity, independently of
+plant species, which use a dedicated seeded random stream. Terrain and best scores remain
+stable when only refresh metadata changes.
+Failed refreshes retain the saved snapshot and display its age/status; the committed snapshot
+is also the offline development fallback. Deployments do not commit fetched data back to Git.
+
+The coverage suite includes 72 complete games using three route strategies across the
+published snapshot and contrasting activity profiles. It runs the actual gardener actions,
+checks that each sampled board has a winning strategy and requires paving and gardener refills.
+Stones are at least five tiles apart with no three aligned; the starting reserve leaves part
+of the tour budget for later refills. The gardener’s turn ends with his last rake.
+He targets the nearest reachable stone, following the player’s cheapest route to it.
+He rakes firm cells on that approach and finishes with the one closest to the stone.
+With at most three targets, all visit orders are checked to minimize walking while keeping that finish.
+Bare sand, discoveries and structures cannot be raked. New close passes trigger visible swings,
+with at most one stone deducted per round; turn banners wait for the swing to finish. Stone deductions still
+preserve a feasible tour.
+Run just these simulations with
+`pnpm exec vitest run tests/components/client/garden/board/generation-simulation.test.ts`.
+Set `GARDEN_BALANCE_VARIANTS=12` to sample 96 boards (288 games), and
+`GARDEN_BALANCE_REPORT=/tmp/garden-balance.json` to save per-game results and round statistics.
+An opening check also tries reward orders and frog detours on the published board.
+These checks sample difficulty and catch regressions; they do not prove every board winnable.
+
 With a production preview running, use `pnpm benchmark:garden` to measure the opening turn and
 24 walking steps on desktop and mobile emulation. Pass `--url=http://localhost:4327/path-of-stones/`
 for another preview or `--cpu=4` to simulate a slower CPU. The report includes frame cadence,

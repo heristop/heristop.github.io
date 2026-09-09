@@ -23,7 +23,7 @@ describe("the gardener", () => {
     map[4] = tile(4, { gathered: true });
     const targets = chooseRakeTargets(map, [], map[0]);
     expect(targets).toHaveLength(2);
-    expect(targets.map((p) => p.posX)).toEqual([7, 6]);
+    expect(targets.map((p) => p.posX)).toEqual([6, 7]);
     expect(targets.every((p) => p.posX > 1 && p.posX !== 4 && p.posX !== 8)).toBe(true);
     expect(rakePaths(map, map, targets)[7]).toMatchObject({ sprite: "sand-0", laid: false });
   });
@@ -45,6 +45,7 @@ it("walks adjacent cells around obstacles before raking each target", () => {
     ...tile(index % 5),
     posY: Math.floor(index / 5),
     sprite: "sand-0",
+    laid: false,
   }));
   map[2] = { ...map[2], sprite: "water-still", walkable: false };
   const player = { posX: 2, posY: 1 };
@@ -52,6 +53,10 @@ it("walks adjacent cells around obstacles before raking each target", () => {
     { posX: 4, posY: 0 },
     { posX: 4, posY: 2 },
   ];
+  for (const target of targets) {
+    const cell = map.find((tile) => tile.posX === target.posX && tile.posY === target.posY)!;
+    cell.sprite = "moss-mid";
+  }
   let position = { posX: 0, posY: 0 };
   const actions = planGardenerTurn(map, position, targets, player);
   expect(
@@ -93,7 +98,7 @@ it("switches to the gate approach once no stones remain", () => {
   expect(chooseRakeTargets(map, [], map[0], 1, { limit: 1 })).toEqual([{ posX: 6, posY: 2 }]);
 });
 
-it("forces a paving expense before raking a nearby approach that can be bypassed for free", () => {
+it("rakes just before the nearest stone even when a farther route would cost more", () => {
   const map = [
     ...Array.from({ length: 12 }, (_, index) =>
       tile(index % 4, { posY: 2 + Math.floor(index / 4) }),
@@ -103,10 +108,10 @@ it("forces a paving expense before raking a nearby approach that can be bypassed
   map[3] = { ...map[3], stone: 0, laid: false };
   map[16] = { ...map[16], stone: 1, laid: false };
   const targets = chooseRakeTargets(map, [], map[0], 1, { limit: 1 });
-  expect(targets).toEqual([{ posX: 0, posY: 8 }]);
+  expect(targets).toEqual([{ posX: 2, posY: 2 }]);
 });
 
-it("prefers a shared bottleneck that taxes two stone routes over one nearer route", () => {
+it("keeps the nearest stone ahead of a shared bottleneck toward farther stones", () => {
   const map = [
     ...Array.from({ length: 5 }, (_, x) => tile(x)),
     ...Array.from({ length: 8 }, (_, index) => tile(0, { posY: index + 3 })),
@@ -114,5 +119,87 @@ it("prefers a shared bottleneck that taxes two stone routes over one nearer rout
   map[4] = { ...map[4], stone: 0, laid: false };
   map[10] = { ...map[10], stone: 1, laid: false };
   map[12] = { ...map[12], stone: 2, laid: false };
-  expect(chooseRakeTargets(map, [], map[0], 1, { limit: 1 })).toEqual([{ posX: 0, posY: 7 }]);
+  expect(chooseRakeTargets(map, [], map[0], 1, { limit: 1 })).toEqual([{ posX: 3, posY: 2 }]);
+});
+
+it("ends at the last rake without a further blocking walk", () => {
+  const map = Array.from({ length: 9 }, (_, x) => tile(x, { laid: false, sprite: "moss-mid" }));
+  map[8] = { ...map[8], stone: 0 };
+  const actions = planGardenerTurn(map, map[7], [map[5], map[2]], map[0]);
+  expect(
+    actions.filter((action) => action.kind === "rake").map((action) => action.position),
+  ).toEqual([map[5], map[2]]);
+  expect(actions.at(-1)).toEqual({ kind: "rake", position: map[2] });
+  expect(planGardenerTurn(map, map[7], [], map[0])).toEqual([]);
+});
+
+it("rakes between the player and the next stone even when only the adjacent crossing is available", () => {
+  const map = [tile(0, { laid: false }), tile(1), tile(2, { stone: 0, laid: false })];
+  expect(chooseRakeTargets(map, [], map[0], 1, { limit: 1 })).toEqual([{ posX: 1, posY: 2 }]);
+  expect(rakePaths(map, map, [map[1]])[0]).toBe(map[0]);
+});
+
+it("rakes the affordable route ahead instead of a more distant reward's approach behind the player", () => {
+  const map = Array.from({ length: 9 }, (_, x) => tile(x, { laid: false, sprite: "moss-mid" }));
+  map[0] = { ...map[0], stone: 0 };
+  map[8] = { ...map[8], stone: 1 };
+  map[1] = { ...map[1], sprite: "sand-0" };
+  const targets = chooseRakeTargets(map, [], map[4], 1, { limit: 1 });
+  expect(targets[0].posX).toBeGreaterThan(4);
+  expect(targets[0].posX).toBeLessThan(8);
+});
+
+it("prioritizes the nearest stone even when its route already crosses sand", () => {
+  const map = Array.from({ length: 9 }, (_, x) => tile(x, { laid: false, sprite: "moss-mid" }));
+  map[0] = { ...map[0], stone: 0 };
+  map[8] = { ...map[8], stone: 1 };
+  map[2] = { ...map[2], sprite: "sand-0" };
+  expect(chooseRakeTargets(map, [], map[3], 1, { limit: 1 })).toEqual([{ posX: 1, posY: 2 }]);
+});
+
+it.each(["sand-0", "sand-1"])("never schedules a rake on %s", (sprite) => {
+  const map = [tile(0), tile(1, { sprite, laid: false }), tile(2, { stone: 0, laid: false })];
+  expect(chooseRakeTargets(map, [], map[0])).toEqual([]);
+  expect(planGardenerTurn(map, map[0], [map[1]], map[2])).toEqual([]);
+  expect(rakePaths(map, map, [map[1]])[1]).toBe(map[1]);
+});
+
+it("works back from the stone to find firm ground when the last approach is sand", () => {
+  const map = Array.from({ length: 6 }, (_, x) => tile(x, { laid: false, sprite: "moss-mid" }));
+  map[5] = { ...map[5], stone: 0 };
+  map[4] = { ...map[4], sprite: "sand-0" };
+  expect(chooseRakeTargets(map, [], map[0], 1, { limit: 2 })).toEqual([
+    { posX: 2, posY: 2 },
+    { posX: 3, posY: 2 },
+  ]);
+});
+
+it("minimizes walking between rake targets while finishing by the nearest stone", () => {
+  const map = Array.from({ length: 16 }, (_, index) =>
+    tile(index % 4, {
+      posY: Math.floor(index / 4),
+      sprite: "moss-mid",
+      laid: false,
+    }),
+  );
+  map[15] = { ...map[15], stone: 0 };
+  const player = map[0];
+  const from = map[12];
+  const targets = chooseRakeTargets(map, [], player, 2, { from, limit: 3 });
+  const actions = planGardenerTurn(map, from, targets, player);
+  expect(targets).toHaveLength(3);
+  expect(actions.filter((action) => action.kind === "walk")).toHaveLength(6);
+  expect(actions.at(-1)?.kind).toBe("rake");
+  const last = targets.at(-1)!;
+  expect(Math.abs(last.posX - 3) + Math.abs(last.posY - 3)).toBe(1);
+});
+
+it("uses the next reachable stone when the geometrically closest one is isolated", () => {
+  const map = [
+    ...Array.from({ length: 5 }, (_, posX) => tile(posX, { posY: 0, sprite: "moss-mid", laid: false })),
+    tile(0, { posY: 2, stone: 0, laid: false }),
+  ];
+  map[4] = { ...map[4], stone: 1 };
+  expect(chooseRakeTargets(map, [], map[0], 1, { from: map[1], limit: 1 }))
+    .toEqual([{ posX: 3, posY: 0 }]);
 });

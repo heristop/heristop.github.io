@@ -1,3 +1,4 @@
+import { RAKE_TRAIL_MS, rakeGrooves } from "./rake-trail";
 import { sceneryAngle, sceneryDuration, sceneryLift, stoneShadowScale } from "./scenery-motion";
 import {
   Application,
@@ -11,7 +12,7 @@ import {
   Text,
 } from "pixi.js";
 import { createAtmosphere, createLightTexture, depthTint } from "./atmosphere";
-import { groundArtwork } from "./artwork";
+import { activityMarks, groundArtwork } from "./artwork";
 import { createFountainWater } from "./fountain-water";
 import type { GardenRenderer, GardenScene } from "./scene";
 import type { Position } from "../types";
@@ -73,6 +74,8 @@ export async function createGardenRenderer(
   const loadedMaps = new WeakSet<GardenScene["map"]>();
   let renderedMap: GardenScene["map"] | undefined;
   const ground = new Container();
+  const rakeTrails = new Container({ label: "rake-trails" });
+  let renderedTrails: GardenScene["rakeTrail"];
   const figures = new Container({ sortableChildren: true });
   const animations: Array<(time: number) => void> = [];
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -209,6 +212,13 @@ export async function createGardenRenderer(
     const time = reducedMotion.matches ? 0 : elapsed;
     for (const animate of animations) animate(time);
     atmosphere?.update(time);
+    rakeTrails.children.forEach((trail, index) => {
+      const mark = scene.rakeTrail?.[index];
+      const age = mark ? (Date.now() - mark.born) / RAKE_TRAIL_MS : 1;
+      trail.alpha = reducedMotion.matches ? 0 : Math.max(0, 1 - age) * 0.65;
+      const dust = (trail as Container).children[1];
+      if (dust) dust.y = -Math.min(1, age) * 4;
+    });
     for (const [name, actor] of actors) {
       const progress = reducedMotion.matches
         ? 1
@@ -250,11 +260,13 @@ export async function createGardenRenderer(
             "persos/gardener",
             32,
             40,
-            idle,
+            walking ? Math.floor(time / 120) % 4 : idle,
             scene.gardenerActivity === "rake" ? 2 : walking ? 1 : 0,
             scene.gardenerFacingLeft,
             1.35,
           );
+        if (walking && scene.gardenerActivity !== "attack")
+          actor.sprite.y -= Math.sin(progress * Math.PI) * 1.4;
       } else if (name === "cat") {
         dress(
           actor,
@@ -268,7 +280,7 @@ export async function createGardenRenderer(
       } else {
         actor.container.visible = scene.frogVisible || scene.companionVisible;
         if (scene.companionVisible) {
-          dress(actor, scene.aquatic ? "persos/mermaid-life" : "persos/npc-2-life", 24, 40, idle);
+          dress(actor, scene.aquatic ? "persos/mermaid-life" : "persos/npc-2-life", 24, 40, idle, 0, false, 1.6);
           actor.sprite.alpha = scene.transforming ? 0.65 + Math.sin(time / 80) * 0.25 : 1;
           // The woman's feet end at row 31: sprite top -5 + 31 = ground y26.
           actor.shadow.y = -5;
@@ -352,6 +364,13 @@ export async function createGardenRenderer(
         base.width = 64;
         base.height = 64;
         ground.addChild(base);
+        const marks = activityMarks(tile);
+        if (marks.length) {
+          const tufts = new Graphics();
+          tufts.position.set(p.x, p.y);
+          for (const { x, y } of marks) tufts.rect(x, y, 3, 2).fill({ color: 0x63845b, alpha: 0.7 });
+          ground.addChild(tufts);
+        }
         const decor = tile.decor;
         if ((decor && decor !== "frog") || tile.npc) {
           const container = new Container();
@@ -370,7 +389,7 @@ export async function createGardenRenderer(
           const animated = fish || tile.npc === 2 || tile.npc === 3;
           const w = tile.npc ? 24 : 32;
           const h = tile.npc ? 40 : 64;
-          const scale = tile.npc ? 1.35 : fish ? 1.35 : tile.stone !== undefined ? 1 : 1.15;
+          const scale = tile.npc === 2 ? 1.6 : tile.npc || fish ? 1.35 : tile.stone !== undefined ? 1 : 1.15;
           const contactY = tile.npc ? (tile.npc === 2 ? 31 : 34) : (decorContactY[decor] ?? 24) + 32;
           sprite.texture = animated ? frame(path, w, h) : textures.get(path)!;
           sprite.position.set(32 - w * scale / 2, 32 - h - contactY * (scale - 1));
@@ -455,6 +474,20 @@ export async function createGardenRenderer(
       app.stage.addChild(atmosphere.air);
       renderedMap = scene.map;
     }
+    if (renderedTrails !== scene.rakeTrail) {
+      for (const child of rakeTrails.removeChildren()) child.destroy({ children: true });
+      for (const trail of scene.rakeTrail ?? []) {
+        const mark = new Container();
+        const p = point(trail, scene);
+        mark.position.set(p.x, p.y);
+        const grooves = new Graphics();
+        for (const polygon of rakeGrooves(trail)) grooves.poly(polygon).fill(0x89714e);
+        const dust = new Graphics().ellipse(27, 15, 2.5, 1.2).ellipse(35, 18, 3, 1.5).fill(0xead5ad);
+        mark.addChild(grooves, dust);
+        rakeTrails.addChild(mark);
+      }
+      renderedTrails = scene.rakeTrail;
+    }
     move("pilgrim", scene.pilgrim, 200);
     move("gardener", scene.gardener, 240);
     move("cat", scene.cat, 460);
@@ -480,7 +513,7 @@ export async function createGardenRenderer(
     grade.saturate(0.16, true);
     app.stage.filters = [grade];
     lightTexture = createLightTexture();
-    app.stage.addChild(ground, figures);
+    app.stage.addChild(ground, rakeTrails, figures);
     app.ticker.maxFPS = 60;
     app.ticker.add(() => {
       elapsed += app.ticker.deltaMS;

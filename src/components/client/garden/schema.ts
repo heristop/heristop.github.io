@@ -1,14 +1,8 @@
 // The garden is a 12x12 board. The outer ring is authored landscape; the inner 10x10 is
 // the record.
 //
-// A tile is no longer a day. Without a GitHub token the only history available is the
-// public events feed, which for an active account reaches back about three weeks and no
-// further — so a hundred-day garden was ninety days of invented quiet dressed as fact.
-// The window is fourteen days now, comfortably inside what that feed can actually see,
-// and each day owns a run of seven tiles along the boustrophedon snake instead of a
-// single square. The garden keeps its size; a day is simply a bed rather than a tile, and
-// because the snake keeps consecutive days adjacent a streak still renders as one
-// unbroken run of moss.
+// Each of the last fourteen completed UTC days owns a bed of seven or eight tiles.
+// Public events can be incomplete; snapshot metadata makes that limitation explicit.
 const GRID_SIZE = 12;
 const DATA_COLS = 10;
 const DATA_ROWS = 10;
@@ -35,9 +29,15 @@ interface GardenDay {
   count: number;
   language: string;
   repo: string;
+  unit?: "contributions" | "pushes";
+  projects?: readonly { repo: string; language: string }[];
 }
 
 interface GardenSeed {
+  source?: "calendar" | "events" | "sample";
+  fetchStatus?: "fresh" | "partial" | "stale";
+  checkedAt?: string;
+  projectsComplete?: boolean;
   generatedAt: string;
   login: string;
   totalContributions: number;
@@ -48,7 +48,6 @@ interface GardenSeed {
 // afterwards, so it must look deliberate rather than arbitrary.
 const FALLBACK_PATTERN = [0, 2, 5, 3, 0, 1, 4, 7, 2, 0, 3, 6, 11, 4];
 
-const FALLBACK_LANGUAGES = ["TypeScript", "TypeScript", "JavaScript", "PHP", "Astro"];
 const FALLBACK_START_YEAR = 2026;
 const FALLBACK_START_MONTH = 4;
 const FALLBACK_START_DAY = 28;
@@ -61,12 +60,13 @@ const buildFallbackDays = (): readonly (GardenDay | null)[] =>
     return {
       count,
       date: day.toISOString().slice(0, ISO_DATE_LENGTH),
-      language: count === 0 ? "" : FALLBACK_LANGUAGES[index % FALLBACK_LANGUAGES.length],
-      repo: count === 0 ? "" : "zazen-code",
+      language: "",
+      repo: "",
     };
   });
 
 const FALLBACK_SEED: GardenSeed = {
+  source: "sample",
   days: buildFallbackDays(),
   generatedAt: "2026-05-28T00:00:00.000Z",
   login: "heristop",
@@ -88,6 +88,18 @@ const parseDay = (raw: unknown): GardenDay | null | undefined => {
     return undefined;
   }
   return {
+    ...(raw.unit === "contributions" || raw.unit === "pushes" ? { unit: raw.unit } : {}),
+    ...(Array.isArray(raw.projects)
+      ? {
+          projects: raw.projects
+            .filter(isRecord)
+            .filter((project) => typeof project.repo === "string" && project.repo !== "")
+            .map((project) => ({
+              repo: project.repo as string,
+              language: typeof project.language === "string" ? project.language : "",
+            })),
+        }
+      : {}),
     count: Math.max(0, Math.trunc(count)),
     date,
     language: typeof language === "string" ? language : "",
@@ -113,6 +125,16 @@ const parseGardenSeed = (raw: unknown): GardenSeed => {
     parsedDays.push(day);
   }
   return {
+    ...(raw.source === "calendar" || raw.source === "events" || raw.source === "sample"
+      ? { source: raw.source }
+      : {}),
+    ...(raw.fetchStatus === "fresh" || raw.fetchStatus === "partial" || raw.fetchStatus === "stale"
+      ? { fetchStatus: raw.fetchStatus }
+      : {}),
+    ...(typeof raw.checkedAt === "string" ? { checkedAt: raw.checkedAt } : {}),
+    ...(typeof raw.projectsComplete === "boolean"
+      ? { projectsComplete: raw.projectsComplete }
+      : {}),
     days: parsedDays,
     generatedAt: typeof generatedAt === "string" ? generatedAt : "",
     login: typeof login === "string" ? login : "",

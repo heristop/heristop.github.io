@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Position } from "../../types";
 import { toScreen } from "../../board/geometry";
 
@@ -54,7 +55,7 @@ const ZazenCompanion = ({
         }
         // Mirrored rather than drawn twice. A horizontal flip is the one transform pixel
         // art survives intact — every pixel lands on another pixel.
-        style={{ scale: facingLeft ? "-1 1" : undefined }}
+        style={{ "--companion-facing": facingLeft ? -1 : 1 } as CSSProperties}
       />
     </div>
   );

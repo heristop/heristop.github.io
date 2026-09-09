@@ -1,6 +1,10 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
+vi.mock("../../../../src/components/client/garden/composables/use-daily-haiku", () => ({
+  default: () => undefined,
+}));
+
 const updates = vi.hoisted(() => ({ revision: 0 }));
 vi.mock("../../../../src/components/client/garden/composables/use-game", async (importOriginal) => {
   const { useMemo } = await import("react");

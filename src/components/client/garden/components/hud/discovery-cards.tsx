@@ -86,7 +86,7 @@ export function DiscoveryCollection({
   const selectedEarned =
     selected === "cat" ? catMet : selected === "mermaid" ? mermaidAwakened : frogFreed;
   return (
-    <div className="garden-collection">
+    <div className="garden-collection" data-card-count={total}>
       <div className="garden-collection__heading">
         <span className="path-stones__eyebrow">Garden arcana</span>
         <span

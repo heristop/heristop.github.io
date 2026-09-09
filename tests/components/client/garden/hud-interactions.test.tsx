@@ -42,8 +42,8 @@ it("lets pointer and keyboard users inspect and select history, including days w
     />,
   );
   const empty = screen.getByRole("button", { name: "Walk to Day 1, no data" });
-  const day = screen.getByRole("button", { name: /1 September 2026, 1 commit$/ });
-  expect(container.querySelector(".path-stones__heat-readout")).toHaveTextContent("1 commit");
+  const day = screen.getByRole("button", { name: /1 September 2026, 1 contribution$/ });
+  expect(container.querySelector(".path-stones__heat-readout")).toHaveTextContent("1 contribution");
   fireEvent.mouseEnter(day);
   expect(hover).toHaveBeenLastCalledWith(1);
   fireEvent.mouseLeave(day);
@@ -71,4 +71,13 @@ it("reveals the poem only after finding a stone and keeps earlier verses", () =>
   expect(screen.getByRole("log")).toHaveTextContent("A quiet footstep");
   expect(screen.getByRole("log")).toHaveTextContent("The water listens");
   expect(screen.getByRole("log")).toHaveTextContent("2 of 5 stones");
+});
+
+it("separates counts from observed repositories and lists their actual languages", async () => {
+  const { default: DayCard } = await import("../../../../src/components/client/garden/components/hud/day-card");
+  render(<DayCard dayIndex={0} totalDays={14} inspecting={true} tile={{ posX: 1, posY: 1, sprite: "sand-0", walkable: true, decor: "", npc: 0, day: { date: "2026-09-09", count: 2, unit: "pushes", repo: "old/ignored", language: "PHP", projects: [{ repo: "current/one", language: "TypeScript" }, { repo: "current/two", language: "Rust" }, { repo: "current/three", language: "TypeScript" }] } }} />);
+  expect(screen.getByText("2 pushes")).toBeInTheDocument();
+  expect(screen.getByText("Public activity: current/one · current/two · current/three")).toBeInTheDocument();
+  expect(screen.getByText("TypeScript · Rust")).toBeInTheDocument();
+  expect(screen.queryByText("PHP")).not.toBeInTheDocument();
 });

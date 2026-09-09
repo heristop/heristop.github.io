@@ -1,15 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const STORAGE_KEY = "path-stones:music";
-
 export default function useGardenMusic() {
-  const [musicOn, setMusicOn] = useState(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY) !== "off";
-    } catch {
-      return true;
-    }
-  });
+  // Each visit starts silent; enabling playback requires the button gesture.
+  const [musicOn, setMusicOn] = useState(false);
   const enabled = useRef(musicOn);
   const music = useRef<HTMLAudioElement | null>(null);
   const interacted = useRef(false);
@@ -53,11 +46,6 @@ export default function useGardenMusic() {
 
   useEffect(() => {
     enabled.current = musicOn;
-    try {
-      localStorage.setItem(STORAGE_KEY, musicOn ? "on" : "off");
-    } catch {
-      /* The control still works without storage. */
-    }
     if (!musicOn) music.current?.pause();
   }, [musicOn]);
 

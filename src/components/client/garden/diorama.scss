@@ -844,7 +844,7 @@
 
 .zazen-world__gardener-actor[data-activity="walk"] .zazen-world__gardener-sprite {
   background-position-y: -40px;
-  animation: gardener-walk 480ms steps(4) infinite;
+  animation: gardener-walk 480ms steps(4) infinite, gardener-gait 240ms ease-in-out infinite;
 }
 
 .zazen-world__gardener-actor[data-activity="rake"] .zazen-world__gardener-sprite {
@@ -1605,4 +1605,33 @@
   .path-stones [data-tooltip]::after {
     display: none;
   }
+}
+
+@keyframes gardener-gait {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -1.4px; }
+}
+
+.zazen-world__rake-trail {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  animation: gardener-trail-fade 800ms linear both;
+}
+
+.zazen-world__rake-trail-dust {
+  animation: gardener-trail-dust 800ms ease-out both;
+}
+
+@keyframes gardener-trail-fade {
+  from { opacity: 0.65; }
+  to { opacity: 0; }
+}
+
+@keyframes gardener-trail-dust {
+  to { translate: 0 -4px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zazen-world__rake-trail { display: none; }
 }

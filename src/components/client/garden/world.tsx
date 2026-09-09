@@ -1,6 +1,10 @@
+import useRakeTrail from "./composables/use-rake-trail";
+import useDailyHaiku from "./composables/use-daily-haiku";
+import RakeTrails from "./components/figures/rake-trails";
 import { fountainSpray, sceneryAngle, sceneryDuration, sceneryLift, stoneShadowScale, type SceneryKind } from "./rendering/scenery-motion";
 import useRenderer from "./composables/use-renderer";
-import { groundArtwork } from "./rendering/artwork";
+import { gardenFingerprint, snapshotStatus } from "./activity";
+import { activityMarks, groundArtwork } from "./rendering/artwork";
 import WebGLBoard from "./rendering/webgl-board";
 import useGardenMusic from "./composables/use-music";
 import Frog from "./components/figures/frog";
@@ -316,6 +320,7 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
   // bloom needs to know which pixels are emitting rather than merely bright.
   const glowAttr =
     tile.decor === "lantern-lit" || tile.shrine === "active" ? { "data-glow": "" } : {};
+  const marks = activityMarks(tile);
   return (
     <div
       className={tileClassName(tile)}
@@ -324,6 +329,17 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
       {...standingAttr}
       {...glowAttr}
     >
+      {marks.length > 0 && (
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 64 64"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+        >
+          {marks.map(({ x, y }) => (
+            <rect key={`${x},${y}`} x={x} y={y} width="3" height="2" fill="#63845b" opacity="0.7" />
+          ))}
+        </svg>
+      )}
       {tile.stone !== undefined && <span className="zazen-world__stone-shadow" aria-hidden="true" />}
       {tile.decor === "lantern-lit" && (
         <span className="zazen-world__light-pool" aria-hidden="true" />
@@ -766,18 +782,24 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     seed,
   });
 
-  const move = game.move;
+  const rakeTrail = useRakeTrail(game.map, game.gardenerPosition, game.gardenerActivity);
+  const dailyHaiku = useDailyHaiku(game.finaleOpen);
   const frogHopping = useStride(game.frog);
   const [attack, setAttack] = useState({
     ticks: 0,
+    loss: 0,
     position: undefined as Position | undefined,
     visible: false,
   });
   if (attack.ticks !== game.attackTicks) {
-    setAttack({ ticks: game.attackTicks, position: game.position, visible: game.attackTicks > 0 });
+    setAttack({ ticks: game.attackTicks, loss: game.lastAttackLoss, position: game.position, visible: game.attackTicks > 0 });
   }
   const attackVisible = attack.visible;
   const attackPosition = attack.position;
+  const gameMove = game.move;
+  const move = useCallback((direction: Direction) => {
+    if (!attackVisible) gameMove(direction);
+  }, [gameMove, attackVisible]);
   const playAttack = useEffectEvent(() => audio.playAttack());
   useEffect(() => {
     if (!game.attackTicks) return;
@@ -798,7 +820,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
 
   const handleTileClick = useCallback(
     (tile: MapTile) => {
-      if (game.phase !== "player" || game.finaleOpen) return;
+      if (game.phase !== "player" || game.finaleOpen || attackVisible) return;
       // Priced, not merely walkable. The mouse used to be barred from sand entirely — you
       // could only pave by nudging into it with a key, which made the game's central move
       // unavailable to the input most people were using.
@@ -816,7 +838,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       setCursorDay(undefined);
       setRoute(route_.path);
     },
-    [game.map, game.position, game.phase, game.finaleOpen],
+    [game.map, game.position, game.phase, game.finaleOpen, attackVisible],
   );
 
   // Route preview. Showing where a click will take you before it happens is what makes
@@ -1098,7 +1120,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     if (refusal !== undefined) setRefusal(undefined);
   }
   useEffect(() => {
-    if (game.phase !== "player" || game.finaleOpen) return;
+    if (game.phase !== "player" || game.finaleOpen || attackVisible) return;
     if (route.length === 0) {
       return;
     }
@@ -1111,7 +1133,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     return () => {
       clearTimeout(timer);
     };
-  }, [game.phase, game.finaleOpen, game.position, move, route]);
+  }, [game.phase, game.finaleOpen, game.position, move, route, attackVisible]);
 
   const onKeyPress = useEffectEvent((ev: KeyboardEvent) => {
     // Tab steps the inspect cursor through history, oldest to newest. It is only
@@ -1182,6 +1204,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       cat: cat.position,
       catFacingLeft: cat.facingLeft,
       catGreeting,
+      rakeTrail,
       gardener: game.gardenerPosition,
       gardenerFacingLeft: game.gardenerFacingLeft,
       gardenerActivity: attackVisible ? ("attack" as const) : game.gardenerActivity,
@@ -1199,6 +1222,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       cat.position,
       cat.facingLeft,
       catGreeting,
+      rakeTrail,
       game.gardenerPosition,
       game.gardenerFacingLeft,
       game.gardenerActivity,
@@ -1471,12 +1495,13 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
         mermaidAwakened={mermaidAwakened}
         catMet={catMet}
         frogFreed={game.frogFreed}
-        paused={game.phase !== "player"}
+        paused={game.phase !== "player" || attackVisible}
         onReveal={audio.playReveal}
         onComplete={handleDiscoveryComplete}
       />
       {!game.finaleOpen && (
         <TurnAnnouncement
+          paused={attackVisible}
           phase={game.phase}
           opening={game.openingTurn}
           round={Math.max(1, game.gardenerTurns + (game.phase === "player" ? 1 : 0))}
@@ -1519,9 +1544,10 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
           can afford the rest. Gather all five, then walk to the awakened shrine to complete the
           path. You have four rounds and three gardener refills. The gardener moves first to rake an
           approach to a stone. When you run out, he rakes up to two useful approaches on his first
-          return and three on later visits, then gives you two stones. Your tile, its neighbours and
-          discoveries stay safe. Keep one tile between you and the gardener: he can knock away one
-          stone per round when you step beside him. In the final round, collect reachable stones or
+          return and three on later visits, then gives you two stones. Your tile and discoveries stay
+          safe. He rakes firm ground on the approach to the nearest stone. His turn ends after the
+          last rake. Keep one tile between you and the gardener: he swings on a new close approach,
+          but can knock away at most one stone per round. In the final round, collect reachable stones or
           rescue the frog to keep going. If no reward is reachable with an empty supply, the run
           ends.
         </p>
@@ -1718,7 +1744,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                     : game.gardenerActivity === "rake"
                       ? "Raking this path…"
                       : "The gardener is choosing his route…"
-                  : "Your nearby paths are safe…"
+                  : "Your turn is coming…"
                 : refillsLeft === 0
                   ? "Final round. Every stone counts."
                   : "Lay a path. Stay one step ahead."}
@@ -1763,7 +1789,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
             <Icon name="locate" size={16} /> Find pilgrim
           </button>
           <CompassPanel
-            disabled={game.phase !== "player" || game.finaleOpen}
+            disabled={game.phase !== "player" || game.finaleOpen || attackVisible}
             stonesLeft={game.stonesLeft}
             onMove={(direction) => {
               setRoute([]);
@@ -1888,6 +1914,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                   />
                 ))}
               </div>
+              {!webglReady && <RakeTrails trails={rakeTrail} offsetX={mapDimensions.offsetX} offsetY={mapDimensions.offsetY} />}
               {!webglReady && (
                 <Gardener
                   position={game.gardenerPosition}
@@ -1943,6 +1970,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                 <span
                   key={game.attackTicks}
                   className="zazen-world__attack-loss"
+                  data-loss={attack.loss}
                   role="status"
                   style={toScreen(
                     (attackPosition ?? game.position).posX,
@@ -1951,7 +1979,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
                     mapDimensions.offsetY,
                   )}
                 >
-                  −1 stone
+                  {attack.loss ? "−1 stone" : "Too close!"}
                 </span>
               )}
               {!webglReady && (
@@ -1968,7 +1996,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       {!game.finaleOpen && (
         <Journey
           mermaidAwakened={mermaidAwakened}
-          recordKey={`path-stones:best:v4:${JSON.stringify(resolvedSeed)}`}
+          recordKey={`path-stones:best:v5:${gardenFingerprint(resolvedSeed)}`}
           complete={false}
           steps={game.steps}
           stonesLaid={game.stonesLaid}
@@ -2004,13 +2032,23 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
           <h2 id="garden-source-title">A fortnight of @{resolvedSeed.login}’s GitHub</h2>
           <p>
             Each bed reflects one of {WINDOW_DAYS} days of @{resolvedSeed.login}’s public GitHub
-            activity. Moss, planting and the day cards tell that history. Paths and supplies are
-            balanced for play, even on quiet weeks.
+            activity over completed UTC days. Moss, small tufts and planting density reflect activity;
+            plant species are randomized. Paths and supplies are balanced for play, even on quiet weeks.
           </p>
         </div>
         <div className="path-stones__source-meta">
-          <span>Activity snapshot</span>
-          <time dateTime={resolvedSeed.generatedAt}>{resolvedSeed.generatedAt.slice(0, 10)}</time>
+          <span>
+            {resolvedSeed.days[0]?.date} – {resolvedSeed.days.at(-1)?.date} · UTC
+          </span>
+          <span>{snapshotStatus(resolvedSeed)}</span>
+          <span>
+            Updated <time dateTime={resolvedSeed.generatedAt}>
+              {resolvedSeed.generatedAt.replace("T", " ").slice(0, 16)} UTC
+            </time>
+          </span>
+          {resolvedSeed.fetchStatus === "stale" && resolvedSeed.checkedAt && (
+            <span>Last attempt {resolvedSeed.checkedAt.replace("T", " ").slice(0, 16)} UTC</span>
+          )}
           <a href={`https://github.com/${resolvedSeed.login}`} target="_blank" rel="noreferrer">
             View @{resolvedSeed.login} on GitHub <Icon name="arrow-up-right" size={13} />
             <span className="sr-only"> (opens in a new tab)</span>
@@ -2028,8 +2066,9 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       )}
       {game.finaleOpen && (
         <ZazenFinaleOverlay
-          recordKey={`path-stones:best:v4:${JSON.stringify(resolvedSeed)}`}
+          recordKey={`path-stones:best:v5:${gardenFingerprint(resolvedSeed)}`}
           lines={game.haikuLines}
+          dailyHaiku={dailyHaiku}
           steps={game.steps}
           stonesLaid={game.stonesLaid}
           stonesLeft={game.stonesLeft}

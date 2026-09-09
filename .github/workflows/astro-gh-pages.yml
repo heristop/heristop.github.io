@@ -1,12 +1,9 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Trigger the workflow every time you push to the `main` branch
-  # Using a different branch name? Replace `main` with your branch’s name
   push:
     branches: [master]
-  # The Path of Stones garden is grown from the last 100 days of GitHub activity, so it
-  # goes stale between posts. A daily rebuild keeps it tracking the work.
+  # Refresh the last fourteen completed UTC days of GitHub activity daily.
   # Note: GitHub disables scheduled workflows on repos with 60 days of no activity.
   schedule:
     - cron: "0 5 * * *"
@@ -43,25 +40,18 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Check garden tests and coverage
-        run: pnpm test:garden:coverage
-      - name: Install the Chromium build mermaid renders with
-        run: pnpm exec playwright install --with-deps chromium
-      # Grows the Path of Stones garden from the last 100 days of activity. Never fails
-      # the build: on any API error it logs a warning, leaves the committed
-      # src/data/github-garden.json alone, and exits 0.
-      #
-      # The result is deliberately NOT committed back to master. A push from this
-      # workflow would re-trigger this workflow — an auto-commit here is an infinite
-      # loop. The committed JSON is the offline/dev fallback and is refreshed by hand
-      # with `pnpm run fetch:github`; if auto-commit is ever wanted it needs a
-      # paths-ignore or [skip ci] guard.
+      - name: Check GitHub snapshot ingestion
+        run: pnpm exec vitest run tests/scripts/github-garden.test.ts
+      # On API failure keep the saved snapshot and expose its stale status in the UI.
+      # Refresh before simulations so the board being deployed is the one tested.
       - name: Fetch the GitHub activity the garden is grown from
         run: pnpm run fetch:github
         env:
-          # Unlocks the GraphQL contribution calendar, which covers the full 100-day
-          # window. Without it the script falls back to public events, ~90 days.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check garden tests, simulations and coverage
+        run: pnpm test:garden:coverage
+      - name: Install the Chromium build mermaid renders with
+        run: pnpm exec playwright install --with-deps chromium
 
       - name: Build
         run: pnpm run build

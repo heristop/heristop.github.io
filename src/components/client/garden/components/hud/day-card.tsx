@@ -1,3 +1,4 @@
+import { activityLabel } from "../../activity";
 import type { MapTile } from "../../types";
 
 interface Props {
@@ -48,13 +49,15 @@ const formatDate = (iso: string): string => {
 
 const ZazenDayCard = ({ tile, dayIndex, totalDays, inspecting }: Props) => {
   const day = tile?.day;
+  const projects = day?.projects ?? (day?.repo ? [{ repo: day.repo, language: day.language }] : []);
+  const languages = day?.projects
+    ? [...new Set(projects.map((project) => project.language).filter(Boolean))].join(" · ")
+    : day?.language;
   const ground = tile ? (GROUND_LABEL[tile.sprite] ?? tile.sprite) : "";
 
   return (
     <aside
-      className={
-        inspecting ? "path-stones__day path-stones__day--inspecting" : "path-stones__day"
-      }
+      className={inspecting ? "path-stones__day path-stones__day--inspecting" : "path-stones__day"}
       aria-labelledby="path-stones-day-title"
     >
       <h2 className="path-stones__day-title" id="path-stones-day-title">
@@ -64,11 +67,13 @@ const ZazenDayCard = ({ tile, dayIndex, totalDays, inspecting }: Props) => {
       {day ? (
         <>
           <p className="path-stones__day-date">{formatDate(day.date)}</p>
-          <p className="path-stones__day-count">
-            {day.count === 0 ? "no commits" : `${day.count} commit${day.count === 1 ? "" : "s"}`}
-            {day.repo === "" ? "" : ` · ${day.repo}`}
-          </p>
-          {day.language !== "" && <p className="path-stones__day-lang">{day.language}</p>}
+          <p className="path-stones__day-count">{activityLabel(day)}</p>
+          {projects.length > 0 && (
+            <p className="path-stones__day-projects">
+              Public activity: {projects.map((project) => project.repo).join(" · ")}
+            </p>
+          )}
+          {languages && <p className="path-stones__day-lang">{languages}</p>}
         </>
       ) : (
         <p className="path-stones__day-date">The garden's edge</p>

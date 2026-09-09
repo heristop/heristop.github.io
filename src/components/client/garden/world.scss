@@ -1628,7 +1628,7 @@
 }
 
 .zazen-world__companion-sprite {
-  transform: scale(1.35);
+  scale: calc(1.6 * var(--companion-facing, 1)) 1.6;
   transform-origin: 50% 32px;
   display: block;
   width: 24px;
@@ -2229,6 +2229,12 @@ button.path-stones__heat-cell:focus-visible {
   color: color-mix(in oklch, var(--heading-color) 72%, transparent);
 }
 
+.path-stones__day-projects {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
 .path-stones__day-lang {
   margin: 0.1rem 0 0;
   font-size: 0.78rem;
@@ -2281,6 +2287,10 @@ button.path-stones__heat-cell:focus-visible {
   height: 40px;
   scale: 1.35;
   transform-origin: 50% 32px;
+}
+
+.zazen-world__npc.zazen-world__npc-2-sprite {
+  scale: 1.6;
 }
 
 .zazen-world__decor[src*="stone-marker"] {
@@ -2857,6 +2867,17 @@ button.path-stones__heat-cell:focus-visible {
   @media (width <= 640px) {
     font-size: 1.1rem;
   }
+}
+
+.path-stones__finale-daily {
+  align-self: center;
+  color: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  opacity: 0.8;
 }
 
 /* The two ways out, and they had none of this: no gap, so the pills overlapped, and no

@@ -59,3 +59,30 @@ it("delays and focuses the primary action, keeping Escape bound to Return", () =
   expect(onReturn).toHaveBeenCalledTimes(1);
   expect(onWalkAgain).not.toHaveBeenCalled();
 });
+
+it("replaces the original final poem with the three Zen Daily verses", () => {
+  preference.reduced = true;
+  const props = {
+    lines: [{ stoneIndex: 0, text: "Original garden poem" }],
+    steps: 20,
+    stonesLaid: 2,
+    stonesLeft: 4,
+  };
+  const { rerender } = render(<Finale {...props} />);
+  expect(screen.getByText("Original garden poem")).toBeInTheDocument();
+  expect(screen.queryByText("Zen Daily · GutenKu")).not.toBeInTheDocument();
+  rerender(
+    <Finale
+      {...props}
+      dailyHaiku={["Morning on the pond", "A small bird crosses the sky", "The water is still"]}
+    />,
+  );
+  expect(screen.queryByText("Original garden poem")).not.toBeInTheDocument();
+  expect(screen.getByText("Morning on the pond")).toBeInTheDocument();
+  expect(screen.getByText("A small bird crosses the sky")).toBeInTheDocument();
+  expect(screen.getByText("The water is still")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Zen Daily · GutenKu" })).toHaveAttribute(
+    "href",
+    "https://gutenku.xyz",
+  );
+});

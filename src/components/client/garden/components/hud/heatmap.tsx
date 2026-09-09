@@ -1,3 +1,4 @@
+import { activityLabel } from "../../activity";
 import type { CSSProperties } from "react";
 import type { GardenDay } from "../../schema";
 import { formatDate } from "./day-card";
@@ -41,7 +42,7 @@ const weekdayOf = (iso: string): number => {
 const WEEKDAY_INITIALS = ["S", "M", "T", "W", "T", "F", "S"];
 
 const describe = (day: GardenDay): string =>
-  `${formatDate(day.date)} · ${day.count === 0 ? "no commits" : `${day.count} commit${day.count === 1 ? "" : "s"}`}`;
+  `${formatDate(day.date)} · ${activityLabel(day)}`;
 
 const ZazenHeatmap = ({
   days,
@@ -91,7 +92,7 @@ const ZazenHeatmap = ({
             classes.push("path-stones__heat-cell--inspected");
           }
           const label = day
-            ? `${formatDate(day.date)}, ${count === 0 ? "no commits" : `${count} commit${count === 1 ? "" : "s"}`}`
+            ? `${formatDate(day.date)}, ${activityLabel(day)}`
             : `Day ${index + 1}, no data`;
           return (
             <li key={index}>

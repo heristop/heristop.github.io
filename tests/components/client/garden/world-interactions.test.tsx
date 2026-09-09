@@ -5,6 +5,7 @@ import type useGamepad from "../../../../src/components/client/garden/composable
 import { positionForDay, cheapestRoute, isWalkableTile, manhattan } from "./model";
 
 const harness = vi.hoisted(() => ({
+  dailyHaiku: undefined as readonly string[] | undefined,
   overrides: {} as Partial<ReturnType<typeof useGame>>,
   game: undefined as ReturnType<typeof useGame> | undefined,
   controls: undefined as Parameters<typeof useGamepad>[0] | undefined,
@@ -20,6 +21,9 @@ const harness = vi.hoisted(() => ({
     playReveal: vi.fn(),
     stopEffects: vi.fn(),
   },
+}));
+vi.mock("../../../../src/components/client/garden/composables/use-daily-haiku", () => ({
+  default: () => harness.dailyHaiku,
 }));
 vi.mock("../../../../src/components/client/garden/components/hud/heatmap", async (load) => {
   const { default: Heatmap } =
@@ -93,6 +97,7 @@ beforeEach(() => {
   HTMLElement.prototype.scrollIntoView = vi.fn();
   vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   harness.overrides = {};
+  harness.dailyHaiku = undefined;
   harness.move.mockClear();
   harness.restart.mockClear();
   Object.values(harness.audio).forEach((sound) => sound.mockClear());
@@ -115,6 +120,19 @@ afterEach(() => {
 const tick = (ms: number) => act(() => vi.advanceTimersByTime(ms));
 const tileElement = (container: HTMLElement, index: number) =>
   container.querySelectorAll<HTMLElement>(".zazen-world__tile")[index];
+
+it("uses Zen Daily only for the final poem, preserving collected verses during play", () => {
+  harness.dailyHaiku = ["Morning on the pond", "A small bird crosses the sky", "The water is still"];
+  harness.overrides = { haikuLines: [{ stoneIndex: 0, text: "Original collected verse" }] };
+  const { container, rerender } = render(<World />);
+  expect(container.querySelector(".path-stones__finale-poem")).toBeNull();
+  expect(screen.queryByLabelText("Morning on the pond")).not.toBeInTheDocument();
+  expect(screen.getByLabelText("Original collected verse")).toBeInTheDocument();
+  harness.overrides = { ...harness.overrides, finaleOpen: true };
+  rerender(<World />);
+  expect(container.querySelector(".path-stones__finale-poem")).toHaveTextContent("Morning on the pond");
+  expect(container.querySelector(".path-stones__finale-poem")).not.toHaveTextContent("Original collected verse");
+});
 
 it("animates a step without rendering the history HUD on every frame", () => {
   vi.mocked(window.matchMedia).mockReturnValue({ matches: false } as MediaQueryList);
@@ -273,9 +291,9 @@ it.each(["lost", "finale"] as const)(
 
 it("shows a counterattack at the impacted tile for only the strike duration", () => {
   const { container, rerender } = render(<World />);
-  harness.overrides = { attackTicks: 1 };
+  harness.overrides = { attackTicks: 1, lastAttackLoss: 1 };
   rerender(<World />);
-  expect(container.querySelector(".zazen-world__attack-loss")).toBeTruthy();
+  expect(container.querySelector(".zazen-world__attack-loss")).toHaveTextContent("−1 stone");
   tick(800);
   expect(container.querySelector(".zazen-world__attack-loss")).toBeNull();
 });
@@ -393,4 +411,29 @@ it("keeps the active actor inside a small camera viewport while respecting reduc
     behavior: "smooth",
   });
   fireEvent(window, new Event("resize"));
+});
+
+it("shows a rake swing without inventing a lost stone when the player has no spare supply", () => {
+  const { container, rerender } = render(<World />);
+  harness.overrides = { attackTicks: 1, lastAttackLoss: 0 };
+  rerender(<World />);
+  expect(container.querySelector(".zazen-world__attack-loss")).toHaveTextContent("Too close!");
+  expect(container.querySelector(".zazen-world__gardener-actor")).toHaveAttribute("data-activity", "attack");
+  expect(container.querySelector(".zazen-world__attack-loss")).not.toHaveTextContent("−1");
+  tick(800);
+  expect(container.querySelector(".zazen-world__attack-loss")).toBeNull();
+});
+
+it("waits until the strike ends before covering it with the gardener turn announcement", () => {
+  const { container, rerender } = render(<World />);
+  tick(1400);
+  harness.overrides = { attackTicks: 1, lastAttackLoss: 0, phase: "gardener", openingTurn: false, gardenerTurns: 1 };
+  rerender(<World />);
+  expect(container.querySelector(".zazen-world__gardener-actor")).toHaveAttribute("data-activity", "attack");
+  expect(container.querySelector(".path-stones__turn-announcement")).toBeNull();
+  tick(800);
+  expect(container.querySelector(".zazen-world__attack-loss")).toBeNull();
+  expect(container.querySelector(".path-stones__turn-announcement")).toHaveAttribute("data-side", "gardener");
+  tick(1400);
+  expect(container.querySelector(".path-stones__turn-announcement")).toBeNull();
 });

@@ -5,6 +5,7 @@ type Props = {
   phase: string;
   round: number;
   opening: boolean;
+  paused?: boolean;
 };
 
 export default function TurnAnnouncement(props: Props) {
@@ -13,13 +14,14 @@ export default function TurnAnnouncement(props: Props) {
   );
 }
 
-function TimedTurnAnnouncement({ phase, round, opening }: Props) {
+function TimedTurnAnnouncement({ phase, round, opening, paused }: Props) {
   const [visible, setVisible] = useState(true);
   useEffect(() => {
+    if (paused) return;
     const timer = setTimeout(() => setVisible(false), 1400);
     return () => clearTimeout(timer);
-  }, []);
-  if (!visible || phase === "lost") return null;
+  }, [paused]);
+  if (!visible || phase === "lost" || paused) return null;
   const gardener = phase === "gardener";
   return (
     <div

@@ -39,7 +39,11 @@ export default function Journey({
   if (summary) return record;
 
   return (
-    <details className="path-stones__journey" aria-label="Run performance and challenges">
+    <details
+      className="path-stones__journey"
+      data-card-count={mermaidAwakened ? 3 : 2}
+      aria-label="Run performance and challenges"
+    >
       <summary className="path-stones__journal-toggle">
         <span>Field journal</span>
         <span className="path-stones__journal-stat">

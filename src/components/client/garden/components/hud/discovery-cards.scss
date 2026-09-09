@@ -12,9 +12,8 @@
 }
 
 .garden-collection__cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-top: 14px;
 }
@@ -105,7 +104,7 @@
   width: 96px;
   height: 54px;
   left: calc(50% - 48px);
-  background: url("/images/zazen/decors/frog.png") 0 -120px / 96px 192px no-repeat;
+  background: url("/images/zazen/hd/decors/frog.png") 0 -120px / 96px 192px no-repeat;
 }
 
 .garden-card__ground {
@@ -361,10 +360,14 @@
 
 .garden-collection__slot {
   min-width: 0;
-  flex: 1;
+  display: flex;
+  flex-direction: column;
 
   .garden-card {
     width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -594,15 +597,56 @@
   .garden-card__art { background: linear-gradient(#36515e, #6caea6); }
 
   .garden-card__sprite {
-    left: calc(50% - 36px);
-    bottom: 0;
-    width: 72px;
-    height: 120px;
-    background: url("/images/zazen/hd/persos/mermaid-life.png") 0 0 / 288px 120px no-repeat;
+    left: calc(50% - 30px);
+    bottom: -4px;
+    width: 60px;
+    height: 100px;
+    background: url("/images/zazen/hd/persos/mermaid-life.png") 0 0 / 240px 100px no-repeat;
   }
 
   .garden-card__reward {
     font-size: 1.1rem;
     color: #294e54;
+  }
+}
+
+/* The secret third card gets a full row, with the two scores above it. */
+.path-stones__journey[data-card-count="3"] .path-stones__journal-content {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  .path-stones__run-score { grid-area: 1 / 1; }
+  .path-stones__record { grid-area: 1 / 2; }
+
+  .garden-collection {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: min(100%, 600px);
+    justify-self: center;
+    padding-top: 18px;
+    border-top: 1px solid #b5a37440;
+  }
+}
+
+.garden-collection[data-card-count="3"] .garden-collection__cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.garden-collection .garden-card .garden-card__seal {
+  margin-top: auto;
+}
+
+@media (width <= 540px) {
+  .garden-collection[data-card-count="3"] .garden-collection__cards {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding: 6px 4px 4px;
+    scrollbar-color: #b5a374 #14262f;
+    scrollbar-width: thin;
+
+    .garden-collection__slot {
+      flex: 0 0 176px;
+      scroll-snap-align: start;
+    }
   }
 }

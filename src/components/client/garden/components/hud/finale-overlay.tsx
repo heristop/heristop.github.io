@@ -44,6 +44,7 @@ interface Props {
   recordKey?: string;
   gardenerTurns?: number;
   lines: readonly HaikuEntry[];
+  dailyHaiku?: readonly string[];
   steps: number;
   stonesLaid: number;
   stonesLeft: number;
@@ -57,6 +58,7 @@ const SCORE_REVEAL_MS = 2600;
 
 const ZazenFinaleOverlay = ({
   lines,
+  dailyHaiku,
   recordKey,
   gardenerTurns,
   steps,
@@ -67,6 +69,7 @@ const ZazenFinaleOverlay = ({
   onReturn,
   onWalkAgain,
 }: Props) => {
+  const poem = dailyHaiku ?? lines.map((entry) => entry.text);
   const score = scoreWalk({ gardenerTurns, catMet, frogFreed, steps, stonesLaid, stonesLeft });
   const reducedMotion = useReducedMotion();
   const [returnVisible, setReturnVisible] = useState(reducedMotion);
@@ -149,10 +152,20 @@ const ZazenFinaleOverlay = ({
         />
       )}
       <div className="path-stones__finale-poem">
-        {lines.map((entry, index) => (
-          <DelayedMount key={entry.stoneIndex} delayMs={index * LINE_STAGGER_MS}>
+        {dailyHaiku && (
+          <a
+            className="path-stones__finale-daily"
+            href="https://gutenku.xyz"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Zen Daily · GutenKu
+          </a>
+        )}
+        {poem.map((text, index) => (
+          <DelayedMount key={`${index}:${text}`} delayMs={index * LINE_STAGGER_MS}>
             <ZenTextReveal
-              text={entry.text}
+              text={text}
               tag="p"
               className="path-stones__finale-line"
               font={FINALE_FONT}
@@ -163,7 +176,7 @@ const ZazenFinaleOverlay = ({
       </div>
       {/* The poem first, then the reckoning. Reversing them turns the ending into a
           results screen with a poem attached, which is the wrong way round for a garden. */}
-      <DelayedMount delayMs={lines.length * LINE_STAGGER_MS + SCORE_REVEAL_MS}>
+      <DelayedMount delayMs={poem.length * LINE_STAGGER_MS + SCORE_REVEAL_MS}>
         <div className="path-stones__tally">
           <p className="path-stones__tally-rank">{score.rank}</p>
           <dl className="path-stones__tally-lines">

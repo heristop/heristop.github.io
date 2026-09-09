@@ -1195,6 +1195,7 @@
 }
 
 .zazen-world__mermaid-sprite {
+  transform-origin: 50% 35px;
   background: url("/images/zazen/hd/persos/mermaid-life.png") 0 0 / 96px 40px no-repeat;
   animation: mermaid-tail 2.4s steps(1, end) infinite;
 }
@@ -1318,3 +1319,5 @@
     pointer-events: none;
   }
 }
+
+.zazen-world__attack-loss[data-loss="0"]::before { display: none; }

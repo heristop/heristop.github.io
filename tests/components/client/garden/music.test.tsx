@@ -33,17 +33,20 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-it("waits for interaction, loops quietly and remembers its independent toggle", () => {
+it("starts only from its own toggle and stays independent from sound effects", () => {
   localStorage.setItem("path-stones:sound", "off");
   const { result, unmount } = renderHook(() => useGardenMusic());
+  expect(result.current.musicOn).toBe(false);
   expect(track.play).not.toHaveBeenCalled();
   expect(track.loop).toBe(true);
   expect(track.volume).toBe(1);
   fireEvent.pointerDown(window);
+  expect(track.play).not.toHaveBeenCalled();
+  act(() => result.current.toggleMusic());
+  expect(result.current.musicOn).toBe(true);
   expect(track.play).toHaveBeenCalledOnce();
   act(() => result.current.toggleMusic());
   expect(result.current.musicOn).toBe(false);
-  expect(localStorage.getItem("path-stones:music")).toBe("off");
   const played = track.play.mock.calls.length;
   fireEvent.keyDown(window);
   expect(track.play).toHaveBeenCalledTimes(played);
@@ -54,17 +57,25 @@ it("waits for interaction, loops quietly and remembers its independent toggle", 
   expect(track.removeAttribute).toHaveBeenCalledWith("src");
 });
 
-it("restores disabled music without starting it on interaction", () => {
-  localStorage.setItem("path-stones:music", "off");
-  const { result } = renderHook(() => useGardenMusic());
+it.each(["on", "off"])("starts each visit disabled even when storage contains %s", (stored) => {
+  localStorage.setItem("path-stones:music", stored);
+  const { result, unmount } = renderHook(() => useGardenMusic());
   fireEvent.pointerDown(window);
   expect(result.current.musicOn).toBe(false);
+  expect(track.play).not.toHaveBeenCalled();
+  act(() => result.current.toggleMusic());
+  expect(result.current.musicOn).toBe(true);
+  unmount();
+  track.play.mockClear();
+  const nextVisit = renderHook(() => useGardenMusic());
+  expect(nextVisit.result.current.musicOn).toBe(false);
+  fireEvent.keyDown(window);
   expect(track.play).not.toHaveBeenCalled();
 });
 
 it("pauses while hidden and resumes only when enabled", () => {
   const { result } = renderHook(() => useGardenMusic());
-  fireEvent.pointerDown(window);
+  act(() => result.current.toggleMusic());
   const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(true);
   fireEvent(document, new Event("visibilitychange"));
   expect(track.pause).toHaveBeenCalled();
