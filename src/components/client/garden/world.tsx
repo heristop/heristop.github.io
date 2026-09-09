@@ -348,6 +348,7 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
       {tile.npc !== 0 && tile.npc !== 2 && (
         <img
           src={`/images/zazen/persos/npc-${tile.npc}${tile.npc === 3 ? "-life" : ""}.png`}
+          srcSet={`/images/zazen/hd/persos/npc-${tile.npc}${tile.npc === 3 ? "-life" : ""}.png 4x`}
           alt=""
           className={
             tile.transformed === true
@@ -364,13 +365,14 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
           }
           aria-hidden="true"
         >
-          <img src="/images/zazen/decors/koi-life.png" alt="" className="zazen-world__decor" />
+          <img src="/images/zazen/decors/koi-life.png" srcSet="/images/zazen/hd/decors/koi-life.png 4x" alt="" className="zazen-world__decor" />
           <span className="zazen-world__koi-surface" />
         </span>
       )}
       {tile.decor !== "" && tile.decor !== "frog" && tile.decor !== "koi" && (
         <img
           src={`/images/zazen/decors/${tile.decor}.png`}
+          srcSet={`/images/zazen/hd/decors/${tile.decor}.png 4x`}
           alt=""
           className="zazen-world__decor"
           style={

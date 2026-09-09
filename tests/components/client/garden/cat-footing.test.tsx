@@ -19,12 +19,30 @@ vi.mock("../../../../src/components/client/garden/composables/use-game", async (
 });
 
 import ZazenWorld from "../../../../src/components/client/garden/world";
+import ZazenCat from "../../../../src/components/client/garden/components/figures/cat";
 
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
   vi.restoreAllMocks();
   updates.revision = 0;
+});
+
+it.each([false, true])("keeps the cat enlarged when facing left (walking: %s)", (walking) => {
+  const style = document.createElement("style");
+  style.textContent = ".zazen-world__cat { scale: 1.35; }";
+  document.head.appendChild(style);
+  try {
+    const props = { position: { posX: 2, posY: 1 }, walking, greeting: false, offsetX: 0, offsetY: 0 };
+    const { container, rerender } = render(<ZazenCat {...props} facingLeft={false} />);
+    const cat = container.firstElementChild!;
+    expect(getComputedStyle(cat).scale).toBe("1.35");
+    rerender(<ZazenCat {...props} facingLeft />);
+    expect(getComputedStyle(cat).scale).toBe("1.35");
+    expect(getComputedStyle(cat).transform).toBe("scaleX(-1)");
+  } finally {
+    style.remove();
+  }
 });
 
 it("keeps a wandering cat on its current firm tile when the map updates", () => {

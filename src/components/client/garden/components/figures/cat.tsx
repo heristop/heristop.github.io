@@ -39,9 +39,8 @@ const ZazenCat = ({ position, walking, facingLeft, greeting, offsetX, offsetY }:
       style={{
         left: 0,
         translate: `${left + ANCHOR_X}px ${top + ANCHOR_Y}px`,
-        // Mirrored rather than drawn twice. A horizontal flip is the one transform pixel
-        // art survives intact — every pixel lands on another pixel.
-        scale: facingLeft ? "-1 1" : undefined,
+        // Mirror independently from the display scale so changing direction preserves its size.
+        transform: facingLeft ? "scaleX(-1)" : undefined,
         top: 0,
       }}
     />

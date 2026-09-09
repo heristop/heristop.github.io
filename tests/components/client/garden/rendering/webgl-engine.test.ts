@@ -107,7 +107,9 @@ vi.mock("pixi.js", () => {
     constructor() {
       gpu.apps.push(this);
     }
-    async init() {
+    initOptions: any;
+    async init(options: any) {
+      this.initOptions = options;
       if (gpu.failInit) throw new Error("no gpu");
       this.renderer = { resize: vi.fn() };
     }
@@ -179,7 +181,9 @@ beforeEach(() => {
   gpu.apps.length = 0;
   gpu.failInit = false;
   gpu.reduced = false;
-  gpu.load.mockReset().mockImplementation(async (path: string) => ({ source: { path } }));
+  gpu.load.mockReset().mockImplementation(async ({ src, data }: { src: string; data: { resolution: number } }) => ({
+    source: { path: src, resolution: data.resolution },
+  }));
   vi.stubGlobal("matchMedia", () => ({
     get matches() {
       return gpu.reduced;
@@ -195,6 +199,32 @@ const actors = () =>
   ["pilgrim", "gardener", "cat", "frog"].map((name) =>
     app().stage.children[1].children.find((child: any) => child.label === name),
   );
+
+it.each([1, 2, 3, 4])("renders detailed sprites at their logical size on a DPR %i screen", async (dpr) => {
+  vi.stubGlobal("devicePixelRatio", dpr);
+  const renderer = await createGardenRenderer(document.createElement("div"), initial(), vi.fn());
+  expect(app().initOptions).toMatchObject({ resolution: Math.min(3, Math.max(2, dpr)), autoDensity: true });
+  expect(app().stage.filters[0].resolution).toBe("inherit");
+  const pilgrim = actors()[0].children[1].texture;
+  expect(pilgrim.source).toMatchObject({ path: "/images/zazen/hd/persos/pilgrim-idle.png", resolution: 4 });
+  expect(pilgrim.frame).toMatchObject({ width: 24, height: 40 });
+  const water = app().stage.children[0].children[1].texture;
+  expect(water.source).toMatchObject({ path: "/images/zazen/sol/water-still.png", resolution: 1 });
+  renderer.destroy();
+});
+
+it("keeps the GPU cat at the same size while walking and turning", async () => {
+  const scene = initial();
+  const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
+  const sprite = actors()[2].children[1];
+  expect(sprite.scale.set).toHaveBeenLastCalledWith(1.35, 1.35);
+  await renderer.update({ ...scene, cat: { posX: scene.cat.posX + 1, posY: scene.cat.posY }, catFacingLeft: true });
+  app().advance(100);
+  expect(sprite.scale.set).toHaveBeenLastCalledWith(-1.35, 1.35);
+  app().advance(1000);
+  expect(sprite.scale.set).toHaveBeenLastCalledWith(-1.35, 1.35);
+  renderer.destroy();
+});
 
 it("crops and animates water, lights the empty shrine, and reuses terrain for actor updates", async () => {
   const scene = initial();
@@ -293,7 +323,7 @@ it("honors reduced motion and pauses the ticker while the page is hidden", async
   gpu.reduced = true;
   await renderer.update({ ...scene, frog: { posX: 4, posY: 1 } });
   expect(actors()[3].x).toBe(448);
-  expect(actors()[3].children[1].y).toBe(32);
+  expect(actors()[3].children[1].y - (64 - 56) * 1.35).toBeCloseTo(24);
   vi.spyOn(document, "hidden", "get").mockReturnValue(true);
   document.dispatchEvent(new Event("visibilitychange"));
   expect(app().stop).toHaveBeenCalled();
@@ -458,7 +488,9 @@ it("centers trimmed nameplate glyphs on the panel rather than their baseline", a
     const label = actor.children.at(-1);
     expect(label.style.trim).toBe(true);
     expect(label.anchor.set).toHaveBeenCalledWith(0.5, 0.5);
-    expect(label.y).toBe(-11);
+    const panel = actor.children.find((child: any) => child.label === "nameplate");
+    expect(label.y).toBe(panel.y - 11);
+    expect(label.y).toBeLessThan(-20);
   }
   renderer.destroy();
 });
@@ -539,17 +571,20 @@ it("plays animal greetings in place and restores their resting height", async ()
   const cat = actors()[2];
   const frog = actors()[3];
   const origin = [frog.x, frog.y];
+  const catRestY = cat.children[1].y;
+  const frogRestY = frog.children[1].y;
   await renderer.update({ ...scene, interaction: { id: 1, ...scene.cat, kind: "cat" } });
   app().advance(250);
-  expect(cat.children[1].y).toBeLessThan(35);
+  expect(cat.children[1].y).toBeLessThan(catRestY);
   await renderer.update({ ...scene, interaction: { id: 2, ...scene.frog, kind: "frog" } });
   app().advance(250);
-  expect(frog.children[1].y).toBeLessThan(32);
+  expect(frog.children[1].y).toBeLessThan(frogRestY);
   expect([frog.x, frog.y]).toEqual(origin);
   expect(frog.children[0].y).toBe(-7);
   app().advance(1000);
-  expect(cat.children[1].y).toBe(35);
-  expect(frog.children[1].y).toBe(32);
+  expect(cat.children[1].y).toBe(catRestY);
+  expect(frog.children[1].y).toBe(frogRestY);
+  expect(frog.children[1].y - (64 - 56) * 1.35).toBeCloseTo(24);
   renderer.destroy();
 });
 
@@ -603,7 +638,7 @@ it("keeps the woman's contact shadow under her feet throughout transformation an
     for (let pose = 0; pose < 4; pose++) {
       app().advance(300);
       const [shadow, sprite] = frog.children;
-      expect(shadow.ellipses[0][1] + shadow.y).toBe(sprite.y - 40 + 31);
+      expect(shadow.ellipses[0][1] + shadow.y).toBeCloseTo(sprite.y - (40 - 31) * 1.35);
       expect(shadow.alpha).toBe(1);
     }
   }

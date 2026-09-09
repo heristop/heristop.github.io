@@ -22,7 +22,7 @@ export default function Frog({
       aria-hidden="true"
     >
       <span className="zazen-world__frog-shadow" />
-      <img src="/images/zazen/decors/frog-life.png" className="zazen-world__decor" alt="" />
+      <img src="/images/zazen/decors/frog-life.png" srcSet="/images/zazen/hd/decors/frog-life.png 4x" className="zazen-world__decor" alt="" />
     </div>
   );
 }
