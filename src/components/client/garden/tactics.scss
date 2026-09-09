@@ -664,7 +664,7 @@
   &::before {
     width: 24px;
     margin-inline: 8px;
-    background: url("/images/zazen/persos/pilgrim.png") 0 0 / 72px 160px no-repeat;
+    background: url("/images/zazen/hd/persos/pilgrim.png") 0 0 / 72px 160px no-repeat;
   }
 }
 
@@ -994,6 +994,8 @@
 }
 
 .path-stones .zazen-world__frog-actor .zazen-world__decor {
+  scale: 1.35;
+  transform-origin: 50% 56px;
   animation: frog-expression 4.8s steps(1, end) infinite;
 }
 
@@ -1063,7 +1065,9 @@
 .zazen-world__bird-body {
   position: absolute;
   inset: 0;
-  background: url("/images/zazen/fx/bird-flight.png") no-repeat;
+  background: url("/images/zazen/hd/fx/bird-flight.png") no-repeat;
+  background-size: 192px 16px;
+  scale: 1.5;
   image-rendering: pixelated;
   animation: garden-bird-poses 2.8s steps(1, end) infinite;
 }
@@ -1191,7 +1195,7 @@
 }
 
 .zazen-world__mermaid-sprite {
-  background: url("/images/zazen/persos/mermaid-life.png") no-repeat;
+  background: url("/images/zazen/hd/persos/mermaid-life.png") 0 0 / 96px 40px no-repeat;
   animation: mermaid-tail 2.4s steps(1, end) infinite;
 }
 
@@ -1234,7 +1238,7 @@
 
 .zazen-world__gardener-actor[data-activity="attack"] .zazen-world__gardener-sprite {
   width: 64px;
-  background: url("/images/zazen/persos/gardener-strike.png") no-repeat;
+  background: url("/images/zazen/hd/persos/gardener-strike.png") 0 0 / 384px 40px no-repeat;
   transform-origin: 16px 100%;
   animation: gardener-strike 800ms steps(1, end) both;
 }

@@ -1628,6 +1628,8 @@
 }
 
 .zazen-world__companion-sprite {
+  transform: scale(1.35);
+  transform-origin: 50% 32px;
   display: block;
   width: 24px;
   height: 40px;
@@ -1642,7 +1644,7 @@
   display: block;
   width: 24px;
   height: 40px;
-  background: url("/images/zazen/persos/npc-2-life.png") no-repeat 0 0 / 96px 80px;
+  background: url("/images/zazen/hd/persos/npc-2-life.png") no-repeat 0 0 / 96px 80px;
   image-rendering: pixelated;
   animation: path-stones-companion-idle 10.4s steps(1, end) infinite;
 }
@@ -2262,6 +2264,8 @@ button.path-stones__heat-cell:focus-visible {
   left: 16px;
   width: 32px;
   height: 64px;
+  scale: 1.15;
+  transform-origin: 50% 58px;
 
   /* No wind on the pixel art. A sprite authored on a grid cannot rotate without being
      resampled at every angle, and the whole-pixel lean meant to stand in for that reads
@@ -2275,6 +2279,60 @@ button.path-stones__heat-cell:focus-visible {
   left: 20px;
   width: 24px;
   height: 40px;
+  scale: 1.35;
+  transform-origin: 50% 32px;
+}
+
+.zazen-world__decor[src*="stone-marker"] {
+  scale: 1;
+}
+
+/* The water shares the fountain sprite's placement and scale. */
+.zazen-world__fountain-water {
+  position: absolute;
+  bottom: 32px;
+  left: 16px;
+  width: 32px;
+  height: 64px;
+  scale: 1.15;
+  transform-origin: 50% 58px;
+  fill: #f0fff4;
+  pointer-events: none;
+}
+
+.zazen-world__fountain-drop {
+  animation: path-stones-fountain-drop 600ms linear infinite;
+}
+
+.zazen-world__fountain-ring {
+  fill: none;
+  stroke: #d7f8ef;
+  stroke-width: 0.4px;
+  transform-origin: 13.5px 47.25px;
+  animation: path-stones-fountain-ring 1000ms linear infinite;
+}
+
+.zazen-world__fountain-splash {
+  animation: path-stones-fountain-splash 700ms linear infinite;
+}
+
+.zazen-world__fountain-burst { opacity: 0; }
+
+@keyframes path-stones-fountain-drop {
+  0% { transform: translateY(0); opacity: 0; }
+  10%, 90% { opacity: 0.95; }
+  100% { transform: translateY(8.5px); opacity: 0; }
+}
+
+@keyframes path-stones-fountain-ring {
+  from { transform: scale(0.25); opacity: 0.8; }
+  to { transform: scale(1.1); opacity: 0; }
+}
+
+@keyframes path-stones-fountain-splash {
+  0% { transform: translate(0, 0); opacity: 0; }
+  50% { transform: translate(calc(var(--splash-x) / 2), -2px); opacity: 0.9; }
+  100% { transform: translate(var(--splash-x), 0); opacity: 0; }
 }
 
 /* The pilgrim is a sibling of the tile grid, not a child of a tile: a sprite cannot be
@@ -2309,11 +2367,13 @@ button.path-stones__heat-cell:focus-visible {
 
 /* Three rows of four pixel frames: walk, idle, and greeting. */
 .zazen-world__cat {
+  scale: 1.35;
+  transform-origin: 50% 21px;
   position: absolute;
   z-index: 2;
   width: 24px;
   height: 24px;
-  background-image: url("/images/zazen/persos/cat-walk.png");
+  background-image: url("/images/zazen/hd/persos/cat-walk.png");
   background-repeat: no-repeat;
   background-size: 96px 72px;
   image-rendering: pixelated;
@@ -2443,15 +2503,19 @@ button.path-stones__heat-cell:focus-visible {
 }
 
 .zazen-world__pilgrim-sprite {
+  scale: 1.5;
+  transform-origin: 50% 36px;
   position: absolute;
   inset: 0;
-  background-image: url("/images/zazen/persos/pilgrim.png");
+  background-image: url("/images/zazen/hd/persos/pilgrim.png");
+  background-size: 72px 160px;
   background-repeat: no-repeat;
   image-rendering: pixelated;
 }
 
 .zazen-world__pilgrim-sprite--idle {
-  background-image: url("/images/zazen/persos/pilgrim-idle.png");
+  background-image: url("/images/zazen/hd/persos/pilgrim-idle.png");
+  background-size: 96px 160px;
   animation: path-stones-pilgrim-rest 8.4s steps(1, end) infinite;
 }
 
@@ -3036,6 +3100,8 @@ button.path-stones__heat-cell:focus-visible {
 
 /* Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
+  .zazen-world__fountain-water { display: none; }
+
   .zazen-world__header,
   .zazen-world__compass,
   .zazen-world__map-wrapper,
@@ -3044,6 +3110,7 @@ button.path-stones__heat-cell:focus-visible {
   .path-stones__finale-return,
   .path-stones__defeat,
   .path-stones__defeat-card,
+  .zazen-world__cat,
   .path-stones__gauge-figure b {
     animation: none !important;
     opacity: 1 !important;
@@ -3082,7 +3149,6 @@ button.path-stones__heat-cell:focus-visible {
   .zazen-world__bird::before,
   .zazen-world__bird::after,
   .zazen-world__decor,
-  .zazen-world__cat,
   .zazen-world__cat--greeting::before,
   .zazen-world__companion,
   .zazen-world__companion-sprite,
@@ -3163,6 +3229,11 @@ button.path-stones__heat-cell:focus-visible {
   &--stone {
     width: 16px;
     height: 23px;
+  }
+
+  &--fountain {
+    width: 32px;
+    height: 48px;
   }
 
   &:focus,

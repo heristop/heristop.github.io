@@ -12,6 +12,7 @@ import {
 } from "pixi.js";
 import { createAtmosphere, createLightTexture, depthTint } from "./atmosphere";
 import { groundArtwork } from "./artwork";
+import { createFountainWater } from "./fountain-water";
 import type { GardenRenderer, GardenScene } from "./scene";
 import type { Position } from "../types";
 
@@ -112,7 +113,11 @@ export async function createGardenRenderer(
     await Promise.all(
       [...paths].map(async (path) => {
         if (textures.has(path)) return;
-        const texture = await Assets.load<Texture>(root + path + ".png");
+        const detailed = path.startsWith("persos/") || path.startsWith("decors/");
+        const texture = await Assets.load<Texture>({
+          src: root + (detailed ? "hd/" : "") + path + ".png",
+          data: { resolution: detailed ? 4 : 1 },
+        });
         texture.source.scaleMode = "nearest";
         textures.set(path, texture);
       }),
@@ -125,6 +130,7 @@ export async function createGardenRenderer(
     const sprite = new Sprite();
     container.addChild(shadow, sprite);
     if (name === "pilgrim" || name === "gardener") {
+      const labelLift = name === "pilgrim" ? 17 : 12;
       const plateWidth = name === "pilgrim" ? 30 : 64;
       const left = 32 - plateWidth / 2;
       const right = 32 + plateWidth / 2;
@@ -133,6 +139,7 @@ export async function createGardenRenderer(
           right - 1, -4, left + 1, -4, left, -5, left, -17])
         .fill({ color: 0x172c32, alpha: 0.9 });
       plate.label = "nameplate";
+      plate.y = -labelLift;
       const label = new Text({
         text: name === "pilgrim" ? "YOU" : "GARDENER",
         style: {
@@ -147,7 +154,7 @@ export async function createGardenRenderer(
       });
       // Trim font line-box padding before centering the visible glyphs in the plate.
       label.anchor.set(0.5, 0.5);
-      label.position.set(32, -11);
+      label.position.set(32, -11 - labelLift);
       container.addChild(plate, label);
     }
     figures.addChild(container);
@@ -185,11 +192,17 @@ export async function createGardenRenderer(
     column: number,
     row = 0,
     flip = false,
-    scale = 1,
+    scale = 1.35,
   ) => {
     actor.sprite.texture = frame(path, w, h, column, row);
     actor.sprite.anchor.set(0.5, 1);
-    actor.sprite.position.set(32, 35);
+    const footRow = path === "persos/npc-2-life" ? 31
+      : path === "persos/mermaid-life" ? 34
+      : path === "persos/cat-walk" ? 21
+      : path.startsWith("persos/gardener") ? 36
+      : path.startsWith("persos/pilgrim") ? 35 : 56;
+    const originalScale = actor.container.label === "gardener" ? 0.85 : 1;
+    actor.sprite.position.set(32, 35 + (h - footRow) * (scale - originalScale));
     actor.sprite.scale.set(flip ? -scale : scale, scale);
   };
   const tick = () => {
@@ -206,7 +219,7 @@ export async function createGardenRenderer(
         actor.from.y + (actor.to.y - actor.from.y) * progress,
       );
       actor.container.zIndex = actor.container.y + 32;
-      actor.sprite.tint = depthTint((actor.container.y + scene.offsetY) / 640);
+      actor.sprite.tint = 0xffffff;
       const idle = Math.floor(time / 300) % 4;
       if (name === "pilgrim") {
         dress(
@@ -216,6 +229,8 @@ export async function createGardenRenderer(
           40,
           walking ? [0, 1, 2, 1][Math.floor(time / 80) % 4]! : idle,
           actor.row,
+          false,
+          1.5,
         );
       } else if (name === "gardener") {
         if (scene.gardenerActivity === "attack")
@@ -227,7 +242,7 @@ export async function createGardenRenderer(
             Math.min(5, Math.floor((elapsed - attackStarted) / 133)),
             0,
             scene.gardenerFacingLeft,
-            0.85,
+            1.35,
           );
         else
           dress(
@@ -238,7 +253,7 @@ export async function createGardenRenderer(
             idle,
             scene.gardenerActivity === "rake" ? 2 : walking ? 1 : 0,
             scene.gardenerFacingLeft,
-            0.85,
+            1.35,
           );
       } else if (name === "cat") {
         dress(
@@ -260,7 +275,7 @@ export async function createGardenRenderer(
           actor.shadow.alpha = scene.aquatic ? 0 : 1;
         } else {
           dress(actor, "decors/frog-life", 32, 64, walking ? 2 : idle);
-          actor.sprite.y = 32 - (walking ? Math.sin(progress * Math.PI) * 12 : 0);
+          actor.sprite.y = 32 + 8 * 0.35 - (walking ? Math.sin(progress * Math.PI) * 12 : 0);
           actor.sprite.alpha = 1;
           // Frog artwork ends at row 56, eight pixels above the frame bottom.
           // Only the sprite hops; the contact shadow follows the ground trajectory.
@@ -355,12 +370,25 @@ export async function createGardenRenderer(
           const animated = fish || tile.npc === 2 || tile.npc === 3;
           const w = tile.npc ? 24 : 32;
           const h = tile.npc ? 40 : 64;
+          const scale = tile.npc ? 1.35 : fish ? 1.35 : tile.stone !== undefined ? 1 : 1.15;
+          const contactY = tile.npc ? (tile.npc === 2 ? 31 : 34) : (decorContactY[decor] ?? 24) + 32;
           sprite.texture = animated ? frame(path, w, h) : textures.get(path)!;
-          sprite.position.set(tile.npc ? 20 : 16, 32 - h);
-          sprite.tint = depthTint((tile.posX + tile.posY) / 30);
-          sprite.width = w;
-          sprite.height = h;
+          sprite.position.set(32 - w * scale / 2, 32 - h - contactY * (scale - 1));
+          sprite.tint = tile.npc ? 0xffffff : depthTint((tile.posX + tile.posY) / 60);
+          sprite.width = w * scale;
+          sprite.height = h * scale;
           container.addChild(sprite);
+          if (decor === "shishi-odoshi") {
+            const water = createFountainWater();
+            water.container.position.set(sprite.x, sprite.y);
+            water.container.scale.set(scale);
+            container.addChild(water.container);
+            animations.push((time) => {
+              water.container.visible = !reducedMotion.matches;
+              const start = sceneryStarts.get(`${tile.posX},${tile.posY}`);
+              water.update(time, start === undefined ? 1 : (elapsed - start) / sceneryDuration("fountain"));
+            });
+          }
           const tree = ["pine", "maple", "sakura", "bamboo-a", "bamboo-b", "reed"].includes(decor);
           if (tree || tile.stone !== undefined) {
             const kind = tree ? "tree" : "stone";
@@ -414,8 +442,8 @@ export async function createGardenRenderer(
             animations.push((time) => {
               sprite.texture = frame(path, w, h, Math.floor(time / 260 + tile.posX) % 4);
               if (fish) {
-                sprite.x = 16 + Math.sin(time / 1200 + tile.posX) * 3;
-                sprite.y = -32 + Math.sin(time / 2100 + tile.posX) * 0.6;
+                sprite.x = 32 - w * scale / 2 + Math.sin(time / 1200 + tile.posX) * 3;
+                sprite.y = -32 - contactY * (scale - 1) + Math.sin(time / 2100 + tile.posX) * 0.6;
                 sprite.tint = 0xb9dcd2;
                 sprite.alpha = 0.76 + Math.sin(time / 2600 + tile.posX) * 0.07;
               }
@@ -440,11 +468,14 @@ export async function createGardenRenderer(
       preference: ["webgl"],
       backgroundAlpha: 0,
       antialias: false,
-      resolution: 1,
+      resolution: Math.min(3, Math.max(2, window.devicePixelRatio || 1)),
+      autoDensity: true,
       roundPixels: true,
       autoStart: false,
     });
     grade = new ColorMatrixFilter();
+    // Pixi filters default to resolution 1, which would downsample the HD scene.
+    grade.resolution = "inherit";
     grade.contrast(0.12, false);
     grade.saturate(0.16, true);
     app.stage.filters = [grade];

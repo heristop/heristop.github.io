@@ -702,7 +702,7 @@
   height: 48px;
   border: 1px solid #d1b87866;
   border-radius: 6px 6px 2px 2px;
-  background: #526149 url('/images/zazen/persos/npc-3.png') center / 24px 40px no-repeat;
+  background: #526149 url('/images/zazen/hd/persos/npc-3.png') center / 24px 40px no-repeat;
   image-rendering: pixelated;
 }
 
@@ -812,10 +812,10 @@
   position: relative;
   width: 32px;
   height: 40px;
-  background: url('/images/zazen/persos/gardener.png') 0 0 / 128px 120px no-repeat;
+  background: url('/images/zazen/hd/persos/gardener.png') 0 0 / 128px 120px no-repeat;
   image-rendering: pixelated;
-  transform: scale(0.85);
-  transform-origin: 50% 100%;
+  transform: scale(1.35);
+  transform-origin: 50% 37px;
   animation: gardener-idle 8.8s steps(1, end) infinite;
 }
 
@@ -883,7 +883,7 @@
     margin: 4px;
     width: 32px;
     height: 40px;
-    background: url('/images/zazen/persos/gardener.png') 0 0 / 128px 120px no-repeat;
+    background: url('/images/zazen/hd/persos/gardener.png') 0 0 / 128px 120px no-repeat;
   }
 }
 

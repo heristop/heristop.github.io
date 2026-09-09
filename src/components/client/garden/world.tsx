@@ -1,4 +1,4 @@
-import { sceneryAngle, sceneryDuration, sceneryLift, stoneShadowScale, type SceneryKind } from "./rendering/scenery-motion";
+import { fountainSpray, sceneryAngle, sceneryDuration, sceneryLift, stoneShadowScale, type SceneryKind } from "./rendering/scenery-motion";
 import useRenderer from "./composables/use-renderer";
 import { groundArtwork } from "./rendering/artwork";
 import WebGLBoard from "./rendering/webgl-board";
@@ -348,6 +348,7 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
       {tile.npc !== 0 && tile.npc !== 2 && (
         <img
           src={`/images/zazen/persos/npc-${tile.npc}${tile.npc === 3 ? "-life" : ""}.png`}
+          srcSet={`/images/zazen/hd/persos/npc-${tile.npc}${tile.npc === 3 ? "-life" : ""}.png 4x`}
           alt=""
           className={
             tile.transformed === true
@@ -364,13 +365,14 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
           }
           aria-hidden="true"
         >
-          <img src="/images/zazen/decors/koi-life.png" alt="" className="zazen-world__decor" />
+          <img src="/images/zazen/decors/koi-life.png" srcSet="/images/zazen/hd/decors/koi-life.png 4x" alt="" className="zazen-world__decor" />
           <span className="zazen-world__koi-surface" />
         </span>
       )}
       {tile.decor !== "" && tile.decor !== "frog" && tile.decor !== "koi" && (
         <img
           src={`/images/zazen/decors/${tile.decor}.png`}
+          srcSet={`/images/zazen/hd/decors/${tile.decor}.png 4x`}
           alt=""
           className="zazen-world__decor"
           style={
@@ -381,6 +383,22 @@ const TileRenderer = React.memo(function TileRenderer({ tile }: { tile: MapTile 
             undefined
           }
         />
+      )}
+      {tile.decor === "shishi-odoshi" && (
+        <svg className="zazen-world__fountain-water" viewBox="0 0 32 64" aria-hidden="true">
+          {[0, 1, 2].map((index) => (
+            <rect key={`drop-${index}`} className="zazen-world__fountain-drop" x="12.75" y="37.75" width="0.75" height="1.75" style={{ animationDelay: `${-index * 200}ms` }} />
+          ))}
+          {[0, 1].map((index) => (
+            <React.Fragment key={index}>
+              <ellipse className="zazen-world__fountain-ring" cx="13.5" cy="47.25" rx="3.5" ry="1" style={{ animationDelay: `${-index * 500}ms` }} />
+              <rect className="zazen-world__fountain-splash" x="13" y="46.75" width="0.65" height="0.85" style={{ "--splash-x": `${index === 0 ? -2 : 2}px`, animationDelay: `${-index * 350}ms` } as React.CSSProperties} />
+            </React.Fragment>
+          ))}
+          {Array.from({ length: 7 }, (_, index) => (
+            <rect key={`burst-${index}`} className="zazen-world__fountain-burst" x="13" y="46.75" width="0.8" height="1.2" />
+          ))}
+        </svg>
       )}
     </div>
   );
@@ -651,9 +669,21 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
     setInteraction((previous) => ({ id: (previous?.id ?? 0) + 1, posX: tile.posX, posY: tile.posY, kind }));
     const image = mapRef.current?.querySelector<HTMLElement>(
       kind === "cat" ? ".zazen-world__cat" : kind === "frog" ? ".zazen-world__frog-actor .zazen-world__decor" :
+        kind === "fountain" ? `[data-scenery-key="${tile.posX},${tile.posY}"] .zazen-world__fountain-water` :
         `[data-scenery-key="${tile.posX},${tile.posY}"] .zazen-world__decor`,
     );
     if (!image || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (kind === "fountain") {
+      image.querySelectorAll(".zazen-world__fountain-burst").forEach((drop, index) => {
+        for (const animation of drop.getAnimations()) animation.cancel();
+        const animation = drop.animate(Array.from({ length: 61 }, (_, frame) => {
+          const pose = fountainSpray(index, frame / 60);
+          return { transform: `translate(${pose.x}px, ${pose.y}px)`, opacity: pose.alpha };
+        }), { duration: sceneryDuration(kind) });
+        animation.id = "scenery-reaction";
+      });
+      return;
+    }
     for (const animation of image.getAnimations()) {
       if (animation.id === "scenery-reaction") animation.cancel();
     }
@@ -1780,15 +1810,15 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
               </div>
               {webglRequested && <WebGLBoard scene={webglScene} onReady={renderer.onReady} />}
               {tiles}
-              {game.map.filter((tile) => ["pine", "maple", "sakura"].includes(tile.decor)).map((tile) => {
+              {game.map.filter((tile) => ["pine", "maple", "sakura", "shishi-odoshi"].includes(tile.decor)).map((tile) => {
                 const point = toScreen(tile.posX, tile.posY, mapDimensions.offsetX, mapDimensions.offsetY);
-                const kind = "tree";
+                const kind = tile.decor === "shishi-odoshi" ? "fountain" : "tree";
                 return <button
                   key={`scenery-${tile.posX}-${tile.posY}`}
                   type="button"
                   className={`zazen-world__scenery-switch zazen-world__scenery-switch--${kind}`}
-                  aria-label={`Rustle tree at ${tile.posX}, ${tile.posY}`}
-                  style={{ left: point.left + 18, top: point.top - 24 }}
+                  aria-label={kind === "fountain" ? "Splash the fountain" : `Rustle tree at ${tile.posX}, ${tile.posY}`}
+                  style={{ left: point.left + (kind === "fountain" ? 16 : 18), top: point.top - (kind === "fountain" ? 16 : 24) }}
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={(event) => { event.stopPropagation(); playScenery(tile, kind); }}
                 />;
