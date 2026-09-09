@@ -200,6 +200,30 @@ const actors = () =>
     app().stage.children[1].children.find((child: any) => child.label === name),
   );
 
+it("plays one fountain splash per click without restarting it on actor updates", async () => {
+  const scene = initial();
+  scene.map = [tile(0, "shishi-odoshi")];
+  const renderer = await createGardenRenderer(document.createElement("div"), scene, vi.fn());
+  const water = app().stage.children[1].children[0].children.find((child: any) => child.label === "fountain-water");
+  const spray = water.children.find((child: any) => child.label === "fountain-spray");
+  expect(spray).toBeDefined();
+  expect(spray.children.every((drop: any) => drop.alpha === 0)).toBe(true);
+  const clicked = { ...scene, interaction: { id: 1, posX: 0, posY: 0, kind: "fountain" as const } };
+  await renderer.update(clicked);
+  app().advance(300);
+  expect(spray.children.some((drop: any) => drop.alpha > 0)).toBe(true);
+  await renderer.update({ ...clicked, pilgrim: { posX: 2, posY: 1 } });
+  app().advance(1000);
+  expect(spray.children.every((drop: any) => drop.alpha === 0)).toBe(true);
+  await renderer.update({ ...clicked, interaction: { ...clicked.interaction, id: 2 } });
+  app().advance(300);
+  expect(spray.children.some((drop: any) => drop.alpha > 0)).toBe(true);
+  gpu.reduced = true;
+  app().advance(100);
+  expect(water.visible).toBe(false);
+  renderer.destroy();
+});
+
 it.each([1, 2, 3, 4])("renders detailed sprites at their logical size on a DPR %i screen", async (dpr) => {
   vi.stubGlobal("devicePixelRatio", dpr);
   const renderer = await createGardenRenderer(document.createElement("div"), initial(), vi.fn());

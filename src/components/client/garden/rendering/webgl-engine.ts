@@ -12,6 +12,7 @@ import {
 } from "pixi.js";
 import { createAtmosphere, createLightTexture, depthTint } from "./atmosphere";
 import { groundArtwork } from "./artwork";
+import { createFountainWater } from "./fountain-water";
 import type { GardenRenderer, GardenScene } from "./scene";
 import type { Position } from "../types";
 
@@ -377,6 +378,17 @@ export async function createGardenRenderer(
           sprite.width = w * scale;
           sprite.height = h * scale;
           container.addChild(sprite);
+          if (decor === "shishi-odoshi") {
+            const water = createFountainWater();
+            water.container.position.set(sprite.x, sprite.y);
+            water.container.scale.set(scale);
+            container.addChild(water.container);
+            animations.push((time) => {
+              water.container.visible = !reducedMotion.matches;
+              const start = sceneryStarts.get(`${tile.posX},${tile.posY}`);
+              water.update(time, start === undefined ? 1 : (elapsed - start) / sceneryDuration("fountain"));
+            });
+          }
           const tree = ["pine", "maple", "sakura", "bamboo-a", "bamboo-b", "reed"].includes(decor);
           if (tree || tile.stone !== undefined) {
             const kind = tree ? "tree" : "stone";
