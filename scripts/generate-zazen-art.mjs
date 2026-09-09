@@ -1,13 +1,12 @@
-// Pixel maps in source -> PNGs in public/. Art is reviewable in git diffs and the whole
-// set can be re-emitted after a palette change.
-//
-// Nothing here resamples: sprites are authored at 1x and displayed at integer scale only.
+// Pixel maps provide terrain and ambient effects; generated atlases provide
+// characters, props and birds. Both paths emit the frame sizes used by the game.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { PALETTE } from "./zazen-art/palette.mjs";
 import { SPRITES, GROUND_VARIANTS } from "./zazen-art/sprites.mjs";
+import { generateRedesignedArt } from "./zazen-art/redesigned.mjs";
 
 const HEX_RED = [1, 3];
 const HEX_GREEN = [3, 5];
@@ -118,3 +117,5 @@ for (const [folder, names] of Object.entries(FOLDERS)) {
 }
 
 console.log(`generate-zazen-art: wrote ${written} sprites to ${outRoot}`);
+const redesigned = await generateRedesignedArt(outRoot);
+console.log(`generate-zazen-art: imported ${redesigned} redesigned sprites`);
