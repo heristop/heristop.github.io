@@ -19,6 +19,26 @@ import { profiles, simulate, strategies } from "../../../../../scripts/garden-ai
 
 const variants = Math.max(3, Math.min(100, Number(process.env.GARDEN_BALANCE_VARIANTS) || 3));
 
+it.each(["economical", "lookahead"] as const)(
+  "%s finishes the tight garden by visiting the reachable frog instead of giving up",
+  (strategy) => {
+    const seed = {
+      ...profiles.sample,
+      login: `${profiles.sample.login}:audit:61`,
+      days: profiles.sample.days.map((day, index) => ({ ...day!, count: index === 6 ? 1 : 0 })),
+    };
+    // The failed audit generated 64 variants before filtering; that count also
+    // determines frog placement. Keep this exact board in the regression suite.
+    const layout = randomizeFrog(buildGarden(seed), 61.5 / 65);
+    const run = simulate(layout, strategy);
+    expect(run.termination).toBe("won");
+    expect(run.position).toEqual({ posX: 3, posY: 6 });
+    expect(run.stonesFound).toBe(5);
+    expect(run.refills).toBe(3);
+    expect(run.laid).toBeGreaterThan(0);
+  },
+);
+
 it(
   "keeps current and contrasting histories winnable against the gardener with measurable crossings",
   () => {

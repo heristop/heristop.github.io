@@ -29,7 +29,7 @@ export const simulate = (
 ) => {
   const reduce = makeReducer(layout, controller);
   let state = initialState(layout, controller);
-  let target: Position | undefined;
+  let target: { position: Position; rescue: boolean } | undefined;
   let actions = 0;
   let firstRoundStones = 0;
   let stolen = 0;
@@ -84,8 +84,10 @@ export const simulate = (
     const goals = state.map.filter((tile) => tile.stone !== undefined);
     if (
       !target ||
-      manhattan(state.position, target) === 0 ||
-      (goals.length && !goals.some((goal) => manhattan(goal, target!) === 0))
+      manhattan(state.position, target.position) === 0 ||
+      (target.rescue
+        ? state.frogFreed
+        : goals.length && !goals.some((goal) => manhattan(goal, target!.position) === 0))
     ) {
       const choices = (goals.length ? goals : [layout.shrine])
         .flatMap((goal) => {
@@ -135,13 +137,31 @@ export const simulate = (
           return [{ goal, rank: rank + (preservesTour ? 0 : 100000) }];
         })
         .sort((a, b) => a.rank - b.rank);
-      target = choices[0]?.goal;
+      target = choices[0] ? { position: choices[0].goal, rescue: false } : undefined;
     }
-    if (!target) break;
-    const next = cheapestRoute(state.map, state.position, target, 100)?.path[0];
+    const next = target && cheapestRoute(state.map, state.position, target.position, 100)?.path[0];
     const direction = next && directionFromDelta(state.position, next);
-    if (!direction) break;
-    const moved = reduce(state, { type: "move", direction });
+    let moved = direction ? reduce(state, { type: "move", direction }) : state;
+    // Running out of paving stones is not a dead end while the frog is reachable.
+    // Keep this detour as the target until rescued, then resume the player's policy.
+    if (moved === state && !state.frogFreed) {
+      const rescue = state.map
+        .filter((tile) => manhattan(tile, state.frog) === 1)
+        .flatMap((goal) => {
+          const route = cheapestRoute(state.map, state.position, goal, state.stonesLeft);
+          return route?.path.length ? [{ goal, route }] : [];
+        })
+        .sort(
+          (a, b) => a.route.cost - b.route.cost || a.route.path.length - b.route.path.length,
+        )[0];
+      if (rescue) {
+        target = { position: rescue.goal, rescue: true };
+        moved = reduce(state, {
+          type: "move",
+          direction: directionFromDelta(state.position, rescue.route.path[0])!,
+        });
+      }
+    }
     if (moved === state) break;
     if (moved.attackTicks > state.attackTicks) stolen += moved.lastAttackLoss;
     if (state.gardenerTurns === 0) firstRoundStones = moved.stonesFound.length;

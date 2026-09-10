@@ -5,9 +5,9 @@ approach as a mandatory target. Once the stones are collected, it uses the shrin
 The last rake ends its turn. The terrain, player tile, discoveries, supply rules and
 attack behavior retain their existing protections.
 
-The whole-turn planning changes on this branch are experimental. The expanded final
-audit below did not pass promotion, so they are not ready to merge. Numeric weights
-remain unchanged and the promotion checks have not been relaxed.
+Numeric weights remain unchanged and the promotion checks have not been relaxed.
+Earlier reports below predate the simulated players' frog-rescue correction; use the
+[corrected comparison](gardener-first-comparison-2026-09-10.md) for current results.
 
 ## Decisions during play
 
@@ -65,8 +65,10 @@ profile, GitHub snapshot, seeds and code; the report records the starting weight
 
 Fitness targets a band of difficulty and three-to-four-round games while penalizing
 unnecessary walking, bends and repeated rakes. Wins alone are not the objective.
-A player policy unable to continue its chosen route counts as a loss; reaching the
-800-action simulation limit is a separate failure.
+A player unable to take its chosen step first tries an affordable approach to the
+unrescued frog. It follows that detour until the real reducer grants the bonus, then
+resumes its original policy. An unavailable detour still counts as a blocked strategy;
+reaching the 800-action simulation limit is a separate failure.
 
 `--apply` writes `src/components/client/garden/board/gardener-profile.json` only after
 held-out checks pass: every board has a tested winning strategy, no one-round victories,
@@ -87,6 +89,8 @@ does not compare new runs against scores earned with different settings. The Git
 terrain seed is unchanged.
 
 ## Shipped profile results
+
+These historical measurements use the simulator before its frog-rescue correction.
 
 The initial training run used seed 731, a population of 12 and eight generations:
 81 distinct profiles evaluated on 12 training boards, followed by 32 validation boards.
@@ -110,6 +114,11 @@ A separate audit then played 192 games on 64 fresh boards:
 Walking falls by about 20% and turn cost by 46%, with similar sampled difficulty.
 Neither version reached the simulation action limit. A strategy can still lose or get
 stuck pursuing an unaffordable target; these are counted as losses, not omitted.
+
+A later [comparison](gardener-first-comparison-2026-09-10.md) includes the original
+policy, the first new planner with manual weights, and that same planner after training.
+Its initial claim of a robustness regression was a simulator error: players ignored an
+affordable frog rescue. The linked report now uses the corrected players for every policy.
 
 ## Extended training on 10 September 2026
 
@@ -167,13 +176,29 @@ four sets, exact variant ranges, code and snapshot hashes, and decision timings.
 | Boards with no tested winning strategy | 1 | 1 |
 | First-round wins or simulation loops | 0 | 0 |
 
-The final audit refuses promotion. All three players lose on `audit/quiet/61` with
-both versions, exposing a pre-existing gap in the sampled balance; this does not prove
-the board unwinnable. The new version also loses 0.0600 fitness on that set, mostly
+This historical audit refused promotion. All three players reported losses on
+`audit/quiet/61` with both versions. That apparent robustness regression was later traced
+to the players ignoring the frog bonus, not to an impossible garden. The new version
+also lost 0.0600 fitness on that set, mostly
 because another nearest-goal win moves further from the difficulty target. Across all
 sets, walking falls by about 0.2%, average bend cost is unchanged, and winning games
 still average 3.71 rounds. These are targeted planning corrections, not evidence of a
 broad difficulty or naturalness improvement. The numeric profile stays unchanged.
+
+## Frog-rescue correction
+
+On `audit/quiet/61`, the economical and lookahead bots reached `(9, 3)` with four stones
+collected and no paving supply. The last stone at `(9, 2)` cost one, so the bots stopped.
+The game remained in the player phase because the frog at `(11, 9)` was still reachable.
+A 13-step free walk to `(10, 9)` rescues it and grants two stones. Replaying that detour,
+collecting the last stone and returning to the shrine completes the unchanged game in
+73 steps and three refills.
+
+The simulator now considers this legal detour before declaring a strategy blocked,
+retains the rescue destination between steps, and obtains all rewards through the
+production reducer. Both strategies have end-to-end regression tests. No garden tile,
+gardener decision, reward amount or difficulty threshold was changed for this fix.
+The corrected comparison reruns all policies with the same updated players.
 
 ## Verification
 
