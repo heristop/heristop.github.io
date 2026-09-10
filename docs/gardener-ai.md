@@ -5,6 +5,10 @@ approach as a mandatory target. Once the stones are collected, it uses the shrin
 The last rake ends its turn. The terrain, player tile, discoveries, supply rules and
 attack behavior retain their existing protections.
 
+The whole-turn planning changes on this branch are experimental. The expanded final
+audit below did not pass promotion, so they are not ready to merge. Numeric weights
+remain unchanged and the promotion checks have not been relaxed.
+
 ## Decisions during play
 
 1. Rank goals by actual walking distance, then by the player's paving cost.
@@ -14,14 +18,22 @@ attack behavior retain their existing protections.
    candidates on the current route or the alternative opened by the mandatory rake.
 4. Score added paving cost, useful work, walking distance, bends, spatial grouping,
    and repeated interventions. Small seeded variation only breaks near ties.
-5. Test candidates in score order with the existing remaining-tour affordability
+5. Visit candidates in score order. Simplify each to a subset if that keeps the same
+   paving pressure with fewer steps, no more bends and no more repetition. Work along
+   the way remains eligible; removing a detour does not promote another aggressive plan.
+6. Test the simplified candidate with the existing remaining-tour affordability
    search. Return only a verified plan; at most three rakes are allowed.
 
-The pathfinder minimizes steps first and bends second, carrying the previous heading
-between walks. Memory records completed rakes, never intentions. It retains the last
-two turns, is bounded to nine positions, and clears on restart. A mandatory approach
-can be raked again if the player has repaved it; memory only discourages optional
-repetition.
+The pathfinder minimizes steps first, then bends over the entire ordered turn. It keeps
+the best shortest approach for each possible arrival heading and chooses the combination
+that avoids unnecessary reversals at later rakes. Distance fields and approach results
+are shared across candidate plans; the search retains at most four headings per state.
+Equal whole-turn costs prefer the locally smooth approach, then the established
+direction order, so anticipation only changes the route when it saves bends.
+Memory carries the heading between turns and records completed rakes, never intentions.
+It retains the last two turns, is bounded to nine positions, and clears on restart.
+A mandatory approach can be raked again if the player has repaved it; memory only
+discourages optional repetition.
 
 The affordability search proves a route under its existing paving model. It is not a
 proof that every player strategy wins or that every possible future encounter is safe.
@@ -124,6 +136,45 @@ promotion rule rejected it. The shipped profile remains the result of the first 
 The candidate was not evaluated on the reserved final audit set after that rejection.
 No rule or threshold was relaxed to promote this result.
 
+## Whole-turn planning experiment on 10 September 2026
+
+Planning now carries alternative arrival headings through the complete ordered turn.
+An independent exhaustive search checks shortest distance and minimum total bend cost
+across three rakes, obstacles and incoming headings. Equal costs retain the established
+direction choices. A separate regression covers a two-rake route that formerly reversed
+after the first rake despite an equally short route with fewer bends.
+
+The selected plan also loses optional detours when a shorter subset creates the same
+paving pressure without more bends or repetition. Simplification preserves the selected
+constraint: deleting that plan from the ranking instead could promote a longer and more
+aggressive alternative. Both cases have regression tests.
+
+Comparison used 352 gardens and 1,056 complete games per policy, with the same numeric
+weights, snapshot and generated boards for each pair. The first 224 gardens informed
+development and all pass the existing promotion checks. The last 128 gardens were
+reserved until the implementation was fixed; their result was not used for another
+tuning iteration. The [planning report](gardener-planning-2026-09-10.json) records all
+four sets, exact variant ranges, code and snapshot hashes, and decision timings.
+
+| Final audit metric | Previous planner | New planner |
+| --- | ---: | ---: |
+| Lookahead wins | 127 / 128 | 127 / 128 |
+| Economical wins | 121 / 128 | 121 / 128 |
+| Nearest-goal wins | 93 / 128 | 94 / 128 |
+| Mean rounds in winning games | 3.710 | 3.711 |
+| Mean gardener steps per game | 17.953 | 17.914 |
+| Mean turn cost per game | 5.542 | 5.549 |
+| Boards with no tested winning strategy | 1 | 1 |
+| First-round wins or simulation loops | 0 | 0 |
+
+The final audit refuses promotion. All three players lose on `audit/quiet/61` with
+both versions, exposing a pre-existing gap in the sampled balance; this does not prove
+the board unwinnable. The new version also loses 0.0600 fitness on that set, mostly
+because another nearest-goal win moves further from the difficulty target. Across all
+sets, walking falls by about 0.2%, average bend cost is unchanged, and winning games
+still average 3.71 rounds. These are targeted planning corrections, not evidence of a
+broad difficulty or naturalness improvement. The numeric profile stays unchanged.
+
 ## Verification
 
 ```sh
@@ -133,7 +184,8 @@ pnpm build
 ```
 
 The suite covers protected terrain, the mandatory approach, memory/reset, shortest walks,
-heading continuity, deterministic genetic improvement, parameter bounds and independent
+heading continuity, whole-turn optimality against an independent exhaustive search,
+optional detours, deterministic genetic improvement, parameter bounds and independent
 scenario sets. Whole-game tests check actual rake actions independently of the planner.
 Naturalness is assessed through movement and repetition metrics; player testing is still
 needed to judge whether those choices feel believable.

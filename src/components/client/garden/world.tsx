@@ -1997,7 +1997,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       {!game.finaleOpen && (
         <Journey
           mermaidAwakened={mermaidAwakened}
-          recordKey={`path-stones:best:v6:${GARDENER_PROFILE_ID}:${gardenFingerprint(resolvedSeed)}`}
+          recordKey={`path-stones:best:v7:${GARDENER_PROFILE_ID}:${gardenFingerprint(resolvedSeed)}`}
           complete={false}
           steps={game.steps}
           stonesLaid={game.stonesLaid}
@@ -2067,7 +2067,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       )}
       {game.finaleOpen && (
         <ZazenFinaleOverlay
-          recordKey={`path-stones:best:v6:${GARDENER_PROFILE_ID}:${gardenFingerprint(resolvedSeed)}`}
+          recordKey={`path-stones:best:v7:${GARDENER_PROFILE_ID}:${gardenFingerprint(resolvedSeed)}`}
           lines={game.haikuLines}
           dailyHaiku={dailyHaiku}
           steps={game.steps}

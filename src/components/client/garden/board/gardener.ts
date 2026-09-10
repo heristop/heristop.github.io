@@ -210,9 +210,30 @@ export function chooseGardenerPlan(
       if (limit > 2) for (let j = i + 1; j < pool.length; j++) consider([pool[i], pool[j]]);
     }
     plans.sort((a, b) => b.utility - a.utility);
+    // Simplify each ranked plan before executing it. Removing it from the ranking
+    // instead could promote a longer, more aggressive plan over its useful subset.
+    const simplify = (plan: GardenerPlan) =>
+      plans
+        .filter(
+          (other) =>
+            other.targets.length < plan.targets.length &&
+            other.metrics.pressure === plan.metrics.pressure &&
+            other.metrics.walking < plan.metrics.walking &&
+            other.metrics.bends <= plan.metrics.bends &&
+            other.metrics.repetition <= plan.metrics.repetition &&
+            other.targets.every((p) => plan.targets.some((target) => manhattan(p, target) === 0)),
+        )
+        .sort(
+          (a, b) =>
+            a.metrics.walking - b.metrics.walking ||
+            a.metrics.bends - b.metrics.bends ||
+            a.metrics.repetition - b.metrics.repetition ||
+            b.utility - a.utility,
+        )[0] ?? plan;
     // Check solvability in score order. We only return a verified plan; rejecting a
     // candidate cannot weaken the mandatory target or any of the terrain rules.
-    for (const plan of plans) {
+    for (const candidate of plans) {
+      const plan = simplify(candidate);
       if (feasible(rakePaths(map, map, plan.targets))) return { ...plan, candidates: plans.length };
     }
   }

@@ -29,8 +29,16 @@ export function measureGardenerActions(
   return { walking, bends, heading };
 }
 
-// Shortest paths first; among equally short paths, minimize bends and preserve heading.
-// Distance fields are shared by every candidate plan in this decision.
+interface Arrival {
+  path: Position[];
+  bends: number;
+  heading?: Direction;
+  order: string;
+}
+
+// Keep the best shortest approach for each arrival heading. A locally smooth
+// approach can otherwise force a reversal on the next leg of the same turn.
+// Distance fields and approaches are shared by every candidate plan in this decision.
 export function createGardenerPlanner(map: readonly MapTile[], player: Position) {
   const clear = new Map(
     map
@@ -38,7 +46,7 @@ export function createGardenerPlanner(map: readonly MapTile[], player: Position)
       .map((t) => [key(t), t]),
   );
   const fields = new Map<string, Map<string, number>>();
-  const routes = new Map<string, { path: Position[]; bends: number } | undefined>();
+  const routes = new Map<string, Arrival[]>();
   const fieldFor = (to: Position) => {
     let field = fields.get(key(to));
     if (field) return field;
@@ -59,14 +67,11 @@ export function createGardenerPlanner(map: readonly MapTile[], player: Position)
     fields.set(key(to), field);
     return field;
   };
-  const route = (
-    from: Position,
-    to: Position,
-    heading?: Direction,
-  ): { path: Position[]; bends: number } | undefined => {
-    if (manhattan(from, to) === 0) return { path: [], bends: 0 };
+  const approaches = (from: Position, to: Position, heading?: Direction): Arrival[] => {
+    if (manhattan(from, to) === 0) return [{ path: [], bends: 0, heading, order: "" }];
     const memoKey = `${key(from)}:${key(to)}:${heading ?? ""}`;
-    if (routes.has(memoKey)) return routes.get(memoKey);
+    const cached = routes.get(memoKey);
+    if (cached) return cached;
     const field = fieldFor(to);
     const adjacent = directions.map((direction) => ({
       direction,
@@ -75,33 +80,61 @@ export function createGardenerPlanner(map: readonly MapTile[], player: Position)
     const distance =
       field.get(key(from)) ??
       Math.min(...adjacent.map(({ next }) => field.get(key(next)) ?? Infinity)) + 1;
-    let best: { path: Position[]; bends: number } | undefined;
+    const best = new Map<Direction | undefined, Arrival>();
     for (const { direction, next } of adjacent) {
       if (!Number.isFinite(distance) || field.get(key(next)) !== distance - 1) continue;
-      const rest = route(next, to, direction)!;
-      const bends = turnCost(heading, direction) + rest.bends;
-      if (!best || bends < best.bends) best = { path: [next, ...rest.path], bends };
+      for (const rest of approaches(next, to, direction)) {
+        const bends = turnCost(heading, direction) + rest.bends;
+        const previous = best.get(rest.heading);
+        if (!previous || bends < previous.bends)
+          best.set(rest.heading, {
+            path: [next, ...rest.path],
+            bends,
+            heading: rest.heading,
+            order: `${directions.indexOf(direction)}${rest.order}`,
+          });
+      }
     }
-    routes.set(memoKey, best);
-    return best;
+    // Prefer the established local route if looking ahead cannot save any bends.
+    const arrivals = [...best.values()].sort(
+      (a, b) => a.bends - b.bends || a.order.localeCompare(b.order),
+    );
+    routes.set(memoKey, arrivals);
+    return arrivals;
   };
   return (from: Position, targets: readonly Position[], heading?: Direction): GardenerAction[] => {
-    const actions: GardenerAction[] = [];
-    let position = from;
-    for (const target of targets) {
+    const valid = targets.filter((target) => {
       const tile = tileAt(map, target);
-      if (!tile || !canRakeTile(tile) || manhattan(target, player) === 0) continue;
-      const path = route(position, target, heading)?.path;
-      if (!path) continue;
-      if (path.length)
-        heading = directionFromDelta(path.length > 1 ? path.at(-2)! : position, path.at(-1)!);
-      actions.push(...path.map((p) => ({ kind: "walk" as const, position: p })), {
-        kind: "rake",
-        position: target,
-      });
-      position = target;
-    }
-    return actions;
+      return tile && canRakeTile(tile) && manhattan(target, player) !== 0;
+    });
+    type Turn = { actions: GardenerAction[]; bends: number };
+    const turns = new Map<string, Turn>();
+    const finish = (index: number, position: Position, facing?: Direction): Turn => {
+      if (index === valid.length) return { actions: [], bends: 0 };
+      const memoKey = `${index}:${key(position)}:${facing ?? ""}`;
+      const cached = turns.get(memoKey);
+      if (cached) return cached;
+      const target = valid[index];
+      let best: Turn | undefined;
+      for (const arrival of approaches(position, target, facing)) {
+        const rest = finish(index + 1, target, arrival.heading);
+        const bends = arrival.bends + rest.bends;
+        if (!best || bends < best.bends)
+          best = {
+            bends,
+            actions: [
+              ...arrival.path.map((p) => ({ kind: "walk" as const, position: p })),
+              { kind: "rake", position: target },
+              ...rest.actions,
+            ],
+          };
+      }
+      // An unreachable target must not hide later reachable work.
+      best ??= finish(index + 1, position, facing);
+      turns.set(memoKey, best);
+      return best;
+    };
+    return finish(0, from, heading).actions;
   };
 }
 

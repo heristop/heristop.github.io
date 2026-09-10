@@ -54,7 +54,9 @@ Stones are at least five tiles apart with no three aligned; the starting reserve
 of the tour budget for later refills. The gardener’s turn ends with his last rake.
 He targets the nearest reachable stone, following the player’s cheapest route to it.
 He rakes firm cells on that approach and finishes with the one closest to the stone.
-It compares complete plans of up to three targets, then minimizes steps and bends while keeping that finish.
+He compares complete plans of up to three targets, minimizing steps and bends across the entire turn.
+Optional work cannot add a detour when a shorter subset applies the same paving pressure
+without more turns or repetition. The final rake stays on the nearest stone's approach.
 Recent rakes discourage repetitive optional work; the shipped weights are tuned by an offline genetic algorithm.
 Bare sand, discoveries and structures cannot be raked. New close passes trigger visible swings,
 with at most one stone deducted per round; turn banners wait for the swing to finish. Stone deductions still

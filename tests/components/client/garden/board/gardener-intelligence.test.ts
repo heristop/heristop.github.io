@@ -43,6 +43,56 @@ it("uses the nearest approach even if its recent history makes it unattractive",
   expect(result.targets).toEqual([{ posX: 6, posY: 2 }]);
 });
 
+it("avoids a detour for optional work that leaves an equally cheap approach open", () => {
+  const map = Array.from({ length: 9 }, (_, i) =>
+    tile(i % 3, Math.floor(i / 3), i === 5 ? { stone: 0 } : {}),
+  );
+  // The direct approach must be raked, but either outer row remains free.
+  // Adding one optional rake cannot increase the player's paving cost.
+  const result = chooseGardenerPlan(map, [], map[3], 2, {
+    from: map[4],
+    limit: 2,
+    weights: { work: 2, walking: 0.05, bends: 0.1, cohesion: 0.05, variation: 0 },
+  });
+  expect(result.targets).toEqual([{ posX: 1, posY: 1 }]);
+  expect(result.metrics.walking).toBe(0);
+});
+
+it("simplifies the chosen plan without promoting a longer, more aggressive alternative", () => {
+  const rows = [
+    "###__s#s###",
+    "__sssssssss",
+    "#.ssssss*ss",
+    "_.......s..",
+    "__sss......",
+    "ssss##.##.#",
+    "_ss...*....",
+    "#sssss.....",
+    "#s###...#.#",
+    "#*ssssHss*s",
+    "#ss.....sss",
+  ];
+  const map = rows.flatMap((row, y) =>
+    [...row].map((cell, x) =>
+      tile(x, y, {
+        walkable: cell !== "#",
+        sprite: cell === "s" ? "sand-0" : cell === "_" ? "stone-slab" : "moss-mid",
+        ...(cell === "*" ? { stone: y * 11 + x } : {}),
+        ...(cell === "H" ? { shrine: "locked" as const } : {}),
+      }),
+    ),
+  );
+  const result = chooseGardenerPlan(map, [], { posX: 2, posY: 3 }, 2, {
+    from: { posX: 1, posY: 10 },
+    budget: 4,
+    memory: { recentRakes: [], heading: "N" },
+  });
+  // The selected two-rake plan can lose its detour. Discarding that plan entirely
+  // would promote three rakes, fourteen steps and increased paving pressure.
+  expect(result.targets).toEqual([{ posX: 6, posY: 5 }]);
+  expect(result.metrics).toMatchObject({ pressure: 0, walking: 10, bends: 3 });
+});
+
 it("keeps shortest walks while avoiding a reversal of the previous heading", () => {
   const map = Array.from({ length: 9 }, (_, i) => tile(i % 3, Math.floor(i / 3)));
   const actions = planGardenerTurn(map, map[0], [map[8]], { posX: 9, posY: 9 }, "W");

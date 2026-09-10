@@ -1,0 +1,346 @@
+{
+  "date": "2026-09-10",
+  "referenceCommit": "9c7aba8954bdf5b7499a9e3d42e8e43acdb8feec",
+  "filesSha256": {
+    "src/data/github-garden.json": "e75d115ebbea73ded17536cba08cdb7c544934e72d899d9fdc763132c12f3196",
+    "src/components/client/garden/board/gardener.ts": "d61bbf425982383f503776d1de6b7637c0a7d05fe6f98859be7fb00744e3000f",
+    "src/components/client/garden/board/gardener-movement.ts": "57d135b85316eec38ce2005c14d58b1d408f5b6610ea0d2cf3f53fd00e2506a7"
+  },
+  "weights": {
+    "pressure": 1.7432,
+    "work": 1.1405,
+    "walking": 0.3008,
+    "bends": 0.9754,
+    "repetition": 4,
+    "variation": 0.129,
+    "cohesion": 0.2664
+  },
+  "changes": [
+    "Plan the shortest walk across the entire ordered turn, minimizing total bends.",
+    "Preserve local direction choices when anticipation cannot save bends.",
+    "Simplify selected optional work without substituting a more aggressive plan."
+  ],
+  "evaluations": [
+    {
+      "name": "validation",
+      "scenarioGenerator": {
+        "split": "validation",
+        "variants": 12,
+        "firstVariant": 0,
+        "lastVariant": 11
+      },
+      "reference": {
+        "games": 288,
+        "boards": 96,
+        "wins": 259,
+        "unwinnableBoards": [],
+        "earlyWins": 0,
+        "stalled": 0,
+        "blockedStrategies": 14,
+        "winRates": {
+          "economical": 0.9895833333333334,
+          "nearby": 0.7083333333333334,
+          "lookahead": 1
+        },
+        "averageRounds": 3.7065637065637067,
+        "averagePlayerSteps": 52.996138996138995,
+        "averageGardenerSteps": 16.975694444444443,
+        "averageBends": 5.197916666666667,
+        "averageRepeats": 0,
+        "averageRakes": 5.229166666666667,
+        "fitness": 90.18919656263407,
+        "planning": {
+          "decisions": 1076,
+          "p50Ms": 2.527082999999948,
+          "p95Ms": 12.777915999999095,
+          "maxMs": 72.70441599999867
+        }
+      },
+      "candidate": {
+        "games": 288,
+        "boards": 96,
+        "wins": 259,
+        "unwinnableBoards": [],
+        "earlyWins": 0,
+        "stalled": 0,
+        "blockedStrategies": 14,
+        "winRates": {
+          "economical": 0.9895833333333334,
+          "nearby": 0.7083333333333334,
+          "lookahead": 1
+        },
+        "averageRounds": 3.7027027027027026,
+        "averagePlayerSteps": 53.003861003861005,
+        "averageGardenerSteps": 16.95486111111111,
+        "averageBends": 5.190972222222222,
+        "averageRepeats": 0,
+        "averageRakes": 5.208333333333333,
+        "fitness": 90.21332113363364,
+        "planning": {
+          "decisions": 1075,
+          "p50Ms": 2.6960830000025453,
+          "p95Ms": 15.910957999998573,
+          "maxMs": 94.35616699999991
+        }
+      },
+      "failures": []
+    },
+    {
+      "name": "development-audit",
+      "scenarioGenerator": {
+        "split": "audit",
+        "variants": 32,
+        "firstVariant": 24,
+        "lastVariant": 31
+      },
+      "reference": {
+        "games": 192,
+        "boards": 64,
+        "wins": 169,
+        "unwinnableBoards": [],
+        "earlyWins": 0,
+        "stalled": 0,
+        "blockedStrategies": 12,
+        "winRates": {
+          "economical": 1,
+          "nearby": 0.640625,
+          "lookahead": 1
+        },
+        "averageRounds": 3.6863905325443787,
+        "averagePlayerSteps": 55.32544378698225,
+        "averageGardenerSteps": 18,
+        "averageBends": 5.463541666666667,
+        "averageRepeats": 0,
+        "averageRakes": 5.213541666666667,
+        "fitness": 90.14766703648915,
+        "planning": {
+          "decisions": 715,
+          "p50Ms": 2.4298329999983252,
+          "p95Ms": 13.798125000001164,
+          "maxMs": 73.2927090000012
+        }
+      },
+      "candidate": {
+        "games": 192,
+        "boards": 64,
+        "wins": 169,
+        "unwinnableBoards": [],
+        "earlyWins": 0,
+        "stalled": 0,
+        "blockedStrategies": 12,
+        "winRates": {
+          "economical": 1,
+          "nearby": 0.640625,
+          "lookahead": 1
+        },
+        "averageRounds": 3.6863905325443787,
+        "averagePlayerSteps": 55.32544378698225,
+        "averageGardenerSteps": 17.979166666666668,
+        "averageBends": 5.463541666666667,
+        "averageRepeats": 0,
+        "averageRakes": 5.203125,
+        "fitness": 90.15287536982248,
+        "planning": {
+          "decisions": 715,
+          "p50Ms": 2.3648749999993015,
+          "p95Ms": 13.886791999997513,
+          "maxMs": 70.18116700000246
+        }
+      },
+      "failures": []
+    },
+    {
+      "name": "regression-audit",
+      "scenarioGenerator": {
+        "split": "audit",
+        "variants": 40,
+        "firstVariant": 32,
+        "lastVariant": 39
+      },
+      "reference": {
+        "games": 192,
+        "boards": 64,
+        "wins": 169,
+        "unwinnableBoards": [],
+        "earlyWins": 0,
+        "stalled": 0,
+        "blockedStrategies": 6,
+        "winRates": {
+          "economical": 0.984375,
+          "nearby": 0.65625,
+          "lookahead": 1
+        },
+        "averageRounds": 3.7159763313609466,
+        "averagePlayerSteps": 53.0414201183432,
+        "averageGardenerSteps": 17.234375,
+        "averageBends": 5.4375,
+        "averageRepeats": 0,
+        "averageRakes": 5.197916666666667,
+        "fitness": 90.44625092455622,
+        "planning": {
+          "decisions": 720,
+          "p50Ms": 2.410250000000815,
+          "p95Ms": 17.94629200000054,
+          "maxMs": 134.0035000000007
+        }
+      },
+      "candidate": {
+        "games": 192,
+        "boards": 64,
+        "wins": 169,
+        "unwinnableBoards": [],
+        "earlyWins": 0,
+        "stalled": 0,
+        "blockedStrategies": 6,
+        "winRates": {
+          "economical": 0.984375,
+          "nearby": 0.65625,
+          "lookahead": 1
+        },
+        "averageRounds": 3.7159763313609466,
+        "averagePlayerSteps": 53.01775147928994,
+        "averageGardenerSteps": 17.171875,
+        "averageBends": 5.432291666666667,
+        "averageRepeats": 0,
+        "averageRakes": 5.161458333333333,
+        "fitness": 90.4644800912229,
+        "planning": {
+          "decisions": 720,
+          "p50Ms": 2.3127910000002885,
+          "p95Ms": 17.14245899999878,
+          "maxMs": 125.74191600000267
+        }
+      },
+      "failures": []
+    },
+    {
+      "name": "final-audit",
+      "scenarioGenerator": {
+        "split": "audit",
+        "variants": 64,
+        "firstVariant": 48,
+        "lastVariant": 63
+      },
+      "reference": {
+        "games": 384,
+        "boards": 128,
+        "wins": 341,
+        "unwinnableBoards": [
+          "audit/quiet/61"
+        ],
+        "earlyWins": 0,
+        "stalled": 0,
+        "blockedStrategies": 22,
+        "winRates": {
+          "economical": 0.9453125,
+          "nearby": 0.7265625,
+          "lookahead": 0.9921875
+        },
+        "averageRounds": 3.7096774193548385,
+        "averagePlayerSteps": 53.83284457478006,
+        "averageGardenerSteps": 17.953125,
+        "averageBends": 5.541666666666667,
+        "averageRepeats": 0.0026041666666666665,
+        "averageRakes": 5.403645833333333,
+        "fitness": -910.0181367607527,
+        "planning": {
+          "decisions": 1437,
+          "p50Ms": 2.6587080000008427,
+          "p95Ms": 17.297124999997322,
+          "maxMs": 103.781332999999
+        }
+      },
+      "candidate": {
+        "games": 384,
+        "boards": 128,
+        "wins": 342,
+        "unwinnableBoards": [
+          "audit/quiet/61"
+        ],
+        "earlyWins": 0,
+        "stalled": 0,
+        "blockedStrategies": 22,
+        "winRates": {
+          "economical": 0.9453125,
+          "nearby": 0.734375,
+          "lookahead": 0.9921875
+        },
+        "averageRounds": 3.710526315789474,
+        "averagePlayerSteps": 53.80701754385965,
+        "averageGardenerSteps": 17.9140625,
+        "averageBends": 5.549479166666667,
+        "averageRepeats": 0.0026041666666666665,
+        "averageRakes": 5.377604166666667,
+        "fitness": -910.0781729714912,
+        "planning": {
+          "decisions": 1437,
+          "p50Ms": 2.548166000000492,
+          "p95Ms": 16.745208000000275,
+          "maxMs": 154.99049999999988
+        }
+      },
+      "failures": [
+        "No tested strategy wins on some boards",
+        "Held-out quality score regressed"
+      ]
+    }
+  ],
+  "aggregate": {
+    "reference": {
+      "games": 1056,
+      "boards": 352,
+      "wins": 938,
+      "unwinnableBoards": [
+        "audit/quiet/61"
+      ],
+      "earlyWins": 0,
+      "stalled": 0,
+      "blockedStrategies": 54,
+      "winRates": {
+        "economical": 0.9744318181818182,
+        "nearby": 0.6931818181818182,
+        "lookahead": 0.9971590909090909
+      },
+      "averageRounds": 3.7057569296375266,
+      "averagePlayerSteps": 53.72814498933902,
+      "averageGardenerSteps": 17.564393939393938,
+      "averageBends": 5.4147727272727275,
+      "averageRepeats": 0.000946969696969697,
+      "averageRakes": 5.284090909090909,
+      "fitness": -909.8198080215803
+    },
+    "candidate": {
+      "games": 1056,
+      "boards": 352,
+      "wins": 939,
+      "unwinnableBoards": [
+        "audit/quiet/61"
+      ],
+      "earlyWins": 0,
+      "stalled": 0,
+      "blockedStrategies": 54,
+      "winRates": {
+        "economical": 0.9744318181818182,
+        "nearby": 0.6960227272727273,
+        "lookahead": 0.9971590909090909
+      },
+      "averageRounds": 3.7050053248136314,
+      "averagePlayerSteps": 53.71671991480298,
+      "averageGardenerSteps": 17.529356060606062,
+      "averageBends": 5.4147727272727275,
+      "averageRepeats": 0.000946969696969697,
+      "averageRakes": 5.260416666666667,
+      "fitness": -909.8307694053151
+    }
+  },
+  "decision": {
+    "eligible": false,
+    "status": "experimental branch only",
+    "failures": [
+      "No tested strategy wins on some boards",
+      "Held-out quality score regressed"
+    ],
+    "notes": "The final audit was not used for another tuning iteration. All three simulated strategies lose on audit/quiet/61 with both policies; this is not a proof that the board is unwinnable. Candidate fitness also regresses slightly on this set. No gates or numeric weights were changed."
+  },
+  "reproduction": "At the reference commit and at this implementation, call evaluateGardener with each scenarioGenerator above, using weightedGardener(DEFAULT_GARDENER_WEIGHTS). Generate all variants before filtering the inclusive index range: the variant count also determines frog placement. Use the recorded GitHub snapshot. The reference is the trained policy, not the frozen legacy controller."
+}
