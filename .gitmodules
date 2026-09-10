@@ -1,0 +1,3 @@
+[submodule "packages/path-of-stones"]
+	path = packages/path-of-stones
+	url = https://github.com/heristop/zazen-garden.git

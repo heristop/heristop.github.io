@@ -6,6 +6,7 @@ coverage/
 
 # dependencies
 node_modules/
+.pnpm-store/
 
 # logs
 npm-debug.log*
@@ -22,8 +23,8 @@ pnpm-debug.log*
 .DS_Store
 
 # Playwright
-/test-results/
-/playwright-report/
-/blob-report/
+test-results/
+playwright-report/
+blob-report/
 /playwright/.cache/
 .playwright-mcp/

@@ -1,74 +1,25 @@
 ---
-import Icon from "../components/Icon.astro";
 import { ClientRouter } from "astro:transitions";
-import GardenLoading from "../components/GardenLoading.astro";
-import SakuraPetals from "../components/SakuraPetals.astro";
 import BaseHead from "../components/BaseHead.astro";
+import SakuraPetals from "../components/SakuraPetals.astro";
+import GameShell from "@zazencode/path-of-stones/shell.astro";
+import { parseGardenSeed } from "@zazencode/path-of-stones";
+import { assetUrl } from "@zazencode/path-of-stones/assets";
+import gardenData from "@zazencode/path-of-stones/snapshot";
 import "../styles/global.scss";
-import "../components/client/garden/index.scss";
-import { ZazenWorld, parseGardenSeed } from "../components/client/garden";
-import gardenData from "../data/github-garden.json";
 
-// Read at build time and handed to the island as a prop. ZazenWorld is client:only, but
-// Astro still serialises props into it, so the seed ships with the page: no runtime
-// data request, so a GitHub outage cannot affect a visitor.
-//
-// parseGardenSeed never throws — a malformed or missing file degrades to FALLBACK_SEED,
-// so the page always builds, including with no network.
+// Ship the saved snapshot as island props, including when GitHub is unavailable.
 const seed = parseGardenSeed(gardenData);
 ---
 
 <html lang="en">
-  <head><link rel="preload" as="image" href="/images/zazen/sanctuary-dawn.webp" /><BaseHead title="Path of Stones" description="A pixel-art garden shaped by @heristop’s public GitHub activity. Gather five stones, outwit the gardener and awaken the shrine." /></head>
+  <head>
+    <link rel="preload" as="image" href={assetUrl("images/sanctuary-dawn.webp")} />
+    <BaseHead title="Path of Stones" description="A pixel-art garden shaped by @heristop’s public GitHub activity. Gather five stones, outwit the gardener and awaken the shrine." />
+  </head>
   <body class="stone-game-page">
     <ClientRouter />
-    <a href="#main-content" class="skip-link">Skip to game</a>
-    <nav class="stone-game-nav" aria-label="Game navigation">
-      <a href="/"><Icon name="arrow-left" size={14} color="currentColor" aria-hidden={true} /> Zazen Code</a>
-      <span>THE GARDEN · PATH OF STONES</span>
-      <details class="stone-game-help">
-        <summary>How to play</summary>
-        <div class="stone-game-help__panel">
-          <span class="path-stones__eyebrow">Your field guide</span>
-          <h2>Five stones. Four rounds.</h2>
-          <ol>
-            <li><strong>Choose your crossing</strong><span>Click a tile, or use WASD / arrow keys. Moss and gravel are free. Crossing sand uses one stepping stone.</span></li>
-            <li><strong>Stay ahead of the gardener</strong><span>He moves first. When your supply runs out, he rakes approaches to the stones, then gives you two stepping stones. You have three refills.</span></li>
-            <li><strong>Find your way home</strong><span>Each ancient stone restores one stepping stone. Gather all five to awaken the shrine, then reach it to win.</span></li>
-          </ol>
-          <p>Your tile and its neighbours stay safe. After the last refill, an empty supply with no reachable reward ends the run.</p>
-          <p class="stone-game-help__tip">Controller: left stick or D-pad to walk; A / ✕ to focus the garden or replay after a run; B / ○ to cancel; X / □ for sound; Start / Options for this guide.</p>
-          <p class="stone-game-help__tip">On a phone, drag the garden to explore. Tap a tile to travel.</p>
-        </div>
-      </details>
-    </nav>
-    <main id="main-content">
-      <ZazenWorld client:only="react" seed={seed}>
-        <GardenLoading slot="fallback" />
-      </ZazenWorld>
-    </main>
+    <GameShell seed={seed} homeHref="/" homeLabel="Zazen Code" />
     <SakuraPetals />
   </body>
 </html>
-
-<script>
-  let helpEvents: AbortController | undefined;
-  function connectGardenHelp() {
-    helpEvents?.abort();
-    const help = document.querySelector<HTMLDetailsElement>(".stone-game-help");
-    if (!help) return;
-    helpEvents = new AbortController();
-    const { signal } = helpEvents;
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && help.open) {
-        help.open = false;
-        help.querySelector("summary")?.focus();
-      }
-    }, { signal });
-    document.addEventListener("pointerdown", (event) => {
-      if (event.target instanceof Node && !help.contains(event.target)) help.open = false;
-    }, { signal });
-  }
-  document.addEventListener("astro:page-load", connectGardenHelp);
-  document.addEventListener("astro:before-swap", () => helpEvents?.abort());
-</script>
