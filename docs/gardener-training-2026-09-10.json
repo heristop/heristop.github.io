@@ -1,0 +1,129 @@
+{
+  "date": "2026-09-10",
+  "sourceCommit": "49d01a601fb231c2c42af87cf007b43622b72639",
+  "snapshotSha256": "e75d115ebbea73ded17536cba08cdb7c544934e72d899d9fdc763132c12f3196",
+  "seed": 20260910,
+  "population": 24,
+  "generations": 32,
+  "initialWeights": {
+    "pressure": 1.7432,
+    "work": 1.1405,
+    "walking": 0.3008,
+    "bends": 0.9754,
+    "repetition": 4,
+    "variation": 0.129,
+    "cohesion": 0.2664
+  },
+  "candidateWeights": {
+    "pressure": 2.0759,
+    "work": 0.4,
+    "walking": 0.3274,
+    "bends": 1,
+    "repetition": 3.1764,
+    "variation": 0.0718,
+    "cohesion": 0.146
+  },
+  "training": {
+    "variants": 4,
+    "boards": 24,
+    "strategies": [
+      "economical",
+      "nearby",
+      "lookahead"
+    ],
+    "gamesPerProfile": 72,
+    "distinctProfiles": 694,
+    "simulatedGames": 49968,
+    "initialFitness": 90.54610655737704,
+    "bestFitness": 91.45704365079365,
+    "bestFitnessByGeneration": [
+      91.11615143369174,
+      91.11615143369174,
+      91.28224206349206,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.33432539682539,
+      91.45704365079365,
+      91.45704365079365,
+      91.45704365079365,
+      91.45704365079365,
+      91.45704365079365,
+      91.45704365079365,
+      91.45704365079365,
+      91.45704365079365,
+      91.45704365079365,
+      91.45704365079365
+    ]
+  },
+  "validation": {
+    "variants": 12,
+    "boards": 96,
+    "gamesPerPolicy": 288,
+    "reference": {
+      "wins": 259,
+      "unwinnableBoards": [],
+      "earlyWins": 0,
+      "stalled": 0,
+      "blockedStrategies": 14,
+      "winRates": {
+        "economical": 0.9895833333333334,
+        "nearby": 0.7083333333333334,
+        "lookahead": 1
+      },
+      "averageRounds": 3.7065637065637067,
+      "averagePlayerSteps": 52.996138996138995,
+      "averageGardenerSteps": 16.975694444444443,
+      "averageBends": 5.197916666666667,
+      "averageRepeats": 0,
+      "averageRakes": 5.229166666666667,
+      "fitness": 90.18919656263407
+    },
+    "candidate": {
+      "wins": 262,
+      "unwinnableBoards": [],
+      "earlyWins": 0,
+      "stalled": 0,
+      "blockedStrategies": 13,
+      "winRates": {
+        "economical": 0.9895833333333334,
+        "nearby": 0.7395833333333334,
+        "lookahead": 1
+      },
+      "averageRounds": 3.698473282442748,
+      "averagePlayerSteps": 53.14885496183206,
+      "averageGardenerSteps": 16.850694444444443,
+      "averageBends": 5.013888888888889,
+      "averageRepeats": 0,
+      "averageRakes": 4.961805555555555,
+      "fitness": 90.09482214800678
+    }
+  },
+  "decision": {
+    "eligible": false,
+    "failures": [
+      "Held-out quality score regressed"
+    ],
+    "applied": false
+  },
+  "audit": {
+    "candidateEvaluated": false,
+    "reason": "Validation rejected the candidate; the reserved audit seeds were not used to evaluate it."
+  },
+  "reproduce": "pnpm tune:garden --population=24 --generations=32 --training-variants=4 --validation-variants=12 --seed=20260910 --output=/tmp/gardener-ai-continued.json"
+}

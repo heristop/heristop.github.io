@@ -99,6 +99,31 @@ Walking falls by about 20% and turn cost by 46%, with similar sampled difficulty
 Neither version reached the simulation action limit. A strategy can still lose or get
 stuck pursuing an unaffordable target; these are counted as losses, not omitted.
 
+## Extended training on 10 September 2026
+
+A second run started from the shipped profile with seed 20260910, 24 individuals,
+32 generations and 24 training gardens: 694 distinct profiles and 49,968 simulated
+games. Validation used 96 gardens and 288 games per policy. The command, starting
+weights, candidate weights, snapshot hash and generation history are archived in the
+[training report](gardener-training-2026-09-10.json).
+
+| Metric | Shipped profile | New candidate |
+| --- | ---: | ---: |
+| Training fitness | 90.5461 | 91.4570 |
+| Validation fitness | 90.1892 | 90.0948 |
+| Validation lookahead wins | 96 / 96 | 96 / 96 |
+| Validation economical wins | 95 / 96 | 95 / 96 |
+| Validation nearest-goal wins | 68 / 96 | 71 / 96 |
+| Mean gardener steps per validation game | 16.976 | 16.851 |
+| Mean turn cost per validation game | 5.198 | 5.014 |
+| Mean rounds in validation wins | 3.707 | 3.698 |
+
+The candidate improved movement slightly, but its higher nearest-goal win rate moved
+further from the difficulty target. Overall validation fitness fell, so the existing
+promotion rule rejected it. The shipped profile remains the result of the first run.
+The candidate was not evaluated on the reserved final audit set after that rejection.
+No rule or threshold was relaxed to promote this result.
+
 ## Verification
 
 ```sh
