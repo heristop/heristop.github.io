@@ -1,0 +1,43 @@
+{
+  "name": "@zazencode/ui",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "type": "module",
+  "exports": {
+    "./text-reveal": "./src/text-reveal.tsx",
+    "./icon": "./src/icon.tsx",
+    "./pretext-loader": "./src/pretext-loader.ts",
+    "./text-reveal-motion": "./src/text-reveal-motion.ts",
+    "./text-reveal-hooks": "./src/text-reveal-hooks.ts",
+    "./icon-registry": "./src/icon-registry.ts"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@chenglou/pretext": "^0.0.8",
+    "lucide-react": "^1.33.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "jsdom": "^30.0.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.11"
+  },
+  "peerDependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}

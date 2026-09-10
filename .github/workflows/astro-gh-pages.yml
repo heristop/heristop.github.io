@@ -23,6 +23,22 @@ jobs:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
 
+      - name: Read the pinned private garden revision
+        id: garden
+        shell: bash
+        run: |
+          revision=$(git rev-parse HEAD:packages/path-of-stones)
+          test "$(git ls-tree HEAD packages/path-of-stones | cut -d ' ' -f1)" = "160000"
+          echo "revision=$revision" >> "$GITHUB_OUTPUT"
+      - name: Checkout the private garden
+        uses: actions/checkout@v4
+        with:
+          repository: heristop/zazen-garden
+          ref: ${{ steps.garden.outputs.revision }}
+          path: packages/path-of-stones
+          ssh-key: ${{ secrets.GARDEN_DEPLOY_KEY }}
+          persist-credentials: false
+
       # Explicit steps rather than withastro/action: rehype-mermaid renders ```mermaid fences to SVG at
       # build time by driving Playwright, so the build needs a browser binary installed BEFORE it runs.
       # The action does install+build atomically, leaving no window for that — and running our own
@@ -31,8 +47,6 @@ jobs:
       # one less moving part; the action only ever wrapped these five steps.
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: latest
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -41,7 +55,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Check GitHub snapshot ingestion
-        run: pnpm exec vitest run tests/scripts/github-garden.test.ts
+        run: pnpm --filter @zazencode/path-of-stones test tests/scripts/github-garden.test.ts
       # On API failure keep the saved snapshot and expose its stale status in the UI.
       # Refresh before simulations so the board being deployed is the one tested.
       - name: Fetch the GitHub activity the garden is grown from

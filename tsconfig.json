@@ -1,6 +1,13 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "exclude": ["dist", "node_modules", "coverage"],
+  "exclude": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/coverage/**",
+    "**/test-results/**",
+    "**/playwright-report/**",
+    ".pnpm-store/**"
+  ],
   "compilerOptions": {
     "strictNullChecks": true,
     "jsx": "react-jsxdev",

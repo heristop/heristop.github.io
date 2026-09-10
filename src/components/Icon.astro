@@ -1,6 +1,6 @@
 ---
-import LucideIcon from "./client/icon";
-import type { IconName } from "./icon-registry";
+import LucideIcon from "@zazencode/ui/icon";
+import type { IconName } from "@zazencode/ui/icon-registry";
 
 export interface Props {
   name: IconName;
@@ -16,7 +16,3 @@ const { class: className, color = "var(--primary-color)", ...props } = Astro.pro
 ---
 
 <LucideIcon {...props} className={className} color={color} />
-
-<style is:global>
-  .icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
-</style>

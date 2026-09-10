@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import type { WordDrift } from "./use-text-reveal";
+import type { WordDrift } from "@zazencode/ui/text-reveal-motion";
 import dissolve from "./haiku-dissolve";
-import textReveal from "./use-text-reveal";
+import textReveal from "@zazencode/ui/text-reveal-motion";
 
 const { buildWordDrifts, maxAnimationEnd, useReducedMotion } = textReveal;
 const { getHaikuCharClass } = dissolve;
