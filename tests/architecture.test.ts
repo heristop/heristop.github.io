@@ -8,9 +8,7 @@ import { describe, expect, it } from "vitest";
 // importing a pathfinder because it happened to need one constant from the same file. The
 // rule is simple enough to check by reading the source: website imports use index,
 // and only the offline simulation tools may use the headless model entry.
-const MODULE = "src/components/client/garden";
-const DOOR = `${MODULE}/index`;
-const HEADLESS = `${MODULE}/headless`;
+const MODULE = "packages/path-of-stones/src";
 
 const sourceFiles = (dir: string): string[] => {
   const out: string[] = [];
@@ -32,36 +30,60 @@ const sourceFiles = (dir: string): string[] => {
 const resolveSpec = (from: string, spec: string): string =>
   relative(process.cwd(), join(from, "..", spec)).replaceAll("\\", "/");
 
-describe("the garden is a feature module", () => {
+describe("the game workspace boundaries", () => {
   const outside = [...sourceFiles("src"), ...sourceFiles("tests"), ...sourceFiles("scripts")]
     .map((path) => path.replaceAll("\\", "/"))
-    .filter(
-      (path) => !path.startsWith(MODULE) && !path.startsWith("tests/components/client/garden"),
-    );
+    .filter((path) => !path.startsWith(MODULE));
 
-  it("keeps website imports on index and offline simulation imports on headless", () => {
+  it("keeps the application on declared package exports", () => {
     const trespass: string[] = [];
     for (const file of outside) {
       const source = readFileSync(file, "utf8");
-      for (const match of source.matchAll(
-        /(?:\bfrom\s*|\bimport\s*(?:\(\s*)?)["'](\.[^"']+)["']/g,
-      )) {
-        const target = resolveSpec(file, match[1]);
-        const offline =
-          file.startsWith("scripts/garden-ai/") ||
-          file === "tests/scripts/gardener-evolution.test.ts";
-        if (
-          target.startsWith(MODULE) &&
-          target !== DOOR &&
-          target !== `${DOOR}.scss` &&
-          !(offline && target === HEADLESS) &&
-          target !== MODULE
-        ) {
-          trespass.push(`${file} reaches into ${target}`);
+      for (const match of source.matchAll(/(?:\bfrom\s*|\bimport\s*(?:\(\s*)?)["']([^"']+)["']/g)) {
+        const spec = match[1];
+        if (spec.startsWith(".")) {
+          const target = resolveSpec(file, spec);
+          if (target.startsWith("packages/")) trespass.push(`${file} reaches into ${target}`);
+        } else if (spec.startsWith("@zazencode/path-of-stones")) {
+          const allowed = ["", "/assets", "/styles", "/shell.astro", "/loading.astro", "/snapshot"];
+          if (file === "tests/workspace.test.ts") allowed.push("/headless");
+          if (!allowed.some((suffix) => spec === `@zazencode/path-of-stones${suffix}`))
+            trespass.push(`${file} imports private game API ${spec}`);
         }
       }
     }
     expect(trespass).toEqual([]);
+  });
+
+  it("keeps package source independent of the application and sibling internals", () => {
+    const offenders: string[] = [];
+    for (const name of ["path-of-stones", "ui"]) {
+      const folder = `packages/${name}`;
+      const manifest = JSON.parse(readFileSync(`${folder}/package.json`, "utf8"));
+      const dependencies = new Set([
+        ...Object.keys(manifest.dependencies ?? {}),
+        ...Object.keys(manifest.peerDependencies ?? {}),
+      ]);
+      for (const file of sourceFiles(`${folder}/src`)) {
+        for (const match of readFileSync(file, "utf8").matchAll(
+          /(?:\bfrom\s*|\bimport\s*(?:\(\s*)?)["']([^"']+)["']/g,
+        )) {
+          const spec = match[1];
+          if (spec.startsWith(".")) {
+            const target = resolveSpec(file, spec);
+            if (!target.startsWith(`${folder}/`)) offenders.push(`${file} reaches into ${target}`);
+          } else if (!spec.startsWith("node:")) {
+            const dependency = spec
+              .split("/")
+              .slice(0, spec.startsWith("@") ? 2 : 1)
+              .join("/");
+            if (!dependencies.has(dependency))
+              offenders.push(`${file} imports undeclared ${dependency}`);
+          }
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
   });
 
   // The three layers are not folders for tidiness — each one is a promise about what a
@@ -117,7 +139,7 @@ describe("the garden is a feature module", () => {
           .pop(),
       )
       .filter(Boolean);
-    expect(exported.sort()).toEqual([
+    expect(exported.sort((left, right) => (left === right ? 0 : left! < right! ? -1 : 1))).toEqual([
       "FALLBACK_SEED",
       "GardenDay",
       "GardenSeed",

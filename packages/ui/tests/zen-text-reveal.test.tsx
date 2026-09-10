@@ -2,7 +2,7 @@ import { act, render, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToString } from "react-dom/server";
 import { hydrateRoot } from "react-dom/client";
-import ZenTextReveal from "../../../src/components/client/zen-text-reveal";
+import ZenTextReveal from "../src/text-reveal";
 
 type MediaQueryListener = (event: MediaQueryListEvent) => void;
 

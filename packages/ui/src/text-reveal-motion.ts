@@ -1,3 +1,4 @@
+import "./text-reveal.css";
 import type { LayoutLine } from "@chenglou/pretext";
 import textRevealHooks from "./text-reveal-hooks";
 

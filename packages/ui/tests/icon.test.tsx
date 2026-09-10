@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import Icon from "../../../src/components/client/icon";
+import Icon from "@zazencode/ui/icon";
 
 describe("shared Lucide icons", () => {
   it("renders a Lucide glyph without an external sprite request", () => {

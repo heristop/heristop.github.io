@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { layoutWithLines, prepareWithSegments } from "@chenglou/pretext";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import textRevealHooks from "../../../src/components/client/text-reveal-hooks";
+import textRevealHooks from "../src/text-reveal-hooks";
 
 const { useReducedMotion, useTextLayout } = textRevealHooks;
 

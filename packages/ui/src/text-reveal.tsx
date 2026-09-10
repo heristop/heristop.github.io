@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usesCoarsePointer } from "./pretext-loader";
-import textReveal from "./use-text-reveal";
+import textReveal from "./text-reveal-motion";
 
-const { buildCharDrifts, getCharClass, getSmokeStyle, maxAnimationEnd, useReducedMotion, useTextLayout } = textReveal;
+const {
+  buildCharDrifts,
+  getCharClass,
+  getSmokeStyle,
+  maxAnimationEnd,
+  useReducedMotion,
+  useTextLayout,
+} = textReveal;
 
 interface Props {
   className?: string;
@@ -24,7 +31,10 @@ const SIMPLE_TEXT_DURATION_MS = 420;
 const SETTLE_BUFFER_MS = 300;
 const NBSP = "\u00A0";
 
-const getSimpleTextStyle = (appeared: boolean, reducedMotion: boolean): React.CSSProperties | undefined => {
+const getSimpleTextStyle = (
+  appeared: boolean,
+  reducedMotion: boolean,
+): React.CSSProperties | undefined => {
   if (reducedMotion) {
     return undefined;
   }
@@ -59,7 +69,13 @@ const SimpleTextReveal = ({ text, tag: Tag = "span", className }: Props) => {
   );
 };
 
-const CharacterTextReveal = ({ text, tag: Tag = "span", className, font = DEFAULT_FONT, lineHeight = DEFAULT_LINE_HEIGHT }: Props) => {
+const CharacterTextReveal = ({
+  text,
+  tag: Tag = "span",
+  className,
+  font = DEFAULT_FONT,
+  lineHeight = DEFAULT_LINE_HEIGHT,
+}: Props) => {
   const containerRef = useRef<HTMLElement>(null);
   const [appeared, setAppeared] = useState(false);
   const [settled, setSettled] = useState(false);
@@ -67,23 +83,37 @@ const CharacterTextReveal = ({ text, tag: Tag = "span", className, font = DEFAUL
   const { lines, revealed } = useTextLayout(text, font, lineHeight, containerRef);
 
   useEffect(() => {
-    if (!revealed || appeared || reducedMotion) { return; }
-    const timer = setTimeout(() => { setAppeared(true); }, APPEAR_DELAY_MS);
-    return () => { clearTimeout(timer); };
+    if (!revealed || appeared || reducedMotion) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setAppeared(true);
+    }, APPEAR_DELAY_MS);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [revealed, appeared, reducedMotion]);
 
   const charsByLine = useMemo(() => buildCharDrifts(lines, TEXT_DURATION_MS), [lines]);
 
   useEffect(() => {
-    if (!appeared || settled || reducedMotion || charsByLine.length === 0) { return; }
+    if (!appeared || settled || reducedMotion || charsByLine.length === 0) {
+      return;
+    }
     const totalMs = maxAnimationEnd(charsByLine) + SETTLE_BUFFER_MS;
-    const timer = setTimeout(() => { setSettled(true); }, totalMs);
-    return () => { clearTimeout(timer); };
+    const timer = setTimeout(() => {
+      setSettled(true);
+    }, totalMs);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [appeared, settled, reducedMotion, charsByLine]);
 
   return (
     <Tag
-      ref={(el: HTMLElement | null) => { containerRef.current = el; }}
+      ref={(el: HTMLElement | null) => {
+        containerRef.current = el;
+      }}
       className={className}
       aria-label={text}
       style={settled ? undefined : { contain: "content" as const }}
@@ -117,7 +147,9 @@ const CharacterTextReveal = ({ text, tag: Tag = "span", className, font = DEFAUL
 
 const ZenTextReveal = (props: Props) => {
   const [coarsePointer, setCoarsePointer] = useState(false);
-  useEffect(() => { setCoarsePointer(usesCoarsePointer()); }, []);
+  useEffect(() => {
+    setCoarsePointer(usesCoarsePointer());
+  }, []);
 
   if (props.mobileStrategy === "text" && coarsePointer) {
     return <SimpleTextReveal {...props} />;

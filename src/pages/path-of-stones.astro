@@ -1,0 +1,25 @@
+---
+import { ClientRouter } from "astro:transitions";
+import BaseHead from "../components/BaseHead.astro";
+import SakuraPetals from "../components/SakuraPetals.astro";
+import GameShell from "@zazencode/path-of-stones/shell.astro";
+import { parseGardenSeed } from "@zazencode/path-of-stones";
+import { assetUrl } from "@zazencode/path-of-stones/assets";
+import gardenData from "@zazencode/path-of-stones/snapshot";
+import "../styles/global.scss";
+
+// Ship the saved snapshot as island props, including when GitHub is unavailable.
+const seed = parseGardenSeed(gardenData);
+---
+
+<html lang="en">
+  <head>
+    <link rel="preload" as="image" href={assetUrl("images/sanctuary-dawn.webp")} />
+    <BaseHead title="Path of Stones" description="A pixel-art garden shaped by @heristop’s public GitHub activity. Gather five stones, outwit the gardener and awaken the shrine." />
+  </head>
+  <body class="stone-game-page">
+    <ClientRouter />
+    <GameShell seed={seed} homeHref="/" homeLabel="Zazen Code" />
+    <SakuraPetals />
+  </body>
+</html>

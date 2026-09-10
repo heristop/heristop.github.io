@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import textReveal from "./use-text-reveal";
+import textReveal from "@zazencode/ui/text-reveal-motion";
 
 const { buildCharDrifts, getCharClass, getSmokeStyle, maxAnimationEnd, useReducedMotion, useTextLayout } = textReveal;
 

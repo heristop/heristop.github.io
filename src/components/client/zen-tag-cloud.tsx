@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { loadPretext, usesCoarsePointer } from "./pretext-loader";
+import { loadPretext, usesCoarsePointer } from "@zazencode/ui/pretext-loader";
 import type { LayoutLine } from "@chenglou/pretext";
-import textReveal from "./use-text-reveal";
+import textReveal from "@zazencode/ui/text-reveal-motion";
 
 const { buildCharDrifts, getCharClass, getSmokeStyle, maxAnimationEnd, useReducedMotion } = textReveal;
 

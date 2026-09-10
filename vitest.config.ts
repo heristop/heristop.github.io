@@ -1,16 +1,27 @@
 import { defineConfig } from "vitest/config";
+import { sharedTest } from "./vitest.shared";
 
 export default defineConfig({
   test: {
-    environment: "jsdom",
-    globals: false,
-    setupFiles: ["./tests/setup.ts"],
-    include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
-    exclude: ["tests/visual/**", "node_modules/**"],
+    projects: [
+      {
+        test: {
+          ...sharedTest,
+          name: "site",
+          include: ["tests/**/*.test.{ts,tsx}"],
+          exclude: ["tests/visual/**"],
+        },
+      },
+      "packages/*/vitest.config.ts",
+    ],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      include: ["src/components/client/**/*.{ts,tsx}", "src/plugins/**/*.ts"],
+      include: [
+        "src/components/client/**/*.{ts,tsx}",
+        "src/plugins/**/*.ts",
+        "packages/*/src/**/*.{ts,tsx}",
+      ],
     },
   },
 });

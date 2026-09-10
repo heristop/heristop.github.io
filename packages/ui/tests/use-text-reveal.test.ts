@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import textReveal from "../../../src/components/client/use-text-reveal";
+import textReveal from "../src/text-reveal-motion";
 import type { LayoutLine } from "@chenglou/pretext";
 
 const {

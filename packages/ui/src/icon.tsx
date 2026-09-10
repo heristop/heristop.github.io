@@ -1,5 +1,6 @@
 import type { LucideProps } from "lucide-react";
-import { icons, type IconName } from "../icon-registry";
+import "./icon.css";
+import { icons, type IconName } from "./icon-registry";
 
 export interface IconProps extends Omit<LucideProps, "name"> {
   name: IconName;

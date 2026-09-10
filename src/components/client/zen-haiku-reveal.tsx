@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import dissolve from "./haiku-dissolve";
-import textReveal from "./use-text-reveal";
+import textReveal from "@zazencode/ui/text-reveal-motion";
 import useHaikuAnimation from "./use-haiku-animation";
-import { usesCoarsePointer } from "./pretext-loader";
-import type { CharDrift } from "./use-text-reveal";
+import { usesCoarsePointer } from "@zazencode/ui/pretext-loader";
+import type { CharDrift } from "@zazencode/ui/text-reveal-motion";
 import type { CharCacheEntry } from "./haiku-dissolve";
 
 const { getSmokeStyle, useReducedMotion } = textReveal;
