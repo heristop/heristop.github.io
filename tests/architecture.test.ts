@@ -2,14 +2,15 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
-// The garden is a feature module: one directory, one door. This test is the door.
+// Website code enters through index; offline simulations have a separate headless door.
 //
 // A barrel file on its own is a suggestion, and a suggestion is how a page ends up
 // importing a pathfinder because it happened to need one constant from the same file. The
-// rule is simple enough to check by reading the source: nothing outside the module may
-// name a path inside it, except the module's own index.
+// rule is simple enough to check by reading the source: website imports use index,
+// and only the offline simulation tools may use the headless model entry.
 const MODULE = "src/components/client/garden";
 const DOOR = `${MODULE}/index`;
+const HEADLESS = `${MODULE}/headless`;
 
 const sourceFiles = (dir: string): string[] => {
   const out: string[] = [];
@@ -34,18 +35,26 @@ const resolveSpec = (from: string, spec: string): string =>
 describe("the garden is a feature module", () => {
   const outside = [...sourceFiles("src"), ...sourceFiles("tests"), ...sourceFiles("scripts")]
     .map((path) => path.replaceAll("\\", "/"))
-    .filter((path) => !path.startsWith(MODULE) && !path.startsWith("tests/components/client/garden"));
+    .filter(
+      (path) => !path.startsWith(MODULE) && !path.startsWith("tests/components/client/garden"),
+    );
 
-  it("is only ever entered through its index", () => {
+  it("keeps website imports on index and offline simulation imports on headless", () => {
     const trespass: string[] = [];
     for (const file of outside) {
       const source = readFileSync(file, "utf8");
-      for (const match of source.matchAll(/["'](\.[^"']+)["']/g)) {
+      for (const match of source.matchAll(
+        /(?:\bfrom\s*|\bimport\s*(?:\(\s*)?)["'](\.[^"']+)["']/g,
+      )) {
         const target = resolveSpec(file, match[1]);
+        const offline =
+          file.startsWith("scripts/garden-ai/") ||
+          file === "tests/scripts/gardener-evolution.test.ts";
         if (
           target.startsWith(MODULE) &&
           target !== DOOR &&
           target !== `${DOOR}.scss` &&
+          !(offline && target === HEADLESS) &&
           target !== MODULE
         ) {
           trespass.push(`${file} reaches into ${target}`);
@@ -66,7 +75,10 @@ describe("the garden is a feature module", () => {
       }
       for (const match of source.matchAll(/["'](\.[^"']+)["']/g)) {
         const target = resolveSpec(file, match[1]);
-        if (target.startsWith(`${MODULE}/components`) || target.startsWith(`${MODULE}/composables`)) {
+        if (
+          target.startsWith(`${MODULE}/components`) ||
+          target.startsWith(`${MODULE}/composables`)
+        ) {
           offenders.push(`${file} depends on ${target}`);
         }
       }
@@ -98,7 +110,12 @@ describe("the garden is a feature module", () => {
     const index = readFileSync(`${MODULE}/index.ts`, "utf8");
     const exported = [...index.matchAll(/export (?:type )?\{([^}]*)\}/g)]
       .flatMap((match) => match[1].split(","))
-      .map((name) => name.trim().split(/\s+as\s+/).pop())
+      .map((name) =>
+        name
+          .trim()
+          .split(/\s+as\s+/)
+          .pop(),
+      )
       .filter(Boolean);
     expect(exported.sort()).toEqual([
       "FALLBACK_SEED",
