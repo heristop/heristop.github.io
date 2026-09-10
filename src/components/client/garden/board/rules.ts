@@ -1,5 +1,6 @@
 import type { Direction, MapTile, MoveResult, Position } from "../types";
 import { applyDirectionOffset } from "./geometry";
+import { GRID_SIZE } from "../schema";
 
 const STONE_DECOR = "stone-marker";
 const SHRINE_SPRITE_ACTIVE = "shrine-active";
@@ -25,6 +26,30 @@ const isWalkableTile = (tile: MapTile): boolean => isClear(tile) && !isRakedSand
 // way through them, and a crossing that pretended otherwise would be a lie the generator
 // could not honour.
 const canPaveTile = (tile: MapTile): boolean => isClear(tile) && isRakedSand(tile);
+
+export const canRakeTile = (tile: MapTile): boolean => {
+  if (
+    !tile.walkable ||
+    isRakedSand(tile) ||
+    tile.decor ||
+    tile.npc ||
+    tile.stone !== undefined ||
+    tile.shrine ||
+    tile.gathered ||
+    tile.transformed
+  )
+    return false;
+  return Boolean(
+    tile.laid ||
+    tile.sprite.startsWith("moss") ||
+    tile.sprite === "sand-moss" ||
+    (tile.sprite === "gravel-edge" &&
+      tile.posX > 0 &&
+      tile.posX < GRID_SIZE - 1 &&
+      tile.posY > 0 &&
+      tile.posY < GRID_SIZE - 1),
+  );
+};
 
 // A laid path remains firm until a later gardener turn reclaims it.
 const layStoneAt = (map: readonly MapTile[], position: Position): MapTile[] =>

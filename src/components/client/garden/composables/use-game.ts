@@ -4,7 +4,7 @@ import type { GardenSeed } from "../schema";
 import { FALLBACK_SEED, STONE_COUNT } from "../schema";
 import type { Direction, HaikuEntry, MapTile, Position } from "../types";
 import { MAX_GARDENER_TURNS, canReachNextReward } from "../board/challenge";
-import type { GardenerAction } from "../board/gardener";
+import type { GardenerAction, GardenerMemory } from "../board/gardener";
 import type { GardenLayout } from "../board/terrain";
 import {
   HAIKU_LINES,
@@ -21,7 +21,7 @@ import {
   performMove,
   tileAt,
 } from "../board/rules";
-import { applyDirectionOffset, manhattan } from "../board/geometry";
+import { applyDirectionOffset, directionFromDelta, manhattan } from "../board/geometry";
 import { calculateMapDimensions } from "../board/geometry";
 import {
   chooseRakeTargets,
@@ -30,7 +30,17 @@ import {
   GARDENER_STEP_MS,
   GARDENER_RAKE_MS,
   planGardenerTurn,
+  rememberGardenerRake,
 } from "../board/gardener";
+
+export interface GardenerController {
+  chooseTargets: typeof chooseRakeTargets;
+  planTurn: typeof planGardenerTurn;
+}
+const defaultGardener: GardenerController = {
+  chooseTargets: chooseRakeTargets,
+  planTurn: planGardenerTurn,
+};
 
 interface UseZazenGameOptions {
   seed?: GardenSeed;
@@ -53,6 +63,7 @@ interface GameState {
   gardenerFacingLeft: boolean;
   gardenerActivity: "idle" | "ready" | "walk" | "rake";
   gardenerActions: GardenerAction[];
+  gardenerMemory: GardenerMemory;
   laidTrail: Position[];
   finaleOpen: boolean;
   haikuLines: readonly HaikuEntry[];
@@ -247,7 +258,7 @@ const gardenerCounterattack = (
   };
 };
 
-const handToGardener = (state: GameState): GameState => {
+const handToGardener = (state: GameState, gardener: GardenerController): GameState => {
   if (state.stonesLeft > 0 || state.finaleOpen) return state;
   if (state.gardenerTurns >= MAX_GARDENER_TURNS) {
     return canReachNextReward(
@@ -263,7 +274,7 @@ const handToGardener = (state: GameState): GameState => {
           announcement: "No refills remain, and no reward is within reach. Try a tighter route.",
         };
   }
-  const rakeTargets = chooseRakeTargets(
+  const rakeTargets = gardener.chooseTargets(
     state.map,
     state.laidTrail,
     state.position,
@@ -271,13 +282,15 @@ const handToGardener = (state: GameState): GameState => {
     {
       budget: GARDENER_REFILL * (MAX_GARDENER_TURNS - state.gardenerTurns),
       from: state.gardenerPosition,
+      memory: state.gardenerMemory,
     },
   );
-  const gardenerActions = planGardenerTurn(
+  const gardenerActions = gardener.planTurn(
     state.map,
     state.gardenerPosition,
     rakeTargets,
     state.position,
+    state.gardenerMemory.heading,
   );
   return {
     ...state,
@@ -292,7 +305,7 @@ const handToGardener = (state: GameState): GameState => {
   };
 };
 
-const makeReducer = (layout: GardenLayout) =>
+const makeReducer = (layout: GardenLayout, gardener: GardenerController = defaultGardener) =>
   function reduce(state: GameState, action: Action): GameState {
     const shrine = layout.shrine;
     switch (action.type) {
@@ -363,6 +376,7 @@ const makeReducer = (layout: GardenLayout) =>
             shrine,
             state.position,
           ),
+          gardener,
         );
       }
       // Pave, then arrive. Two steps in one action so the tile is already firm by the
@@ -388,6 +402,7 @@ const makeReducer = (layout: GardenLayout) =>
             shrine,
             state.position,
           ),
+          gardener,
         );
       }
       // A raked garden is raked again. Nothing carries over — not the stones you found,
@@ -396,6 +411,11 @@ const makeReducer = (layout: GardenLayout) =>
         if (state.phase !== "gardener") return state;
         const completed = state.gardenerActivity === "rake" ? [state.gardenerPosition] : [];
         const map = rakePaths(state.map, layout.map, completed);
+        let gardenerMemory = state.gardenerMemory;
+        for (const position of completed) {
+          if (tileAt(map, position) !== tileAt(state.map, position))
+            gardenerMemory = rememberGardenerRake(gardenerMemory, position, state.gardenerTurns);
+        }
         const laidTrail = state.laidTrail.filter(
           (position) => !completed.some((target) => manhattan(position, target) === 0),
         );
@@ -410,6 +430,13 @@ const makeReducer = (layout: GardenLayout) =>
             laidTrail,
             rakeTargets,
             gardenerActions,
+            gardenerMemory:
+              next.kind === "walk"
+                ? {
+                    ...gardenerMemory,
+                    heading: directionFromDelta(state.gardenerPosition, next.position),
+                  }
+                : gardenerMemory,
             gardenerPosition: next.position,
             gardenerActivity: next.kind,
             gardenerFacingLeft:
@@ -427,6 +454,7 @@ const makeReducer = (layout: GardenLayout) =>
           gardenerActivity: "idle",
           attackUsed: false,
           gardenerActions: [],
+          gardenerMemory,
           rakeTargets: [],
           stonesLeft: state.openingTurn ? state.stonesLeft : GARDENER_REFILL,
           openingTurn: false,
@@ -439,7 +467,7 @@ const makeReducer = (layout: GardenLayout) =>
         };
       }
       case "restart": {
-        return initialState(randomizeFrog(layout, action.frogRoll, state.frog));
+        return initialState(randomizeFrog(layout, action.frogRoll, state.frog), gardener);
       }
       case "dismissFinale": {
         return { ...state, finaleOpen: false };
@@ -447,14 +475,17 @@ const makeReducer = (layout: GardenLayout) =>
     }
   };
 
-const initialState = (layout: GardenLayout): GameState => {
+const initialState = (
+  layout: GardenLayout,
+  gardener: GardenerController = defaultGardener,
+): GameState => {
   const gardenerPosition = { posX: 0, posY: 3 };
-  const targets = chooseRakeTargets(layout.map, [], layout.start, 1, {
+  const targets = gardener.chooseTargets(layout.map, [], layout.start, 1, {
     budget: layout.stoneBudget + MAX_GARDENER_TURNS * GARDENER_REFILL,
     limit: 1,
     from: gardenerPosition,
   });
-  const gardenerActions = planGardenerTurn(layout.map, gardenerPosition, targets, layout.start);
+  const gardenerActions = gardener.planTurn(layout.map, gardenerPosition, targets, layout.start);
   return {
     announcement: "The gardener moves first. Watch him rake an approach to the stones.",
     phase: "gardener",
@@ -470,6 +501,7 @@ const initialState = (layout: GardenLayout): GameState => {
     gardenerFacingLeft: false,
     gardenerActivity: "ready",
     gardenerActions,
+    gardenerMemory: { recentRakes: [] },
     laidTrail: [],
     finaleOpen: false,
     frogFreed: false,

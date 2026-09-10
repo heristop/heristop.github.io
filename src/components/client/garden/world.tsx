@@ -1,5 +1,6 @@
 import useRakeTrail from "./composables/use-rake-trail";
 import useDailyHaiku from "./composables/use-daily-haiku";
+import { GARDENER_PROFILE_ID } from "./board/gardener";
 import RakeTrails from "./components/figures/rake-trails";
 import { fountainSpray, sceneryAngle, sceneryDuration, sceneryLift, stoneShadowScale, type SceneryKind } from "./rendering/scenery-motion";
 import useRenderer from "./composables/use-renderer";
@@ -1996,7 +1997,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       {!game.finaleOpen && (
         <Journey
           mermaidAwakened={mermaidAwakened}
-          recordKey={`path-stones:best:v5:${gardenFingerprint(resolvedSeed)}`}
+          recordKey={`path-stones:best:v6:${GARDENER_PROFILE_ID}:${gardenFingerprint(resolvedSeed)}`}
           complete={false}
           steps={game.steps}
           stonesLaid={game.stonesLaid}
@@ -2066,7 +2067,7 @@ const ZazenWorld = ({ seed }: { seed?: GardenSeed }) => {
       )}
       {game.finaleOpen && (
         <ZazenFinaleOverlay
-          recordKey={`path-stones:best:v5:${gardenFingerprint(resolvedSeed)}`}
+          recordKey={`path-stones:best:v6:${GARDENER_PROFILE_ID}:${gardenFingerprint(resolvedSeed)}`}
           lines={game.haikuLines}
           dailyHaiku={dailyHaiku}
           steps={game.steps}
