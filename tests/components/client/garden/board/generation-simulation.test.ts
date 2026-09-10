@@ -1,17 +1,8 @@
 import { writeFileSync } from "node:fs";
-import { canPaveTile } from "../../../../../src/components/client/garden/board/rules";
 import { expect, it } from "vitest";
-import snapshot from "../../../../../src/data/github-garden.json";
-import {
-  FALLBACK_SEED,
-  parseGardenSeed,
-  type GardenSeed,
-} from "../../../../../src/components/client/garden/schema";
 import {
   buildGarden,
   randomizeFrog,
-  tourCompletes,
-  type GardenLayout,
 } from "../../../../../src/components/client/garden/board/terrain";
 import { cheapestRoute } from "../../../../../src/components/client/garden/board/routing";
 import {
@@ -24,134 +15,29 @@ import {
 } from "../../../../../src/components/client/garden/composables/use-game";
 import type { Position } from "../../../../../src/components/client/garden/types";
 
-// Exercise the production state machine: no teleporting, free paving or skipped rakes.
-// Strategies choose by price, walking distance, or whether the remaining tour is affordable.
-const strategies = ["economical", "nearby", "lookahead"] as const;
-const simulate = (layout: GardenLayout, strategy: (typeof strategies)[number]) => {
-  const reduce = makeReducer(layout);
-  let state = initialState(layout);
-  let target: Position | undefined;
-  let actions = 0;
-  let firstRoundStones = 0;
-  let stolen = 0;
-  for (; actions < 800 && !state.finaleOpen && state.phase !== "lost"; actions++) {
-    if (state.phase === "gardener") {
-      if (state.gardenerActivity === "rake") {
-        const tile = state.map.find((tile) => manhattan(tile, state.gardenerPosition) === 0);
-        expect(tile?.sprite, "a real gardener action must never rake bare sand").not.toMatch(
-          /^sand-[01]$/,
-        );
-        if (state.rakeTargets.length === 1) expect(state.gardenerActions).toHaveLength(0);
-      }
-      target = undefined;
-      state = reduce(state, { type: "advanceGardener" });
-      continue;
-    }
-    const goals = state.map.filter((tile) => tile.stone !== undefined);
-    if (
-      !target ||
-      manhattan(state.position, target) === 0 ||
-      (goals.length && !goals.some((goal) => manhattan(goal, target!) === 0))
-    ) {
-      const choices = (goals.length ? goals : [layout.shrine])
-        .flatMap((goal) => {
-          const route = cheapestRoute(state.map, state.position, goal, 100);
-          if (!route) return [];
-          const nextDistance = Math.min(
-            ...goals.filter((other) => other !== goal).map((other) => manhattan(goal, other)),
-            manhattan(goal, layout.shrine),
-          );
-          let preservesTour = true;
-          if (strategy === "lookahead") {
-            const crossed = new Set(route.path.map((p) => `${p.posX},${p.posY}`));
-            const collected = goals.filter((stone) => crossed.has(`${stone.posX},${stone.posY}`));
-            const rescued =
-              !state.frogFreed && route.path.some((p) => manhattan(p, state.frog) <= 1);
-            const forecast = state.map.map((tile) => {
-              if (rescued && tile.decor === "frog") return { ...tile, decor: "" };
-              if (!crossed.has(`${tile.posX},${tile.posY}`)) return tile;
-              return {
-                ...tile,
-                sprite: canPaveTile(tile) ? "stone-slab" : tile.sprite,
-                ...(tile.stone !== undefined ? { stone: undefined, decor: "" } : {}),
-              };
-            });
-            const budget =
-              state.stonesLeft +
-              (3 - state.gardenerTurns) * 2 -
-              route.cost +
-              collected.length +
-              (rescued ? 2 : 0);
-            preservesTour =
-              budget >= 0 &&
-              tourCompletes(
-                forecast,
-                goal,
-                goals.filter((stone) => !collected.includes(stone)),
-                layout.shrine,
-                budget,
-              );
-          }
-          const rank =
-            strategy === "nearby"
-              ? route.path.length
-              : route.cost * 1000 +
-                route.path.length +
-                (strategy === "lookahead" ? nextDistance * 4 : 0);
-          return [{ goal, rank: rank + (preservesTour ? 0 : 100000) }];
-        })
-        .sort((a, b) => a.rank - b.rank);
-      target = choices[0]?.goal;
-    }
-    if (!target) break;
-    const next = cheapestRoute(state.map, state.position, target, 100)?.path[0];
-    const direction = next && directionFromDelta(state.position, next);
-    if (!direction) break;
-    const moved = reduce(state, { type: "move", direction });
-    if (moved === state) break;
-    if (moved.attackTicks > state.attackTicks) stolen += moved.lastAttackLoss;
-    if (state.gardenerTurns === 0) firstRoundStones = moved.stonesFound.length;
-    state = moved;
-  }
-  return {
-    strategy,
-    won: state.finaleOpen,
-    position: state.position,
-    stonesFound: state.stonesFound.length,
-    steps: state.steps,
-    laid: state.stonesLaid,
-    refills: state.gardenerTurns,
-    attacks: state.attackTicks,
-    actions,
-    firstRoundStones,
-    stolen,
-    supplyLeft: state.stonesLeft,
-    phase: state.phase,
-  };
-};
-
-const profiles = {
-  published: parseGardenSeed(snapshot),
-  sample: FALLBACK_SEED,
-  ...Object.fromEntries(
-    Object.entries({
-      zero: Array(14).fill(0),
-      quiet: Array.from({ length: 14 }, (_, i) => (i === 6 ? 1 : 0)),
-      steady: Array(14).fill(3),
-      intense: Array(14).fill(1000),
-      burst: Array.from({ length: 14 }, (_, i) => (i === 6 ? 10000 : 0)),
-      uneven: [0, 2, 0, 1000, 3, 0, 80, 2, 0, 9, 600, 1, 0, 3],
-    }).map(([name, counts]) => [
-      name,
-      {
-        ...FALLBACK_SEED,
-        days: FALLBACK_SEED.days.map((day, i) => ({ ...day!, count: counts[i] })),
-      },
-    ]),
-  ),
-} satisfies Record<string, GardenSeed>;
+import { profiles, simulate, strategies } from "../../../../../scripts/garden-ai/simulation";
 
 const variants = Math.max(3, Math.min(100, Number(process.env.GARDEN_BALANCE_VARIANTS) || 3));
+
+it.each(["economical", "lookahead"] as const)(
+  "%s finishes the tight garden by visiting the reachable frog instead of giving up",
+  (strategy) => {
+    const seed = {
+      ...profiles.sample,
+      login: `${profiles.sample.login}:audit:61`,
+      days: profiles.sample.days.map((day, index) => ({ ...day!, count: index === 6 ? 1 : 0 })),
+    };
+    // The failed audit generated 64 variants before filtering; that count also
+    // determines frog placement. Keep this exact board in the regression suite.
+    const layout = randomizeFrog(buildGarden(seed), 61.5 / 65);
+    const run = simulate(layout, strategy);
+    expect(run.termination).toBe("won");
+    expect(run.position).toEqual({ posX: 3, posY: 6 });
+    expect(run.stonesFound).toBe(5);
+    expect(run.refills).toBe(3);
+    expect(run.laid).toBeGreaterThan(0);
+  },
+);
 
 it(
   "keeps current and contrasting histories winnable against the gardener with measurable crossings",

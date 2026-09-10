@@ -1,4 +1,4 @@
-// The garden's public API, and the only door into it.
+// The garden's website API. Offline tools use the separate headless.ts entry.
 //
 // Everything under this directory is one feature: an isometric game grown from a GitHub
 // contribution history. It is arranged by what a thing IS, because that is what decides
@@ -14,10 +14,8 @@
 // seed, which is the entire surface area the page actually uses.
 // The host page also loads index.scss once, outside the React hydration graph.
 //
-// The point of a door is that there is only one. `tests/architecture.test.ts` fails the
-// build if anything outside this directory imports past it, because a barrel nobody is
-// obliged to use is a suggestion, and a suggestion is how you end up with the page
-// importing a pathfinder.
+// `tests/architecture.test.ts` keeps website imports on this entry and restricts
+// headless.ts to the offline simulation tools, so a page cannot reach into the model.
 
 export { default as ZazenWorld } from "./world";
 export { FALLBACK_SEED, STONE_COUNT, WINDOW_DAYS, parseGardenSeed } from "./schema";

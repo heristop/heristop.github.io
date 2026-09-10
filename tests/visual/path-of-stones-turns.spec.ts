@@ -3,7 +3,13 @@ import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { parseGardenSeed } from "../components/client/garden/model";
 import { buildGarden, randomizeFrog } from "../components/client/garden/model";
-import { chooseRakeTargets, rakePaths } from "../components/client/garden/model";
+import {
+  chooseRakeTargets,
+  rakePaths,
+  planGardenerTurn,
+  rememberGardenerRake,
+  type GardenerMemory,
+} from "../components/client/garden/model";
 import {
   cheapestRoute,
   canPaveTile,
@@ -12,6 +18,7 @@ import {
   activateShrine,
   manhattan,
   tileAt,
+  directionFromDelta,
 } from "../components/client/garden/model";
 import type { Position } from "../components/client/garden/model";
 
@@ -45,7 +52,32 @@ for (const exhaust of [false, true]) {
         limit: 1,
         from: { posX: 0, posY: 3 },
       });
-      let gardenerPosition = opening.at(-1) ?? { posX: 0, posY: 3 };
+      let gardenerPosition = { posX: 0, posY: 3 };
+      let gardenerMemory: GardenerMemory = { recentRakes: [] };
+      const rememberTurn = (
+        targets: Position[],
+        turn: number,
+        terrain: typeof layout.map,
+        player: Position,
+      ) => {
+        const actions = planGardenerTurn(
+          terrain,
+          gardenerPosition,
+          targets,
+          player,
+          gardenerMemory.heading,
+        );
+        for (const action of actions) {
+          if (action.kind === "walk") {
+            gardenerMemory = {
+              ...gardenerMemory,
+              heading: directionFromDelta(gardenerPosition, action.position),
+            };
+          } else gardenerMemory = rememberGardenerRake(gardenerMemory, action.position, turn);
+          gardenerPosition = action.position;
+        }
+      };
+      rememberTurn(opening, 0, layout.map, layout.start);
       let map = rakePaths(layout.map, layout.map, opening);
       let position = layout.start;
       let supply = layout.stoneBudget;
@@ -182,6 +214,7 @@ for (const exhaust of [false, true]) {
             const targets = chooseRakeTargets(map, trail, position, turns, {
               budget: 2 * (4 - turns),
               from: gardenerPosition,
+              memory: gardenerMemory,
             });
             if (!exhaust)
               await expect(page.locator('.path-stones__turn[data-phase="gardener"]')).toBeVisible();
@@ -195,7 +228,7 @@ for (const exhaust of [false, true]) {
                 path: `/tmp/path-stones-check/gardener-working-${test.info().project.name}.png`,
               });
             }
-            gardenerPosition = targets.at(-1) ?? gardenerPosition;
+            rememberTurn(targets, turns, map, position);
             map = rakePaths(map, layout.map, targets);
             trail = trail.filter(
               (position) => !targets.some((target) => manhattan(target, position) === 0),
