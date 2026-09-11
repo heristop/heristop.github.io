@@ -45,7 +45,7 @@ describe("the game workspace boundaries", () => {
           const target = resolveSpec(file, spec);
           if (target.startsWith("packages/")) trespass.push(`${file} reaches into ${target}`);
         } else if (spec.startsWith("@zazencode/path-of-stones")) {
-          const allowed = ["", "/assets", "/styles", "/shell.astro", "/loading.astro", "/snapshot"];
+          const allowed = ["", "/assets", "/styles", "/shell.astro", "/loading.astro", "/snapshot", "/archive", "/challenge"];
           if (file === "tests/workspace.test.ts") allowed.push("/headless");
           if (!allowed.some((suffix) => spec === `@zazencode/path-of-stones${suffix}`))
             trespass.push(`${file} imports private game API ${spec}`);
@@ -140,12 +140,15 @@ describe("the game workspace boundaries", () => {
       )
       .filter(Boolean);
     expect(exported.sort((left, right) => (left === right ? 0 : left! < right! ? -1 : 1))).toEqual([
+      "ChallengeDefinition",
       "FALLBACK_SEED",
       "GardenDay",
+      "GardenExperience",
       "GardenSeed",
       "STONE_COUNT",
       "WINDOW_DAYS",
       "ZazenWorld",
+      "parseChallenge",
       "parseGardenSeed",
     ]);
   });

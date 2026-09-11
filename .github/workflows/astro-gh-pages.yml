@@ -82,7 +82,7 @@ jobs:
           pnpm run publish:garden -- \
             --date "$(date -u +%F)" \
             --previous-url "https://heristop.github.io/garden-challenges/manifest.json" \
-            --output public/garden-challenges \
+            --output "$PWD/public/garden-challenges" \
             "${bootstrap[@]}"
       - name: Check garden tests, simulations and coverage
         run: pnpm test:garden:coverage

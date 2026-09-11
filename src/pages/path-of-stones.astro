@@ -1,4 +1,8 @@
 ---
+import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { parseArchive } from "@zazencode/path-of-stones/archive";
 import { ClientRouter } from "astro:transitions";
 import BaseHead from "../components/BaseHead.astro";
 import SakuraPetals from "../components/SakuraPetals.astro";
@@ -11,7 +15,21 @@ import "../styles/global.scss";
 
 // Ship the saved snapshot as island props, including when GitHub is unavailable.
 const seed = parseGardenSeed(gardenData);
-const currentChallenge = parseChallenge(practiceChallenge);
+let currentChallenge = parseChallenge(practiceChallenge);
+const archivePath = resolve("public/garden-challenges/manifest.json");
+if (existsSync(archivePath)) {
+  const entries = parseArchive(JSON.parse(await readFile(archivePath, "utf8")));
+  if (!entries) throw new Error("Invalid built garden archive");
+  const latest = entries.find((entry) => entry.rulesVersion === "challenge-v1");
+  if (latest) {
+    currentChallenge = parseChallenge(
+      JSON.parse(await readFile(resolve("public", latest.path), "utf8")),
+    );
+    if (!currentChallenge || currentChallenge.id !== latest.id) {
+      throw new Error("Current garden does not match the archive");
+    }
+  }
+}
 ---
 
 <html lang="en">

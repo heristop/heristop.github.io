@@ -3,6 +3,7 @@ import { sharedTest } from "./vitest.shared";
 
 export default defineConfig({
   test: {
+    maxWorkers: 3,
     projects: [
       {
         test: {
