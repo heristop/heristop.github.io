@@ -53,17 +53,6 @@ for (const file of posts) {
   }
 }
 
-// A generated archive must reach the initial island props, not silently fall back to practice.
-const archivePath = join(root, "public/garden-challenges/manifest.json");
-if (existsSync(archivePath)) {
-  const archive = JSON.parse(readFileSync(archivePath, "utf8"));
-  const current = archive.find((entry) => entry.rulesVersion === "challenge-v1");
-  const gardenPage = join(dist, "path-of-stones/index.html");
-  if (current && (!existsSync(gardenPage) || !readFileSync(gardenPage, "utf8").includes(current.id))) {
-    failures.push("path-of-stones: issued daily garden is missing from the built page");
-  }
-}
-
 if (failures.length > 0) {
   console.error(`verify-build: ${failures.length} problem(s)`);
   for (const f of failures) console.error(`  - ${f}`);

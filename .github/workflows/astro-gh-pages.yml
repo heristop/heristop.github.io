@@ -9,12 +9,6 @@ on:
     - cron: "0 5 * * *"
   # Allows you to run this workflow manually from the Actions tab on GitHub.
   workflow_dispatch:
-    inputs:
-      bootstrap_garden_archive:
-        description: Allow an empty archive only for the first publication
-        required: false
-        default: false
-        type: boolean
 
 concurrency:
   group: garden-pages-publication
@@ -72,18 +66,6 @@ jobs:
         run: pnpm run fetch:github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish the immutable daily garden archive
-        shell: bash
-        run: |
-          bootstrap=()
-          if [[ "${{ inputs.bootstrap_garden_archive }}" == "true" ]]; then
-            bootstrap=(--bootstrap)
-          fi
-          pnpm run publish:garden -- \
-            --date "$(date -u +%F)" \
-            --previous-url "https://heristop.github.io/garden-challenges/manifest.json" \
-            --output "$PWD/public/garden-challenges" \
-            "${bootstrap[@]}"
       - name: Check garden tests, simulations and coverage
         run: pnpm test:garden:coverage
       - name: Install the Chromium build mermaid renders with

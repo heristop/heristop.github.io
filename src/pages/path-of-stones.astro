@@ -1,35 +1,15 @@
 ---
-import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
-import { parseArchive } from "@zazencode/path-of-stones/archive";
 import { ClientRouter } from "astro:transitions";
 import BaseHead from "../components/BaseHead.astro";
 import SakuraPetals from "../components/SakuraPetals.astro";
 import GameShell from "@zazencode/path-of-stones/shell.astro";
-import { parseChallenge, parseGardenSeed } from "@zazencode/path-of-stones";
+import { parseGardenSeed } from "@zazencode/path-of-stones";
 import { assetUrl } from "@zazencode/path-of-stones/assets";
 import gardenData from "@zazencode/path-of-stones/snapshot";
-import practiceChallenge from "@zazencode/path-of-stones/challenge";
 import "../styles/global.scss";
 
 // Ship the saved snapshot as island props, including when GitHub is unavailable.
 const seed = parseGardenSeed(gardenData);
-let currentChallenge = parseChallenge(practiceChallenge);
-const archivePath = resolve("public/garden-challenges/manifest.json");
-if (existsSync(archivePath)) {
-  const entries = parseArchive(JSON.parse(await readFile(archivePath, "utf8")));
-  if (!entries) throw new Error("Invalid built garden archive");
-  const latest = entries.find((entry) => entry.rulesVersion === "challenge-v1");
-  if (latest) {
-    currentChallenge = parseChallenge(
-      JSON.parse(await readFile(resolve("public", latest.path), "utf8")),
-    );
-    if (!currentChallenge || currentChallenge.id !== latest.id) {
-      throw new Error("Current garden does not match the archive");
-    }
-  }
-}
 ---
 
 <html lang="en">
@@ -39,7 +19,7 @@ if (existsSync(archivePath)) {
   </head>
   <body class="stone-game-page">
     <ClientRouter />
-    <GameShell seed={seed} homeHref="/" homeLabel="Zazen Code" currentChallenge={currentChallenge} archiveUrl="/garden-challenges/manifest.json" />
+    <GameShell seed={seed} homeHref="/" homeLabel="Zazen Code" />
     <SakuraPetals />
   </body>
 </html>
