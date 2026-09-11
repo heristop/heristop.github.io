@@ -3,13 +3,15 @@ import { ClientRouter } from "astro:transitions";
 import BaseHead from "../components/BaseHead.astro";
 import SakuraPetals from "../components/SakuraPetals.astro";
 import GameShell from "@zazencode/path-of-stones/shell.astro";
-import { parseGardenSeed } from "@zazencode/path-of-stones";
+import { parseChallenge, parseGardenSeed } from "@zazencode/path-of-stones";
 import { assetUrl } from "@zazencode/path-of-stones/assets";
 import gardenData from "@zazencode/path-of-stones/snapshot";
+import practiceChallenge from "@zazencode/path-of-stones/challenge";
 import "../styles/global.scss";
 
 // Ship the saved snapshot as island props, including when GitHub is unavailable.
 const seed = parseGardenSeed(gardenData);
+const currentChallenge = parseChallenge(practiceChallenge);
 ---
 
 <html lang="en">
@@ -19,7 +21,7 @@ const seed = parseGardenSeed(gardenData);
   </head>
   <body class="stone-game-page">
     <ClientRouter />
-    <GameShell seed={seed} homeHref="/" homeLabel="Zazen Code" />
+    <GameShell seed={seed} homeHref="/" homeLabel="Zazen Code" currentChallenge={currentChallenge} archiveUrl="/garden-challenges/manifest.json" />
     <SakuraPetals />
   </body>
 </html>
