@@ -142,6 +142,7 @@ describe("the game workspace boundaries", () => {
     expect(exported.sort((left, right) => (left === right ? 0 : left! < right! ? -1 : 1))).toEqual([
       "FALLBACK_SEED",
       "GardenDay",
+      "GardenExperience",
       "GardenSeed",
       "STONE_COUNT",
       "WINDOW_DAYS",

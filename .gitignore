@@ -28,3 +28,6 @@ playwright-report/
 blob-report/
 /playwright/.cache/
 .playwright-mcp/
+
+# Built from immutable daily descriptors during publication.
+/public/garden-challenges/
