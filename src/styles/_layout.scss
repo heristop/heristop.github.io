@@ -1006,8 +1006,31 @@
   overflow: hidden;
   pointer-events: none;
   mask-image:
-    linear-gradient(180deg, transparent 0%, #000 44%),
-    linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      #000 44%,
+      #000 78%,
+      rgb(0 0 0 / 90%) 86%,
+      rgb(0 0 0 / 50%) 94%,
+      rgb(0 0 0 / 15%) 98%,
+      transparent 100%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 2%,
+      rgb(0 0 0 / 8%) 4%,
+      rgb(0 0 0 / 32%) 7%,
+      rgb(0 0 0 / 72%) 10%,
+      rgb(0 0 0 / 95%) 13%,
+      #000 16%,
+      #000 84%,
+      rgb(0 0 0 / 95%) 87%,
+      rgb(0 0 0 / 72%) 90%,
+      rgb(0 0 0 / 32%) 93%,
+      rgb(0 0 0 / 8%) 96%,
+      transparent 98%
+    );
   mask-composite: intersect;
   view-timeline: --footer-scene block;
 
