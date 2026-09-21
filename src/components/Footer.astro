@@ -11,6 +11,7 @@ import {
   X_URL,
 } from '../consts';
 import Icon from './Icon.astro';
+import FooterScene from './FooterScene.astro';
 import type { IconName } from '@zazencode/ui/icon-registry';
 
 const currentYear = new Date().getFullYear();
@@ -191,6 +192,8 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
       </div>
     </section>
   </div>
+
+  <FooterScene />
 
   <!-- Copyright -->
   <div class="site-footer__bottom">

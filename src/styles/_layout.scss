@@ -289,7 +289,7 @@
   color: var(--footer-text-color);
   margin-top: calc(var(--space-lg) + 1rem);
   position: relative;
-  padding: 2.75rem 0 0.75rem;
+  padding: 2.75rem 0 0;
   font-size: 0.875rem;
   background: var(--surface-warm-light);
   border-radius: 1rem 1rem 0 0;
@@ -314,6 +314,8 @@
   }
 
   &__container {
+    position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -774,18 +776,13 @@
   }
 
   &__bottom {
-    margin-top: 1.75rem;
-    padding-top: 1.1rem;
-    border-top: none;
-    background-image: linear-gradient(
-      90deg,
-      transparent 8%,
-      color-mix(in oklch, var(--primary-color) 22%, transparent) 50%,
-      transparent 92%
-    );
-    background-size: 100% 1px;
-    background-repeat: no-repeat;
-    background-position: top;
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    min-height: clamp(2.6rem, 6vw, 3.25rem);
+    margin-top: calc(-1 * clamp(2.6rem, 6vw, 3.25rem));
+    padding: 0 1rem;
     text-align: center;
   }
 
@@ -799,6 +796,10 @@
     gap: 0.7rem;
     flex-wrap: wrap;
     line-height: 1.5;
+    text-shadow:
+      0 0 2px var(--primary-bg-color),
+      0 0 8px var(--primary-bg-color),
+      0 0 16px var(--primary-bg-color);
   }
 
   &__copyright-year {
@@ -967,6 +968,756 @@
         }
       }
     }
+  }
+}
+
+/* Footer painting. Geometry lives in FooterScene.astro; everything visible is
+   decided here so the scene re-tints from tokens. Motion runs only while the
+   wrapper carries `.is-awake` (IntersectionObserver in the component) and never
+   under reduced motion. On the first visit `.is-inking` → `.is-painted` sweeps
+   the painting in with a brush stroke, layer by layer. */
+.footer-scene {
+  --ink-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  position: relative;
+  z-index: 0;
+  height: clamp(11rem, 30vw, 20rem);
+  margin-top: calc(-1 * clamp(3rem, 9vw, 5.5rem));
+  overflow: hidden;
+  pointer-events: none;
+  mask-image:
+    linear-gradient(180deg, transparent 0%, #000 44%),
+    linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  mask-composite: intersect;
+  view-timeline: --footer-scene block;
+
+  /* Overscan so the planes can drift without exposing an edge. */
+  &__canvas {
+    position: absolute;
+    inset: 0 -24px -16px;
+  }
+
+  &__svg {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* --rise: how far a plane lags behind while the footer scrolls in.
+     --drift: how far it follows the pointer. Distance moves least. */
+  &__plane {
+    --rise: 0;
+    --drift: 0;
+
+    translate:
+      calc(var(--mx, 0) * var(--drift) * -1px)
+      calc(var(--my, 0) * var(--drift) * -0.35px);
+    transition: translate 1.6s var(--ink-ease);
+
+    &--sky {
+      --rise: 72;
+      --drift: 3;
+    }
+
+    &--far {
+      --rise: 44;
+      --drift: 6;
+    }
+
+    &--mid {
+      --rise: 18;
+      --drift: 11;
+    }
+
+    &--near {
+      --drift: 18;
+    }
+  }
+
+  /* Opaque underlay so the far ridge hides the sun; toned to the footer paper. */
+  &__paper {
+    fill: color-mix(in oklch, var(--primary-bg-color) 96%, var(--footer-ink));
+  }
+
+  &__distant {
+    fill: var(--footer-ink);
+    opacity: 0.07;
+  }
+
+  /* Dry-brush texture strokes (cun) following the big mountain's ridges. */
+  &__texture {
+    stroke: var(--footer-ink);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    opacity: 0.18;
+  }
+
+
+
+  &__halo {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: footer-scene-halo calc(var(--zen-duration-breath) * 2) var(--zen-ease-in-out) infinite alternate;
+  }
+
+  &__sun {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: footer-scene-sun calc(var(--zen-duration-breath) * 2) var(--zen-ease-in-out) infinite alternate;
+  }
+
+  &__birds {
+    stroke: var(--footer-ink);
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    opacity: 0.5;
+    animation: footer-scene-birds 80s linear -18s infinite;
+  }
+
+  &__birds--far {
+    stroke-width: 1;
+    opacity: 0.32;
+    animation: footer-scene-birds-far 150s linear -70s infinite;
+  }
+
+  /* Each bird rides its own air current and keeps its own wingbeat. */
+  &__bird {
+    animation: footer-scene-bird-bob calc(3s + var(--b) * 0.45s) var(--zen-ease-in-out) calc(var(--b) * -1.1s) infinite alternate;
+  }
+
+  /* Two wings hinged at the body, beating in opposition. */
+  &__wing {
+    transform-box: fill-box;
+    animation: footer-scene-wing-left calc(2.4s + var(--b) * 0.18s) var(--zen-ease-in-out) calc(var(--b) * -0.53s) infinite;
+
+    &--left {
+      transform-origin: 100% 100%;
+    }
+
+    &--right {
+      transform-origin: 0% 100%;
+      animation-name: footer-scene-wing-right;
+    }
+  }
+
+  &__mist {
+    animation: footer-scene-mist 55s var(--zen-ease-in-out) infinite alternate;
+
+    &--low {
+      animation-duration: 40s;
+      animation-direction: alternate-reverse;
+    }
+
+    &--water {
+      animation-duration: 32s;
+      opacity: 0.8;
+    }
+
+    &--cliff {
+      animation-duration: 46s;
+      animation-direction: alternate-reverse;
+      opacity: 0.7;
+    }
+  }
+
+  &__water path {
+    stroke: var(--footer-ink);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-dasharray: 34 7 14 9 60 6;
+    opacity: 0.34;
+    animation: footer-scene-shimmer 6s var(--zen-ease-in-out) infinite alternate;
+    animation-delay: calc(var(--i) * -1.1s);
+  }
+
+  &__horizon {
+    stroke: var(--footer-ink);
+    stroke-width: 1;
+    stroke-dasharray: 90 14 40 22 160 10;
+    opacity: 0.18;
+  }
+
+  /* Long swells rolling toward the shore; each path repeats every 300
+     units so sliding it by one wavelength loops without a seam. */
+  &__swell {
+    stroke: var(--footer-ink);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    opacity: calc(0.2 + var(--s) * 0.06);
+    animation: footer-scene-swell calc(26s - var(--s) * 6s) linear infinite;
+  }
+
+  &__voyage {
+    animation: footer-scene-voyage 110s linear -28s infinite;
+  }
+
+  &__bob {
+    animation: footer-scene-bob 6s var(--zen-ease-in-out) infinite alternate;
+  }
+
+  &__boat {
+    fill: var(--footer-ink);
+    opacity: 0.85;
+  }
+
+  /* The pilgrim poles the sampan: lean into the stroke, the boat surges,
+     then straighten while the staff swings back for the next push. */
+  &__pilgrim {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: footer-scene-lean 5.6s var(--zen-ease-in-out) infinite;
+  }
+
+  &__staff {
+    fill: none;
+    stroke: var(--footer-ink);
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    transform-box: fill-box;
+    transform-origin: 59% 47%;
+    animation: footer-scene-pole 5.6s var(--zen-ease-in-out) infinite;
+  }
+
+  &__surge {
+    animation: footer-scene-surge 5.6s var(--zen-ease-in-out) infinite;
+  }
+
+  &__boat-reflection {
+    fill: var(--footer-ink);
+    opacity: 0.12;
+    transform-box: fill-box;
+    transform-origin: center top;
+    animation: footer-scene-ripple 2.4s var(--zen-ease-in-out) infinite alternate;
+  }
+
+  &__glint path {
+    stroke: var(--primary-color);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    opacity: 0.18;
+    animation: footer-scene-glint 3.2s var(--zen-ease-in-out) infinite alternate;
+    animation-delay: calc(var(--i) * -0.7s);
+  }
+
+  &__wake {
+    stroke: var(--footer-ink);
+    stroke-width: 1;
+    stroke-linecap: round;
+    opacity: 0.2;
+    transform-box: fill-box;
+    transform-origin: right center;
+    animation: footer-scene-wake 3s var(--zen-ease-in-out) infinite alternate;
+  }
+
+  &__stroke {
+    stroke: var(--footer-ink);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    opacity: 0.4;
+  }
+
+  &__pagoda {
+    fill: var(--footer-ink);
+    opacity: 0.86;
+
+    path {
+      stroke: var(--footer-ink);
+      stroke-linecap: round;
+    }
+  }
+
+  &__sway {
+    transform-box: fill-box;
+    transform-origin: 100% 100%;
+    animation: footer-scene-sway 9s var(--zen-ease-in-out) infinite alternate;
+  }
+
+  &__pine {
+    fill: var(--footer-ink);
+    opacity: 0.86;
+  }
+
+  &__canopy-wash {
+    opacity: 0.13;
+  }
+
+  /* Dry-brush highlight left where the brush ran out of ink on the trunk. */
+  &__bark {
+    fill: none;
+    stroke: var(--primary-bg-color);
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    stroke-dasharray: 16 5 9 7 22 4;
+    opacity: 0.55;
+  }
+
+  /* Wind: one gust rhythm shared by the pine pads, reeds and grass, offset by
+     --w (left to right) so the breeze visibly travels across the scene. */
+  &__pad,
+  &__reed,
+  &__grass {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: footer-scene-gust 7s var(--zen-ease-in-out) calc(var(--w) * 0.35s - 7s) infinite;
+  }
+
+  &__reed,
+  &__grass {
+    animation-name: footer-scene-bend;
+  }
+
+  &__rocks {
+    fill: var(--footer-ink);
+    opacity: 0.62;
+  }
+
+  /* Asleep by default: the first keyframe parks the boat behind the cliff and the birds off-canvas. */
+  &__halo,
+  &__sun,
+  &__birds,
+  &__bird,
+  &__wing,
+  &__pad,
+  &__reed,
+  &__grass,
+  &__pilgrim,
+  &__staff,
+  &__surge,
+  &__swell,
+  &__mist,
+  &__water path,
+  &__glint path,
+  &__voyage,
+  &__bob,
+  &__boat-reflection,
+  &__wake,
+  &__sway {
+    animation-play-state: paused;
+  }
+
+  &.is-awake &__halo,
+  &.is-awake &__sun,
+  &.is-awake &__birds,
+  &.is-awake &__bird,
+  &.is-awake &__wing,
+  &.is-awake &__pad,
+  &.is-awake &__reed,
+  &.is-awake &__grass,
+  &.is-awake &__pilgrim,
+  &.is-awake &__staff,
+  &.is-awake &__surge,
+  &.is-awake &__swell,
+  &.is-awake &__mist,
+  &.is-awake &__water path,
+  &.is-awake &__glint path,
+  &.is-awake &__voyage,
+  &.is-awake &__boat-reflection,
+  &.is-awake &__bob,
+  &.is-awake &__wake,
+  &.is-awake &__sway {
+    animation-play-state: running;
+  }
+
+  /* First visit: a wide brush sweeps left to right while each layer settles
+     out of the mist in painting order (far range first, the boat last). */
+  &.is-inking &__canvas {
+    mask-image: linear-gradient(90deg, #000 38%, transparent 62%);
+    mask-size: 260% 100%;
+    mask-position: 100% 0;
+    mask-repeat: no-repeat;
+  }
+
+  &.is-inking &__layer {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  &.is-inking &__layer--sun {
+    transform: translateY(46px);
+  }
+
+  &.is-painted &__canvas {
+    mask-position: 0 0;
+    transition: mask-position 3.6s var(--zen-ease-smooth);
+  }
+
+  &.is-painted &__layer {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 2.4s var(--ink-ease) calc(400ms + var(--d) * 260ms),
+      transform 2.8s var(--ink-ease) calc(400ms + var(--d) * 260ms);
+  }
+
+  &.is-painted &__layer--sun {
+    transition:
+      opacity 3s var(--ink-ease) 900ms,
+      transform 4.2s var(--ink-ease) 900ms;
+  }
+}
+
+/* Scroll parallax: as the footer scrolls in, the far planes rise into place
+   more slowly than the near ones, so the sun comes up over the ridge. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .footer-scene__plane {
+      will-change: transform;
+      animation: footer-scene-rise linear both;
+      animation-timeline: --footer-scene;
+      animation-range: entry 0% entry 100%;
+    }
+  }
+}
+
+@keyframes footer-scene-rise {
+  from {
+    transform: translateY(calc(var(--rise) * 1px));
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+/* Starts hidden behind the cliff (x ≥ 844 is behind its waterline) and
+   ends fully past the left edge, so the loop restart is never seen. */
+@keyframes footer-scene-voyage {
+  from {
+    transform: translateX(880px);
+  }
+
+  to {
+    transform: translateX(-100px);
+  }
+}
+
+@keyframes footer-scene-bob {
+  from {
+    transform: translateY(-1.5px) rotate(-0.6deg);
+  }
+
+  to {
+    transform: translateY(1.5px) rotate(0.6deg);
+  }
+}
+
+@keyframes footer-scene-mist {
+  from {
+    transform: translateX(-40px);
+    opacity: 0.75;
+  }
+
+  to {
+    transform: translateX(40px);
+    opacity: 1;
+  }
+}
+
+@keyframes footer-scene-birds {
+  0% {
+    transform: translate(-60px, 150px);
+  }
+
+  20% {
+    transform: translate(204px, 138px);
+  }
+
+  40% {
+    transform: translate(468px, 146px);
+  }
+
+  60% {
+    transform: translate(732px, 124px);
+  }
+
+  80% {
+    transform: translate(996px, 128px);
+  }
+
+  100% {
+    transform: translate(1260px, 110px);
+  }
+}
+
+/* Three wingbeats, then a long glide with the wings held slightly raised. */
+@keyframes footer-scene-wing-left {
+  0%,
+  62%,
+  100% {
+    transform: rotate(8deg);
+  }
+
+  10%,
+  30%,
+  50% {
+    transform: rotate(30deg);
+  }
+
+  20%,
+  40% {
+    transform: rotate(-28deg);
+  }
+}
+
+@keyframes footer-scene-wing-right {
+  0%,
+  62%,
+  100% {
+    transform: rotate(-8deg);
+  }
+
+  10%,
+  30%,
+  50% {
+    transform: rotate(-30deg);
+  }
+
+  20%,
+  40% {
+    transform: rotate(28deg);
+  }
+}
+
+@keyframes footer-scene-bird-bob {
+  from {
+    transform: translate(-1px, -3px);
+  }
+
+  to {
+    transform: translate(2px, 3px);
+  }
+}
+
+@keyframes footer-scene-birds-far {
+  from {
+    transform: translate(1240px, 132px);
+  }
+
+  to {
+    transform: translate(-40px, 104px);
+  }
+}
+
+@keyframes footer-scene-lean {
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+
+  42%,
+  58% {
+    transform: rotate(8deg);
+  }
+}
+
+@keyframes footer-scene-pole {
+  0%,
+  100% {
+    transform: rotate(-9deg);
+  }
+
+  42%,
+  58% {
+    transform: rotate(9deg);
+  }
+}
+
+@keyframes footer-scene-surge {
+  0%,
+  30% {
+    transform: translateX(0);
+  }
+
+  62% {
+    transform: translateX(5px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes footer-scene-sun {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.035);
+  }
+}
+
+@keyframes footer-scene-halo {
+  from {
+    transform: scale(0.94);
+    opacity: 0.7;
+  }
+
+  to {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes footer-scene-shimmer {
+  from {
+    opacity: 0.16;
+    stroke-dashoffset: 0;
+    transform: translateX(-5px);
+  }
+
+  to {
+    opacity: 0.48;
+    stroke-dashoffset: -24;
+    transform: translateX(5px);
+  }
+}
+
+@keyframes footer-scene-swell {
+  from {
+    transform: translateX(-300px);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes footer-scene-wake {
+  from {
+    transform: scaleX(0.8);
+    opacity: 0.12;
+  }
+
+  to {
+    transform: scaleX(1.1);
+    opacity: 0.24;
+  }
+}
+
+@keyframes footer-scene-ripple {
+  from {
+    transform: translate(0, 0) scaleX(1);
+    opacity: 0.08;
+  }
+
+  to {
+    transform: translate(1.5px, 0) scaleX(1.05);
+    opacity: 0.15;
+  }
+}
+
+@keyframes footer-scene-glint {
+  from {
+    opacity: 0.06;
+    transform: translateX(-3px);
+  }
+
+  to {
+    opacity: 0.3;
+    transform: translateX(3px);
+  }
+}
+
+/* A gust: the pads lean and ruffle downwind, settle, then a smaller echo. */
+@keyframes footer-scene-gust {
+  0%,
+  100% {
+    transform: translate(0, 0) skewX(0deg);
+  }
+
+  30% {
+    transform: translate(1.4px, -0.4px) skewX(-4deg);
+  }
+
+  45% {
+    transform: translate(0.6px, 0) skewX(-1.5deg);
+  }
+
+  58% {
+    transform: translate(1px, -0.2px) skewX(-2.5deg);
+  }
+
+  75% {
+    transform: translate(0, 0) skewX(0.5deg);
+  }
+}
+
+@keyframes footer-scene-bend {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  30% {
+    transform: rotate(7deg);
+  }
+
+  45% {
+    transform: rotate(2.5deg);
+  }
+
+  58% {
+    transform: rotate(4.5deg);
+  }
+
+  75% {
+    transform: rotate(-1deg);
+  }
+}
+
+@keyframes footer-scene-sway {
+  from {
+    transform: rotate(-0.5deg);
+  }
+
+  to {
+    transform: rotate(0.7deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-scene__halo,
+  .footer-scene__sun,
+  .footer-scene__birds,
+  .footer-scene__bird,
+  .footer-scene__wing,
+  .footer-scene__pad,
+  .footer-scene__reed,
+  .footer-scene__grass,
+  .footer-scene__pilgrim,
+  .footer-scene__staff,
+  .footer-scene__surge,
+  .footer-scene__swell,
+  .footer-scene__mist,
+  .footer-scene__plane {
+    translate: none;
+  }
+
+  .footer-scene__water path,
+  .footer-scene__glint path,
+  .footer-scene__boat-reflection,
+  .footer-scene__voyage,
+  .footer-scene__bob,
+  .footer-scene__wake,
+  .footer-scene__sway {
+    animation: none;
+  }
+
+  /* Without the keyframes the boat and birds would sit at their untransformed
+     origin (off-canvas / top-left), so park them in the painting instead. */
+  .footer-scene__voyage {
+    transform: translateX(430px);
+  }
+
+  .footer-scene__birds {
+    transform: translate(520px, 136px);
+  }
+
+  .footer-scene__birds--far {
+    transform: translate(860px, 128px);
   }
 }
 

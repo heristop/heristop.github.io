@@ -10,9 +10,10 @@ export default defineConfig({
           ...sharedTest,
           name: "site",
           include: ["tests/**/*.test.{ts,tsx}"],
-          exclude: ["tests/visual/**"],
+          exclude: ["tests/visual/**", "tests/astro/**"],
         },
       },
+      "tests/astro/vitest.config.ts",
       "packages/*/vitest.config.ts",
     ],
     coverage: {
