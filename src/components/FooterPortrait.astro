@@ -1,0 +1,33 @@
+<span
+  class="footer-portrait"
+  data-footer-portrait
+  aria-hidden="true"
+>
+  <img
+    src="/images/footer-portrait/portrait-transparent.webp"
+    alt=""
+    width="768"
+    height="768"
+    loading="lazy"
+    decoding="async"
+    draggable="false"
+  />
+  <canvas width="768" height="768" hidden></canvas>
+</span>
+
+<script>
+  import { mountFooterPortrait } from './client/footer-portrait';
+
+  const portraits = new Map<HTMLElement, () => void>();
+  const init = () => {
+    for (const element of document.querySelectorAll<HTMLElement>('[data-footer-portrait]')) {
+      if (!portraits.has(element)) portraits.set(element, mountFooterPortrait(element));
+    }
+  };
+  document.addEventListener('astro:before-swap', () => {
+    for (const cleanup of portraits.values()) cleanup();
+    portraits.clear();
+  });
+  document.addEventListener('astro:page-load', init);
+  init();
+</script>

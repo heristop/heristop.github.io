@@ -12,6 +12,7 @@ import {
 } from '../consts';
 import Icon from './Icon.astro';
 import FooterScene from './FooterScene.astro';
+import FooterPortrait from './FooterPortrait.astro';
 import type { IconName } from '@zazencode/ui/icon-registry';
 
 const currentYear = new Date().getFullYear();
@@ -56,6 +57,7 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
         data-tooltip="About me"
         data-tooltip-placement="bottom"
       >
+        <FooterPortrait />
       </a>
       <div class="site-footer__info">
         <h3 id="footer-about" class="site-footer__title">{SITE_TITLE}</h3>

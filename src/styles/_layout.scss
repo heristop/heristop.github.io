@@ -342,14 +342,11 @@
     width: 9rem;
     height: 8rem;
     margin-bottom: 0.85rem;
-    background: transparent url("/images/developer.webp") no-repeat center / contain;
     border-radius: 1.1rem;
     filter: drop-shadow(
       0 14px 26px color-mix(in oklch, var(--primary-color) 18%, transparent)
     );
-    transition:
-      transform 520ms var(--zen-ease-elegant),
-      filter 520ms var(--zen-ease-elegant);
+    transition: filter 520ms var(--zen-ease-elegant);
 
     &::before {
       content: "";
@@ -385,7 +382,6 @@
     }
 
     &:hover {
-      transform: translateY(-5px) scale(1.025);
       filter: drop-shadow(
         0 20px 34px color-mix(in oklch, var(--primary-color) 28%, transparent)
       );
@@ -968,6 +964,30 @@
         }
       }
     }
+  }
+}
+
+.footer-portrait {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+
+  img,
+  canvas {
+    position: absolute;
+    top: -20%;
+    left: -10%;
+    width: 120%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  [hidden] {
+    display: none;
   }
 }
 
