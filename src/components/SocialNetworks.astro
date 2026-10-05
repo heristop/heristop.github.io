@@ -77,8 +77,8 @@ const STAGGER_MAX_INDEX = 5;
       networks.map((network: NetworkType, index: number) => {
         const isFeatured = variant === 'compact' ? false : index < 2;
         const modifier = isFeatured ? 'social-network__card--featured' : 'social-network__card--standard';
-        const imgWidth = isFeatured ? 400 : 300;
-        const imgHeight = isFeatured ? 200 : 100;
+        const imgWidth = isFeatured ? 960 : 720;
+        const imgHeight = isFeatured ? 282 : 211;
         return (
           <div
             class={`social-network__card ${modifier}`}
