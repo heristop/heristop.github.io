@@ -26,6 +26,7 @@
     "test:visual:update": "playwright test --update-snapshots",
     "test:visual:ui": "playwright test --ui",
     "test:visual:headed": "playwright test --headed",
+    "generate:footer": "node scripts/footer-scene/generate.mjs",
     "optimize:images": "node scripts/optimize-images.mjs",
     "optimize:images:dry": "node scripts/optimize-images.mjs --dry-run",
     "generate:art": "pnpm --filter @zazencode/path-of-stones generate:art",
