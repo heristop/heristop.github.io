@@ -11,7 +11,7 @@ beforeAll(async () => {
 
 describe("<FooterScene />", () => {
   it("is decorative: hidden from assistive tech and never focusable", () => {
-    expect(html).toMatch(/<div class="footer-scene" aria-hidden="true" data-footer-scene>/);
+    expect(html).toMatch(/<div class="footer-scene" aria-hidden="true" data-footer-scene[\s>]/);
     const planes = html.match(/<svg class="footer-scene__svg footer-scene__plane[^"]*"[^>]*>/g) ?? [];
     expect(planes).toHaveLength(5);
     for (const plane of planes) expect(plane).toContain('focusable="false"');
