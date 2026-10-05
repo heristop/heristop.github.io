@@ -31,3 +31,7 @@ blob-report/
 
 # Built from immutable daily descriptors during publication.
 /public/garden-challenges/
+
+# Local image-generation experiments and the tests that read them
+output/
+tests/components/head-follow-*.test.ts
