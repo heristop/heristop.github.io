@@ -139,290 +139,296 @@ const breadcrumbItems = [
     <Icon name="arrow-up" size={18} aria-hidden={true} />
   </button>
 
-  <script type="module" is:inline define:vars={{ previousPost, nextPost }}>
+  <div
+    class="post-nav-data"
+    hidden
+    data-previous-id={previousPost?.id}
+    data-previous-title={previousPost?.data.title}
+    data-next-id={nextPost?.id}
+    data-next-title={nextPost?.data.title}
+  ></div>
+  <script>
+    // Bundled once and re-initialised on every page load; each page's listeners are torn down
+    // before the next swap so client-side navigation never stacks handlers.
+    interface NavPost {
+      id: string;
+      title: string;
+    }
+    type Direction = "previous" | "next";
+
     const NAVIGATION_DELAY = 150;
     const HINT_FADE_DELAY = 300;
     const HINT_DISPLAY_DURATION = 1000;
-    const MOBILE_BREAKPOINT = 768;
     const TABLET_BREAKPOINT = 1024;
     const SWIPE_THRESHOLD = 100;
     const SWIPE_TIMEOUT = 500;
     const VERTICAL_THRESHOLD = 50;
 
-    const isTouchDevice = 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
-    const isMobile = () => globalThis.innerWidth <= MOBILE_BREAKPOINT;
-    const isTablet = () => globalThis.innerWidth > MOBILE_BREAKPOINT && globalThis.innerWidth <= TABLET_BREAKPOINT;
-    const shouldUseTouchNavigation = () => isTouchDevice && (isMobile() || isTablet());
+    const isTouchDevice = "ontouchstart" in globalThis || navigator.maxTouchPoints > 0;
+    const shouldUseTouchNavigation = () =>
+      isTouchDevice && globalThis.innerWidth <= TABLET_BREAKPOINT;
 
-    const showNavigationHint = (direction) => {
-      const targetPost = direction === 'previous' ? previousPost : nextPost;
-      const hint = document.createElement('div');
+    const readPost = (data: DOMStringMap, key: "previous" | "next"): NavPost | undefined => {
+      const id = data[`${key}Id`];
+      const title = data[`${key}Title`];
+      return id && title ? { id, title } : undefined;
+    };
+
+    const escapeAttribute = (value: string) => value.replaceAll('"', "&quot;");
+
+    const showNavigationHint = (direction: Direction, targetPost: NavPost | undefined) => {
+      const hint = document.createElement("div");
       hint.className = `navigation-hint navigation-hint--${direction}`;
-      hint.setAttribute('role', 'status');
-      hint.setAttribute('aria-live', 'polite');
+      hint.setAttribute("role", "status");
+      hint.setAttribute("aria-live", "polite");
 
-      const label = document.createElement('span');
-      label.className = 'navigation-hint__label';
-      label.textContent = direction === 'previous' ? '\u2190 Previous' : 'Next \u2192';
+      const label = document.createElement("span");
+      label.className = "navigation-hint__label";
+      label.textContent = direction === "previous" ? "\u2190 Previous" : "Next \u2192";
       hint.append(label);
 
       if (targetPost) {
-        const title = document.createElement('span');
-        title.className = 'navigation-hint__title';
-        title.textContent = targetPost.data.title;
+        const title = document.createElement("span");
+        title.className = "navigation-hint__title";
+        title.textContent = targetPost.title;
         hint.append(title);
       }
 
       document.body.append(hint);
-
       requestAnimationFrame(() => {
-        hint.style.opacity = '0.88';
-        hint.style.transform = 'translate(-50%, -50%)';
+        hint.style.opacity = "0.88";
+        hint.style.transform = "translate(-50%, -50%)";
       });
-
       setTimeout(() => {
-        hint.style.opacity = '0';
-        hint.style.transform = 'translate(-50%, -50%) translateY(-10px)';
+        hint.style.opacity = "0";
+        hint.style.transform = "translate(-50%, -50%) translateY(-10px)";
         setTimeout(() => {
           hint.remove();
         }, HINT_FADE_DELAY);
       }, HINT_DISPLAY_DURATION);
     };
 
-    const buildIndicatorButtons = (shouldUseTouch) => {
-      const indicatorHTML = [];
-      const arrows = [];
-
+    const buildIndicatorButtons = (
+      previousPost: NavPost | undefined,
+      nextPost: NavPost | undefined,
+      shouldUseTouch: boolean,
+    ) => {
+      const arrows: string[] = [];
       if (previousPost) {
+        const title = escapeAttribute(previousPost.title);
         arrows.push(`
           <a
             class="post-nav-indicator post-nav-indicator--left"
             href="/blog/${previousPost.id}/"
-            data-tooltip="\u2190 ${previousPost.data.title.replaceAll('"', '&quot;')}"
+            data-tooltip="\u2190 ${title}"
             data-tooltip-placement="left"
-            aria-label="Previous post: ${previousPost.data.title.replaceAll('"', '&quot;')}"
+            aria-label="Previous post: ${title}"
           >\u2190</a>
         `);
       }
-
       if (nextPost) {
+        const title = escapeAttribute(nextPost.title);
         arrows.push(`
           <a
             class="post-nav-indicator post-nav-indicator--right"
             href="/blog/${nextPost.id}/"
-            data-tooltip="${nextPost.data.title.replaceAll('"', '&quot;')} \u2192"
+            data-tooltip="${title} \u2192"
             data-tooltip-placement="left"
-            aria-label="Next post: ${nextPost.data.title.replaceAll('"', '&quot;')}"
+            aria-label="Next post: ${title}"
           >\u2192</a>
         `);
       }
-
-      if (arrows.length > 0) {
-        indicatorHTML.push(`<div class="post-nav-arrows">${arrows.join('')}</div>`);
-
-        const hintText = shouldUseTouch
-          ? 'Swipe left/right to navigate reflections'
-          : 'Use \u2190 \u2192 keys to navigate reflections';
-
-        indicatorHTML.push(`
-          <span
-            class="post-nav-hint"
-            role="status"
-            aria-live="polite"
-          >${hintText}</span>
-        `);
+      if (arrows.length === 0) {
+        return "";
       }
-
-      return indicatorHTML;
+      const hintText = shouldUseTouch
+        ? "Swipe left/right to navigate reflections"
+        : "Use \u2190 \u2192 keys to navigate reflections";
+      return `<div class="post-nav-arrows">${arrows.join("")}</div>
+        <span class="post-nav-hint" role="status" aria-live="polite">${hintText}</span>`;
     };
 
-    const createNavigationIndicators = () => {
-      const indicators = document.createElement('div');
-      indicators.className = 'post-navigation-indicators';
-      indicators.setAttribute('role', 'region');
-      indicators.setAttribute('aria-label', 'Blog post navigation');
+    const isEditable = (element: Element | null) =>
+      element instanceof HTMLElement &&
+      (element.tagName === "INPUT" ||
+        element.tagName === "TEXTAREA" ||
+        element.tagName === "SELECT" ||
+        element.isContentEditable);
 
-      const indicatorHTML = buildIndicatorButtons(shouldUseTouchNavigation());
-      indicators.innerHTML = indicatorHTML.join('');
+    const initPostNavigation = (
+      previousPost: NavPost | undefined,
+      nextPost: NavPost | undefined,
+      signal: AbortSignal,
+    ) => {
+      document.querySelector(".post-navigation-indicators")?.remove();
+      document.querySelector(".global-navigation-indicators")?.remove();
+      if (!previousPost && !nextPost) {
+        return;
+      }
+
+      const navigateToPost = (direction: Direction) => {
+        const targetPost = direction === "previous" ? previousPost : nextPost;
+        if (!targetPost) {
+          return;
+        }
+        showNavigationHint(direction, targetPost);
+        setTimeout(() => {
+          globalThis.location.href = `/blog/${targetPost.id}/`;
+        }, NAVIGATION_DELAY);
+      };
+
+      const useTouch = shouldUseTouchNavigation();
+      if (useTouch) {
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        document.addEventListener(
+          "touchstart",
+          (event) => {
+            const touch = event.touches[0];
+            if (isEditable(document.activeElement) || !touch) {
+              return;
+            }
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchStartTime = Date.now();
+          },
+          { passive: true, signal },
+        );
+        document.addEventListener(
+          "touchend",
+          (event) => {
+            const touch = event.changedTouches[0];
+            if (isEditable(document.activeElement) || !touchStartX || !touch) {
+              return;
+            }
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = Math.abs(touch.clientY - touchStartY);
+            const timeDelta = Date.now() - touchStartTime;
+            touchStartX = 0;
+            if (
+              Math.abs(deltaX) <= SWIPE_THRESHOLD ||
+              deltaY >= VERTICAL_THRESHOLD ||
+              timeDelta >= SWIPE_TIMEOUT
+            ) {
+              return;
+            }
+            if (deltaX > 0 && previousPost) {
+              event.preventDefault();
+              navigateToPost("previous");
+            } else if (deltaX < 0 && nextPost) {
+              event.preventDefault();
+              navigateToPost("next");
+            }
+          },
+          { passive: false, signal },
+        );
+      } else {
+        document.addEventListener(
+          "keydown",
+          (event) => {
+            if (
+              isEditable(document.activeElement) ||
+              event.ctrlKey ||
+              event.metaKey ||
+              event.altKey ||
+              event.shiftKey
+            ) {
+              return;
+            }
+            if (event.key === "ArrowLeft" && previousPost) {
+              event.preventDefault();
+              navigateToPost("previous");
+            } else if (event.key === "ArrowRight" && nextPost) {
+              event.preventDefault();
+              navigateToPost("next");
+            }
+          },
+          { signal },
+        );
+      }
+
+      const indicators = document.createElement("div");
+      indicators.className = "post-navigation-indicators";
+      indicators.setAttribute("role", "region");
+      indicators.setAttribute("aria-label", "Blog post navigation");
+      indicators.innerHTML = buildIndicatorButtons(previousPost, nextPost, useTouch);
       document.body.append(indicators);
     };
 
-    let navAbortController = null;
-
-    const setupKeyboardNavigation = (isInputFocused, navigateToPost, signal) => {
-      document.addEventListener('keydown', (event) => {
-        if (isInputFocused() || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
-          return;
-        }
-
-        switch (event.key) {
-          case 'ArrowLeft': {
-            if (previousPost) {
-              event.preventDefault();
-              navigateToPost('previous');
-            }
-            break;
-          }
-
-          case 'ArrowRight': {
-            if (nextPost) {
-              event.preventDefault();
-              navigateToPost('next');
-            }
-            break;
-          }
-        }
-      }, { signal });
-    };
-
-    const setupTouchNavigation = (isInputFocused, navigateToPost, signal) => {
-      let touchStartX = 0;
-      let touchStartY = 0;
-      let touchStartTime = 0;
-
-      document.addEventListener('touchstart', (event) => {
-        if (isInputFocused()) {return;}
-
-        const touch = event.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        touchStartTime = Date.now();
-      }, { passive: true, signal });
-
-      document.addEventListener('touchend', (event) => {
-        if (isInputFocused() || !touchStartX) {return;}
-
-        const touch = event.changedTouches[0];
-        const touchEndX = touch.clientX;
-        const touchEndY = touch.clientY;
-        const touchEndTime = Date.now();
-
-        const deltaX = touchEndX - touchStartX;
-        const deltaY = Math.abs(touchEndY - touchStartY);
-        const timeDelta = touchEndTime - touchStartTime;
-
-        touchStartX = 0;
-
-        if (Math.abs(deltaX) > SWIPE_THRESHOLD &&
-            deltaY < VERTICAL_THRESHOLD &&
-            timeDelta < SWIPE_TIMEOUT) {
-
-          if (deltaX > 0 && previousPost) {
-            event.preventDefault();
-            navigateToPost('previous');
-          } else if (deltaX < 0 && nextPost) {
-            event.preventDefault();
-            navigateToPost('next');
-          }
-        }
-      }, { passive: false, signal });
-    };
-
-    const initKeyboardNavigation = () => {
-      if (navAbortController) {
-        navAbortController.abort();
+    const initReadingProgress = (signal: AbortSignal) => {
+      const bar = document.querySelector<HTMLElement>(".reading-progress");
+      if (!bar) {
+        return;
       }
-      navAbortController = new AbortController();
-      const { signal } = navAbortController;
-
-      const existingPostNav = document.querySelector('.post-navigation-indicators');
-      if (existingPostNav) {
-        existingPostNav.remove();
-      }
-
-      const existingGlobalNav = document.querySelector('.global-navigation-indicators');
-      if (existingGlobalNav) {
-        existingGlobalNav.remove();
-      }
-
-      if (!previousPost && !nextPost) {return;}
-
-      let inputFocused = false;
-
-      const updateInputFocus = () => {
-        const {activeElement} = document;
-        inputFocused = activeElement && (
-          activeElement.tagName === 'INPUT' ||
-          activeElement.tagName === 'TEXTAREA' ||
-          activeElement.tagName === 'SELECT' ||
-          activeElement.contentEditable === 'true'
-        );
-      };
-
-      document.addEventListener('focusin', updateInputFocus, { signal });
-      document.addEventListener('focusout', updateInputFocus, { signal });
-
-      const getInputFocused = () => inputFocused;
-
-      const navigateToPost = (direction) => {
-        const targetPost = direction === 'previous' ? previousPost : nextPost;
-        if (targetPost) {
-          showNavigationHint(direction);
-          setTimeout(() => {
-            globalThis.location.href = `/blog/${targetPost.id}/`;
-          }, NAVIGATION_DELAY);
-        }
-      };
-
-      if (!shouldUseTouchNavigation()) {
-        setupKeyboardNavigation(getInputFocused, navigateToPost, signal);
-      }
-
-      if (shouldUseTouchNavigation()) {
-        setupTouchNavigation(getInputFocused, navigateToPost, signal);
-      }
-
-      createNavigationIndicators();
-    };
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initKeyboardNavigation);
-    } else {
-      initKeyboardNavigation();
-    }
-
-    document.addEventListener('astro:page-load', initKeyboardNavigation);
-
-    document.addEventListener('astro:page-load', () => {
-      const { hash } = globalThis.location;
-      if (hash) {
-        const target = document.querySelector(hash);
-        if (target) {
-          requestAnimationFrame(() => {
-            target.scrollIntoView({ behavior: 'smooth' });
-          });
-        }
-      }
-    });
-
-    const initReadingProgress = () => {
-      const bar = document.querySelector('.reading-progress');
-      if (!bar) return;
-
-      const stickyNav = document.querySelector('#sticky-nav');
+      const stickyNav = document.querySelector("#sticky-nav");
       if (stickyNav) {
         stickyNav.append(bar);
-      }
-      if (!stickyNav) {
-        bar.classList.add('reading-progress--fixed');
+      } else {
+        bar.classList.add("reading-progress--fixed");
       }
 
-      const updateProgress = () => {
-        const scrollTop = globalThis.scrollY;
-        const docHeight = document.documentElement.scrollHeight - globalThis.innerHeight;
-        const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+      // Scroll height only changes on resize/content growth, so it is not read on every scroll
+      let scrollable = 0;
+      const measure = () => {
+        scrollable = document.documentElement.scrollHeight - globalThis.innerHeight;
+      };
+      let frame = 0;
+      const paint = () => {
+        frame = 0;
+        const progress = scrollable > 0 ? Math.min(globalThis.scrollY / scrollable, 1) : 0;
         bar.style.transform = `scaleX(${progress})`;
       };
+      const schedule = () => {
+        frame ||= requestAnimationFrame(paint);
+      };
 
-      globalThis.addEventListener('scroll', updateProgress, { passive: true });
-      updateProgress();
+      const observer = new ResizeObserver(() => {
+        measure();
+        schedule();
+      });
+      observer.observe(document.body);
+      globalThis.addEventListener("scroll", schedule, { passive: true, signal });
+      signal.addEventListener("abort", () => {
+        observer.disconnect();
+        cancelAnimationFrame(frame);
+      });
+      measure();
+      paint();
     };
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initReadingProgress);
-    } else {
-      initReadingProgress();
-    }
-    document.addEventListener('astro:page-load', initReadingProgress);
+    const scrollToHash = () => {
+      const { hash } = globalThis.location;
+      if (!hash) {
+        return;
+      }
+      const target = document.querySelector(hash);
+      if (target) {
+        requestAnimationFrame(() => {
+          target.scrollIntoView({ behavior: "smooth" });
+        });
+      }
+    };
+
+    let pageEvents: AbortController | undefined;
+
+    document.addEventListener("astro:page-load", () => {
+      pageEvents?.abort();
+      const data = document.querySelector<HTMLElement>(".post-nav-data")?.dataset;
+      if (!data) {
+        pageEvents = undefined;
+        return;
+      }
+      pageEvents = new AbortController();
+      const { signal } = pageEvents;
+      initPostNavigation(readPost(data, "previous"), readPost(data, "next"), signal);
+      initReadingProgress(signal);
+      scrollToHash();
+    });
+
+    document.addEventListener("astro:before-swap", () => {
+      pageEvents?.abort();
+      pageEvents = undefined;
+    });
   </script>
 </Layout>

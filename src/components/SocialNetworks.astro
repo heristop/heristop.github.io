@@ -170,10 +170,15 @@ const STAGGER_MAX_INDEX = 5;
         if (card.dataset.interactive === 'true') continue;
         card.dataset.interactive = 'true';
 
-        card.addEventListener('mousemove', (e) => {
+        // One rect read and style write per frame, however often mousemove fires
+        let frame = 0;
+        let pointerX = 0;
+        let pointerY = 0;
+        const paint = () => {
+          frame = 0;
           const rect = card.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
+          const x = pointerX - rect.left;
+          const y = pointerY - rect.top;
           const centerX = rect.width / 2;
           const centerY = rect.height / 2;
 
@@ -188,9 +193,17 @@ const STAGGER_MAX_INDEX = 5;
           card.style.setProperty('--tilt-y', `${rotateY}deg`);
 
           card.classList.add('social-network__card--hover');
+        };
+
+        card.addEventListener('mousemove', (e) => {
+          pointerX = e.clientX;
+          pointerY = e.clientY;
+          frame ||= requestAnimationFrame(paint);
         });
 
         card.addEventListener('mouseleave', () => {
+          cancelAnimationFrame(frame);
+          frame = 0;
           card.classList.remove('social-network__card--hover');
           card.style.setProperty('--tilt-x', '0deg');
           card.style.setProperty('--tilt-y', '0deg');

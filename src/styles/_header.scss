@@ -432,18 +432,6 @@
     0 2px 4px -2px oklch(0% 0 0deg / 10%);
 }
 
-.banner .img {
-  background: transparent url("/images/zazen.webp") no-repeat center center /
-    cover;
-  height: 7.5rem;
-  margin: auto;
-  transition: transform 0.3s ease;
-}
-
-.banner:hover .img {
-  transform: scale(1.02);
-}
-
 body.mobile-menu-open {
   overflow: hidden;
 }

@@ -15,6 +15,8 @@ export function mountFooterPortrait(element: HTMLElement): () => void {
     target = { x: 0, y: 0 };
   let renderer: ReturnType<typeof createPortraitRenderer> | undefined;
   let box = portrait.getBoundingClientRect();
+  // Scrolling moves the portrait but never resizes it, so it only invalidates the cached box
+  let boxStale = false;
   let frame = 0,
     lastTime = 0;
   let inView = false,
@@ -30,9 +32,14 @@ export function mountFooterPortrait(element: HTMLElement): () => void {
     renderer?.draw(0, 0);
   }
 
+  function readBox() {
+    box = (portrait!.hidden ? canvas! : portrait!).getBoundingClientRect();
+    boxStale = false;
+  }
+
   function measure() {
     if (!inView) return;
-    box = (portrait!.hidden ? canvas! : portrait!).getBoundingClientRect();
+    readBox();
     renderer?.resize(box.width, window.devicePixelRatio);
     renderer?.draw(position.x, position.y);
   }
@@ -107,6 +114,7 @@ export function mountFooterPortrait(element: HTMLElement): () => void {
     "pointermove",
     (event) => {
       if (!renderer || !enabled() || event.pointerType === "touch") return;
+      if (boxStale) readBox();
       target.x = clamp((event.clientX - box.left - box.width * 0.5) / (box.width * 0.62));
       target.y = clamp((event.clientY - box.top - box.height * 0.39) / (box.height * 0.65));
       animate();
@@ -125,7 +133,13 @@ export function mountFooterPortrait(element: HTMLElement): () => void {
   document.addEventListener("visibilitychange", preferencesChanged, { signal });
   window.addEventListener("blur", center, { signal });
   window.addEventListener("resize", measure, { passive: true, signal });
-  window.addEventListener("scroll", measure, { passive: true, signal });
+  window.addEventListener(
+    "scroll",
+    () => {
+      boxStale = true;
+    },
+    { passive: true, signal },
+  );
   motion.addEventListener("change", preferencesChanged);
   pointer.addEventListener("change", preferencesChanged);
 

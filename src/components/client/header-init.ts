@@ -289,14 +289,22 @@ const initializeHeader = (): void => {
   document.body.classList.remove("mobile-menu-open");
 };
 
+let parallaxImage: HTMLElement | null = null;
+let parallaxOffset = -1;
+
+// Past MAX_PARALLAX_SCROLL the offset is pinned, so most scroll events write nothing
 const updateParallax = (): void => {
-  const parallaxImage = document.querySelector(".site-header__banner-image");
-  if (parallaxImage instanceof HTMLElement) {
-    parallaxImage.style.setProperty(
-      "--scroll-y",
-      `${Math.min(globalThis.scrollY, MAX_PARALLAX_SCROLL)}px`,
-    );
+  if (!parallaxImage?.isConnected) {
+    const image = document.querySelector(".site-header__banner-image");
+    parallaxImage = image instanceof HTMLElement ? image : null;
+    parallaxOffset = -1;
   }
+  const offset = Math.min(globalThis.scrollY, MAX_PARALLAX_SCROLL);
+  if (!parallaxImage || offset === parallaxOffset) {
+    return;
+  }
+  parallaxOffset = offset;
+  parallaxImage.style.setProperty("--scroll-y", `${offset}px`);
 };
 
 const initializeParallax = (): void => {

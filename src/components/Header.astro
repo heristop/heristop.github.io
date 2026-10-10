@@ -1,11 +1,18 @@
 ---
 import HeaderLink from './HeaderLink.astro';
 import Icon from './Icon.astro';
+import { getImage } from 'astro:assets';
 import { SITE_TITLE } from '../consts';
+import zazenBanner from '../assets/zazen.webp';
 
 const { image } = Astro.props;
 
-const bannerImage = image || '/images/zazen.webp';
+// The banner is the LCP element: serve a width that fits the viewport instead of the full source
+const BANNER_SIZES = '(min-width: 1100px) 900px, 85vw';
+const responsiveBanner = image
+  ? undefined
+  : await getImage({ src: zazenBanner, widths: [480, 768, 1024, 1536], format: 'webp' });
+const bannerSrcSet = responsiveBanner?.srcSet.attribute ?? image;
 const bannerImageFallback = image || '/images/zazen.png';
 
 const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
@@ -108,7 +115,8 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       <div class="site-header__banner-container">
         <picture class="site-header__banner-picture">
           <source
-            srcset={bannerImage}
+            srcset={bannerSrcSet}
+            sizes={responsiveBanner ? BANNER_SIZES : undefined}
             type="image/webp"
           />
           <source
@@ -121,6 +129,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
             role="presentation"
             class="site-header__banner-image"
             loading="eager"
+            fetchpriority="high"
             decoding="async"
             width="1200"
             height="400"

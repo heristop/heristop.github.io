@@ -86,57 +86,84 @@ const useHaikuFetch = (url: string) => {
   return text;
 };
 
+interface CachedChar {
+  entry: CharCacheEntry;
+  offsetX: number;
+  offsetY: number;
+  parent: Element | null;
+}
+
 const useProximityDissolve = (charElsRef: React.RefObject<Map<string, HTMLSpanElement>>) => {
-  const cachedEntries = useRef<Map<string, CharCacheEntry>>(new Map());
-  const containerBox = useRef<ContainerBox | null>(null);
+  const cachedChars = useRef<Map<string, CachedChar>>(new Map());
   const dissolvedKeys = useRef<Set<string>>(new Set());
   const nextDissolved = useRef<Set<string>>(new Set());
   const cacheValid = useRef(false);
 
+  // Offsets are layout positions relative to the offsetParent: they ignore the dissolve
+  // transforms and survive scrolling, so only a resize invalidates them
   useEffect(() => {
     const invalidate = () => { cacheValid.current = false; };
     globalThis.addEventListener("resize", invalidate);
-    globalThis.addEventListener("scroll", invalidate);
     return () => {
       globalThis.removeEventListener("resize", invalidate);
-      globalThis.removeEventListener("scroll", invalidate);
     };
   }, []);
 
   const ensureCache = useCallback(() => {
-    if (cacheValid.current) {
+    if (cacheValid.current && cachedChars.current.size === charElsRef.current.size) {
       return;
     }
-    cachedEntries.current.clear();
+    cachedChars.current.clear();
+    for (const [key, el] of charElsRef.current.entries()) {
+      cachedChars.current.set(key, {
+        entry: {
+          driftR: Number.parseFloat(el.style.getPropertyValue("--drift-r")) || 0,
+          driftX: Number.parseFloat(el.style.getPropertyValue("--drift-x")) || 0,
+          driftY: Number.parseFloat(el.style.getPropertyValue("--drift-y")) || 0,
+          px: 0,
+          py: 0,
+        },
+        offsetX: el.offsetLeft + el.offsetWidth / 2,
+        offsetY: el.offsetTop + el.offsetHeight / 2,
+        parent: el.offsetParent,
+      });
+    }
+    cacheValid.current = true;
+  }, [charElsRef]);
+
+  // One rect read per offsetParent (normally a single one) maps every char to client space
+  const placeChars = useCallback((): ContainerBox | null => {
+    const origins = new Map<Element | null, { left: number; top: number }>();
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
     let maxY = -Infinity;
-    for (const [key, el] of charElsRef.current.entries()) {
-      const rect = el.getBoundingClientRect();
-      const px = rect.left + rect.width / 2;
-      const py = rect.top + rect.height / 2;
+    for (const cached of cachedChars.current.values()) {
+      let origin = origins.get(cached.parent);
+      if (!origin) {
+        const rect = cached.parent?.getBoundingClientRect();
+        origin = rect
+          ? { left: rect.left + (cached.parent?.clientLeft ?? 0), top: rect.top + (cached.parent?.clientTop ?? 0) }
+          : { left: -globalThis.scrollX, top: -globalThis.scrollY };
+        origins.set(cached.parent, origin);
+      }
+      const px = origin.left + cached.offsetX;
+      const py = origin.top + cached.offsetY;
+      cached.entry.px = px;
+      cached.entry.py = py;
       if (px < minX) { minX = px; }
       if (py < minY) { minY = py; }
       if (px > maxX) { maxX = px; }
       if (py > maxY) { maxY = py; }
-      cachedEntries.current.set(key, {
-        driftR: Number.parseFloat(el.style.getPropertyValue("--drift-r")) || 0,
-        driftX: Number.parseFloat(el.style.getPropertyValue("--drift-x")) || 0,
-        driftY: Number.parseFloat(el.style.getPropertyValue("--drift-y")) || 0,
-        px,
-        py,
-      });
     }
-    containerBox.current = cachedEntries.current.size > 0
+    return cachedChars.current.size > 0
       ? { bottom: maxY, left: minX, right: maxX, top: minY }
       : null;
-    cacheValid.current = true;
-  }, [charElsRef]);
+  }, []);
 
   const apply = useCallback((mouseX: number, mouseY: number) => {
     ensureCache();
-    const box = containerBox.current;
+    const box = placeChars();
     if (box &&
       (mouseX < box.left - DISSOLVE_RADIUS ||
        mouseX > box.right + DISSOLVE_RADIUS ||
@@ -151,14 +178,15 @@ const useProximityDissolve = (charElsRef: React.RefObject<Map<string, HTMLSpanEl
     }
 
     nextDissolved.current.clear();
-    for (const [key, cached] of cachedEntries.current.entries()) {
-      processCharEntry({ cached, charElsRef, dissolvedKeys, key, mouseX, mouseY, nextDissolved: nextDissolved.current });
+    for (const [key, cached] of cachedChars.current.entries()) {
+      processCharEntry({ cached: cached.entry, charElsRef, dissolvedKeys, key, mouseX, mouseY, nextDissolved: nextDissolved.current });
     }
     const prev = dissolvedKeys.current;
     dissolvedKeys.current = nextDissolved.current;
     nextDissolved.current = prev;
-  }, [charElsRef, ensureCache]);
+  }, [charElsRef, ensureCache, placeChars]);
 
+  // Each hover session re-measures once, picking up late layout shifts (fonts, content)
   const reset = useCallback(() => {
     for (const key of dissolvedKeys.current) {
       const el = charElsRef.current.get(key);
@@ -167,6 +195,7 @@ const useProximityDissolve = (charElsRef: React.RefObject<Map<string, HTMLSpanEl
       }
     }
     dissolvedKeys.current.clear();
+    cacheValid.current = false;
   }, [charElsRef]);
 
   return { apply, reset };
@@ -188,14 +217,15 @@ const useHandleMove = (opts: CardPointerOptions) => {
     if (reducedMotion || !appeared) { return; }
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
+      // Every layout read happens before the first style write of the frame
       const card = containerRef.current?.closest(".haiku-card");
-      if (card instanceof HTMLElement) {
-        const rect = card.getBoundingClientRect();
+      const rect = card instanceof HTMLElement ? card.getBoundingClientRect() : null;
+      apply(clientX, clientY);
+      if (card instanceof HTMLElement && rect) {
         card.style.setProperty("--mouse-x", `${clientX - rect.left}px`);
         card.style.setProperty("--mouse-y", `${clientY - rect.top}px`);
         card.classList.add("haiku-card--hover");
       }
-      apply(clientX, clientY);
     });
   }, [containerRef, reducedMotion, appeared, apply]);
 };
