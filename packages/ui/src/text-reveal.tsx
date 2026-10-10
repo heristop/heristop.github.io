@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { RefObject } from "react";
 import { usesCoarsePointer } from "./pretext-loader";
 import textReveal from "./text-reveal-motion";
 
@@ -7,6 +8,7 @@ const {
   getCharClass,
   getSmokeStyle,
   maxAnimationEnd,
+  TITLE_REVEAL_TIMING,
   useReducedMotion,
   useTextLayout,
 } = textReveal;
@@ -26,10 +28,9 @@ const BASE_PX = 16;
 const DEFAULT_FONT = `400 ${FONT_SIZE}rem Comfortaa, sans-serif`;
 const DEFAULT_LINE_HEIGHT = FONT_SIZE * BODY_LINE_HEIGHT * BASE_PX;
 const APPEAR_DELAY_MS = 80;
-const TEXT_DURATION_MS = 800;
 const SIMPLE_TEXT_DURATION_MS = 420;
-const SETTLE_BUFFER_MS = 300;
 const NBSP = "\u00A0";
+const HOVER_PLAYBACK_RATE = 4;
 
 const getSimpleTextStyle = (
   appeared: boolean,
@@ -69,6 +70,63 @@ const SimpleTextReveal = ({ text, tag: Tag = "span", className }: Props) => {
   );
 };
 
+// Hovering the title (or its link) fast-forwards the running char transitions instead of
+// making the reader wait; CSS can't retime a transition already in flight, the Web Animations API can
+const useHoverFastForward = (
+  containerRef: RefObject<HTMLElement | null>,
+  appeared: boolean,
+  done: boolean,
+  onFinished: () => void,
+) => {
+  const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    if (done || hovered) {
+      return;
+    }
+    const el = containerRef.current;
+    const target = el?.closest("a") ?? el;
+    if (!target) {
+      return;
+    }
+    const onEnter = () => {
+      setHovered(true);
+    };
+    target.addEventListener("pointerenter", onEnter, { once: true });
+    return () => {
+      target.removeEventListener("pointerenter", onEnter);
+    };
+  }, [containerRef, done, hovered]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!hovered || !appeared || done || !el || typeof el.getAnimations !== "function") {
+      return;
+    }
+    const animations = el.getAnimations({ subtree: true });
+    if (animations.length === 0) {
+      return;
+    }
+    for (const animation of animations) {
+      animation.updatePlaybackRate(HOVER_PLAYBACK_RATE);
+    }
+    let cancelled = false;
+    void Promise.all(animations.map((animation) => animation.finished)).then(
+      () => {
+        if (!cancelled) {
+          onFinished();
+        }
+      },
+      () => {
+        // Cancelled when the chars unmount; the settle timer covers it
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [appeared, containerRef, done, hovered, onFinished]);
+};
+
 const CharacterTextReveal = ({
   text,
   tag: Tag = "span",
@@ -94,13 +152,20 @@ const CharacterTextReveal = ({
     };
   }, [revealed, appeared, reducedMotion]);
 
-  const charsByLine = useMemo(() => buildCharDrifts(lines, TEXT_DURATION_MS), [lines]);
+  const charsByLine = useMemo(
+    () => buildCharDrifts(lines, TITLE_REVEAL_TIMING.durationMs, TITLE_REVEAL_TIMING.staggerScale),
+    [lines],
+  );
+  const settle = useCallback(() => {
+    setSettled(true);
+  }, []);
+  useHoverFastForward(containerRef, appeared, settled || reducedMotion, settle);
 
   useEffect(() => {
     if (!appeared || settled || reducedMotion || charsByLine.length === 0) {
       return;
     }
-    const totalMs = maxAnimationEnd(charsByLine) + SETTLE_BUFFER_MS;
+    const totalMs = maxAnimationEnd(charsByLine) + TITLE_REVEAL_TIMING.settleBufferMs;
     const timer = setTimeout(() => {
       setSettled(true);
     }, totalMs);

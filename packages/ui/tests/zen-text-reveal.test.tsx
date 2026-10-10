@@ -1,4 +1,4 @@
-import { act, render, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToString } from "react-dom/server";
 import { hydrateRoot } from "react-dom/client";
@@ -89,5 +89,30 @@ describe("<ZenTextReveal />", () => {
     await waitFor(() => {
       expect(container.querySelector("[class*='haiku-char']")).toBeTruthy();
     });
+  });
+
+  it("fast-forwards the reveal and settles when the title is hovered", async () => {
+    mockMatchMedia(false);
+    const updatePlaybackRate = vi.fn();
+    const animation = { finished: Promise.resolve(), updatePlaybackRate };
+    Object.defineProperty(HTMLElement.prototype, "getAnimations", {
+      configurable: true,
+      value: () => [animation],
+    });
+    const { container } = render(
+      <a href="/post">
+        <ZenTextReveal text="abc" />
+      </a>,
+    );
+
+    fireEvent.pointerEnter(container.querySelector("a")!);
+    await waitFor(() => {
+      expect(updatePlaybackRate).toHaveBeenCalledWith(4);
+    });
+    await waitFor(() => {
+      expect(container.querySelector("[class*='haiku-char']")).toBeNull();
+    });
+    expect(container.textContent).toBe("abc");
+    delete (HTMLElement.prototype as { getAnimations?: unknown }).getAnimations;
   });
 });

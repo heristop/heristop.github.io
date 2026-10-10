@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import textReveal from "@zazencode/ui/text-reveal-motion";
 
-const { buildCharDrifts, getCharClass, getSmokeStyle, maxAnimationEnd, useReducedMotion, useTextLayout } = textReveal;
+const {
+  buildCharDrifts,
+  getCharClass,
+  getSmokeStyle,
+  maxAnimationEnd,
+  TITLE_REVEAL_TIMING,
+  useReducedMotion,
+  useTextLayout,
+} = textReveal;
 
 interface Props {
   text: string;
@@ -13,8 +21,6 @@ const CSS_LINE_HEIGHT = 1.3;
 const BASE_PX = 16;
 const LINE_HEIGHT = CSS_LINE_HEIGHT * FONT_SIZE_EM * BASE_PX;
 const APPEAR_DELAY_MS = 80;
-const TITLE_DURATION_MS = 700;
-const SETTLE_BUFFER_MS = 300;
 const NBSP = "\u00A0";
 
 const ZenTitleReveal = ({ text }: Props) => {
@@ -22,7 +28,7 @@ const ZenTitleReveal = ({ text }: Props) => {
   const [appeared, setAppeared] = useState(false);
   const [settled, setSettled] = useState(false);
   const reducedMotion = useReducedMotion();
-  const { lines, revealed } = useTextLayout(text, FONT, LINE_HEIGHT, containerRef);
+  const { lines, revealed } = useTextLayout(text, FONT, LINE_HEIGHT, containerRef, !settled);
 
   useEffect(() => {
     if (!revealed || appeared || reducedMotion) { return; }
@@ -30,11 +36,11 @@ const ZenTitleReveal = ({ text }: Props) => {
     return () => { clearTimeout(timer); };
   }, [revealed, appeared, reducedMotion]);
 
-  const charsByLine = useMemo(() => buildCharDrifts(lines, TITLE_DURATION_MS), [lines]);
+  const charsByLine = useMemo(() => buildCharDrifts(lines, TITLE_REVEAL_TIMING.durationMs, TITLE_REVEAL_TIMING.staggerScale), [lines]);
 
   useEffect(() => {
     if (!appeared || settled || reducedMotion || charsByLine.length === 0) { return; }
-    const totalMs = maxAnimationEnd(charsByLine) + SETTLE_BUFFER_MS;
+    const totalMs = maxAnimationEnd(charsByLine) + TITLE_REVEAL_TIMING.settleBufferMs;
     const timer = setTimeout(() => { setSettled(true); }, totalMs);
     return () => { clearTimeout(timer); };
   }, [appeared, settled, reducedMotion, charsByLine]);

@@ -31,6 +31,13 @@ const DEFAULT_BASE_DURATION_MS = 900;
 
 const segmenter = new Intl.Segmenter();
 
+// Shared by every title reveal (home list and article heading) so they land at the same pace
+const TITLE_REVEAL_TIMING = {
+  durationMs: 420,
+  settleBufferMs: 200,
+  staggerScale: 0.35,
+} as const;
+
 interface LineStyleOptions {
   durationMs: number;
   easing: string;
@@ -122,6 +129,7 @@ const getLineStyle = ({
 const buildCharDrifts = (
   lines: LayoutLine[],
   baseDuration = DEFAULT_BASE_DURATION_MS,
+  staggerScale = 1,
 ): CharDrift[][] =>
   lines.map((line, lineIndex) => {
     const chars = Array.from(segmenter.segment(line.text), (seg) => seg.segment);
@@ -130,7 +138,7 @@ const buildCharDrifts = (
       const seed = lineIndex * CHARS_PER_LINE + charIndex + 1;
       const baseDelay = lineIndex * LINE_STAGGER_MS + charIndex * CHAR_STAGGER_MS;
       const wave = Math.sin(charIndex * WAVE_FREQUENCY) * WAVE_AMPLITUDE;
-      const delay = Math.round(baseDelay * (1 + wave));
+      const delay = Math.round(baseDelay * (1 + wave) * staggerScale);
       const edgeness = Math.abs(charIndex / lineLen - HALF) * 2;
       const blur = BLUR_MIN + edgeness * BLUR_EDGE_EXTRA;
       return createCharDrift({
@@ -241,6 +249,7 @@ const textRevealExports = {
   getSmokeStyle,
   maxAnimationEnd,
   seededRandom,
+  TITLE_REVEAL_TIMING,
   useReducedMotion,
   useTextLayout,
 };
