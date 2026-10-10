@@ -30,6 +30,19 @@ const rejoinBrokenWords = (rawLines: string[]): string[] => {
   return rejoined;
 };
 
+// prepare() caches canvas widths; measuring before the webfont loads would cache fallback metrics
+const waitForFont = async (font: string): Promise<void> => {
+  const fonts = globalThis.document?.fonts;
+  if (!fonts || fonts.check(font)) {
+    return;
+  }
+  try {
+    await fonts.load(font);
+  } catch {
+    // Fall back to whatever font is available
+  }
+};
+
 const toLayoutLines = (texts: string[]): LayoutLine[] => {
   const emptyPos = { graphemeIndex: 0, segmentIndex: 0 };
   return texts.map((text) => ({
@@ -116,7 +129,7 @@ const useComputeLines = (deps: ComputeLinesDeps) => {
       return;
     }
 
-    const pretext = await loadPretext();
+    const [pretext] = await Promise.all([loadPretext(), waitForFont(font)]);
     if (!activeRef.current || requestIdRef.current !== requestId || !containerRef.current) {
       return;
     }
@@ -156,6 +169,7 @@ const useTextLayout = (
   font: string,
   lineHeight: number,
   containerRef: RefObject<HTMLElement | null>,
+  enabled = true,
 ) => {
   const [lines, setLines] = useState<LayoutLine[]>([]);
   const [revealed, setRevealed] = useState(false);
@@ -203,7 +217,10 @@ const useTextLayout = (
   }, [computeLines]);
 
   useEffect(() => {
-    const onResize = () => {
+    if (!enabled) {
+      return;
+    }
+    const schedule = () => {
       if (timeoutRef.current !== null) {
         clearTimeout(timeoutRef.current);
       }
@@ -211,14 +228,37 @@ const useTextLayout = (
         void computeLines();
       }, RESIZE_DEBOUNCE_MS);
     };
-    globalThis.addEventListener("resize", onResize);
-    return () => {
+    const clear = () => {
       if (timeoutRef.current !== null) {
         clearTimeout(timeoutRef.current);
       }
-      globalThis.removeEventListener("resize", onResize);
     };
-  }, [computeLines]);
+
+    const el = containerRef.current;
+    if (el && typeof ResizeObserver === "function") {
+      // Only width drives line breaks; skip height changes and the initial callback
+      let lastWidth: number | null = null;
+      const observer = new ResizeObserver((entries) => {
+        const width = Math.round(entries[0]?.contentRect.width ?? 0);
+        const changed = lastWidth !== null && width !== lastWidth;
+        lastWidth = width;
+        if (changed) {
+          schedule();
+        }
+      });
+      observer.observe(el);
+      return () => {
+        clear();
+        observer.disconnect();
+      };
+    }
+
+    globalThis.addEventListener("resize", schedule);
+    return () => {
+      clear();
+      globalThis.removeEventListener("resize", schedule);
+    };
+  }, [computeLines, containerRef, enabled]);
 
   useEffect(
     () => () => {

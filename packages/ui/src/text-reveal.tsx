@@ -80,7 +80,7 @@ const CharacterTextReveal = ({
   const [appeared, setAppeared] = useState(false);
   const [settled, setSettled] = useState(false);
   const reducedMotion = useReducedMotion();
-  const { lines, revealed } = useTextLayout(text, font, lineHeight, containerRef);
+  const { lines, revealed } = useTextLayout(text, font, lineHeight, containerRef, !settled);
 
   useEffect(() => {
     if (!revealed || appeared || reducedMotion) {
@@ -116,7 +116,8 @@ const CharacterTextReveal = ({
       }}
       className={className}
       aria-label={text}
-      style={settled ? undefined : { contain: "content" as const }}
+      // No paint containment: chars drift in from above and would be clipped to the box
+      style={settled ? undefined : { contain: "layout style" }}
     >
       {lines.length === 0 && text}
       {settled ? (
