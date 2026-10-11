@@ -1,0 +1,377 @@
+@use 'scheme';
+
+/* Form controls and scrollbars follow the garden on screen: light paper by default */
+:root {
+  color-scheme: light;
+}
+
+:root[data-theme="system"] {
+  color-scheme: light dark;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* ── The button: same footprint, ring and hover as the search toggle beside it ── */
+
+.theme-toggle {
+  position: relative;
+  display: flex;
+}
+
+.theme-toggle__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  color: var(--link-color-secondary);
+  position: relative;
+  transition:
+    background-color var(--motion-page) var(--zen-ease-out),
+    transform var(--motion-small) var(--zen-ease-out),
+    color var(--motion-small) ease;
+
+  &:hover {
+    background: color-mix(in oklch, var(--link-color-secondary) 12%, transparent);
+    color: var(--link-color-secondary-hover);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
+    transition-duration: var(--motion-micro);
+  }
+
+  &[aria-expanded="true"] {
+    background: color-mix(in oklch, var(--link-color-secondary) 15%, transparent);
+    color: var(--accent-color);
+
+    /* The menu answers the question the tooltip would ask */
+    &::before,
+    &::after {
+      opacity: 0 !important;
+    }
+  }
+
+  @media (width < 48rem) {
+    width: 3rem;
+    height: 3rem;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ── The glyph: the sun sets clockwise as the moon rises into its place ── */
+
+.theme-toggle__glyph {
+  position: relative;
+  display: grid;
+  width: 20px;
+  height: 20px;
+}
+
+.theme-toggle__sun,
+.theme-toggle__moon {
+  grid-area: 1 / 1;
+  transform-origin: center;
+  transition:
+    transform var(--motion-small) var(--zen-ease-elegant),
+    opacity var(--motion-micro) var(--zen-ease-out);
+}
+
+.theme-toggle__rays {
+  transform-box: view-box;
+  transform-origin: 12px 12px;
+  transition: transform var(--motion-small) var(--zen-ease-elegant);
+}
+
+.theme-toggle__moon {
+  opacity: 0;
+  transform: rotate(-70deg) scale(0.6);
+}
+
+@include scheme.night {
+  .theme-toggle__sun {
+    opacity: 0;
+    transform: rotate(70deg) scale(0.6);
+  }
+
+  .theme-toggle__rays {
+    transform: scale(0.55);
+  }
+
+  .theme-toggle__moon {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Following the device: a small pip, like the dot on a watch face's auto setting */
+.theme-toggle__pip {
+  position: absolute;
+  right: -3px;
+  bottom: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentcolor;
+  box-shadow: 0 0 0 1.5px var(--primary-bg-color);
+  opacity: 0;
+  transform: scale(0.4);
+  transition:
+    transform var(--motion-small) var(--zen-ease-elegant),
+    opacity var(--motion-micro) var(--zen-ease-out);
+}
+
+:root[data-theme="system"] .theme-toggle__pip {
+  opacity: 0.85;
+  transform: none;
+}
+
+/* ── The menu: three plain choices, unfolding from the button ── */
+
+.theme-toggle__menu {
+  position: absolute;
+  top: calc(100% + var(--space-sm));
+  right: 0;
+  z-index: var(--z-popover);
+  display: grid;
+  gap: 2px;
+  min-width: 10rem;
+  padding: var(--space-sm);
+  background: var(--surface-popover);
+  border: 1px solid var(--border-bar);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 20px 40px oklch(0% 0 0deg / 15%),
+    0 1px 0 var(--border-glass) inset;
+  transform-origin: top right;
+
+  /* Closed: out of sight, out of the tab order and the accessibility tree */
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-4px) scale(0.97);
+  transition:
+    opacity var(--motion-micro) var(--zen-ease-out),
+    transform var(--motion-micro) var(--zen-ease-out),
+    visibility 0s linear 120ms;
+}
+
+.theme-toggle[data-open] .theme-toggle__menu {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--motion-micro) var(--zen-ease-elegant),
+    transform var(--motion-small) var(--zen-ease-elegant),
+    visibility 0s;
+}
+
+.theme-toggle__option {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--nav-link-color);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-micro) ease,
+    border-color var(--motion-micro) ease,
+    color var(--motion-micro) ease;
+
+  &:hover,
+  &:focus-visible {
+    background: color-mix(in oklch, var(--link-color-secondary) 9%, transparent);
+    color: var(--link-color-secondary-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+    border-radius: var(--radius-md);
+  }
+
+  &[aria-checked="true"] {
+    color: var(--primary-color);
+    font-weight: 700;
+    background: color-mix(in oklch, var(--primary-color) 11%, transparent);
+    border-color: color-mix(in oklch, var(--primary-color) 26%, transparent);
+  }
+
+  @media (width < 48rem) {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+}
+
+.theme-toggle__option-icon {
+  flex: none;
+  opacity: 0.85;
+}
+
+.theme-toggle__check {
+  flex: none;
+  margin-left: auto;
+  opacity: 0;
+  transform: scale(0.7);
+  transition:
+    opacity var(--motion-micro) var(--zen-ease-out),
+    transform var(--motion-small) var(--zen-ease-elegant);
+
+  [aria-checked="true"] > & {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Petals: one switch under the choices, for the sakura burst on press ── */
+
+.theme-toggle__extras {
+  display: grid;
+  gap: 2px;
+
+  /* Bursts only follow a mouse or pen (see sakura-petals.ts); a switch for nothing is noise */
+  @media (hover: none) and (pointer: coarse) {
+    display: none;
+  }
+}
+
+.theme-toggle__separator {
+  height: 1px;
+  margin: var(--space-xs) 0.35rem;
+  background: var(--border-bar);
+}
+
+/* A switch is a setting, not the current choice: no selected tint, the track says it */
+.theme-toggle__option--switch[aria-checked] {
+  color: var(--nav-link-color);
+  font-weight: 500;
+  background: none;
+  border-color: transparent;
+
+  &:hover,
+  &:focus-visible {
+    background: color-mix(in oklch, var(--link-color-secondary) 9%, transparent);
+    color: var(--link-color-secondary-hover);
+  }
+}
+
+.theme-toggle__switch {
+  --switch-travel: 0.75rem;
+
+  position: relative;
+  flex: none;
+  width: 1.75rem;
+  height: 1rem;
+  margin-left: auto;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--text-secondary) 60%, transparent);
+  transition: background-color var(--motion-small) var(--zen-ease-out);
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: var(--surface-popover);
+    box-shadow: 0 1px 2px oklch(0% 0 0deg / 25%);
+    transition: transform var(--motion-small) var(--zen-ease-elegant);
+  }
+
+  [aria-checked="true"] > & {
+    background: var(--primary-color);
+
+    &::after {
+      transform: translateX(var(--switch-travel));
+    }
+  }
+}
+
+/* ── Changing gardens: a drop of sumi from the button (see theme-ink.ts) ──
+   Scoped to `html.theme-transition`, which only the theme switch sets, so page navigations keep
+   their own view transitions (_motion.scss). Only the root is captured: the whole page is the
+   paper the ink soaks into. */
+
+html.theme-transition body,
+html.theme-transition body * {
+  view-transition-name: none !important;
+}
+
+/* The menu that chose the garden is already gone in the "before" picture */
+html.theme-transition .theme-toggle__menu {
+  transition: none;
+}
+
+html.theme-transition::view-transition-group(root) {
+  animation: none;
+}
+
+html.theme-transition::view-transition-old(root),
+html.theme-transition::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Night: the new page is revealed through the spreading drop */
+html.theme-transition::view-transition-new(root) {
+  mask-image: var(--theme-ink-mask);
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
+  mask-size: 0 0;
+}
+
+/* Dawn: the old night sits on top and is drawn back into the button */
+html.theme-transition--recede::view-transition-old(root) {
+  z-index: 1;
+  mask-image: var(--theme-ink-mask);
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
+  mask-size: 0 0;
+}
+
+html.theme-transition--recede::view-transition-new(root) {
+  mask-image: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle__button,
+  .theme-toggle__sun,
+  .theme-toggle__moon,
+  .theme-toggle__rays,
+  .theme-toggle__pip,
+  .theme-toggle__menu,
+  .theme-toggle[data-open] .theme-toggle__menu,
+  .theme-toggle__check,
+  .theme-toggle__switch,
+  .theme-toggle__switch::after {
+    transition: none;
+  }
+
+  .theme-toggle__menu {
+    transform: none;
+  }
+}

@@ -1,136 +1,153 @@
 ---
+/**
+ * SakuraPetals — a small petal burst where the visitor presses on plain paper.
+ * Never on controls, chrome or menus; throttled; switchable from the theme menu ("Petals").
+ * The layer sits above the content but under the header, its menus and dialogs, and never
+ * takes a pointer. Rules live in ./client/sakura-petals.ts.
+ */
 ---
 
-<div id="sakura-container" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;" transition:persist="sakura"></div>
+<div id="sakura-container" class="sakura-layer" aria-hidden="true" transition:persist="sakura"></div>
+
+<style is:global>
+  /* --z-petals: over page content, under both headers (--z-header), their menus and every overlay */
+  .sakura-layer {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-petals);
+    overflow: hidden;
+    pointer-events: none;
+    contain: strict;
+  }
+
+  .sakura-layer > span {
+    position: fixed;
+    border-radius: 50% 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+</style>
 
 <script>
-  import { shouldBindSakuraTouchBursts } from "./client/sakura-petals";
+  import {
+    PETALS_CHANGE_EVENT,
+    PETALS_STORAGE_KEY,
+    createBurstGate,
+    isPetalSurface,
+    readPetalsEnabled,
+    shouldBindSakuraTouchBursts,
+  } from "./client/sakura-petals";
 
-  (function() {
-    var PETAL_COUNT_MIN = 6;
-    var PETAL_COUNT_MAX = 10;
-    var DURATION = 1400;
-    var THROTTLE = 120;
-    var lastBurst = 0;
-    var bound = false;
+  const PETAL_COUNT_MIN = 5;
+  const PETAL_COUNT_MAX = 8;
+  const DURATION = 1400;
 
-    var prefersReduced = globalThis.matchMedia && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var shouldBindPointerBursts = shouldBindSakuraTouchBursts();
+  /* Module scope: Astro bundles this once, so the wiring survives every client-side swap */
+  let enabled = readPetalsEnabled();
+  const gate = createBurstGate();
 
-    function randomBetween(min: number, max: number) {
-      return min + Math.random() * (max - min);
+  const randomBetween = (min: number, max: number): number => min + Math.random() * (max - min);
+
+  const getContainer = (): HTMLElement => {
+    let el = document.getElementById("sakura-container");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "sakura-container";
+      el.className = "sakura-layer";
+      el.setAttribute("aria-hidden", "true");
+      document.body.append(el);
     }
+    return el;
+  };
 
-    function getContainer() {
-      var el = document.getElementById('sakura-container');
-      if (!el) {
-        el = document.createElement('div');
-        el.id = 'sakura-container';
-        el.setAttribute('aria-hidden', 'true');
-        el.style.viewTransitionName = 'sakura';
-        el.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;view-transition-name:sakura;';
-        document.body.appendChild(el);
-      }
-      return el;
-    }
+  const createPetal = (x: number, y: number): HTMLSpanElement => {
+    const petal = document.createElement("span");
+    const spreadX = randomBetween(-60, 60);
+    const fallY = randomBetween(80, 180);
+    const rotation = randomBetween(180, 540);
+    const size = randomBetween(8, 15);
+    const hue = 355 + randomBetween(-15, 15);
+    const sway = randomBetween(-30, 30);
 
-    function createPetal(x: number, y: number) {
-      var petal = document.createElement('span');
-      var spreadX = randomBetween(-60, 60);
-      var fallY = randomBetween(80, 180);
-      var rotation = randomBetween(180, 540);
-      var size = randomBetween(8, 16);
-      var hueShift = randomBetween(-15, 15);
-      var delay = randomBetween(0, 200);
-      var sway = randomBetween(-30, 30);
+    petal.style.left = `${x}px`;
+    petal.style.top = `${y}px`;
+    petal.style.width = `${size}px`;
+    petal.style.height = `${size * 0.65}px`;
+    petal.style.background = `oklch(75% 0.12 ${hue}deg / 80%)`;
 
-      petal.style.cssText = 'position:fixed;left:' + x + 'px;top:' + y + 'px;width:' + size + 'px;height:' + (size * 0.65) + 'px;border-radius:50% 0 50% 0;pointer-events:none;will-change:transform,opacity;z-index:9999;';
-      petal.style.background = 'oklch(75% 0.12 ' + (355 + hueShift) + 'deg / 80%)';
-      petal.style.boxShadow = '0 0 ' + (size * 0.4) + 'px oklch(75% 0.1 355deg / 35%)';
-
-      petal.animate([
-        {
-          opacity: 0.9,
-          transform: 'translate(0, 0) rotate(0deg) scale(1)'
-        },
+    petal.animate(
+      [
+        { opacity: 0.9, transform: "translate(0, 0) rotate(0deg) scale(1)" },
         {
           opacity: 0.7,
-          transform: 'translate(' + (spreadX * 0.4 + sway) + 'px, ' + (fallY * 0.3) + 'px) rotate(' + (rotation * 0.3) + 'deg) scale(0.9)',
-          offset: 0.3
+          transform: `translate(${spreadX * 0.4 + sway}px, ${fallY * 0.3}px) rotate(${rotation * 0.3}deg) scale(0.9)`,
+          offset: 0.3,
         },
         {
           opacity: 0.4,
-          transform: 'translate(' + (spreadX * 0.7 - sway * 0.5) + 'px, ' + (fallY * 0.7) + 'px) rotate(' + (rotation * 0.7) + 'deg) scale(0.7)',
-          offset: 0.7
+          transform: `translate(${spreadX * 0.7 - sway * 0.5}px, ${fallY * 0.7}px) rotate(${rotation * 0.7}deg) scale(0.7)`,
+          offset: 0.7,
         },
         {
           opacity: 0,
-          transform: 'translate(' + spreadX + 'px, ' + fallY + 'px) rotate(' + rotation + 'deg) scale(0.3)'
-        }
-      ], {
+          transform: `translate(${spreadX}px, ${fallY}px) rotate(${rotation}deg) scale(0.3)`,
+        },
+      ],
+      {
         duration: DURATION + randomBetween(-200, 200),
-        delay: delay,
-        easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
-        fill: 'forwards'
-      });
+        delay: randomBetween(0, 160),
+        easing: "cubic-bezier(0.25, 0.1, 0.25, 1)",
+        fill: "forwards",
+      },
+    ).finished.then(
+      () => petal.remove(),
+      () => petal.remove(),
+    );
 
-      return petal;
+    return petal;
+  };
+
+  const burst = (x: number, y: number): void => {
+    if (!enabled || !gate()) {
+      return;
     }
+    const count = Math.floor(randomBetween(PETAL_COUNT_MIN, PETAL_COUNT_MAX + 1));
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < count; i++) {
+      fragment.append(createPetal(x, y));
+    }
+    getContainer().append(fragment);
+  };
 
-    function burst(x: number, y: number) {
-      var now = Date.now();
-      if (now - lastBurst < THROTTLE) return;
-      lastBurst = now;
-
-      var container = getContainer();
-      var count = Math.floor(randomBetween(PETAL_COUNT_MIN, PETAL_COUNT_MAX + 1));
-      var fragment = document.createDocumentFragment();
-
-      for (var i = 0; i < count; i++) {
-        fragment.appendChild(createPetal(x, y));
-      }
-
-      container.appendChild(fragment);
-
-      setTimeout(function() {
-        while (container.children.length > count * 3) {
-          if (container.firstChild) container.firstChild.remove();
+  if (shouldBindSakuraTouchBursts()) {
+    document.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (event.isPrimary && event.button === 0 && isPetalSurface(event.target)) {
+          burst(event.clientX, event.clientY);
         }
-      }, DURATION + 300);
+      },
+      { passive: true },
+    );
+  }
+
+  document.addEventListener("sakura:burst", (event) => {
+    const detail = (event as CustomEvent<{ x: number; y: number }>).detail;
+    if (detail && typeof detail.x === "number" && typeof detail.y === "number") {
+      burst(detail.x, detail.y);
     }
+  });
 
-    function init() {
-      getContainer();
-
-      if (bound || prefersReduced) return;
-      bound = true;
-
-      if (shouldBindPointerBursts) {
-        document.addEventListener('click', function(e) {
-          burst(e.clientX, e.clientY);
-        });
-
-        document.addEventListener('touchstart', function(e) {
-          if (e.touches.length === 1) {
-            burst(e.touches[0].clientX, e.touches[0].clientY);
-          }
-        }, { passive: true });
-      }
-
-      document.addEventListener('sakura:burst', function(e) {
-        var detail = (e as CustomEvent<{ x: number; y: number }>).detail;
-        if (detail && typeof detail.x === 'number' && typeof detail.y === 'number') {
-          burst(detail.x, detail.y);
-        }
-      });
+  // The theme menu's "Petals" row, in this tab or another one
+  document.addEventListener(PETALS_CHANGE_EVENT, (event) => {
+    const detail = (event as CustomEvent<{ enabled: boolean }>).detail;
+    if (detail && typeof detail.enabled === "boolean") {
+      enabled = detail.enabled;
     }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
+  });
+  globalThis.addEventListener("storage", (event) => {
+    if (event.key === null || event.key === PETALS_STORAGE_KEY) {
+      enabled = readPetalsEnabled();
     }
-
-    document.addEventListener('astro:page-load', init);
-  })();
+  });
 </script>

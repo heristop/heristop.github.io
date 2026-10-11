@@ -1,10 +1,14 @@
+@use 'scheme';
+
 :root {
   --primary-color: oklch(48% 0.13 358deg);
   --primary-bg-color: oklch(95% 0.02 75deg);
   --link-color: oklch(48% 0.13 358deg);
   --link-hover-color: oklch(62% 0.08 10deg);
-  --link-color-secondary: oklch(55% 0.09 5deg);
+  --link-color-secondary: oklch(50% 0.1 5deg);
   --link-color-secondary-hover: oklch(62% 0.08 10deg);
+  --nav-link-color: var(--link-color-secondary);
+  --footer-link-color: var(--link-color);
   --hr-color: oklch(62% 0.08 10deg);
   --text-secondary: oklch(44% 0.01 55deg);
   --banner-bg-color: oklch(94% 0 0deg);
@@ -21,7 +25,11 @@
   --code-inline-bg-hover: color-mix(in oklch, var(--primary-color) 18%, var(--surface-warm));
   --code-inline-border: color-mix(in oklch, var(--primary-color) 26%, transparent);
   --code-selection: color-mix(in oklch, var(--primary-color) 45%, transparent);
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font-size-body: 1rem;
+  --line-height-body: 1.65;
+  --font-size-label: 0.75rem;
+  --tracking-label: 0.08em;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", "SF Mono", "Menlo", "Consolas", monospace;
   --color-overlay-light: oklch(97% 0 0deg / 50%);
   --space-xs: 0.125rem;
   --space-sm: 0.25rem;
@@ -32,18 +40,34 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.75rem;
-  --zen-transition-duration: 280ms;
-  --zen-transition-timing: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --zen-duration-fast: 200ms;
-  --zen-duration-normal: 300ms;
-  --zen-duration-slow: 400ms;
+
+  /* Legacy --zen-* motion names are aliases of the one motion scale in _motion.scss. Only the
+     breath stays long: it is ambient (a slow idle pulse), not a response to the user. */
+  --zen-transition-duration: var(--motion-page);
+  --zen-transition-timing: var(--motion-ease-out);
+  --zen-duration-fast: var(--motion-micro);
+  --zen-duration-normal: var(--motion-small);
+  --zen-duration-slow: var(--motion-page);
   --zen-duration-breath: 4000ms;
-  --zen-ease-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --zen-ease-in-out: cubic-bezier(0.4, 0, 0.6, 1);
-  --zen-ease-spring: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --zen-ease-gentle: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --zen-ease-elegant: cubic-bezier(0.33, 1, 0.68, 1);
-  --zen-ease-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+  --zen-ease-out: var(--motion-ease-out);
+  --zen-ease-in-out: var(--motion-ease-in-out);
+  --zen-ease-spring: var(--motion-ease-out);
+  --zen-ease-gentle: var(--motion-ease-out);
+  --zen-ease-elegant: var(--motion-ease-out);
+  --zen-ease-smooth: var(--motion-ease-in-out);
+
+  /* Stacking scale: content < ambient petals < header and its menus < overlays */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-progress: 150;
+  --z-petals: 200;
+  --z-header: 1000;
+  --z-popover: 1100;
+  --z-scrim: 1200;
+  --z-sheet: 1250;
+  --z-dialog: 1300;
+  --z-toast: 1400;
   --zen-distance-sm: 12px;
   --zen-distance-md: 20px;
   --zen-distance-lg: 30px;
@@ -66,6 +90,7 @@
   --surface-warm: oklch(95% 0.01 75deg / 95%);
   --surface-warm-light: oklch(95% 0.01 75deg / 30%);
   --surface-card-solid: oklch(98.5% 0.005 75deg);
+  --surface-haiku: linear-gradient(150deg, oklch(100% 0 0deg / 82%), oklch(94% 0.015 75deg / 60%));
 
   /* Border colors */
   --border-glass: oklch(100% 0 0deg / 40%);
@@ -83,9 +108,100 @@
   --text-on-surface: oklch(42% 0.01 60deg);
   --text-on-dark: oklch(100% 0 0deg);
 
+  /* Top-edge light catching a raised surface; dims to a faint rim at night */
+  --sheen: oklch(100% 0 0deg);
+
+  /* The /icons/*.svg glyphs ship in plum: as-is on paper, knocked out on primary fills */
+  --icon-img-filter: none;
+  --icon-on-primary-filter: brightness(0) invert(1);
+
   /* Table */
   --table-border: oklch(92% 0.005 250deg);
 
   /* Backdrop colors */
   --backdrop-color: oklch(52% 0.015 250deg / 75%);
+  --scrim-color: oklch(25% 0.02 355deg / 28%);
+
+  /* Header chrome */
+  --surface-bar: oklch(95% 0.01 75deg);
+  --surface-bar-translucent: oklch(95% 0.01 75deg / 86%);
+  --surface-popover: oklch(97.5% 0.008 75deg);
+  --border-bar: color-mix(in oklch, var(--primary-color) 12%, transparent);
+  --border-strong: oklch(44% 0.01 55deg / 45%);
+  --focus-ring: var(--primary-color);
+
+  /* "New" badge: a small lacquered tag */
+  --badge-new-bg: linear-gradient(135deg, oklch(41% 0.04 160deg), oklch(32% 0.035 165deg));
+  --badge-new-border: oklch(74% 0.06 120deg);
+  --badge-new-text: oklch(95% 0.07 95deg);
+  --badge-new-gem: oklch(82% 0.09 75deg);
+  --badge-new-shadow: 0 2px 5px oklch(32% 0.03 160deg / 13%), inset 0 1px oklch(100% 0 0deg / 9%);
+}
+
+/* Night garden: the same paper, after dusk. Warm ink instead of black, rose lifted so it
+   still reads as the accent, and translucent materials that darken rather than frost.
+   Applies when the visitor picks Dark, or follows a dark OS (see _scheme.scss). */
+@include scheme.night {
+    --primary-color: oklch(76% 0.11 358deg);
+    --primary-bg-color: oklch(19% 0.015 350deg);
+    --text-color: oklch(90% 0.02 60deg);
+    --link-color: oklch(76% 0.11 358deg);
+    --link-hover-color: oklch(84% 0.08 15deg);
+    --link-color-secondary: oklch(78% 0.09 5deg);
+    --link-color-secondary-hover: oklch(86% 0.07 15deg);
+
+    /* Wayfinding links read as rose-tinted paper; full rose is kept for the active page, hover,
+       and links inside prose, so the accent still means something at night */
+    --nav-link-color: oklch(84% 0.03 20deg);
+    --footer-link-color: oklch(84% 0.03 20deg);
+    --hr-color: oklch(58% 0.07 10deg);
+    --text-secondary: oklch(74% 0.015 60deg);
+    --banner-bg-color: oklch(24% 0.012 350deg);
+    --footer-text-color: oklch(82% 0.015 60deg);
+    --footer-ink: oklch(72% 0.03 350deg); /* moonlit mist instead of sumi on paper */
+    --footer-border-color: oklch(80% 0.01 60deg / 12%);
+    --heading-color: oklch(88% 0.045 10deg);
+    --code-bg-color: oklch(15.5% 0.025 355deg);
+    --code-bg-color-edge: oklch(19% 0.03 355deg);
+    --color-overlay-light: oklch(100% 0 0deg / 5%);
+    --home-card-shadow: 0 22px 42px -30px oklch(0% 0 0deg / 70%),
+      0 10px 24px -24px oklch(0% 0 0deg / 50%);
+    --home-card-shadow-hover: 0 26px 52px -28px oklch(0% 0 0deg / 80%),
+      0 14px 30px -20px oklch(0% 0 0deg / 55%);
+    --home-card-shadow-soft: 0 14px 30px -26px oklch(0% 0 0deg / 60%),
+      0 6px 18px -16px oklch(0% 0 0deg / 40%);
+    --surface-glass: oklch(100% 0 0deg / 4.5%);
+    --surface-glass-hover: oklch(100% 0 0deg / 7.5%);
+    --surface-glass-strong: oklch(100% 0 0deg / 9%);
+    --surface-card: linear-gradient(155deg, oklch(27% 0.018 350deg / 70%), oklch(22% 0.015 350deg / 55%));
+    --surface-card-content: linear-gradient(160deg, oklch(23% 0.016 350deg / 60%) 0%, oklch(23% 0.016 350deg / 72%) 55%, oklch(25% 0.018 350deg / 82%) 100%);
+    --surface-overlay: linear-gradient(160deg, oklch(24% 0.016 350deg / 70%) 0%, oklch(24% 0.016 350deg / 82%) 58%, oklch(24% 0.016 350deg / 92%) 100%);
+    --surface-overlay-hover: linear-gradient(160deg, oklch(26% 0.018 350deg / 76%) 0%, oklch(26% 0.018 350deg / 86%) 55%, oklch(26% 0.018 350deg / 94%) 100%);
+    --surface-muted: oklch(100% 0 0deg / 5%);
+    --surface-warm: oklch(23% 0.016 350deg / 95%);
+    --surface-warm-light: oklch(23% 0.016 350deg / 45%);
+    --surface-card-solid: oklch(23% 0.016 350deg);
+    --surface-haiku: linear-gradient(150deg, oklch(26% 0.02 350deg / 92%), oklch(21% 0.016 350deg / 80%));
+    --border-glass: oklch(100% 0 0deg / 9%);
+    --border-glass-strong: oklch(100% 0 0deg / 13%);
+    --border-subtle: oklch(100% 0 0deg / 7%);
+    --border-image: oklch(100% 0 0deg / 12%);
+    --shadow-sm: 0 2px 4px oklch(0% 0 0deg / 30%);
+    --shadow-md: 0 4px 6px -1px oklch(0% 0 0deg / 40%), 0 2px 4px -2px oklch(0% 0 0deg / 35%);
+    --shadow-lg: 0 20px 40px oklch(0% 0 0deg / 50%);
+    --text-on-surface: oklch(80% 0.015 60deg);
+    --text-on-dark: oklch(18% 0.03 355deg); /* ink on the lifted rose fills */
+    --sheen: oklch(100% 0 0deg / 10%);
+    --icon-img-filter: saturate(0.7) brightness(1.75);
+    --icon-on-primary-filter: brightness(0) invert(0.12);
+    --table-border: oklch(100% 0 0deg / 10%);
+    --backdrop-color: oklch(10% 0.012 350deg / 78%);
+    --scrim-color: oklch(8% 0.012 350deg / 55%);
+    --surface-bar: oklch(22% 0.016 350deg);
+    --surface-bar-translucent: oklch(22% 0.016 350deg / 84%);
+    --surface-popover: oklch(24.5% 0.018 350deg);
+    --border-bar: color-mix(in oklch, var(--primary-color) 16%, transparent);
+    --border-strong: oklch(80% 0.01 60deg / 35%);
+    --badge-new-border: oklch(60% 0.06 120deg);
+    --badge-new-shadow: 0 2px 6px oklch(0% 0 0deg / 40%), inset 0 1px oklch(100% 0 0deg / 9%);
 }

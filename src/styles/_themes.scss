@@ -1,12 +1,130 @@
+@use 'scheme';
+
 /* High contrast mode support */
 @media (prefers-contrast: more) {
   :root {
     --primary-color: oklch(36% 0.15 355deg);
     --text-secondary: oklch(34% 0 0deg);
     --heading-color: oklch(20% 0.03 20deg);
+    --surface-glass: var(--surface-card-solid);
+    --surface-glass-hover: var(--surface-card-solid);
+    --surface-glass-strong: var(--surface-card-solid);
+    --surface-warm: oklch(95% 0.01 75deg);
+    --surface-bar-translucent: var(--surface-bar);
+    --border-glass: var(--border-strong);
+    --border-subtle: var(--border-strong);
+    --border-bar: var(--border-strong);
+    --scrim-color: oklch(20% 0.02 355deg / 60%);
   }
 
   a {
     text-decoration: underline;
+  }
+}
+
+/* Frosted surfaces go solid; blur without translucency only costs GPU */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --surface-glass: var(--surface-card-solid);
+    --surface-glass-hover: var(--surface-card-solid);
+    --surface-glass-strong: var(--surface-card-solid);
+    --surface-warm: oklch(95% 0.01 75deg);
+    --surface-bar-translucent: var(--surface-bar);
+    --scrim-color: oklch(25% 0.02 355deg / 55%);
+  }
+
+  *,
+  *::before,
+  *::after {
+    backdrop-filter: none !important;
+  }
+}
+
+/* Night garden: component pieces whose colour is not (only) a token (scoped in _scheme.scss) */
+@include scheme.night {
+  scrollbar-color: color-mix(in oklch, var(--text-secondary) 35%, transparent) transparent;
+
+  /* The light page shows the canvas through the paper texture; at night the paper is the ink,
+     with a faint moon-glow at the top so the page has depth instead of a flat fill. */
+  body {
+    color: var(--text-color);
+    background:
+      radial-gradient(120% 55% at 50% -12%, oklch(25% 0.03 350deg / 70%), transparent 62%) fixed,
+      var(--primary-bg-color);
+  }
+
+  body::before {
+    opacity: 0.035;
+  }
+
+  .post-page {
+    --prose-color: oklch(88% 0.02 60deg);
+  }
+
+  /* Photographs and paintings dim a touch rather than invert */
+  :is(.site-header__banner-image, .post-page img, .social-network__image, .about__avatar) {
+    filter: brightness(0.88);
+  }
+
+  /* The haiku card is a sheet of pale paper. At night a washi wash multiplies over it, lit from
+     above: the paper keeps its grain and ink but reads as lamplit, not as a light left on. */
+  .haiku-card__visual-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+      radial-gradient(120% 85% at 50% 0%, transparent 35%, oklch(26% 0.03 350deg / 22%)),
+      oklch(30% 0.03 350deg / 35%);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+
+  /* Night cards are solid paper with a lit top rim, not glass: blur stays on the header only */
+  .zen-card {
+    background: var(--surface-card-solid);
+    box-shadow:
+      var(--home-card-shadow-soft),
+      inset 0 1px 0 oklch(100% 0 0deg / 6%);
+
+    &:is(:hover, :focus-within) {
+      background: oklch(25.5% 0.018 350deg);
+      box-shadow:
+        var(--home-card-shadow-hover),
+        inset 0 1px 0 oklch(100% 0 0deg / 8%);
+    }
+  }
+
+  /* The ink portrait is drawn in sumi black; a moonlit rim keeps its silhouette on the night paper */
+  .footer-portrait :is(img, canvas) {
+    filter: drop-shadow(0 0 1px oklch(86% 0.02 60deg / 55%)) drop-shadow(0 0 4px oklch(80% 0.04 350deg / 25%));
+  }
+
+  img[src^="/icons/"] {
+    filter: var(--icon-img-filter);
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--primary-color) 40%, transparent);
+    color: var(--text-color);
+  }
+}
+
+@media (prefers-contrast: more) {
+  @include scheme.night {
+    --primary-color: oklch(82% 0.1 358deg);
+    --link-color: oklch(82% 0.1 358deg);
+    --text-secondary: oklch(84% 0.01 60deg);
+    --heading-color: oklch(94% 0.03 10deg);
+    --surface-warm: oklch(23% 0.016 350deg);
+    --border-strong: oklch(85% 0.01 60deg / 70%);
+    --scrim-color: oklch(5% 0.01 350deg / 75%);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  @include scheme.night {
+    --surface-warm: oklch(23% 0.016 350deg);
+    --scrim-color: oklch(8% 0.012 350deg / 75%);
   }
 }

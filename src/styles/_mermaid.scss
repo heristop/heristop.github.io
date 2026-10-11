@@ -1,0 +1,49 @@
+/* Mermaid diagram colours. The SVG ships with hex baked in (see astro.config.mjs);
+   src/plugins/mermaid-tokens.ts rewrites each known colour to var(--mermaid-*, <hex>), and this
+   file maps those names onto the semantic tokens. Everything is derived from tokens, with no
+   colour-scheme query of its own, so diagrams follow whichever theme the tokens resolve to. */
+:root {
+  /* Mixed in oklab, not oklch: the paper tokens carry a warm hue, and oklch would swing a rose or
+     moss tint round the hue wheel through orange on its way there */
+
+  /* Canvas sits between the page and a card; nodes are raised a step above it, in both themes */
+  --mermaid-canvas: color-mix(in oklab, var(--surface-warm) 50%, var(--primary-bg-color));
+  --mermaid-node-bg: color-mix(in oklab, var(--primary-color) 7%, var(--surface-popover));
+  --mermaid-node-border: color-mix(in oklab, var(--primary-color) 75%, var(--surface-popover));
+  --mermaid-text: var(--heading-color);
+  --mermaid-line: color-mix(in oklab, var(--primary-color) 35%, var(--text-secondary));
+  --mermaid-edge-label-bg: var(--mermaid-canvas);
+
+  /* Clusters, quiet nodes and their borders */
+  --mermaid-surface-subtle: var(--surface-popover);
+  --mermaid-muted-bg: color-mix(in oklab, var(--text-secondary) 7%, var(--surface-popover));
+  --mermaid-border-soft: color-mix(in oklab, var(--text-secondary) 45%, var(--surface-popover));
+
+  /* Accent tints: highlighted nodes, secondary fills, notes */
+  --mermaid-accent-bg: color-mix(in oklab, var(--primary-color) 16%, var(--surface-popover));
+  --mermaid-secondary-bg: color-mix(in oklab, var(--primary-color) 11%, var(--surface-popover));
+  --mermaid-secondary-border: color-mix(in oklab, var(--primary-color) 40%, var(--surface-popover));
+  --mermaid-note-bg: color-mix(in oklab, var(--badge-new-gem) 20%, var(--surface-popover));
+  --mermaid-note-border: color-mix(in oklab, var(--badge-new-gem) 75%, var(--mermaid-text));
+
+  /* Status tints borrow the lacquered badge's amber gem and moss rim; borders and labels lean
+     toward the text colour, so they darken on paper and lighten at night */
+  --mermaid-warn-bg: color-mix(in oklab, var(--badge-new-gem) 20%, var(--surface-popover));
+  --mermaid-warn-border: color-mix(in oklab, var(--badge-new-gem) 75%, var(--mermaid-text));
+  --mermaid-warn-text: color-mix(in oklab, var(--badge-new-gem) 35%, var(--mermaid-text));
+  --mermaid-ok-bg: color-mix(in oklab, var(--badge-new-border) 20%, var(--surface-popover));
+  --mermaid-ok-border: color-mix(in oklab, var(--badge-new-border) 75%, var(--mermaid-text));
+  --mermaid-ok-text: color-mix(in oklab, var(--badge-new-border) 40%, var(--mermaid-text));
+}
+
+/* Every mermaid diagram (rehype-mermaid ids them mermaid-N); block + auto margins centre it
+   in its breakout, and an overflowing diagram still starts at the left edge of its scroller */
+svg[id^="mermaid-"] {
+  display: block;
+  margin-inline: auto;
+  background-color: var(--mermaid-canvas);
+
+  .edgeLabel {
+    color: var(--text-secondary);
+  }
+}

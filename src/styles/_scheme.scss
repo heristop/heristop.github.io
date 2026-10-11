@@ -1,0 +1,21 @@
+/* Night garden scoping. Light paper is the default, with or without JS. The night applies when
+   the visitor picks Dark, or picks System on a dark OS (`data-theme` on <html>, set before first
+   paint by BaseHead). The content is emitted twice, so a dark block is written once and both
+   doors open onto it.
+
+   `:where()` keeps each selector at the specificity of a bare `:root`, so the rules weigh exactly
+   what they did when they lived under a plain prefers-color-scheme query.
+
+   The block's declarations land on the root and its nested rules descend from it. Wrap the
+   include in an @media (e.g. prefers-contrast) to combine it with the night condition. */
+@mixin night {
+  :root:where([data-theme="dark"]) {
+    @content;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:where([data-theme="system"]) {
+      @content;
+    }
+  }
+}

@@ -1,0 +1,99 @@
+---
+/**
+ * ThemeToggle — the appearance menu button that sits beside the header search toggle.
+ * The glyph (sun or moon, plus a pip when following the device) is pure CSS off
+ * <html data-theme>; the menu and labels are wired by ./client/theme-toggle.ts.
+ * Styles: src/styles/_theme-toggle.scss.
+ */
+interface Props {
+  /** Distinguishes the static header instance from the sticky bar one. */
+  id: string;
+}
+
+const { id } = Astro.props;
+const menuId = `theme-menu-${id}`;
+const options = [
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+  { value: "system", label: "System" },
+] as const;
+---
+
+<div class="theme-toggle" data-theme-toggle>
+  <button
+    class="theme-toggle__button"
+    type="button"
+    aria-label="Theme"
+    aria-haspopup="menu"
+    aria-expanded="false"
+    aria-controls={menuId}
+    data-tooltip="Theme"
+    data-tooltip-placement="bottom"
+  >
+    <span class="theme-toggle__glyph" aria-hidden="true">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle class="theme-toggle__core" cx="12" cy="12" r="4" />
+        <path class="theme-toggle__rays" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+      </svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+      </svg>
+      <span class="theme-toggle__pip"></span>
+    </span>
+  </button>
+
+  <div class="theme-toggle__menu" id={menuId} role="menu" aria-label="Theme">
+    {options.map(({ value, label }) => (
+      <button
+        class="theme-toggle__option"
+        type="button"
+        role="menuitemradio"
+        aria-checked="false"
+        tabindex="-1"
+        data-theme-value={value}
+      >
+        <svg class="theme-toggle__option-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          {value === "light" && (
+            <>
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+            </>
+          )}
+          {value === "dark" && <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />}
+          {value === "system" && (
+            <>
+              <rect x="2" y="3" width="20" height="14" rx="2" />
+              <path d="M8 21h8M12 17v4" />
+            </>
+          )}
+        </svg>
+        <span class="theme-toggle__option-label">{label}</span>
+        <svg class="theme-toggle__check" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      </button>
+    ))}
+
+    <div class="theme-toggle__extras">
+      <div class="theme-toggle__separator" role="separator"></div>
+      <button
+        class="theme-toggle__option theme-toggle__option--switch"
+        type="button"
+        role="menuitemcheckbox"
+        aria-checked="true"
+        tabindex="-1"
+        data-petals-toggle
+      >
+        <svg class="theme-toggle__option-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 21c-4-2.6-6.5-6-6.5-9.6A5.6 5.6 0 0 1 10 5.9L12 8l2-2.1a5.6 5.6 0 0 1 4.5 5.5C18.5 15 16 18.4 12 21Z" />
+        </svg>
+        <span class="theme-toggle__option-label">Petals</span>
+        <span class="theme-toggle__switch" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import "./client/theme-toggle";
+</script>
