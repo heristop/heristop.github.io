@@ -1,7 +1,7 @@
 ---
 title: "One Descriptor, Three FFmpeg Builds"
 description: "Rendering video with no server means shipping FFmpeg to Node, WebAssembly and a Rust core on mobile. Porting is easy; the builds don't share the same filters."
-image: "/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/one-to-three-banner.webp"
+image: "/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/leclap-v3-banner.webp"
 pubDate: "2026-08-17"
 tags: ["ffmpeg", "rust", "webassembly", "react-native", "case-study"]
 conclusion: "The interesting constraint was never CPU. It was that the same filter graph doesn't exist on all three targets, and the only honest answer is to make the engine ask before it emits."
@@ -14,23 +14,27 @@ Every browser-based video editor I've used does the same thing: you upload your 
 So the question behind **[LeClap](https://leclap.dev)** was narrow and testable: **can the render happen where the footage already is?** Not "mostly", not "the preview at least" — the actual encode, on the actual device, with the same engine a server would use.
 
 <div class="img-container">
-  <video
-    class="img-large post-video"
-    style="border-radius: 0.875rem"
-    poster="/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/on-device-render-poster.webp"
-    aria-label="A phone composing a template on-device: tapping Create my video, FFmpeg rendering on the handset, then the finished clip playing back — no upload, no server"
-    width="720"
-    height="406"
-    muted
-    playsinline
-    loop
-    controls
-    preload="none"
-    data-motion-autoplay
-  >
-    <source src="/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/on-device-render.webm" type="video/webm" />
-    <source src="/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/on-device-render.mp4" type="video/mp4" />
-  </video>
+  <figure class="img-figure">
+    <video
+      class="img-large post-video"
+      style="border-radius: 0.875rem"
+      poster="/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/leclap-v3-poster.webp"
+      aria-label="The launch film for LeClap's engine, ffmpeg-video-composer v3: text cards laid out like a web page, sound effects, word-by-word captions, one template in three formats, the builder writing a template from a sentence, a render on the phone, then a wall of the built-in effects"
+      width="1280"
+      height="720"
+      muted
+      playsinline
+      loop
+      controls
+      preload="none"
+      data-motion-autoplay
+    >
+      <source src="/videos/2026-08-17-one-descriptor-three-ffmpeg-builds/leclap-v3.mp4" type="video/mp4" />
+    </video>
+    <figcaption class="img-caption">
+      The launch film for v3 of the engine. It has a voice-over; the captions are burned in for anyone who keeps it muted.
+    </figcaption>
+  </figure>
 </div>
 
 The answer is yes — with an asterisk I'll get to. The cost is not the one I expected: I assumed the hard part would be performance. It wasn't. **The hard part is that "FFmpeg" is not one thing.** Ship it three ways and you get three different sets of filters and three different encoders, and a filter graph that works on your laptop can fail silently on a phone.
