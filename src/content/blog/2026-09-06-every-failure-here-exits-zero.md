@@ -57,6 +57,21 @@ The flow is simple:
 
 I use **[LeClap](https://leclap.dev)** for the last step. It turns the recordings into a short clip with a title and before-and-after labels. The agent calls it through MCP, the interface that lets it use tools directly.
 
+<div class="img-container">
+  <figure class="img-figure" style="width: 100%; max-width: 48rem;">
+    <video controls loop playsinline preload="metadata" aria-label="LeClap's film on agentic development: a coding agent records a change before and after, and LeClap renders the proof"
+      poster="/images/posts/2026-09-06-every-failure-here-exits-zero/leclap-agentic-poster.webp"
+      style="width: 100%; border-radius: 0.5rem; border: 2px solid var(--border-image);">
+      <source src="/videos/2026-09-06-every-failure-here-exits-zero/leclap-agentic.mp4" type="video/mp4" />
+      <track kind="captions" src="/videos/2026-09-06-every-failure-here-exits-zero/leclap-agentic.en.vtt" srclang="en" label="English" />
+      Your browser does not support the video tag.
+    </video>
+    <figcaption class="img-caption">
+      The LeClap film on agentic development: the agent records the change, LeClap renders the proof.
+    </figcaption>
+  </figure>
+</div>
+
 The footage comes from the running application. The editor arranges those recordings into a fixed template. That matters: I want to see what the application did, and be able to trace it back to the recorded flow.
 
 The video arrives with the code, ready to watch. I do not have to ask the agent for a demonstration in a separate conversation.
