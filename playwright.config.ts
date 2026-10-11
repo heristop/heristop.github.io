@@ -6,6 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: '.',
   testMatch: ['tests/visual/**/*.spec.ts', 'packages/path-of-stones/tests/visual/**/*.spec.ts'],
+  /* Site baselines have their own config: playwright.visual.config.ts (pnpm test:visual) */
+  testIgnore: ['tests/visual/site/**'],
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
