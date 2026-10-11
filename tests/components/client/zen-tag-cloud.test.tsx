@@ -53,8 +53,8 @@ describe("<ZenTagCloud />", () => {
     expect(links[1]).toHaveAccessibleName(/astro\s*1\s*post$/);
   });
 
-  it("skips Pretext tag measurement on coarse pointer devices", async () => {
-    mockMatchMedia(true);
+  it("never measures tags with Pretext (the pills size from CSS)", async () => {
+    mockMatchMedia(false);
     render(
       <ZenTagCloud
         tags={[
