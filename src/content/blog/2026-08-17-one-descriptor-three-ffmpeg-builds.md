@@ -13,29 +13,28 @@ Every browser-based video editor I've used does the same thing: you upload your 
 
 So the question behind **[LeClap](https://leclap.dev)** was narrow and testable: **can the render happen where the footage already is?** Not "mostly", not "the preview at least" — the actual encode, on the actual device, with the same engine a server would use.
 
-<div class="img-container">
-  <figure class="img-figure">
-    <video
-      class="img-large post-video"
-      style="border-radius: 0.875rem; width: 100%"
-      poster="/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/leclap-v3-poster.webp"
-      aria-label="The launch film for LeClap's engine, ffmpeg-video-composer v3: text cards laid out like a web page, sound effects, word-by-word captions, one template in three formats, the builder writing a template from a sentence, a render on the phone, then a wall of the built-in effects"
-      width="1280"
-      height="720"
-      muted
-      playsinline
-      loop
-      controls
-      preload="none"
-      data-motion-autoplay
-    >
-      <source src="/videos/2026-08-17-one-descriptor-three-ffmpeg-builds/leclap-v3.mp4" type="video/mp4" />
-    </video>
-    <figcaption class="img-caption">
-      The launch film for v3 of the engine. It has a voice-over; the captions are burned in for anyone who keeps it muted.
-    </figcaption>
-  </figure>
-</div>
+<figure class="img-figure post-film">
+  <video
+    class="post-video"
+    style="border-radius: 0.875rem; width: 100%; height: auto"
+    poster="/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/leclap-showcase-poster.webp"
+    aria-label="The LeClap film from its landing page: one template rendered on a computer, in the browser and on a phone, with no server"
+    width="1280"
+    height="720"
+    muted
+    playsinline
+    loop
+    controls
+    preload="none"
+    data-motion-autoplay
+  >
+    <source src="/videos/2026-08-17-one-descriptor-three-ffmpeg-builds/leclap-showcase.mp4" type="video/mp4" />
+    <track kind="captions" src="/videos/2026-08-17-one-descriptor-three-ffmpeg-builds/leclap-showcase.en.vtt" srclang="en" label="English" />
+  </video>
+  <figcaption class="img-caption">
+    The LeClap film from its landing page. One template, every screen, and the phone does the render.
+  </figcaption>
+</figure>
 
 The answer is yes — with an asterisk I'll get to. The cost is not the one I expected: I assumed the hard part would be performance. It wasn't. **The hard part is that "FFmpeg" is not one thing.** Ship it three ways and you get three different sets of filters and three different encoders, and a filter graph that works on your laptop can fail silently on a phone.
 

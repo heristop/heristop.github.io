@@ -2496,3 +2496,13 @@ svg.flowchart[id^="mermaid-"] {
     transition: none;
   }
 }
+
+/* A post's lead film runs the full width of the article container, past the reading column and over
+   the contents rail as it scrolls by, instead of stopping at the figure breakout */
+.post-page > figure.post-film,
+.post-page:has(> .post-toc--rail) > figure.post-film {
+  position: relative;
+  z-index: 2;
+  max-width: none;
+  width: 100%;
+}
