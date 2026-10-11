@@ -10,6 +10,8 @@ const blog = defineCollection({
     // Kept out of production builds (with any post dated in the future); visible in dev
     draft: z.boolean().optional(),
     image: z.string().optional(),
+    // CSS object-position for the post's banner crop (e.g. "50% 20%"), when its subject is off-centre
+    bannerPosition: z.string().optional(),
     metaTitle: z.string().optional(),
     pubDate: z.coerce.date().optional(),
     tags: z.array(z.string()).optional().default([]),

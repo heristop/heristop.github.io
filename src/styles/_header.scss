@@ -578,19 +578,22 @@ body.mobile-menu-open {
 
   /* 85% of the header container: the same edges as the page frame (--measure-frame) below it */
   width: 85%;
+  height: clamp(120px, 16vh, 180px);
 
-  /* The painting is cropped to a band whose height follows its width, so it keeps one shape from
-     tablet to desktop instead of turning into a slab where the viewport is tall */
-  aspect-ratio: 3.5 / 1;
-  min-height: 7rem;
+  @media screen and (width >= 768px) {
+    height: clamp(180px, 20vh, 250px);
+  }
+
+  @media screen and (width >= 1024px) {
+    height: clamp(180px, 20vh, 230px);
+  }
 
   /* Phones: the page content runs gutter to gutter (1.625rem each side), so the banner does too
-     instead of sitting narrower than everything under it. A taller 3:1 keeps the figure legible. */
+     instead of sitting narrower than everything under it */
   @media screen and (width < 48rem) {
     --banner-width: calc(100vw - 3.25rem);
 
     width: var(--banner-width);
-    aspect-ratio: 3 / 1;
 
     /* The header container is narrower than the page; split the difference to stay centred */
     margin-inline: calc((100% - var(--banner-width)) / 2);
@@ -656,14 +659,10 @@ body.mobile-menu-open {
   left: 0;
   width: 100%;
 
-  /* Overscan for the parallax: it travels at most 30px (MAX_PARALLAX_SCROLL × 0.1 in
-     header-init.ts), so a fixed 2rem keeps the bottom covered whatever the band's height */
-  height: calc(100% + 2rem);
+  /* Overscan for the parallax, which moves the image up as the page scrolls */
+  height: 120%;
   object-fit: cover;
-
-  /* The band crops a 3:1 illustration; sit the crop slightly above centre so the figure's head
-     and the bonsai crown stay in frame rather than the desk */
-  object-position: 50% 35%;
+  object-position: center;
   border-radius: var(--radius-lg);
 
   /* --scroll-y set by JS each frame; a transition here would make it trail the scroll */
@@ -724,28 +723,6 @@ body.mobile-menu-open {
 /* A post's own banner often carries its title or a diagram: shown whole at its natural ratio
    (width and height come from the file, so nothing shifts), on the same column as the title.
    No crop, no parallax overscan and no hover zoom, which would all clip its edges. */
-.site-header__banner--post {
-  aspect-ratio: auto;
-  min-height: 0;
-
-  .site-header__banner-image {
-    position: static;
-    display: block;
-    height: auto;
-    object-fit: fill;
-    transform: none;
-    will-change: auto;
-    image-rendering: auto;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .site-header__banner--post:hover .site-header__banner-image {
-    transform: none;
-  }
-}
-
-
 @media (prefers-reduced-motion: no-preference) {
   .site-header__banner-image {
     transform-origin: center bottom;

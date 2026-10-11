@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { SITE_TITLE } from '../consts';
 import zazenBanner from '../assets/zazen.webp';
 
-const { image } = Astro.props;
+const { image, bannerPosition } = Astro.props;
 
 // The painting is the LCP element: serve a width that fits the viewport instead of the full source.
 // Mirrors .site-header__banner: 85% of the header container (867px once the layout caps at 65em),
@@ -19,7 +19,8 @@ const responsiveBanner = image
   ? undefined
   : await getImage({ src: zazenBanner, widths: [480, 768, 1024, 1536], format: 'webp' });
 
-// A post's banner is shown whole; its intrinsic size reserves the space so nothing shifts on load
+// A post's banner fills the same band as the site banner (cropped, bannerPosition picks the focus);
+// its intrinsic size lets the browser decode it at the right aspect before layout
 const readPostBannerSize = async (src: string): Promise<{ width?: number; height?: number }> => {
   if (!src.startsWith('/')) {
     return {};
@@ -141,6 +142,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
             alt=""
             role="presentation"
             class="site-header__banner-image"
+            style={bannerPosition ? `object-position: ${bannerPosition}` : undefined}
             loading="eager"
             fetchpriority="high"
             decoding="async"

@@ -20,7 +20,7 @@ type Props = Partial<CollectionEntry<"blog">["data"]> & {
   noindex?: boolean;
 };
 
-const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, tags, headSchema, noindex } = Astro.props;
+const { title, metaTitle, description, image, bannerPosition, isArticle, pubDate, updatedDate, tags, headSchema, noindex } = Astro.props;
 
 ---
 
@@ -36,7 +36,7 @@ const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, t
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <ClientRouter />
     <div class="site-layout">
-      <Header title={SITE_TITLE} {image} />
+      <Header title={SITE_TITLE} {image} {bannerPosition} />
 
       <!-- The page h1 lives in the main landmark, so the skip link and landmark navigation land on it -->
       <main class:list={["site-layout__pre-content", { "site-layout__pre-content--framed": !isArticle }]} id="main-content">
