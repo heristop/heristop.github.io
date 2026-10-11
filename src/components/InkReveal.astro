@@ -1,0 +1,30 @@
+<!--
+  Ink reveal (client/ink-reveal.ts, _ink-reveal.scss): article illustrations are drawn as they
+  scroll in. The `js` class gates every sketch state, so without scripts images are simply shown.
+  A client-side swap replaces the root's classes, so the incoming document is stamped too.
+-->
+<script is:inline>
+  document.documentElement.classList.add("js");
+  if (!window.__inkGate) {
+    window.__inkGate = true;
+    document.addEventListener("astro:before-swap", function (event) {
+      event.newDocument.documentElement.classList.add("js");
+    });
+  }
+</script>
+
+<script>
+  import { mountInkReveal } from "./client/ink-reveal";
+
+  let teardown: (() => void) | undefined;
+
+  document.addEventListener("astro:page-load", () => {
+    teardown?.();
+    teardown = mountInkReveal();
+  });
+
+  document.addEventListener("astro:before-swap", () => {
+    teardown?.();
+    teardown = undefined;
+  });
+</script>

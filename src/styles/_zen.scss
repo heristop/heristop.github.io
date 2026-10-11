@@ -38,7 +38,7 @@
 @keyframes zen-slide-up {
   from {
     opacity: 0;
-    transform: translateY(var(--zen-distance-md));
+    transform: translateY(var(--zen-distance-sm));
   }
 
   to {
@@ -50,7 +50,7 @@
 @keyframes zen-slide-down {
   from {
     opacity: 0;
-    transform: translateY(calc(var(--zen-distance-md) * -1));
+    transform: translateY(calc(var(--zen-distance-sm) * -1));
   }
 
   to {
@@ -108,43 +108,45 @@
 }
 
 .zen-fade {
-  animation: zen-fade-in var(--zen-duration-normal) var(--zen-ease-out) both;
+  animation: zen-fade-in var(--zen-duration-normal) var(--motion-ease-out) both;
 }
 
 .zen-slide-up {
-  animation: zen-slide-up var(--zen-duration-normal) var(--zen-ease-out) both;
+  animation: zen-slide-up var(--zen-duration-normal) var(--motion-ease-out) both;
 }
 
 .zen-slide-down {
-  animation: zen-slide-down var(--zen-duration-normal) var(--zen-ease-out) both;
+  animation: zen-slide-down var(--zen-duration-normal) var(--motion-ease-out) both;
 }
 
 .zen-slide-left {
-  animation: zen-slide-left var(--zen-duration-normal) var(--zen-ease-out) both;
+  animation: zen-slide-left var(--zen-duration-normal) var(--motion-ease-out) both;
 }
 
 .zen-slide-right {
-  animation: zen-slide-right var(--zen-duration-normal) var(--zen-ease-out) both;
+  animation: zen-slide-right var(--zen-duration-normal) var(--motion-ease-out) both;
 }
 
 .zen-scale {
-  animation: zen-scale-in var(--zen-duration-normal) var(--zen-ease-out) both;
+  animation: zen-scale-in var(--zen-duration-normal) var(--motion-ease-out) both;
 }
 
 .zen-breathe {
   animation: zen-breathe var(--zen-duration-breath) var(--zen-ease-in-out) infinite;
 }
 
-.zen-delay-100 { animation-delay: 100ms; }
-.zen-delay-200 { animation-delay: 200ms; }
-.zen-delay-300 { animation-delay: 300ms; }
-.zen-delay-400 { animation-delay: 400ms; }
-.zen-delay-500 { animation-delay: 500ms; }
-.zen-delay-600 { animation-delay: 600ms; }
-.zen-delay-700 { animation-delay: 700ms; }
-.zen-delay-800 { animation-delay: 800ms; }
-.zen-delay-900 { animation-delay: 900ms; }
-.zen-delay-1000 { animation-delay: 1000ms; }
+/* Delay steps keep the authored order but compress it, shrinking as they go: a page settles within
+   ~800ms of first paint and a long waterfall never keeps the reader waiting */
+.zen-delay-100 { animation-delay: 60ms; }
+.zen-delay-200 { animation-delay: 120ms; }
+.zen-delay-300 { animation-delay: 180ms; }
+.zen-delay-400 { animation-delay: 240ms; }
+.zen-delay-500 { animation-delay: 300ms; }
+.zen-delay-600 { animation-delay: 340ms; }
+.zen-delay-700 { animation-delay: 380ms; }
+.zen-delay-800 { animation-delay: 420ms; }
+.zen-delay-900 { animation-delay: 460ms; }
+.zen-delay-1000 { animation-delay: 500ms; }
 
 .zen-duration-fast { animation-duration: var(--zen-duration-fast); }
 .zen-duration-normal { animation-duration: var(--zen-duration-normal); }
@@ -193,20 +195,20 @@
 
 .zen-stagger > * {
   opacity: 0;
-  transform: translateY(var(--zen-distance-md));
-  animation: zen-slide-up var(--zen-duration-normal) var(--zen-ease-out) both;
+  transform: translateY(var(--zen-distance-sm));
+  animation: zen-slide-up var(--zen-duration-normal) var(--motion-ease-out) both;
 }
 
 .zen-stagger > *:nth-child(1) { animation-delay: 0ms; }
-.zen-stagger > *:nth-child(2) { animation-delay: 100ms; }
-.zen-stagger > *:nth-child(3) { animation-delay: 200ms; }
-.zen-stagger > *:nth-child(4) { animation-delay: 300ms; }
-.zen-stagger > *:nth-child(5) { animation-delay: 400ms; }
-.zen-stagger > *:nth-child(6) { animation-delay: 500ms; }
-.zen-stagger > *:nth-child(7) { animation-delay: 600ms; }
-.zen-stagger > *:nth-child(8) { animation-delay: 700ms; }
-.zen-stagger > *:nth-child(9) { animation-delay: 800ms; }
-.zen-stagger > *:nth-child(10) { animation-delay: 900ms; }
+.zen-stagger > *:nth-child(2) { animation-delay: 50ms; }
+.zen-stagger > *:nth-child(3) { animation-delay: 100ms; }
+.zen-stagger > *:nth-child(4) { animation-delay: 150ms; }
+.zen-stagger > *:nth-child(5) { animation-delay: 200ms; }
+.zen-stagger > *:nth-child(6) { animation-delay: 250ms; }
+.zen-stagger > *:nth-child(7) { animation-delay: 300ms; }
+.zen-stagger > *:nth-child(8) { animation-delay: 350ms; }
+.zen-stagger > *:nth-child(9) { animation-delay: 400ms; }
+.zen-stagger > *:nth-child(10) { animation-delay: 450ms; }
 
 .zen-observe {
   opacity: 0;

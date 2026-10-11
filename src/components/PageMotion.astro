@@ -1,0 +1,51 @@
+<script>
+  import type {
+    TransitionBeforePreparationEvent,
+    TransitionBeforeSwapEvent,
+  } from "astro:transitions/client";
+  import {
+    claimReturnMorph,
+    claimTitleMorph,
+    getNavDirection,
+    morphsPosts,
+  } from "./client/page-motion";
+
+  /* Sets, on the incoming page's root (copied over by the swap):
+     - data-nav-direction: which way the body travels (see _motion.scss)
+     - data-page-arrived: the view transition is this page's entrance, so in-page entrance
+       animations must not replay behind it
+     - data-title-morph: the heading arrives by morph, visible, without its per-char reveal
+     - data-post-morph: a post is opened or left, so its title, date and tags may travel (set on
+       the old root too, before its snapshot is taken) */
+  let source: Element | undefined;
+  let rel: string | null = null;
+
+  document.addEventListener("astro:before-preparation", (event) => {
+    const prep = event as TransitionBeforePreparationEvent;
+    source = prep.sourceElement;
+    rel = prep.sourceElement?.closest("a")?.getAttribute("rel") ?? null;
+    document.documentElement.toggleAttribute("data-post-morph", morphsPosts(prep.from.pathname, prep.to.pathname));
+  });
+
+  document.addEventListener("astro:before-swap", (event) => {
+    const swap = event as TransitionBeforeSwapEvent;
+    const root = swap.newDocument.documentElement;
+    const direction = getNavDirection({
+      from: swap.from.pathname,
+      to: swap.to.pathname,
+      history: swap.direction === "back" ? "back" : "forward",
+      rel,
+    });
+    root.dataset.navDirection = direction;
+    root.dataset.pageArrived = "";
+    if (morphsPosts(swap.from.pathname, swap.to.pathname)) {
+      root.dataset.postMorph = "";
+    }
+    if (claimTitleMorph(document, swap.newDocument, source)) {
+      root.dataset.titleMorph = "";
+    }
+    claimReturnMorph(document, swap.newDocument, swap.from.pathname);
+    source = undefined;
+    rel = null;
+  });
+</script>

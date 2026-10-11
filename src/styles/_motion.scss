@@ -1,0 +1,331 @@
+/* ── Motion system ──────────────────────────────────────────────────────────────────────────
+   One scale for the whole garden. Things arrive on a long, soft ease-out; shared elements glide
+   on a symmetric curve; anything leaving accelerates away and is gone before the new page settles.
+
+   micro   140ms  press, hover, small state changes
+   small   220ms  menus, overlays, popovers
+   page    280ms  the body arriving after a navigation
+   morph   300ms  a title, date or tag row travelling into its place on the next page
+   exit    160ms  the old page leaving (always shorter than what replaces it)
+   ──────────────────────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --motion-micro: 140ms;
+  --motion-small: 220ms;
+  --motion-page: 280ms;
+  --motion-morph: 300ms;
+  --motion-exit: 160ms;
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-travel-y: 0.375rem;
+  --motion-travel-x: 0.75rem;
+}
+
+/* ── Page transitions (ClientRouter view transitions) ──
+   The header never moves: it is the ground the pages travel over. The body travels a few pixels in
+   the direction of the navigation (see PageMotion.astro): deeper pages rise from below and
+   shallower ones settle from above; siblings (top-level pages, older/newer posts) slide sideways. */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  background: var(--primary-bg-color);
+  animation: none;
+}
+
+::view-transition-group(sakura) {
+  animation: none;
+}
+
+::view-transition-old(sakura),
+::view-transition-new(sakura) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-group(header-static),
+::view-transition-group(header-sticky),
+::view-transition-new(header-static),
+::view-transition-new(header-sticky) {
+  animation: none;
+}
+
+::view-transition-old(header-static),
+::view-transition-old(header-sticky) {
+  display: none;
+}
+
+::view-transition-group(page-body),
+::view-transition-group(page-meta) {
+  animation-duration: var(--motion-page);
+  animation-timing-function: var(--motion-ease-out);
+}
+
+/* Clipped to their box so the travelling body never slides over the still header */
+::view-transition-old(page-body),
+::view-transition-new(page-body) {
+  contain: layout style paint;
+  overflow: hidden;
+}
+
+::view-transition-old(page-body),
+::view-transition-old(page-meta) {
+  --vt-out-x: 0;
+  --vt-out-y: calc(var(--motion-travel-y) * -1);
+
+  animation: vt-body-out var(--motion-exit) var(--motion-ease-exit) both;
+}
+
+::view-transition-new(page-body),
+::view-transition-new(page-meta) {
+  --vt-in-x: 0;
+  --vt-in-y: var(--motion-travel-y);
+
+  animation: vt-body-in var(--motion-page) var(--motion-ease-out) both;
+}
+
+/* Back up the hierarchy: the exact mirror of going deeper */
+html[data-nav-direction="back"]::view-transition-old(page-body),
+html[data-nav-direction="back"]::view-transition-old(page-meta),
+html[data-nav-direction="back"]::view-transition-old(.post-morph):only-child {
+  --vt-out-y: var(--motion-travel-y);
+}
+
+html[data-nav-direction="back"]::view-transition-new(page-body),
+html[data-nav-direction="back"]::view-transition-new(page-meta),
+html[data-nav-direction="back"]::view-transition-new(.post-morph):only-child {
+  --vt-in-y: calc(var(--motion-travel-y) * -1);
+}
+
+html[data-nav-direction="next"]::view-transition-old(page-body),
+html[data-nav-direction="next"]::view-transition-old(page-meta),
+html[data-nav-direction="next"]::view-transition-old(.post-morph):only-child {
+  --vt-out-x: calc(var(--motion-travel-x) * -1);
+  --vt-out-y: 0;
+}
+
+html[data-nav-direction="next"]::view-transition-new(page-body),
+html[data-nav-direction="next"]::view-transition-new(page-meta),
+html[data-nav-direction="next"]::view-transition-new(.post-morph):only-child {
+  --vt-in-x: var(--motion-travel-x);
+  --vt-in-y: 0;
+}
+
+html[data-nav-direction="prev"]::view-transition-old(page-body),
+html[data-nav-direction="prev"]::view-transition-old(page-meta),
+html[data-nav-direction="prev"]::view-transition-old(.post-morph):only-child {
+  --vt-out-x: var(--motion-travel-x);
+  --vt-out-y: 0;
+}
+
+html[data-nav-direction="prev"]::view-transition-new(page-body),
+html[data-nav-direction="prev"]::view-transition-new(page-meta),
+html[data-nav-direction="prev"]::view-transition-new(.post-morph):only-child {
+  --vt-in-x: calc(var(--motion-travel-x) * -1);
+  --vt-in-y: 0;
+}
+
+@keyframes vt-body-out {
+  to {
+    opacity: 0;
+    transform: translate(var(--vt-out-x), var(--vt-out-y));
+  }
+}
+
+@keyframes vt-body-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--vt-in-x), var(--vt-in-y));
+  }
+}
+
+/* ── Shared elements: a post's title, date and tags travel between its row or card and the
+   article. Names come from `transition:name` (date, tags) and PageMotion (titles). ── */
+
+.latest-posts__date-pill,
+.latest-posts__tags,
+.latest-posts__title,
+.blog-card__date-text,
+.blog-card__tags,
+.post-page__date-text,
+.post-page__tags-slot,
+.site-layout__meta-title [data-reveal] {
+  view-transition-class: post-morph;
+}
+
+/* Between two lists nothing travels: rows and cards simply go with the body */
+html:not([data-post-morph]) :is(.latest-posts__date-pill, .latest-posts__tags, .blog-card__date-text, .blog-card__tags) {
+  view-transition-name: none !important;
+}
+
+::view-transition-group(.post-morph) {
+  animation-duration: var(--motion-morph);
+  animation-timing-function: var(--motion-ease-in-out);
+}
+
+/* The two renderings never read as two objects: the old one hands over in the first half, softened
+   by a breath of blur, while the new one resolves underneath */
+::view-transition-old(.post-morph) {
+  animation: vt-morph-out var(--motion-morph) var(--motion-ease-out) both;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(.post-morph) {
+  animation: vt-morph-in var(--motion-morph) var(--motion-ease-out) both;
+  mix-blend-mode: normal;
+}
+
+@keyframes vt-morph-out {
+  0% {
+    opacity: 1;
+    filter: blur(0);
+  }
+
+  55%,
+  100% {
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
+@keyframes vt-morph-in {
+  0%,
+  20% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Rows and cards that are not part of this navigation still carry their names: they leave and
+   arrive with the body, on its timing and travel, instead of lingering as separate layers */
+::view-transition-old(.post-morph):only-child {
+  --vt-out-x: 0;
+  --vt-out-y: calc(var(--motion-travel-y) * -1);
+
+  animation: vt-body-out var(--motion-exit) var(--motion-ease-exit) both;
+}
+
+::view-transition-new(.post-morph):only-child {
+  --vt-in-x: 0;
+  --vt-in-y: var(--motion-travel-y);
+
+  animation: vt-body-in var(--motion-page) var(--motion-ease-out) both;
+}
+
+/* The hidden sticky bar (desktop, before scrolling) still composites its backdrop blur during a
+   view transition, smearing the site title for the whole navigation. It has nothing to blur while
+   invisible, so it only gets the material once it shows (the opacity fade masks the switch). */
+@media screen and (width >= 48rem) {
+  .site-header-nav:not(.site-header-nav--active) {
+    view-transition-name: none;
+    backdrop-filter: none;
+  }
+}
+
+/* ── Arrivals: the view transition is the entrance, so in-page entrances never replay behind it
+   (they would hide content the body snapshot just showed, then waterfall it in again). They
+   still play on a fresh page load. ── */
+
+html[data-page-arrived] :is(.zen-fade, .zen-slide-up, .zen-slide-down, .zen-slide-left, .zen-slide-right, .zen-scale),
+html[data-page-arrived] .zen-stagger > * {
+  animation-delay: -3s !important;
+}
+
+/* Script-revealed cards (blog/tag archives, social links) and the about wave: already in place in
+   the incoming snapshot, so nothing fades in again once the transition has landed. Cards further
+   down still get their class from the observer, but they are already at rest. */
+html[data-page-arrived] :is(.zen-card, .social-network__card) {
+  --zen-card-stagger: 0ms !important;
+  --social-card-stagger: 0ms !important;
+}
+
+html[data-page-arrived] .zen-card:not(.zen-card--visible),
+html[data-page-arrived] .social-network__card:not(.social-network__card--visible) {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+html[data-page-arrived] .zen-card__wash {
+  transition: none !important;
+}
+
+html[data-page-arrived] .about__wave {
+  animation: none;
+}
+
+/* The banner is part of the still header; it only unveils on the first paint of a visit */
+html[data-page-arrived] .site-header__banner {
+  animation: none;
+}
+
+/* An article's tags smoke in on a fresh load only; after a navigation they arrive with the body
+   (or travel from the row that was clicked), already written */
+html[data-page-arrived] .post-page__tags :is(.haiku-char--smoke, .haiku-char--appear) {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: none;
+  will-change: auto;
+}
+
+/* The banner stays still across pages; when a post brings its own image, the two dissolve into each
+   other in place instead of cutting */
+.site-header__banner {
+  view-transition-name: site-banner;
+}
+
+::view-transition-group(site-banner) {
+  animation-duration: var(--motion-page);
+  animation-timing-function: var(--motion-ease-in-out);
+}
+
+::view-transition-old(site-banner),
+::view-transition-new(site-banner) {
+  animation-duration: var(--motion-page);
+  animation-timing-function: var(--motion-ease-in-out);
+}
+
+/* First paint: the banner is the focal point and arrives first, then the content rises in order */
+.site-header__banner {
+  animation-duration: 640ms;
+  animation-timing-function: var(--motion-ease-out);
+}
+
+/* ── Reduced motion: nothing travels, but the page still cross-fades so the change is legible ── */
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(page-body),
+  ::view-transition-group(page-meta),
+  ::view-transition-group(site-banner),
+  ::view-transition-group(.post-morph) {
+    animation-duration: 0s;
+  }
+
+  ::view-transition-old(page-body),
+  ::view-transition-old(page-meta),
+  ::view-transition-old(.post-morph) {
+    animation: vt-fade-out 120ms linear both;
+  }
+
+  ::view-transition-new(page-body),
+  ::view-transition-new(page-meta),
+  ::view-transition-new(.post-morph) {
+    animation: vt-fade-in 200ms linear both;
+  }
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}

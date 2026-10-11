@@ -1,0 +1,156 @@
+@use 'scheme';
+
+/* ── Ink reveal ─────────────────────────────────────────────────────────────────────────────
+   An article's illustrations are drawn as they scroll in (client/ink-reveal.ts sets `data-ink`):
+
+   sketch   the image waits as a faint pencil sketch on the paper, ink tones only
+   brush    a dry brush sweeps along the diagonal and lays the ink at full strength; its edge is
+            torn by bristle streaks (the mask below), never a clean wipe
+   wash     the colour soaks in from the ink, blooms a touch warm and bright, then dries crisp
+   settle   the sheet lands the last 2px as the wash dries
+
+   brush 0 → 760ms, wash 340 → 1100ms, settle 0 → 1100ms. Without JS nothing is gated: only an
+   image the script marked (under `.js`) ever waits as a sketch.
+   ──────────────────────────────────────────────────────────────────────────────────────────── */
+
+/* The brush mask, 2.7 image-widths wide (just enough for the edge to cross the whole image): inked (opaque) on the left, a bristle-torn diagonal
+   edge, then the faint sketch (30%) on the right. Sliding it from 100% to 0% carries the edge
+   across the image, top corner leading. Horizontal streak noise displaces the edge like the
+   hairs of a dry brush dragged left to right. */
+$ink-brush-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 270 100' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.015 0.32' numOctaves='3' seed='11'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='26' xChannelSelector='R' yChannelSelector='G'/%3E%3CfeGaussianBlur stdDeviation='0.9'/%3E%3C/filter%3E%3Crect width='270' height='100' fill='%23fff' fill-opacity='0.3'/%3E%3Cpath d='M-30 -20 H160 L110 120 H-30 Z' fill='%23fff' filter='url(%23b)'/%3E%3C/svg%3E");
+
+:root {
+  --ink-brush-duration: 760ms;
+  --ink-wash-delay: 340ms;
+  --ink-wash-duration: 760ms;
+  --ink-total: 1100ms;
+  --ink-brush-ease: cubic-bezier(0.4, 0.05, 0.4, 1);
+  --ink-wash-name: ink-wash;
+
+  /* Every filter state lists the same functions in the same order, so they interpolate */
+  --ink-sketch: invert(0) grayscale(1) sepia(0.22) contrast(1.6) brightness(1.15) saturate(1) blur(0);
+  --ink-bloom: invert(0) grayscale(0.3) sepia(0.08) contrast(1.12) brightness(1.05) saturate(1.14) blur(0.4px);
+  --ink-dry: invert(0) grayscale(0) sepia(0) contrast(1) brightness(1) saturate(1) blur(0);
+}
+
+/* Night paper: the sketch is chalk on slate (paper inverted into the night, lines into light), and
+   the wash dries at the night garden's dimmed photo filter rather than full brightness. Inverting
+   back passes through a flat grey, so the chalk first sinks into the paper (ink-wash-night) and the
+   colour rises out of it once the grey is behind it. */
+@include scheme.night {
+  --ink-sketch: invert(0.88) grayscale(1) sepia(0.3) contrast(1.3) brightness(0.95) saturate(1) blur(0);
+  --ink-sunk: invert(0) grayscale(0.7) sepia(0.25) contrast(1.05) brightness(0.8) saturate(1) blur(0.6px);
+  --ink-dry: invert(0) grayscale(0) sepia(0) contrast(1) brightness(0.88) saturate(1) blur(0);
+  --ink-wash-delay: 440ms;
+  --ink-wash-duration: 660ms;
+  --ink-wash-name: ink-wash-night;
+}
+
+/* Phones: no blur in the wash (a full-image blur per frame is the expensive part), shorter hand */
+@media (pointer: coarse) {
+  :root {
+    --ink-brush-duration: 640ms;
+    --ink-wash-delay: 260ms;
+    --ink-wash-duration: 600ms;
+    --ink-total: 860ms;
+    --ink-bloom: var(--ink-dry);
+  }
+
+  @include scheme.night {
+    --ink-sunk: invert(0) grayscale(0.7) sepia(0.25) contrast(1.05) brightness(0.8) saturate(1) blur(0);
+    --ink-wash-delay: 340ms;
+    --ink-wash-duration: 520ms;
+  }
+}
+
+:root.js img[data-ink] {
+  mask-image: $ink-brush-mask;
+  mask-size: 270% 100%;
+  mask-repeat: no-repeat;
+  mask-position: 100% 0;
+  filter: var(--ink-sketch);
+}
+
+:root.js img[data-ink="drawing"] {
+  will-change: mask-position, filter, transform;
+  animation:
+    ink-brush var(--ink-brush-duration) var(--ink-brush-ease) var(--ink-delay, 0ms) both,
+    var(--ink-wash-name) var(--ink-wash-duration) var(--motion-ease-out) calc(var(--ink-delay, 0ms) + var(--ink-wash-delay)) both,
+    ink-settle var(--ink-total) var(--motion-ease-out) var(--ink-delay, 0ms) both;
+}
+
+@keyframes ink-brush {
+  0% {
+    mask-position: 100% 0;
+  }
+
+  100% {
+    mask-position: 0 0;
+  }
+}
+
+@keyframes ink-wash {
+  0% {
+    filter: var(--ink-sketch);
+  }
+
+  45% {
+    filter: var(--ink-bloom);
+  }
+
+  100% {
+    filter: var(--ink-dry);
+  }
+}
+
+@keyframes ink-wash-night {
+  0% {
+    filter: var(--ink-sketch);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+
+  12% {
+    opacity: 0.08;
+    animation-timing-function: linear;
+  }
+
+  22% {
+    filter: var(--ink-sunk);
+    opacity: 0.16;
+    animation-timing-function: var(--motion-ease-out);
+  }
+
+  100% {
+    filter: var(--ink-dry);
+    opacity: 1;
+  }
+}
+
+@keyframes ink-settle {
+  0% {
+    transform: translateY(2px);
+  }
+
+  100% {
+    transform: none;
+  }
+}
+
+/* Reduced motion: no drawing at all (the script does not mark images either) */
+@media (prefers-reduced-motion: reduce) {
+  :root.js img[data-ink] {
+    mask-image: none;
+    filter: var(--ink-dry);
+    animation: none;
+  }
+}
+
+@media print {
+  :root.js img[data-ink] {
+    mask-image: none;
+    filter: none;
+    transform: none;
+    animation: none;
+  }
+}
