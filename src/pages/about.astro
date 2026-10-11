@@ -2,7 +2,6 @@
 import Icon from "../components/Icon.astro";
 import Layout from "../layouts/Layout.astro";
 import QrCode from "../components/QrCode.astro";
-import ZenFade from "../components/zen/ZenFade.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
 import BuyMeCoffee from "../components/client/BuyMeCoffee";
 import FormattedDate from "../components/FormattedDate.astro";
@@ -133,6 +132,9 @@ const elsewhere = linkfolio
           <p class="about-profile__role">Chapter Lead / Principal Engineer at Carrefour · Paris</p>
           <p class="about-profile__birthday">Birthday · 4 November</p>
         </div>
+        <div class="about-profile__coffee">
+          <BuyMeCoffee client:visible url={BUY_ME_COFFEE_URL} />
+        </div>
       </header>
       <div class="about__bio">
         <p class="about__lead">Hello, I'm {SITE_PSEUDO}!</p>
@@ -248,16 +250,11 @@ const elsewhere = linkfolio
       </section>
     </ZenSlide>
 
-    <ZenFade delay={700}>
-      <div data-scroll-reveal="settle">
-        <BuyMeCoffee client:visible url={BUY_ME_COFFEE_URL} />
-      </div>
-    </ZenFade>
   </div>
 </Layout>
 
 <style>
-  /* One sheet: the person, what they are doing now, where else to find them, then a quiet cup */
+  /* One sheet: the person (and a quiet cup), what they are doing now, where else to find them */
   .about {
     display: flex;
     flex-direction: column;
@@ -269,10 +266,33 @@ const elsewhere = linkfolio
   }
 
   /* ── Profile ── */
+  /* The person on the left, the cup on the right: a small gift on the same line as the name */
   .about-profile {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: clamp(1rem, 3vw, 1.4rem);
+  }
+
+  .about-profile__coffee {
+    margin-inline-start: auto;
+
+    /* The medallion at the avatar's size, so the two ends of the row weigh the same */
+    zoom: 0.8;
+
+    :global(.bmc) {
+      margin: 0;
+    }
+  }
+
+  /* Phones: the cup takes its own line, centred under the person */
+  @media screen and (width < 36rem) {
+    .about-profile__coffee {
+      flex-basis: 100%;
+      margin-inline: 0;
+      display: flex;
+      justify-content: center;
+    }
   }
 
   .about__avatar {
@@ -287,7 +307,9 @@ const elsewhere = linkfolio
       var(--shadow-sm);
   }
 
+  /* Grows to fill the row and only lets go of the avatar below 12rem, never on a phone */
   .about-profile__text {
+    flex: 1 1 12rem;
     min-width: 0;
   }
 
