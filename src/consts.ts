@@ -1,6 +1,6 @@
 const SITE_TITLE = "Zazen Code";
 const SITE_DESCRIPTION =
-  "Zazen Code: Sharing practical tips and the latest trends in JavaScript, TypeScript and PHP";
+  "Zazen Code, the blog of Alexandre Mogère: calm, practical notes on coding with AI agents, frontend engineering, JavaScript, TypeScript, Rust and PHP.";
 const SITE_URL = "https://heristop.github.io";
 const SITE_PSEUDO = "heristop";
 const SITE_AUTHOR = "Alexandre Mogère";

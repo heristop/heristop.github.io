@@ -1,4 +1,21 @@
+# Everything here is public writing: search engines and AI answer engines are welcome to crawl
+# and cite it. Named agents are listed so the intent is explicit, not inferred from the wildcard.
 User-agent: *
+Allow: /
+
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: Google-Extended
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: anthropic-ai
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Applebot-Extended
 Allow: /
 
 Sitemap: https://heristop.github.io/sitemap-index.xml

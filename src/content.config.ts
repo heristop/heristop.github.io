@@ -7,6 +7,8 @@ const blog = defineCollection({
   schema: z.object({
     conclusion: z.string().optional(),
     description: z.string(),
+    // Kept out of production builds (with any post dated in the future); visible in dev
+    draft: z.boolean().optional(),
     image: z.string().optional(),
     metaTitle: z.string().optional(),
     pubDate: z.coerce.date().optional(),

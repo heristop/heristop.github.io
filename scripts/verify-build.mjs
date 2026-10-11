@@ -22,7 +22,25 @@ if (!existsSync(dist)) {
 }
 
 const slugOf = (file) => file.replace(/\.mdx?$/, "");
-const posts = readdirSync(blogSrc).filter((f) => /\.mdx?$/.test(f));
+const sources = readdirSync(blogSrc).filter((f) => /\.mdx?$/.test(f));
+
+// Mirrors isPublished in src/utils/post-visibility.ts: a draft, or a post dated after the build,
+// must be absent from a production build rather than present.
+const buildTime = new Date();
+const frontmatterOf = (file) => readFileSync(join(blogSrc, file), "utf8").split(/^---\s*$/m)[1] ?? "";
+const isPublished = (file) => {
+  const frontmatter = frontmatterOf(file);
+  if (/^draft:\s*true\s*$/m.test(frontmatter)) return false;
+  const date = frontmatter.match(/^pubDate:\s*["']?(\d{4}-\d{2}-\d{2}[^"'\s]*)["']?\s*$/m)?.[1];
+  return !date || new Date(date) <= buildTime;
+};
+const posts = sources.filter(isPublished);
+
+for (const file of sources.filter((f) => !isPublished(f))) {
+  if (existsSync(join(dist, "blog", slugOf(file)))) {
+    failures.push(`${slugOf(file)}: draft or scheduled post was built into dist/`);
+  }
+}
 
 for (const file of posts) {
   const slug = slugOf(file);
@@ -47,8 +65,9 @@ for (const file of posts) {
   }
 
   // Every ```mermaid fence in the source must have become an SVG. rehype-mermaid drops the content
-  // instead of erroring, so the absence of this attribute is the only signal that it failed.
-  if (/^```mermaid\b/m.test(source) && !html.includes('aria-roledescription="flowchart')) {
+  // instead of erroring, so the absence of its `mermaid-N` svg is the only signal that it failed
+  // (mermaid-a11y strips aria-roledescription, so that attribute is no longer a signal).
+  if (/^```mermaid\b/m.test(source) && !/<svg id="mermaid-\d+"/.test(html)) {
     failures.push(`${slug}: has a mermaid fence but no rendered flowchart SVG`);
   }
 }

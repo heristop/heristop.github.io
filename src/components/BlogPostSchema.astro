@@ -1,4 +1,6 @@
 ---
+import { SITE_LANGUAGE, WEBSITE_ID, absoluteUrl, person } from '../structured-data';
+
 interface Props {
   title: string;
   description: string;
@@ -6,43 +8,35 @@ interface Props {
   updatedDate?: Date;
   image?: string;
   url: string;
+  tags?: string[];
+  wordCount?: number;
 }
 
-const { title, description, pubDate, updatedDate, image, url } = Astro.props;
-
-const siteUrl = 'https://heristop.github.io';
+const { title, description, pubDate, updatedDate, image, url, tags = [], wordCount } = Astro.props;
 
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
-  author: {
-    '@type': 'Person',
-    name: 'Alexandre Mogère',
-    url: `${siteUrl}/about`,
-  },
+  '@id': `${url}#article`,
+  author: person,
   dateModified: (updatedDate ?? pubDate)?.toISOString(),
   datePublished: pubDate?.toISOString(),
   description: description,
   headline: title,
-  image: image ? new URL(image, siteUrl).toString() : undefined,
+  // Same fallback as og:image, so a post without a cover still qualifies for article rich results
+  image: absoluteUrl(image ?? '/images/og-zazen.webp'),
+  inLanguage: SITE_LANGUAGE,
+  isPartOf: { '@id': WEBSITE_ID },
+  keywords: tags.length > 0 ? tags.join(', ') : undefined,
   mainEntityOfPage: {
     '@id': url,
     '@type': 'WebPage',
   },
-  publisher: {
-    '@type': 'Organization',
-    logo: {
-      '@type': 'ImageObject',
-      url: `${siteUrl}/favicon.svg`,
-    },
-    name: 'Alexandre Mogère',
-    url: siteUrl,
-  },
+  // A personal blog: the author is the publisher. Google accepts a Person here.
+  publisher: { '@id': person['@id'], '@type': 'Person', name: person.name, url: person.url },
   url: url,
+  wordCount,
 };
-
-// Remove undefined values
-const cleanSchema = structuredClone(schema);
 ---
 
-<script is:inline type="application/ld+json" set:html={JSON.stringify(cleanSchema)} />
+<script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
