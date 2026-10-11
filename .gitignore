@@ -35,3 +35,6 @@ blob-report/
 # Local image-generation experiments and the tests that read them
 output/
 tests/components/head-follow-*.test.ts
+
+# Vitest cache
+.vitest/
