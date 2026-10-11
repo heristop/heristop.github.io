@@ -1,20 +1,218 @@
 ---
-import Icon from "../components/Icon.astro";
 import Layout from "../layouts/Layout.astro";
-import SocialNetworks from "../components/SocialNetworks.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
+import { LINKFOLIO_URL } from "../consts";
+import { getPublishedPosts } from "../utils/posts";
+
+/* The apps are grouped by what they share; each card says one plain sentence. The banners still
+   come from the link-in-bio config (matched by URL), so a new tile there shows up here. */
+interface Project {
+  name: string;
+  url: string;
+  description: string;
+  daily?: boolean;
+  /* A post about this app alone, when its family has no shared story */
+  story?: string;
+  /* Narrow artwork is letterboxed on its own edge colour instead of zoomed past its pixels */
+  matte?: string;
+}
+
+interface Family {
+  id: string;
+  title: string;
+  story?: string;
+  layout: "pair" | "row";
+  projects: Project[];
+}
+
+const FAMILIES: Family[] = [
+  {
+    id: "pix-me",
+    title: "The Pix Me universe",
+    story: "2026-03-30-pix-who-the-pix-me-universe-is-expanding",
+    layout: "pair",
+    projects: [
+      {
+        name: "Pix Me!",
+        url: "https://pix-me.studio",
+        description: "Turns a selfie into an avatar in styles like pixel art, chibi or comics.",
+      },
+      {
+        name: "Pix Who?",
+        url: "https://pix-me.studio/who",
+        description: "Find the mystery face among 24 suspects by asking yes or no questions.",
+        daily: true,
+      },
+    ],
+  },
+  {
+    id: "classic-books",
+    title: "From classic books",
+    story: "2026-01-27-when-two-frauds-make-a-truth",
+    layout: "pair",
+    projects: [
+      {
+        name: "GutenKu",
+        url: "https://gutenku.xyz",
+        description: "Finds haiku hidden in the classic books of Project Gutenberg.",
+      },
+      {
+        name: "GutenGuess",
+        url: "https://gutenku.xyz/game",
+        description: "Guess the classic book from a set of emoji hints.",
+        daily: true,
+      },
+    ],
+  },
+  {
+    id: "tools",
+    title: "Tools",
+    layout: "row",
+    projects: [
+      {
+        name: "LeClap",
+        url: "https://leclap.dev",
+        description: "Renders videos from a JSON description on your own device, with no upload.",
+        story: "2026-08-17-one-descriptor-three-ffmpeg-builds",
+      },
+      {
+        name: "ChaTodo",
+        url: "https://chatodo.app",
+        description: "An ADHD-friendly task manager for web, iOS, Android and macOS.",
+      },
+      {
+        name: "Clover Map",
+        url: "https://clover-map.nuxt.dev",
+        description: "Lays out a project's tasks as a visual treemap.",
+        matte: "rgb(242 242 242)",
+      },
+    ],
+  },
+];
+
+type BannerIcon = { src?: string } | string | undefined;
+
+interface RemoteLink {
+  url: string;
+  group: string;
+  iconSrc: BannerIcon;
+}
+
+const fetchBanners = async (): Promise<Map<string, string>> => {
+  const banners = new Map<string, string>();
+  try {
+    const response = await fetch(`${LINKFOLIO_URL}/api/config`);
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    const config = (await response.json()) as { socialNetworks?: RemoteLink[] };
+    for (const link of config.socialNetworks ?? []) {
+      const path = typeof link.iconSrc === "string" ? link.iconSrc : link.iconSrc?.src;
+      if (link.group === "project" && path) {
+        banners.set(link.url.replace(/\/$/, ""), new URL(path, LINKFOLIO_URL).href);
+      }
+    }
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn("Unable to load project banners:", error);
+    }
+  }
+  return banners;
+};
+
+const banners = await fetchBanners();
+const posts = await getPublishedPosts();
+const storyFor = (id?: string) => (id ? posts.find((post) => post.id === id) : undefined);
+
+const domainOf = (url: string) => {
+  const { host, pathname } = new URL(url);
+  return `${host}${pathname.replace(/\/$/, "")}`;
+};
+
+const slugOf = (name: string) => name.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-").replaceAll(/^-|-$/g, "");
+
+let cardIndex = 0;
 ---
 
 <Layout title="Projects" metaTitle="Side Projects by Alexandre Mogère | Zazen Code" description="Side projects by Alexandre Mogère: Pix Me!, Pix Who?, GutenKu, GutenGuess, LeClap, ChaTodo and Clover Map, small apps and games built with web tech and AI.">
-  <ZenSlide direction="up" delay={200} className="l-wide">
-    <blockquote>Welcome to my Digital Playground.</blockquote>
-  </ZenSlide>
+  <div class="projects l-wide">
+    <ZenSlide direction="up" delay={200}>
+      <p class="projects__intro">
+        Small apps and daily games I build with web tech and AI. Each one opens in a new tab.
+      </p>
+    </ZenSlide>
 
-  <ZenSlide direction="up" delay={400} className="l-wide">
-    <h2 class="projects-page__heading icon-heading links-heading">
-      <Icon name="compass" size={20} /> Compass Links
-    </h2>
-  </ZenSlide>
+    {FAMILIES.map((family, familyIndex) => {
+      const story = storyFor(family.story);
+      return (
+        <ZenSlide direction="up" delay={300 + familyIndex * 100}>
+          <section class="project-family" aria-labelledby={`family-${family.id}`}>
+            <div class="project-family__header" data-scroll-reveal>
+              <h2 class="project-family__title" id={`family-${family.id}`}>{family.title}</h2>
+              {story && (
+                <a class="project-family__story" href={`/blog/${story.id}/`}>
+                  <span class="project-family__story-label">Read:</span> {story.data.title}&nbsp;<span class="project-family__arrow" aria-hidden="true">→</span>
+                </a>
+              )}
+            </div>
 
-  <SocialNetworks filter="project" baseDelay={200} />
+            <ul class={`project-family__grid project-family__grid--${family.layout}`} role="list" data-scroll-reveal-group="settle">
+              {family.projects.map((project) => {
+                const id = `project-${slugOf(project.name)}`;
+                const banner = banners.get(project.url);
+                const eager = cardIndex++ < 2;
+                const projectStory = storyFor(project.story);
+                return (
+                  <li class="project-card">
+                    <span
+                      class:list={["project-card__banner", { "project-card__banner--matte": project.matte }]}
+                      style={project.matte ? `--banner-matte: ${project.matte}` : undefined}
+                    >
+                      {banner && (
+                        <img
+                          class="project-card__image"
+                          src={banner}
+                          alt=""
+                          width="1608"
+                          height="600"
+                          loading={eager ? "eager" : "lazy"}
+                          decoding="async"
+                        />
+                      )}
+                    </span>
+                    <div class="project-card__body">
+                      <h3 class="project-card__name">
+                        <a
+                          class="project-card__link"
+                          href={project.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-describedby={project.daily ? `${id}-daily ${id}-desc` : `${id}-desc`}
+                        >
+                          {project.name}
+                        </a>
+                        {project.daily && (
+                          <span class="project-card__badge" id={`${id}-daily`}>Daily</span>
+                        )}
+                      </h3>
+                      <p class="project-card__description" id={`${id}-desc`}>{project.description}</p>
+                      {projectStory && (
+                        <a class="project-card__story" href={`/blog/${projectStory.id}/`}>
+                          <span class="project-family__story-label">Read:</span> {projectStory.data.title}&nbsp;<span class="project-family__arrow" aria-hidden="true">→</span>
+                        </a>
+                      )}
+                      <p class="project-card__domain">
+                        {domainOf(project.url)}
+                        <span class="project-card__arrow" aria-hidden="true">↗</span>
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        </ZenSlide>
+      );
+    })}
+  </div>
 </Layout>

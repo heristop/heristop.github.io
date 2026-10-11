@@ -1,0 +1,286 @@
+@use 'scheme';
+
+/* /projects/: the apps in families. A family is a small label, an optional link to the post that
+   tells its story, then its cards. The parent app sits a little wider than its sibling; tools run
+   three to a row. Every card is one link (the name), stretched over the card. */
+
+.projects {
+  &__intro {
+    max-width: 38rem;
+    margin: 0 0 2.25rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+}
+
+.project-family {
+  margin-block-end: 2.5rem;
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1.25rem;
+    margin-block-end: 0.875rem;
+    padding-block-end: 0.5rem;
+    border-block-end: 1px solid color-mix(in oklch, var(--primary-color) 14%, transparent);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--font-size-label);
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--heading-color);
+  }
+
+  &__story {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--link-color);
+    text-decoration: none;
+
+    &:hover .project-family__arrow {
+      translate: 0.2em 0;
+    }
+  }
+
+  &__story-label {
+    color: var(--text-secondary);
+  }
+
+  &__arrow {
+    display: inline-block;
+    transition: translate var(--motion-micro) var(--motion-ease-out);
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.875rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    @media screen and (width >= 40rem) {
+      /* Both banners take the sibling's height, so the two names start on one line; the wider
+         parent banner crops a little top and bottom instead */
+      &--pair {
+        grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+
+        .project-card {
+          display: grid;
+          grid-row: span 2;
+          grid-template-rows: subgrid;
+          gap: 0;
+        }
+
+        .project-card:first-child .project-card__banner {
+          position: relative;
+          aspect-ratio: auto;
+
+          .project-card__image {
+            position: absolute;
+            inset: 0;
+          }
+        }
+      }
+
+      &--row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+  }
+}
+
+.project-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--primary-color) 8%, transparent);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card-solid);
+  box-shadow: var(--home-card-shadow-soft);
+  transition:
+    translate var(--motion-small) var(--motion-ease-out),
+    scale var(--motion-micro) var(--motion-ease-out),
+    box-shadow var(--motion-small) var(--motion-ease-out),
+    border-color var(--motion-small) var(--motion-ease-out);
+
+  &:hover {
+    translate: 0 -3px;
+    border-color: color-mix(in oklch, var(--primary-color) 18%, transparent);
+    box-shadow: var(--home-card-shadow-hover);
+
+    .project-card__arrow {
+      translate: 0.15em -0.15em;
+    }
+  }
+
+  &:active {
+    scale: 0.985;
+    transition-duration: 80ms;
+  }
+
+  /* The focus ring belongs to the card the link covers, not to the name */
+  &:has(.project-card__link:focus-visible) {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+  }
+
+  &__banner {
+    display: block;
+    aspect-ratio: 1608 / 600;
+    overflow: hidden;
+    background: var(--surface-muted);
+
+    &--matte {
+      background: var(--banner-matte);
+
+      .project-card__image {
+        object-fit: contain;
+      }
+    }
+  }
+
+  &__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.85rem 1rem 0.95rem;
+  }
+
+  &__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  &__link {
+    /* Static so the stretched hit area measures from the card, not the name */
+    position: static;
+    color: var(--heading-color);
+    text-decoration: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      border-radius: inherit;
+    }
+
+    /* The card answers the hover; the name keeps its ink (the global pale link hover fails AA here) */
+    &:hover {
+      color: var(--heading-color);
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  &__badge {
+    padding: 0.1rem 0.45rem;
+    border: 1px solid color-mix(in oklch, var(--primary-color) 35%, transparent);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary-color);
+  }
+
+  &__description {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* The app's own story: a second link that sits above the card's stretched hit area */
+  &__story {
+    position: relative;
+    z-index: 2;
+    align-self: flex-start;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--link-color);
+    text-decoration: none;
+
+    &:hover .project-family__arrow {
+      translate: 0.2em 0;
+    }
+  }
+
+  &__domain {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35em;
+    margin: auto 0 0;
+    padding-block-start: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--link-color);
+    overflow-wrap: anywhere;
+  }
+
+  &__arrow {
+    display: inline-block;
+    transition: translate var(--motion-micro) var(--motion-ease-out);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition:
+      box-shadow var(--motion-small) var(--motion-ease-out),
+      border-color var(--motion-small) var(--motion-ease-out);
+
+    &:hover,
+    &:active {
+      translate: none;
+      scale: none;
+    }
+
+    &:hover .project-card__arrow,
+    &__arrow {
+      translate: none;
+      transition: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-family__story:hover .project-family__arrow {
+    translate: none;
+  }
+}
+
+/* Artwork dims a touch at night, its matte with it */
+@include scheme.night {
+  .project-card__banner {
+    filter: brightness(0.88);
+  }
+}
