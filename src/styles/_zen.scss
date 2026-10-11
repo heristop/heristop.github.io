@@ -245,62 +245,6 @@
   }
 }
 
-@keyframes zen-focus-reveal {
-  from {
-    opacity: 0;
-    filter: blur(6px);
-    transform: scale(1.03);
-  }
-
-  to {
-    opacity: 1;
-    filter: blur(0);
-    transform: scale(1);
-  }
-}
-
-.zen-focus-reveal {
-  opacity: 0;
-  filter: blur(6px);
-  transform: scale(1.03);
-  animation: zen-focus-reveal 700ms var(--zen-ease-elegant) both;
-  will-change: transform, opacity, filter;
-}
-
-@keyframes zen-ink-wash {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-.zen-ink-wash {
-  clip-path: inset(0 100% 0 0);
-  animation: zen-ink-wash 600ms var(--zen-ease-elegant) both;
-  will-change: clip-path;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .zen-focus-reveal,
-  .zen-ink-wash {
-    animation: none !important;
-    opacity: 1 !important;
-    filter: none !important;
-    transform: none !important;
-    clip-path: none !important;
-  }
-}
-
-@media (hover: none) and (pointer: coarse) {
-  .zen-focus-reveal {
-    filter: none;
-    will-change: transform, opacity;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   [class*="zen-"],
   [class*="haiku-"],

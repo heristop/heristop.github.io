@@ -34,9 +34,9 @@
   color: var(--link-color-secondary);
   position: relative;
   transition:
-    background-color var(--motion-page) var(--zen-ease-out),
-    transform var(--motion-small) var(--zen-ease-out),
-    color var(--motion-small) ease;
+    background-color var(--motion-micro) var(--motion-ease-out),
+    transform var(--motion-small) var(--motion-ease-out),
+    color var(--motion-micro) var(--motion-ease-out);
 
   &:hover {
     background: color-mix(in oklch, var(--link-color-secondary) 12%, transparent);
@@ -163,10 +163,12 @@
   visibility: hidden;
   opacity: 0;
   transform: translateY(-4px) scale(0.97);
+
+  /* Leaving accelerates away (the exit curve), and stays visible until the fade has fully landed */
   transition:
-    opacity var(--motion-micro) var(--zen-ease-out),
-    transform var(--motion-micro) var(--zen-ease-out),
-    visibility 0s linear 120ms;
+    opacity var(--motion-micro) var(--motion-ease-exit),
+    transform var(--motion-micro) var(--motion-ease-exit),
+    visibility 0s linear var(--motion-micro);
 }
 
 .theme-toggle[data-open] .theme-toggle__menu {

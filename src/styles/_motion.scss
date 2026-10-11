@@ -257,6 +257,12 @@ html[data-page-arrived] .about__wave {
   animation: none;
 }
 
+/* The archive's year row is in the incoming snapshot too: without this it sits invisible behind
+   the arriving body, then fades in a beat after everything else has landed */
+html[data-page-arrived] .archive-years {
+  animation: none;
+}
+
 /* The banner is part of the still header; it only unveils on the first paint of a visit */
 html[data-page-arrived] .site-header__banner {
   animation: none;

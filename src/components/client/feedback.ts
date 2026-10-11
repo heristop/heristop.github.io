@@ -86,6 +86,30 @@ export const copyText = async (text: string, doc: Document = document): Promise<
   return copyWithSelection(text, doc);
 };
 
+/* The icon coming back settles exactly like the check did (_pages.scss, feedback-settle), so the
+   return reads as the same gesture played backwards rather than a cut. Opacity only when the
+   reader asks for less motion. */
+const SETTLE_MS = 140;
+const SETTLE_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+const settleBack = (glyph: HTMLElement): void => {
+  if (typeof glyph.animate !== "function") {
+    return;
+  }
+  const still =
+    glyph.ownerDocument.defaultView?.matchMedia?.("(prefers-reduced-motion: reduce)").matches ===
+    true;
+  glyph.animate(
+    still
+      ? [{ opacity: 0 }, { opacity: 1 }]
+      : [
+          { opacity: 0, transform: "scale(0.9)" },
+          { opacity: 1, transform: "scale(1)" },
+        ],
+    { duration: SETTLE_MS, easing: SETTLE_EASE },
+  );
+};
+
 /* Swap the control's icon for a check and back. Pressing again restarts the timer instead of
    stacking reverts. */
 export const showDone = (control: HTMLElement, duration = FEEDBACK_DURATION_MS): void => {
@@ -108,6 +132,7 @@ export const showDone = (control: HTMLElement, duration = FEEDBACK_DURATION_MS):
       if (regular && done) {
         regular.hidden = false;
         done.hidden = true;
+        settleBack(regular);
       }
       revertTimers.delete(control);
     }, duration),

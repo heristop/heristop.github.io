@@ -6,7 +6,9 @@ import textReveal from "@zazencode/ui/text-reveal-motion";
 const { buildWordDrifts, maxAnimationEnd, useReducedMotion } = textReveal;
 const { getHaikuCharClass } = dissolve;
 
-const APPEAR_DELAY_MS = 120;
+// Two frames: long enough for the smoke state to paint before the glyphs transition out of it,
+// short enough that the card is never blank between the skeleton leaving and the first stroke
+const APPEAR_DELAY_MS = 34;
 const HAIKU_BASE_DURATION_MS = 750;
 const BREATHE_BUFFER_MS = 200;
 const BREATHE_TIMEOUT_MS = 12_000;
