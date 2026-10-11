@@ -1,37 +1,15 @@
 ---
 import { getPublishedPosts } from "../../utils/posts";
+import { isDigest } from "../../utils/blog-index";
+import { byEssays, tagStats } from "../../utils/tag-index";
 import Layout from "../../layouts/Layout.astro";
 import ZenSlide from "../../components/zen/ZenSlide.astro";
-import ZenTagCloud from "../../components/client/zen-tag-cloud";
+import ZenTagIndex from "../../components/client/zen-tag-index";
 import { SITE_LANGUAGE, WEBSITE_ID, absoluteUrl } from "../../structured-data";
 
 const posts = await getPublishedPosts();
-
-const tagCounts = new Map<string, number>();
-for (const post of posts) {
-  const tags = post.data.tags ?? [];
-  for (const tag of tags) {
-    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
-  }
-}
-
-const sortedEntries = [...tagCounts.entries()].toSorted((entryA, entryB) =>
-  entryA[0].localeCompare(entryB[0])
-);
-const maxCount = Math.max(...tagCounts.values(), 1);
-
-type TagSize = "sm" | "md" | "lg";
-
-const getSize = (count: number): TagSize => {
-  const weight = Math.min(count / maxCount, 1);
-  if (weight > 0.6) {
-    return "lg";
-  }
-  if (weight > 0.25) {
-    return "md";
-  }
-  return "sm";
-};
+const stats = tagStats(posts).toSorted(byEssays);
+const digestCount = posts.filter(isDigest).length;
 
 const TAGS_DESCRIPTION =
   "Browse every Zazen Code article by topic: AI agents, Claude, MCP, frontend, JavaScript, Rust, Symfony and more, with the number of posts under each tag.";
@@ -46,160 +24,21 @@ const tagsSchema = {
   isPartOf: { "@id": WEBSITE_ID },
   mainEntity: {
     "@type": "ItemList",
-    numberOfItems: sortedEntries.length,
-    itemListElement: sortedEntries.map(([tag], index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      url: absoluteUrl(`/tags/${tag}/`),
-      name: tag,
-    })),
+    numberOfItems: stats.length,
+    itemListElement: stats
+      .toSorted((statA, statB) => statA.tag.localeCompare(statB.tag))
+      .map(({ tag }, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: absoluteUrl(`/tags/${tag}/`),
+        name: tag,
+      })),
   },
 };
-
-const tagItems = sortedEntries.map(([tag, count]) => ({
-  count,
-  size: getSize(count),
-  tag,
-}));
 ---
 
 <Layout title="Tags" metaTitle="Blog Topics and Tags | Zazen Code" description={TAGS_DESCRIPTION} headSchema={tagsSchema}>
-  <ZenSlide direction="up" delay={200} className="l-reading">
-    <p class="tags-page__intro">
-      Browse all topics covered in my reflections.
-    </p>
+  <ZenSlide direction="up" delay={200} className="l-wide">
+    <ZenTagIndex client:load tags={stats} totalPosts={posts.length} totalDigests={digestCount} />
   </ZenSlide>
-
-  <div class="tags-page l-wide">
-    <ZenSlide direction="up" delay={400}>
-      <ZenTagCloud client:visible tags={tagItems} />
-    </ZenSlide>
-
-    {tagItems.length === 0 && (
-      <ZenSlide direction="up" delay={400}>
-        <p class="tags-page__empty">No tags found.</p>
-      </ZenSlide>
-    )}
-  </div>
 </Layout>
-
-<style>
-  .tags-page__intro {
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-  }
-
-  .tags-page :global(.tags-page__cloud) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem 0.6rem;
-    max-width: 52rem;
-    padding: 0.5rem 0;
-  }
-
-  .tags-page :global(.tags-page__pill) {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.4rem 0.95rem;
-    border-radius: 999px;
-    background: color-mix(in oklch, var(--primary-color) 8%, transparent);
-    border: 1px solid color-mix(in oklch, var(--primary-color) 12%, transparent);
-    color: var(--link-color-secondary);
-    font-size: 0.85rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    text-decoration: none;
-    line-height: 1.2;
-    /* Entrance is an animation so its stagger never delays the hover transition below */
-    animation: tag-pill-in var(--motion-small) var(--zen-ease-out) backwards;
-    animation-delay: min(calc(var(--i, 0) * 12ms), 480ms);
-    transition:
-      background-color var(--zen-duration-fast) var(--zen-ease-out),
-      border-color var(--zen-duration-fast) var(--zen-ease-out),
-      color var(--zen-duration-fast) var(--zen-ease-out),
-      transform var(--motion-small) var(--zen-ease-out),
-      box-shadow var(--motion-page) var(--zen-ease-out);
-  }
-
-  @keyframes tag-pill-in {
-    from {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-  }
-
-  .tags-page :global(.tags-page__pill::after) {
-    content: none;
-  }
-
-  .tags-page :global(.tags-page__pill:hover) {
-    background: color-mix(in oklch, var(--primary-color) 16%, transparent);
-    border-color: color-mix(in oklch, var(--primary-color) 32%, transparent);
-    color: var(--primary-color);
-    transform: translateY(-3px);
-    box-shadow:
-      0 6px 18px -10px color-mix(in oklch, var(--primary-color) 55%, transparent),
-      0 1px 0 color-mix(in oklch, var(--primary-color) 18%, transparent) inset;
-  }
-
-  .tags-page :global(.tags-page__pill:active) {
-    transform: scale(0.97);
-    transition-duration: 80ms;
-  }
-
-  .tags-page :global(.tags-page__pill:focus-visible) {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-
-  .tags-page :global(.tags-page__pill--md) {
-    font-size: 0.95rem;
-    padding: 0.45rem 1.1rem;
-    font-weight: 600;
-  }
-
-  .tags-page :global(.tags-page__pill--lg) {
-    font-size: 1.05rem;
-    padding: 0.5rem 1.25rem;
-    font-weight: 600;
-    background: color-mix(in oklch, var(--primary-color) 12%, transparent);
-    border-color: color-mix(in oklch, var(--primary-color) 20%, transparent);
-  }
-
-  .tags-page :global(.tags-page__pill-name) {
-    position: relative;
-    display: inline-block;
-    white-space: nowrap;
-  }
-
-  .tags-page :global(.tags-page__pill-count) {
-    font-size: 0.75rem;
-    font-variant-numeric: tabular-nums;
-    padding: 0.12rem 0.4rem;
-    border-radius: 999px;
-    background: color-mix(in oklch, var(--primary-color) 10%, transparent);
-    color: var(--text-secondary);
-    font-weight: 500;
-    min-width: 1.2em;
-    text-align: center;
-    transition: background-color var(--zen-duration-fast) var(--zen-ease-out);
-  }
-
-  .tags-page :global(.tags-page__pill:hover .tags-page__pill-count) {
-    background: color-mix(in oklch, var(--primary-color) 22%, transparent);
-  }
-
-  .tags-page__empty {
-    color: var(--text-secondary);
-    padding: var(--space-xl);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .tags-page :global(.tags-page__pill) {
-      animation: none;
-      transition: none;
-      transform: none;
-    }
-  }
-</style>

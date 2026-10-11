@@ -1,7 +1,7 @@
 // Where the finger lands on a card, _touch.scss blooms a faint ink wash (like a drop on washi),
 // so the press answers from the point of contact rather than the card's centre. Only the
 // coordinates come from here; the drawing, timing and reduced-motion handling stay in CSS.
-const PRESSABLE = ".zen-card, .latest-posts__item";
+const PRESSABLE = ".latest-posts__item, .blog-index__row";
 const COARSE_POINTER = "(pointer: coarse)";
 
 let installed = false;

@@ -42,6 +42,8 @@ const { title, metaTitle, description, image, bannerPosition, isArticle, pubDate
       <main class:list={["site-layout__pre-content", { "site-layout__pre-content--framed": !isArticle }]} id="main-content">
         <div class="site-layout__meta">
           <div class="site-layout__meta-title">
+            <!-- A quiet way back above the title (the tag pages' "All tags") -->
+            <slot name="eyebrow" />
             {title && (
               isArticle
                 ? <ZenTitleReveal client:load text={title} />

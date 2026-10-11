@@ -17,7 +17,6 @@ export const VOLATILE_SELECTORS = [
   ".haiku-card__content",
   ".haiku-skeleton",
   "time",
-  ".blog-card__date-relative",
   ".post-page__date",
 ];
 

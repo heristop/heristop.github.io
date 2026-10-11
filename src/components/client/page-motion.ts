@@ -70,7 +70,7 @@ export const morphsPosts = (from: string, to: string): boolean =>
 
 const TITLE_SELECTOR = ".site-layout__meta-title [data-reveal]";
 const SOURCE_TITLE_SELECTOR =
-  ".blog-card__title, .post-page__pager-title, .latest-posts__title, h3, h2";
+  ".blog-index__title, .post-page__pager-title, .latest-posts__title, h3, h2";
 export const MORPH_CLASS = "post-morph";
 
 export const pageTitleName = (doc: Document): string | undefined => {

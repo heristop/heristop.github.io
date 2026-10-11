@@ -1,47 +1,15 @@
 ---
-import FormattedDate from "../components/FormattedDate.astro";
+import BlogIndex from "../components/BlogIndex.astro";
 import Icon from "../components/Icon.astro";
 import Layout from "../layouts/Layout.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
 import { getPublishedPosts } from "../utils/posts";
+import { isDigest } from "../utils/blog-index";
 import { collectionPage } from "../structured-data";
-
-export interface Post {
-  id: string;
-  data: {
-    pubDate?: Date;
-    title: string;
-    image?: string;
-    tags?: string[];
-  };
-}
-
-const SECONDS_PER_MINUTE = 60;
-const MINUTES_PER_HOUR = 60;
-const HOURS_PER_DAY = 24;
-const DAYS_PER_MONTH = 30;
-const DAYS_PER_YEAR = 365;
 
 const allPosts = await getPublishedPosts();
 const posts = allPosts.toSorted(
   (postA, postB) => (postB.data.pubDate?.valueOf() ?? 0) - (postA.data.pubDate?.valueOf() ?? 0)
-);
-
-const groupPostsByYear = (postList: Post[]) => postList.reduce(
-  (
-    acc: Record<string, Post[]>,
-    post: Post
-  ) => {
-    const year = String(post.data.pubDate?.getFullYear() ?? "unknown");
-
-    if (acc[year] === undefined) {
-      acc[year] = [];
-    }
-
-    acc[year].push(post);
-    return acc;
-  },
-  {} as Record<string, Post[]>
 );
 
 const BLOG_DESCRIPTION =
@@ -53,179 +21,52 @@ const blogSchema = collectionPage({
   posts,
 });
 
-const postsByYear = groupPostsByYear(posts);
-const sortedYears = Object.keys(postsByYear).toSorted(
-  (yearA, yearB) => Number(yearB) - Number(yearA)
-);
+const digestCount = posts.filter(isDigest).length;
+const essayCount = posts.length - digestCount;
+const firstYear = posts.at(-1)?.data.pubDate?.getUTCFullYear();
 
-const STAGGER_STEP_MS = 50;
-// The first year's cards rise just after their heading (ZenSlide delay 400 → 240ms)
-const FIRST_CARD_LEAD_MS = 200;
-const STAGGER_MAX_INDEX = 5;
+const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 
-const formatTimeUnit = (value: number, unit: string) => {
-  if (value === 1) {
-    return `1 ${unit} ago`;
-  }
-  return `${value} ${unit}s ago`;
-};
-
-const timeAgo = (date: Date) => {
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-
-  const seconds = Math.max(Math.floor(diff / 1000), 1);
-  const minutes = Math.floor(seconds / SECONDS_PER_MINUTE);
-  const hours = Math.floor(minutes / MINUTES_PER_HOUR);
-  const days = Math.floor(hours / HOURS_PER_DAY);
-  const months = Math.floor(days / DAYS_PER_MONTH);
-  const years = Math.floor(days / DAYS_PER_YEAR);
-
-  if (days < 1) {
-    return "Today";
-  }
-
-  const timeUnits: [number, string][] = [
-    [years, "year"],
-    [months, "month"],
-    [days, "day"],
-  ];
-
-  for (const [value, unit] of timeUnits) {
-    if (value >= 1) {
-      return formatTimeUnit(value, unit);
-    }
-  }
-
-  return "Today";
-};
+const FILTERS = [
+  { value: "all", label: "All", count: posts.length },
+  { value: "essay", label: "Essays", count: essayCount },
+  { value: "digest", label: "Digests", count: digestCount },
+] as const;
 ---
 
 <Layout title="All Posts" metaTitle="Blog: Coding & AI Articles by Alexandre Mogère" description={BLOG_DESCRIPTION} headSchema={blogSchema}>
-  <noscript>
-    <style>
-      .zen-card {
-        opacity: 1 !important;
-        transform: none !important;
-        filter: none !important;
-      }
-    </style>
-  </noscript>
+  <BlogIndex posts={posts} class="l-wide" data-blog-index="">
+    <ZenSlide slot="head" direction="up" delay={200} className="blog-index__head">
+      <p class="blog-index__intro">
+        {plural(essayCount, "essay")} and {plural(digestCount, "weekly digest")}{firstYear && ` since ${firstYear}`}
+        <span class="blog-index__links">
+          <span class="blog-index__sep" aria-hidden="true">·</span>
+          <button
+            type="button"
+            class="blog-index__link blog-index__rss"
+            data-url="/rss.xml"
+            aria-label="Copy RSS feed address"
+            data-tooltip="Copy feed address"
+          >RSS<span class="blog-index__rss-glyph" data-feedback-default><Icon name="copy" size={13} color="currentColor" aria-hidden={true} /></span><span class="blog-index__rss-glyph" data-feedback-done hidden><Icon name="check" size={13} color="currentColor" aria-hidden={true} /></span></button>
+          <span class="blog-index__sep" aria-hidden="true">·</span>
+          <a class="blog-index__link" href="/tags/">Tags</a>
+        </span>
+      </p>
 
-  <ZenSlide direction="up" delay={200} className="l-wide">
-    <blockquote class="blog-archive__subscribe">
-      <Icon name="rss" size={32} class="blog-archive__subscribe-icon" aria-hidden={true} />
-
-      <span>
-        Subscribe to <button
-          type="button"
-          class="blog-archive__rss-copy"
-          data-url="/rss.xml"
-          aria-label="Copy RSS feed address"
-          data-tooltip="Copy feed address"
-        >RSS<span class="blog-archive__rss-glyph" data-feedback-default><Icon name="copy" size={14} color="currentColor" aria-hidden={true} /></span><span class="blog-archive__rss-glyph" data-feedback-done hidden><Icon name="check" size={14} color="currentColor" aria-hidden={true} /></span></button>
-        <span class="blog-archive__subscribe-sep" aria-hidden="true"> · </span>
-        or <a class="blog-archive__tags-link" href="/tags/">browse by tag</a>.
-      </span>
-    </blockquote>
-  </ZenSlide>
-
-  <nav class="archive-years l-wide" aria-label="Years" data-archive-years>
-    <div class="archive-years__scroller" data-archive-years-scroller>
-      <ol class="archive-years__list">
-        {sortedYears.map((year, yearIndex) => (
-          <li class="archive-years__item">
-            <a
-              class="archive-years__chip"
-              href={`#year-${year}`}
-              data-year={year}
-              aria-current={yearIndex === 0 ? "true" : undefined}
-            >{year}</a>
-          </li>
+      <!-- Needs script to act: html.js is set in the head, so the control is either there from the
+           first paint or never (no layout shift, and no dead buttons without JS) -->
+      <div class="index-seg" role="group" aria-label="Show posts">
+        {FILTERS.map((filter) => (
+          <button
+            type="button"
+            class="index-seg__option"
+            data-filter-value={filter.value}
+            aria-pressed={filter.value === "all" ? "true" : "false"}
+          >{filter.label} <span class="index-seg__count">{filter.count}</span></button>
         ))}
-      </ol>
-      <span class="archive-years__tick" aria-hidden="true"></span>
-    </div>
-  </nav>
-
-  <div class="blog-archive l-wide">
-    {
-      sortedYears.map((year, yearIndex) => (
-        <section class="blog-archive__year" aria-labelledby={`year-${year}`}>
-          <ZenSlide direction="up" delay={400 + yearIndex * 200}>
-            <h2 id={`year-${year}`} class="blog-archive__year-heading">
-              <Icon name="archive" size={20} class="blog-archive__year-icon" aria-hidden={true} />
-
-              {year}
-            </h2>
-          </ZenSlide>
-
-          <div class="blog-archive__grid">
-            {postsByYear[year].map(
-              (
-                post: Post,
-                index: number
-              ) => {
-                const isoDate = post.data.pubDate?.toISOString();
-                const imageSrc = post.data.image;
-                const cardStyle = `--zen-card-stagger: ${(yearIndex === 0 ? FIRST_CARD_LEAD_MS : 0) + STAGGER_STEP_MS * Math.min(index, STAGGER_MAX_INDEX)}ms`;
-
-                // Title first: the links rotor lists cards by name, and a date-first name sorts them
-                // as "12 Oct…", "17 Aug…" instead of by what they are
-                return (
-                  <a
-                    class="zen-card blog-card"
-                    href={`/blog/${post.id}/`}
-                    style={cardStyle}
-                    data-bg={imageSrc ?? ""}
-                    data-prepared="false"
-                    aria-labelledby={[
-                      `card-title-${post.id}`,
-                      isoDate && post.data.pubDate ? `card-date-${post.id}` : "",
-                      post.data.tags?.length ? `card-tags-${post.id}` : "",
-                    ].filter(Boolean).join(" ")}
-                  >
-                    <div class="zen-card__wash" aria-hidden="true"></div>
-                    {isoDate && post.data.pubDate && (
-                      <span class="blog-card__date" id={`card-date-${post.id}`}>
-                        <Icon name="calendar" size={14} class="blog-card__date-icon" aria-hidden={true} />
-                        <span
-                          class="blog-card__date-text"
-                          transition:name={`post-date-${post.id}`}
-                        >
-                          <FormattedDate date={post.data.pubDate} />
-                        </span>
-                        <span class="blog-card__date-relative">{timeAgo(post.data.pubDate)}</span>
-                      </span>
-                    )}
-
-                    {post.data.tags && post.data.tags.length > 0 && (
-                      <div
-                        class="blog-card__tags"
-                        id={`card-tags-${post.id}`}
-                        transition:name={`post-tags-${post.id}`}
-                      >
-                        {post.data.tags.slice(0, 2).map((tag: string) => (
-                          <span class="blog-card__tag">{tag}</span>
-                        ))}
-                      </div>
-                    )}
-
-                    <h3 class="blog-card__title" id={`card-title-${post.id}`}>{post.data.title}</h3>
-
-                    <span class="blog-card__cta" aria-hidden={true}>
-                      <Icon name="arrow-right" size={16} class="blog-card__cta-icon" />
-                      <span class="blog-card__cta-text">Read more</span>
-                    </span>
-                  </a>
-                );
-              }
-            )}
-          </div>
-        </section>
-      ))
-    }
-  </div>
+      </div>
+    </ZenSlide>
+  </BlogIndex>
 
   <button
     class="scroll-to-top"
@@ -238,79 +79,20 @@ const timeAgo = (date: Date) => {
     <Icon name="arrow-up" size={18} aria-hidden={true} />
   </button>
 
-  <script type="module" is:inline>
-    const INTERSECTION_THRESHOLD = 0.1;
-
-    const assignBackgroundAndReveal = (card) => {
-      const {bg} = card.dataset;
-      if (bg) {
-        card.style.setProperty('--zen-card-image', `url("${bg}")`);
-        card.dataset.bg = '';
-      }
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          card.classList.add('zen-card--visible');
-        });
-      });
-    };
-
-    const prepareCard = (card) => {
-      card.dataset.prepared = 'true';
-      if (!card.style.getPropertyValue('--zen-card-image')) {
-        card.style.setProperty('--zen-card-image', 'none');
-      }
-    };
-
-    const revealZenCards = () => {
-      const cards = document.querySelectorAll(
-        '.zen-card[data-prepared="false"]'
-      );
-
-      if (cards.length === 0) {
-        return;
-      }
-
-      if ('IntersectionObserver' in globalThis) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (entry.isIntersecting) {
-                const card = entry.target;
-                assignBackgroundAndReveal(card);
-                observer.unobserve(card);
-              }
-            }
-          },
-          {
-            rootMargin: '0px 0px 50px 0px',
-            threshold: INTERSECTION_THRESHOLD,
-          }
-        );
-
-        for (const card of cards) {
-          prepareCard(card);
-          observer.observe(card);
-        }
-      } else {
-        for (const card of cards) {
-          prepareCard(card);
-          assignBackgroundAndReveal(card);
-        }
-      }
-    };
-
-    if (typeof globalThis !== 'undefined') {
-      revealZenCards();
-      document.addEventListener('astro:page-load', revealZenCards);
-    }
-  </script>
-
   <script>
-    import { copyWithFeedback, ensureLiveRegion } from "../components/client/feedback";
+    import { announce, copyWithFeedback, ensureLiveRegion } from "../components/client/feedback";
+    import { mountSegmentedGlides } from "../components/client/segmented-glide";
+    import { settleScrollReveal } from "../components/client/scroll-reveal";
+
+    type Filter = "all" | "essay" | "digest";
+
+    // ?show=essays survives a visit to an article and back, and can be shared
+    const PARAM = "show";
+    const TO_PARAM: Record<Filter, string | undefined> = { all: undefined, essay: "essays", digest: "digests" };
+    const FROM_PARAM: Record<string, Filter> = { essays: "essay", digests: "digest" };
 
     const initRssCopy = () => {
-      for (const btn of document.querySelectorAll<HTMLButtonElement>(".blog-archive__rss-copy")) {
+      for (const btn of document.querySelectorAll<HTMLButtonElement>(".blog-index__rss")) {
         if (btn.dataset.initialized === "true") {
           continue;
         }
@@ -323,215 +105,84 @@ const timeAgo = (date: Date) => {
       }
     };
 
-    /* ── Year jump ──
-       A 1px reading line sits just under the sticky stack (header + this row); the year whose
-       section crosses it is the current one. Near the end the last, short years can never reach
-       the line, so the footer coming into view hands the highlight to the last year. */
-    const FALLBACK_TOP_PX = 64;
-    const LINE_GAP_PX = 12;
-    const JUMP_LOCK_MS = 1200;
-    const FADE_EDGE_PX = 2;
-
-    let teardownYears: (() => void) | undefined;
-
-    const initYearNav = () => {
-      teardownYears?.();
-      teardownYears = undefined;
-
-      const nav = document.querySelector<HTMLElement>("[data-archive-years]");
-      const scroller = nav?.querySelector<HTMLElement>("[data-archive-years-scroller]");
-      const tick = nav?.querySelector<HTMLElement>(".archive-years__tick");
-      const host = nav?.parentElement;
-      if (!nav || !scroller || !tick || !host) {
+    const initFilter = () => {
+      const root = document.querySelector<HTMLElement>("[data-blog-index]");
+      if (!root || root.dataset.filterReady === "true") {
         return;
       }
+      root.dataset.filterReady = "true";
 
-      const chips = [...nav.querySelectorAll<HTMLAnchorElement>(".archive-years__chip")];
-      const sections = chips
-        .map((chip) => document.getElementById(`year-${chip.dataset.year ?? ""}`)?.closest("section"))
-        .filter((section): section is HTMLElement => section instanceof HTMLElement);
-      if (chips.length === 0 || sections.length === 0) {
-        return;
-      }
+      const options = [...root.querySelectorAll<HTMLButtonElement>("[data-filter-value]")];
+      const folds = [...root.querySelectorAll<HTMLDetailsElement>("[data-digest-fold]")];
+      const countFor = (value: Filter) =>
+        options.find((option) => option.dataset.filterValue === value)
+          ?.querySelector(".index-seg__count")?.textContent ?? "";
 
-      const reducedMotion = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
-      const behavior = (): ScrollBehavior => (reducedMotion.matches ? "auto" : "smooth");
-
-      let current = chips.find((chip) => chip.getAttribute("aria-current") === "true") ?? chips[0];
-      let bandChip = current;
-      let footerVisible = false;
-      let jumpUntil = 0;
-      let observer: IntersectionObserver | undefined;
-
-      const placeTick = () => {
-        tick.style.transform = `translateX(${current.offsetLeft + current.offsetWidth / 2}px)`;
-      };
-
-      // Keep the current chip inside the scroller on narrow screens, clear of the fade
-      const revealChip = (chip: HTMLElement) => {
-        const pad = 24;
-        const left = chip.offsetLeft;
-        const right = left + chip.offsetWidth;
-        if (left < scroller.scrollLeft + pad || right > scroller.scrollLeft + scroller.clientWidth - pad) {
-          scroller.scrollTo({ left: left - pad, behavior: behavior() });
+      const apply = (value: Filter, fromUser: boolean) => {
+        const previous = root.dataset.filter as Filter | undefined;
+        root.dataset.filter = value;
+        for (const option of options) {
+          option.setAttribute("aria-pressed", String(option.dataset.filterValue === value));
         }
-      };
 
-      const setCurrent = (chip: HTMLAnchorElement) => {
-        if (chip === current) {
-          return;
-        }
-        current.removeAttribute("aria-current");
-        chip.setAttribute("aria-current", "true");
-        current = chip;
-        placeTick();
-        revealChip(chip);
-      };
-
-      const settle = () => {
-        if (Date.now() < jumpUntil) {
-          return;
-        }
-        setCurrent(footerVisible ? chips[chips.length - 1] : bandChip);
-      };
-
-      const chipFor = (section: Element) =>
-        chips[sections.indexOf(section as HTMLElement)] ?? bandChip;
-
-      const measure = () => {
-        const header = document.querySelector<HTMLElement>(".site-header-nav");
-        const top = header?.offsetHeight || FALLBACK_TOP_PX;
-        host.style.setProperty("--archive-years-top", `${top}px`);
-        host.style.setProperty("--archive-years-height", `${nav.offsetHeight}px`);
-        return top + nav.offsetHeight + LINE_GAP_PX;
-      };
-
-      const observe = () => {
-        observer?.disconnect();
-        const line = measure();
-        const below = Math.max(globalThis.innerHeight - line - 1, 0);
-        observer = new IntersectionObserver((entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              bandChip = chipFor(entry.target);
-            }
+        // Digests open their folds; leaving the view closes only the folds it opened
+        for (const fold of folds) {
+          if (value === "digest" && !fold.open) {
+            fold.open = true;
+            fold.dataset.autoOpen = "true";
+          } else if (value !== "digest" && fold.dataset.autoOpen === "true") {
+            fold.open = false;
+            delete fold.dataset.autoOpen;
           }
-          settle();
-        }, { rootMargin: `-${line}px 0px -${below}px 0px` });
-        for (const section of sections) {
-          observer.observe(section);
         }
-        placeTick();
+
+        if (!fromUser || previous === value) {
+          return;
+        }
+        // Rows coming back fade in place instead of replaying the page entrance, and rows still
+        // waiting for their scroll entrance are simply there
+        root.dataset.filtered = "true";
+        settleScrollReveal(root);
+        const url = new URL(globalThis.location.href);
+        const param = TO_PARAM[value];
+        if (param) {
+          url.searchParams.set(PARAM, param);
+        } else {
+          url.searchParams.delete(PARAM);
+        }
+        history.replaceState(history.state, "", url);
+        const label = value === "all" ? "all posts" : value === "essay" ? "essays" : "weekly digests";
+        announce(`Showing ${countFor(value)} ${label}`);
       };
 
-      const footer = document.querySelector(".site-footer");
-      const footerObserver = new IntersectionObserver(([entry]) => {
-        footerVisible = entry?.isIntersecting ?? false;
-        settle();
+      root.addEventListener("click", (event) => {
+        const option = (event.target as Element | null)?.closest<HTMLButtonElement>("[data-filter-value]");
+        if (option) {
+          apply((option.dataset.filterValue as Filter | undefined) ?? "all", true);
+        }
       });
-      if (footer) {
-        footerObserver.observe(footer);
+
+      const initial = FROM_PARAM[new URL(globalThis.location.href).searchParams.get(PARAM) ?? ""];
+      if (initial) {
+        ensureLiveRegion();
+        apply(initial, false);
       }
-
-      // Stuck: the intro above the row has scrolled away under the header
-      const intro = nav.previousElementSibling;
-      let stuckObserver: IntersectionObserver | undefined;
-      const watchStuck = () => {
-        stuckObserver?.disconnect();
-        if (!intro) {
-          return;
-        }
-        const top = Number.parseFloat(host.style.getPropertyValue("--archive-years-top")) || FALLBACK_TOP_PX;
-        stuckObserver = new IntersectionObserver(([entry]) => {
-          const gone = entry !== undefined && !entry.isIntersecting && entry.boundingClientRect.bottom <= top;
-          nav.toggleAttribute("data-stuck", gone);
-        }, { rootMargin: `-${top}px 0px 0px 0px` });
-        stuckObserver.observe(intro);
-      };
-
-      // Fade only the edges that hide more chips
-      let fadeFrame = 0;
-      const updateFades = () => {
-        fadeFrame = 0;
-        const max = scroller.scrollWidth - scroller.clientWidth;
-        nav.toggleAttribute("data-fade-start", scroller.scrollLeft > FADE_EDGE_PX);
-        nav.toggleAttribute("data-fade-end", scroller.scrollLeft < max - FADE_EDGE_PX);
-      };
-      const onScrollRow = () => {
-        if (fadeFrame === 0) {
-          fadeFrame = requestAnimationFrame(updateFades);
-        }
-      };
-      scroller.addEventListener("scroll", onScrollRow, { passive: true });
-
-      let resizeFrame = 0;
-      const onResize = () => {
-        cancelAnimationFrame(resizeFrame);
-        resizeFrame = requestAnimationFrame(() => {
-          observe();
-          watchStuck();
-          updateFades();
-        });
-      };
-      globalThis.addEventListener("resize", onResize, { passive: true });
-
-      const onClick = (event: MouseEvent) => {
-        const chip = (event.target as Element | null)?.closest<HTMLAnchorElement>(".archive-years__chip");
-        const target = chip ? document.getElementById(`year-${chip.dataset.year ?? ""}`) : null;
-        if (!chip || !target || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-          return;
-        }
-        event.preventDefault();
-        bandChip = chip;
-        jumpUntil = Date.now() + JUMP_LOCK_MS;
-        setCurrent(chip);
-        target.scrollIntoView({ behavior: behavior(), block: "start" });
-        history.replaceState(history.state, "", `#${target.id}`);
-        // Keyboard users continue from the year they jumped to
-        if (!target.hasAttribute("tabindex")) {
-          target.setAttribute("tabindex", "-1");
-        }
-        target.focus({ preventScroll: true });
-      };
-      const onScrollEnd = () => {
-        if (jumpUntil !== 0) {
-          jumpUntil = 0;
-          settle();
-        }
-      };
-      nav.addEventListener("click", onClick);
-      globalThis.addEventListener("scrollend", onScrollEnd, { passive: true });
-
-      observe();
-      watchStuck();
-      updateFades();
-      requestAnimationFrame(() => {
-        nav.dataset.ready = "true";
-      });
-
-      teardownYears = () => {
-        observer?.disconnect();
-        stuckObserver?.disconnect();
-        footerObserver.disconnect();
-        cancelAnimationFrame(fadeFrame);
-        cancelAnimationFrame(resizeFrame);
-        scroller.removeEventListener("scroll", onScrollRow);
-        globalThis.removeEventListener("resize", onResize);
-        globalThis.removeEventListener("scrollend", onScrollEnd);
-        nav.removeEventListener("click", onClick);
-      };
     };
+
+    let teardownGlide: (() => void) | undefined;
 
     const init = () => {
       initRssCopy();
-      initYearNav();
+      initFilter();
+      teardownGlide?.();
+      teardownGlide = mountSegmentedGlides();
     };
 
     init();
     document.addEventListener("astro:page-load", init);
     document.addEventListener("astro:before-swap", () => {
-      teardownYears?.();
-      teardownYears = undefined;
+      teardownGlide?.();
+      teardownGlide = undefined;
     });
   </script>
 </Layout>

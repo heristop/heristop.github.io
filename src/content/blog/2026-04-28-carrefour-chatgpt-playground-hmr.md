@@ -3,7 +3,7 @@ title: "How we shipped Carrefour inside ChatGPT"
 description: "How a Vite playground with HMR absorbed the instability of OpenAI's Apps SDK and sped up Carrefour In-App for ChatGPT, a first for a European retailer."
 pubDate: "2026-04-28"
 image: "/images/posts/2026-04-28-carrefour-chatgpt-playground-hmr/carrefour-chatgpt-banner.png"
-tags: ["case-study", "carrefour", "chatgpt", "mcp", "apps-sdk", "vite", "hmr", "dx"]
+tags: ["case-study", "carrefour", "chatgpt", "mcp", "apps-sdk", "vite", "hmr", "developer-experience"]
 conclusion: "When you're building on top of a moving spec, a well-designed sandbox turns every pivot into an occasion to iterate rather than a cost. The playground isn't a side tool: it's the primary environment where the components actually live."
 ---
 

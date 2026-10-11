@@ -62,7 +62,7 @@
   }
 
   /* Photographs and paintings dim a touch rather than invert */
-  :is(.site-header__banner-image, .post-page img, .social-network__image, .about__avatar) {
+  :is(.site-header__banner-image, .post-page img, .about__avatar) {
     filter: brightness(0.88);
   }
 
@@ -78,21 +78,6 @@
       oklch(30% 0.03 350deg / 35%);
     mix-blend-mode: multiply;
     pointer-events: none;
-  }
-
-  /* Night cards are solid paper with a lit top rim, not glass: blur stays on the header only */
-  .zen-card {
-    background: var(--surface-card-solid);
-    box-shadow:
-      var(--home-card-shadow-soft),
-      inset 0 1px 0 oklch(100% 0 0deg / 6%);
-
-    &:is(:hover, :focus-within) {
-      background: oklch(25.5% 0.018 350deg);
-      box-shadow:
-        var(--home-card-shadow-hover),
-        inset 0 1px 0 oklch(100% 0 0deg / 8%);
-    }
   }
 
   /* The ink portrait is drawn in sumi black; a moonlit rim keeps its silhouette on the night paper */

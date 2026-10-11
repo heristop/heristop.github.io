@@ -4,7 +4,7 @@ description: "Sub-agents run in isolated context windows, keeping your main sess
 pubDate: "2026-04-09"
 image: "/images/posts/2026-04-09-gemini-cli-subagents/poster.webp"
 conclusion: "Sub-agents are independent context loops. Heavy work happens somewhere else, only the summary comes back, and you can pick a different model and temperature for each one depending on whether it's doing creative work or mechanical scanning. If you're regularly hitting context limits on big codebases, this is the lever to pull."
-tags: ["ai", "tooling", "gemini-cli", "agents", "context-window", "llm"]
+tags: ["ai", "tooling", "gemini", "ai-agents", "context-window", "llm"]
 ---
 
 **Hello AI wizards** 👋

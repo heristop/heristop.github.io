@@ -31,7 +31,6 @@
   .social-share__link,
   .post-page__tag,
   .qr-code,
-  .social-network__link,
   .bmc__link,
   .search-result {
     transition:
@@ -55,10 +54,7 @@
   /* Inline text links cannot scale (transforms skip inline boxes): they dim, like iOS text buttons */
   .haiku-card__link,
   .haiku-card__more,
-  .haiku-card__trace,
-  .blog-archive__rss-copy,
-  .blog-archive__tags-link,
-  .tag-archive__back {
+  .haiku-card__trace {
     transition:
       opacity var(--motion-micro) var(--zen-ease-out),
       color var(--motion-small) var(--zen-ease-out);
@@ -69,26 +65,9 @@
     }
   }
 
-  /* ── Cards: a shallower press for a bigger surface, and an ink bloom where the finger lands ──
-     (--press-x / --press-y come from client/touch-press.ts). The card's own reveal keeps its
-     stagger; the press runs with no delay. */
-  .zen-card {
-    transition:
-      opacity var(--motion-page) var(--motion-ease-out) var(--zen-card-stagger, 0ms),
-      transform 400ms var(--motion-ease-out) var(--zen-card-stagger, 0ms),
-      box-shadow var(--motion-page) var(--zen-ease-out) var(--zen-card-stagger, 0ms),
-      border-color var(--motion-page) var(--zen-ease-out) var(--zen-card-stagger, 0ms),
-      color var(--motion-page) ease var(--zen-card-stagger, 0ms),
-      scale var(--motion-micro) var(--zen-ease-out);
-  }
-
-  /* .latest-posts__item (the lead card and the path rows) already presses to 0.985 in
-     _home.scss; it only takes the bloom */
-  .zen-card--visible:active {
-    scale: 0.985;
-  }
-
-  .zen-card--visible:active,
+  /* ── Cards: an ink bloom where the finger lands (--press-x / --press-y come from
+     client/touch-press.ts). .latest-posts__item (the lead card and the path rows) already presses
+     to 0.985 in _home.scss; it only takes the bloom. The blog index rows bloom in _blog.scss. */
   .latest-posts__item:active {
     background-image: radial-gradient(
       circle at var(--press-x, 50%) var(--press-y, 50%),
@@ -110,25 +89,12 @@
       var(--lead-surface);
   }
 
-  .zen-card--visible:active {
-    border-color: color-mix(in oklch, var(--primary-color) 26%, transparent);
-    transition-duration: var(--motion-page), 400ms, var(--motion-page), var(--motion-micro), var(--motion-page), 80ms;
-  }
-
-  .social-network__card {
-    &:active {
-      scale: 0.985;
-    }
-  }
-
   /* ── Tap targets: 44 × 44 without redrawing the small visuals ── */
 
   /* An invisible hit area around a small visual: the pill stays delicate, the target is 44pt.
      The pseudo-element hit-tests as its host; on these links it is free (their underline is off
      in _reset.scss, or it is a hover glow touch never shows). Each rule below sets its inset. */
   .post-page__tags .post-page__tag::after,
-  :root .tags-page .tags-page__cloud .tags-page__pill::after,
-  :root .tag-archive__back.tag-archive__back::after,
   .site-header-nav .header__brand-link::after,
   .site-header__title.title a::after,
   .haiku-card__link::after {
@@ -161,20 +127,6 @@
     inset: -6px -2px;
   }
 
-  /* Tag cloud pills: 36px with a halo to 44px, inside the cloud's 10px row gap. Specificity
-     beats the page's scoped `content: none`. */
-  .tags-page__pill {
-    min-height: 2.25rem;
-  }
-
-  :root .tags-page .tags-page__cloud .tags-page__pill::after {
-    inset: -6px -2px;
-  }
-
-  :root .tag-archive__back.tag-archive__back::after {
-    inset: -7px 0;
-  }
-
   /* Sticky bar wordmark (a 21px inline box in a 56px bar): a 12px halo makes it 45 */
   .site-header-nav .header__brand-link::after {
     inset: -12px -6px;
@@ -204,18 +156,6 @@
 
   .haiku-card__more {
     margin-block-start: -0.15rem;
-  }
-
-  /* Inline button in running text: grow the box, give the space back with negative margins */
-  .blog-archive__rss-copy {
-    padding: 0.65rem 0.5rem;
-    margin: -0.65rem -0.5rem;
-  }
-
-  /* A link wrapping across lines gets a box spanning both lines, over the RSS button: keep the
-     link whole so it drops to the next line instead */
-  .blog-archive__tags-link {
-    white-space: nowrap;
   }
 
   .social-share__link--minimal {
@@ -328,16 +268,54 @@
   .social-share__link:active,
   .post-page__tag:active,
   .qr-code:active,
-  .social-network__link:active,
   .bmc__link:active,
   .search-result:active,
-  .header__link--mobile:active,
-  .zen-card--visible:active,
-  .social-network__card:active {
+  .header__link--mobile:active {
     scale: none;
   }
 
   body.mobile-menu-open::after {
     animation: none;
+  }
+}
+
+/* ── About page (/about/): the Elsewhere rows press like cards, the QR toggle like a control,
+   and so do the Now rows (each row is its link). Rows and the toggle are already 44px tall. ── */
+@media (pointer: coarse) {
+  .about-elsewhere__link,
+  .about-qr__toggle {
+    transition:
+      scale var(--motion-micro) var(--zen-ease-out),
+      background-color var(--motion-small) var(--zen-ease-out),
+      color var(--motion-small) var(--zen-ease-out);
+
+    &:active {
+      scale: 0.985;
+      transition-duration: 80ms;
+    }
+  }
+
+  .about-now__row--link:active {
+    scale: 0.985;
+    transition-duration: 80ms;
+  }
+}
+
+@media (pointer: coarse) and (prefers-reduced-motion: reduce) {
+  .about-elsewhere__link:active,
+  .about-qr__toggle:active,
+  .about-now__row--link:active {
+    scale: none;
+  }
+}
+
+/* ── Projects page (/projects/): cards press like cards (the press itself lives in _projects.scss,
+   shared with the mouse); the "Read:" story link is a 20px line, so a halo takes it to 44. ── */
+@media (pointer: coarse) {
+  .project-family__story::after,
+  .project-card__story::after {
+    content: "";
+    position: absolute;
+    inset: -13px -4px;
   }
 }

@@ -75,7 +75,7 @@ describe("pageTitleName", () => {
 describe("claimTitleMorph", () => {
   it("names the clicked card title so it becomes the heading", () => {
     const current = parse(
-      `<a class="blog-card" href="/blog/x/"><h3 class="blog-card__title">T</h3></a>`,
+      `<a class="blog-index__row" href="/blog/x/"><h3 class="blog-index__title">T</h3></a>`,
     );
     const card = current.querySelector("a")!;
     const title = current.querySelector("h3")!;
@@ -111,7 +111,7 @@ describe("claimTitleMorph", () => {
 describe("claimReturnMorph", () => {
   it("names the incoming card that links back to the post being left", () => {
     const incoming = parse(
-      `<main><a href="/blog/x/"><h3 class="blog-card__title">T</h3></a><a href="/blog/y/"><h3>U</h3></a></main>`,
+      `<main><a href="/blog/x/"><h3 class="blog-index__title">T</h3></a><a href="/blog/y/"><h3>U</h3></a></main>`,
     );
     claimReturnMorph(articleDoc("post-title-x"), incoming, "/blog/x");
 

@@ -1,0 +1,134 @@
+---
+/* The post index shared by /blog/ and /tags/<tag>/: a year rail, one row per post (mono date,
+   title, quiet tags, an unveiled thumbnail) and each year's weekly digests folded into one row.
+   Styles: "Blog index" in _blog.scss. The root carries data-filter (always "all" here); /blog/
+   drives it from its All / Essays / Digests control. */
+import type { CollectionEntry } from "astro:content";
+import { buildBlogIndex, rowDate } from "../utils/blog-index";
+import { publicImage } from "../utils/public-image";
+
+interface Props {
+  posts: CollectionEntry<"blog">[];
+  /* Left out of each row's tags: on a tag page every row carries it */
+  excludeTag?: string;
+  tagLimit?: number;
+  class?: string;
+  [key: `data-${string}`]: string | undefined;
+}
+
+const { posts, excludeTag, tagLimit = 2, class: className, ...rest } = Astro.props;
+
+const years = buildBlogIndex(posts);
+const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
+
+// Thumbnails only for rows that show one (folded digests don't); sizes read once per banner
+const thumbs = new Map(
+  await Promise.all(
+    years
+      .flatMap((year) => year.entries)
+      .flatMap((entry) => (entry.type === "post" && entry.post.data.image ? [entry.post] : []))
+      .map(async (post) => [post.id, await publicImage(post.data.image ?? "")] as const)
+  )
+);
+---
+
+<div class:list={["blog-index", className]} data-filter="all" {...rest}>
+  <slot name="head" />
+
+  {years.map((year) => (
+    <section
+      class="blog-index__year"
+      data-essays={year.essays}
+      data-digests={year.digests}
+      aria-labelledby={`year-${year.year}`}
+    >
+      <div class="blog-index__rail">
+        <h2 id={`year-${year.year}`} class="blog-index__year-label">{year.year}</h2>
+        <p class="blog-index__year-count">
+          <span data-count="all">{plural(year.essays + year.digests, "post")}</span>
+          <span data-count="essay">{plural(year.essays, "essay")}</span>
+          <span data-count="digest">{plural(year.digests, "digest")}</span>
+        </p>
+      </div>
+
+      <!-- Rows on screen at first paint rise in turn (zen-stagger); the rest settle in as they are
+           scrolled to (data-scroll-reveal-group). The sticky year rail stays still. -->
+      <ol class="blog-index__list zen-stagger" data-scroll-reveal-group>
+        {year.entries.map((entry) => {
+          if (entry.type === "digests") {
+            return (
+              <li class="blog-index__item" data-kind="digest">
+                <details class="blog-index__fold" data-digest-fold>
+                  <summary class="blog-index__row blog-index__row--fold">
+                    <span class="blog-index__date">{plural(entry.issues.length, "issue")}</span>
+                    <span class="blog-index__text">
+                      <span class="blog-index__title">Frontend Weekly Digest</span>
+                      <span class="blog-index__tags">{entry.range}</span>
+                    </span>
+                    <span class="blog-index__chevron" aria-hidden="true">
+                      <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5 10.5 8 6 12.5" /></svg>
+                    </span>
+                  </summary>
+                  <ul class="blog-index__issues" aria-label={`Weekly digest issues, ${year.year}`}>
+                    {entry.issues.map((issue) => (
+                      <li>
+                        <a class="blog-index__issue" href={`/blog/${issue.post.id}/`}>
+                          {issue.emoji && <span class="blog-index__issue-emoji" aria-hidden="true">{issue.emoji}</span>}
+                          {issue.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </li>
+            );
+          }
+
+          const { post, kind } = entry;
+          const thumb = thumbs.get(post.id);
+          const tags = (post.data.tags ?? []).filter((tag) => tag !== excludeTag).slice(0, tagLimit);
+
+          // Title first: the links rotor lists rows by name, not as "06 Sep…", "17 Aug…"
+          return (
+            <li class="blog-index__item" data-kind={kind}>
+              <a
+                class="blog-index__row"
+                href={`/blog/${post.id}/`}
+                aria-labelledby={[
+                  `row-title-${post.id}`,
+                  post.data.pubDate ? `row-date-${post.id}` : "",
+                ].filter(Boolean).join(" ")}
+              >
+                {post.data.pubDate && (
+                  <span class="blog-index__date" id={`row-date-${post.id}`} transition:name={`post-date-${post.id}`}>
+                    <time datetime={post.data.pubDate.toISOString()}>{rowDate(post.data.pubDate)}</time>
+                  </span>
+                )}
+                <span class="blog-index__text">
+                  <h3 class="blog-index__title" id={`row-title-${post.id}`}>{post.data.title}</h3>
+                  {tags.length > 0 && (
+                    <span class="blog-index__tags blog-index__tags--pills" transition:name={`post-tags-${post.id}`}>
+                      {tags.map((tag) => <span class="latest-posts__tag">{tag}</span>)}
+                    </span>
+                  )}
+                </span>
+                {thumb && (
+                  <img
+                    class="blog-index__thumb"
+                    src={thumb.src}
+                    alt=""
+                    width={thumb.width}
+                    height={thumb.height}
+                    loading="lazy"
+                    decoding="async"
+                    style={post.data.bannerPosition ? `object-position: ${post.data.bannerPosition}` : undefined}
+                  />
+                )}
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  ))}
+</div>

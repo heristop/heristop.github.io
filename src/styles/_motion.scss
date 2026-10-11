@@ -145,8 +145,8 @@ html[data-nav-direction="prev"]::view-transition-new(.post-morph):only-child {
 .latest-posts__date,
 .latest-posts__tags,
 .latest-posts__title,
-.blog-card__date-text,
-.blog-card__tags,
+.blog-index__date,
+.blog-index__tags,
 .post-page__date-text,
 .post-page__tags-slot,
 .site-layout__meta-title [data-reveal] {
@@ -154,7 +154,7 @@ html[data-nav-direction="prev"]::view-transition-new(.post-morph):only-child {
 }
 
 /* Between two lists nothing travels: rows and cards simply go with the body */
-html:not([data-post-morph]) :is(.latest-posts__date, .latest-posts__tags, .blog-card__date-text, .blog-card__tags) {
+html:not([data-post-morph]) :is(.latest-posts__date, .latest-posts__tags, .blog-index__date, .blog-index__tags) {
   view-transition-name: none !important;
 }
 
@@ -232,35 +232,6 @@ html:not([data-post-morph]) :is(.latest-posts__date, .latest-posts__tags, .blog-
 html[data-page-arrived] :is(.zen-fade, .zen-slide-up, .zen-slide-down, .zen-slide-left, .zen-slide-right, .zen-scale),
 html[data-page-arrived] .zen-stagger > * {
   animation-delay: -3s !important;
-}
-
-/* Script-revealed cards (blog/tag archives, social links) and the about wave: already in place in
-   the incoming snapshot, so nothing fades in again once the transition has landed. Cards further
-   down still get their class from the observer, but they are already at rest. */
-html[data-page-arrived] :is(.zen-card, .social-network__card) {
-  --zen-card-stagger: 0ms !important;
-  --social-card-stagger: 0ms !important;
-}
-
-html[data-page-arrived] .zen-card:not(.zen-card--visible),
-html[data-page-arrived] .social-network__card:not(.social-network__card--visible) {
-  opacity: 1;
-  transform: none;
-  transition: none;
-}
-
-html[data-page-arrived] .zen-card__wash {
-  transition: none !important;
-}
-
-html[data-page-arrived] .about__wave {
-  animation: none;
-}
-
-/* The archive's year row is in the incoming snapshot too: without this it sits invisible behind
-   the arriving body, then fades in a beat after everything else has landed */
-html[data-page-arrived] .archive-years {
-  animation: none;
 }
 
 /* The banner is part of the still header; it only unveils on the first paint of a visit */

@@ -1,28 +1,18 @@
 ---
+import BlogIndex from "../../components/BlogIndex.astro";
 import BreadcrumbSchema from "../../components/BreadcrumbSchema.astro";
-import FormattedDate from "../../components/FormattedDate.astro";
-import Icon from "../../components/Icon.astro";
 import Layout from "../../layouts/Layout.astro";
 import ZenSlide from "../../components/zen/ZenSlide.astro";
 import { getPublishedPosts } from "../../utils/posts";
+import { isDigest } from "../../utils/blog-index";
+import { dateSpan, nextTag, relatedTags, tagStats } from "../../utils/tag-index";
 import { SITE_AUTHOR } from "../../consts";
 import { collectionPage } from "../../structured-data";
 
 export const getStaticPaths = async function getStaticPaths() {
   const posts = await getPublishedPosts();
-
-  const tags = new Set<string>();
-  for (const post of posts) {
-    const postTags = post.data.tags ?? [];
-    for (const tag of postTags) {
-      tags.add(tag);
-    }
-  }
-
-  return [...tags].map(tag => ({
-    params: { tag },
-    props: { tag },
-  }));
+  const tags = new Set(posts.flatMap((post) => post.data.tags ?? []));
+  return [...tags].map((tag) => ({ params: { tag }, props: { tag } }));
 };
 
 interface Props {
@@ -31,22 +21,30 @@ interface Props {
 
 const { tag } = Astro.props;
 
-const SECONDS_PER_MINUTE = 60;
-const MINUTES_PER_HOUR = 60;
-const HOURS_PER_DAY = 24;
-const DAYS_PER_MONTH = 30;
-const DAYS_PER_YEAR = 365;
-
 const allPosts = await getPublishedPosts();
 const posts = allPosts
-  .filter(post => (post.data.tags ?? []).includes(tag))
+  .filter((post) => (post.data.tags ?? []).includes(tag))
   .toSorted((postA, postB) => (postB.data.pubDate?.valueOf() ?? 0) - (postA.data.pubDate?.valueOf() ?? 0));
 
-const delay = 10;
+const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
+
+// Count and span said once, under the name; essays and digests apart only when both are here
+const digestCount = posts.filter(isDigest).length;
+const essayCount = posts.length - digestCount;
+const span = dateSpan(posts);
+const countLine =
+  digestCount > 0 && essayCount > 0
+    ? `${plural(essayCount, "essay")} and ${plural(digestCount, "weekly digest")}`
+    : plural(posts.length, "post");
+
+const stats = tagStats(allPosts);
+const related = relatedTags(allPosts, tag);
+const next = nextTag(stats, tag);
+const nextCount = next ? (next.essays > 0 ? plural(next.essays, "essay") : plural(next.posts, "post")) : "";
 
 const breadcrumbItems = [
-  { name: 'Home', url: '/' },
-  { name: 'Tags', url: '/tags/' },
+  { name: "Home", url: "/" },
+  { name: "Tags", url: "/tags/" },
   { name: tag, url: `/tags/${tag}/` },
 ];
 
@@ -54,13 +52,13 @@ const breadcrumbItems = [
 // boundary to stay inside the ~160 characters a result shows
 const DESCRIPTION_BUDGET = 158;
 const describeTag = () => {
-  const noun = posts.length === 1 ? 'article' : 'articles';
+  const noun = posts.length === 1 ? "article" : "articles";
   const lead = `${posts.length} ${noun} by ${SITE_AUTHOR} on ${tag}: `;
-  const full = lead + posts.map(post => post.data.title).join(' · ');
+  const full = lead + posts.map((post) => post.data.title).join(" · ");
   if (full.length <= DESCRIPTION_BUDGET) {
     return full;
   }
-  return `${full.slice(0, DESCRIPTION_BUDGET - 1).replace(/[\s·:,;]+\S*$/, '')}…`;
+  return `${full.slice(0, DESCRIPTION_BUDGET - 1).replace(/[\s·:,;]+\S*$/, "")}…`;
 };
 const tagDescription = describeTag();
 const tagSchema = collectionPage({
@@ -69,225 +67,45 @@ const tagSchema = collectionPage({
   description: tagDescription,
   posts,
 });
-
-const formatTimeUnit = (value: number, unit: string) => {
-  if (value === 1) {
-    return `1 ${unit} ago`;
-  }
-  return `${value} ${unit}s ago`;
-};
-
-const timeAgo = (date: Date) => {
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-
-  const seconds = Math.max(Math.floor(diff / 1000), 1);
-  const minutes = Math.floor(seconds / SECONDS_PER_MINUTE);
-  const hours = Math.floor(minutes / MINUTES_PER_HOUR);
-  const days = Math.floor(hours / HOURS_PER_DAY);
-  const months = Math.floor(days / DAYS_PER_MONTH);
-  const years = Math.floor(days / DAYS_PER_YEAR);
-
-  if (days < 1) {
-    return "Today";
-  }
-
-  const timeUnits: [number, string][] = [
-    [years, "year"],
-    [months, "month"],
-    [days, "day"],
-  ];
-
-  for (const [value, unit] of timeUnits) {
-    if (value >= 1) {
-      return formatTimeUnit(value, unit);
-    }
-  }
-
-  return "Today";
-};
 ---
 
-<Layout title={`Posts tagged ${tag}`} description={tagDescription} headSchema={tagSchema}>
+<Layout title={tag} metaTitle={`Posts tagged ${tag} | Zazen Code`} description={tagDescription} headSchema={tagSchema}>
   <BreadcrumbSchema slot="head" items={breadcrumbItems} />
-  <ZenSlide direction="up" delay={200} className="l-reading">
-    <div class="tag-archive__header">
-      <a href="/tags/" class="tag-archive__back">
-        <Icon name="arrow-left" size={14} aria-hidden={true} />
-        All tags
-      </a>
-      <div class="tag-archive__title-row">
-        <span class="tag-archive__pill">
-          <Icon name="tag" size={16} aria-hidden={true} />
-          {tag}
-        </span>
-        <span class="tag-archive__count">
-          {posts.length} {posts.length === 1 ? 'post' : 'posts'}
-        </span>
-      </div>
-    </div>
-  </ZenSlide>
+  <a slot="eyebrow" href="/tags/" class="tag-page__back"><span class="tag-page__arrow" aria-hidden="true">←</span> All tags</a>
 
-  <div class="blog-archive l-wide">
-    <!-- Keeps the outline h1 > h2 > h3 for the card titles below without changing the layout -->
-    <h2 class="sr-only">Articles tagged {tag}</h2>
-    <div class="blog-archive__grid">
-      {posts.map((post, index) => {
-        const isoDate = post.data.pubDate?.toISOString();
-        const imageSrc = post.data.image;
-        const cardStyle = `--zen-card-stagger: ${delay * index}ms`;
+  <BlogIndex posts={posts} excludeTag={tag} tagLimit={3} class="l-wide tag-page">
+    <ZenSlide slot="head" direction="up" delay={200} className="blog-index__head">
+      <p class="blog-index__intro">
+        {countLine}{span && <><span class="blog-index__sep" aria-hidden="true">·</span>{span}</>}
+      </p>
+    </ZenSlide>
+  </BlogIndex>
 
-        return (
-          <a
-            class="zen-card blog-card"
-            href={`/blog/${post.id}/`}
-            style={cardStyle}
-            data-bg={imageSrc ?? ""}
-            data-prepared="false"
-            aria-labelledby={[
-              `card-title-${post.id}`,
-              isoDate && post.data.pubDate ? `card-date-${post.id}` : "",
-            ].filter(Boolean).join(" ")}
-          >
-            <div class="zen-card__wash" aria-hidden="true"></div>
-            {isoDate && post.data.pubDate && (
-              <span class="blog-card__date" id={`card-date-${post.id}`}>
-                <Icon name="calendar" size={14} class="blog-card__date-icon" aria-hidden={true} />
-                <FormattedDate date={post.data.pubDate} />
-                <span class="blog-card__date-relative">{timeAgo(post.data.pubDate)}</span>
-              </span>
-            )}
-
-            <h3 class="blog-card__title" id={`card-title-${post.id}`}>{post.data.title}</h3>
-
-            <span class="blog-card__cta" aria-hidden={true}>
-              <Icon name="arrow-right" size={16} class="blog-card__cta-icon" />
-              <span class="blog-card__cta-text">Read more</span>
-            </span>
-          </a>
-        );
-      })}
-    </div>
-  </div>
-
-  <script type="module" is:inline>
-    const INTERSECTION_THRESHOLD = 0.1;
-
-    const assignBackgroundAndReveal = (card) => {
-      const {bg} = card.dataset;
-      if (bg) {
-        card.style.setProperty('--zen-card-image', `url("${bg}")`);
-        card.dataset.bg = '';
-      }
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          card.classList.add('zen-card--visible');
-        });
-      });
-    };
-
-    const prepareCard = (card) => {
-      card.dataset.prepared = 'true';
-      if (!card.style.getPropertyValue('--zen-card-image')) {
-        card.style.setProperty('--zen-card-image', 'none');
-      }
-    };
-
-    const revealZenCards = () => {
-      const cards = document.querySelectorAll('.zen-card[data-prepared="false"]');
-      if (cards.length === 0) {return;}
-
-      if ('IntersectionObserver' in globalThis) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (entry.isIntersecting) {
-                const card = entry.target;
-                assignBackgroundAndReveal(card);
-                observer.unobserve(card);
-              }
-            }
-          },
-          {
-            rootMargin: '0px 0px 50px 0px',
-            threshold: INTERSECTION_THRESHOLD,
-          }
-        );
-
-        for (const card of cards) {
-          prepareCard(card);
-          observer.observe(card);
-        }
-      } else {
-        for (const card of cards) {
-          prepareCard(card);
-          assignBackgroundAndReveal(card);
-        }
-      }
-    };
-
-    if (typeof globalThis !== 'undefined') {
-      revealZenCards();
-      document.addEventListener('astro:page-load', revealZenCards);
-    }
-  </script>
+  <footer class="tag-page__onward l-wide" data-scroll-reveal-group>
+    <hr />
+    {related.length > 0 && (
+      <section class="tag-page__related" aria-labelledby="often-with">
+        <h2 id="often-with" class="tag-page__label">Often with {tag}</h2>
+        <ul class="tag-page__related-list">
+          {related.map((item) => (
+            <li>
+              <a class="tag-page__related-link" href={`/tags/${item.tag}/`}>
+                {item.tag}<span class="tag-page__related-count"><span class="sr-only">, </span>{item.count}<span class="sr-only"> {item.count === 1 ? "post" : "posts"} together</span></span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+    <nav class="tag-page__next" aria-label="More tags">
+      {next && (
+        <a class="tag-page__next-link" href={`/tags/${next.tag}/`}>
+          <span class="tag-page__label">Next</span>
+          <span class="tag-page__next-name">{next.tag}</span>
+          <span class="tag-page__next-count">{nextCount}</span>
+        </a>
+      )}
+      <a class="tag-page__all" href="/tags/">All {stats.length} tags <span class="tag-page__arrow" aria-hidden="true">→</span></a>
+    </nav>
+  </footer>
 </Layout>
-
-<style>
-  .tag-archive__header {
-    margin-bottom: 1.5rem;
-  }
-
-  .tag-archive__back {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-    padding: 0.3rem 0.65rem 0.3rem 0.5rem;
-    margin-bottom: 0.75rem;
-    margin-left: -0.5rem;
-    border-radius: var(--radius-md);
-    transition:
-      color var(--zen-duration-fast) var(--zen-ease-out),
-      background var(--zen-duration-fast) var(--zen-ease-out),
-      gap var(--zen-duration-fast) var(--zen-ease-out);
-
-    &::after {
-      content: none;
-    }
-
-    &:hover {
-      color: var(--primary-color);
-      background: color-mix(in oklch, var(--primary-color) 6%, transparent);
-      gap: 0.55rem;
-    }
-  }
-
-  .tag-archive__title-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .tag-archive__pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.9rem;
-    border-radius: 999px;
-    background: color-mix(in oklch, var(--primary-color) 12%, transparent);
-    border: 1px solid color-mix(in oklch, var(--primary-color) 18%, transparent);
-    color: var(--primary-color);
-    font-size: 1.1rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-  }
-
-  .tag-archive__count {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-  }
-</style>

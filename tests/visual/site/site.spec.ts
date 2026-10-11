@@ -31,16 +31,7 @@ const THEMES: Theme[] = ["light", "dark"];
 
 /* Real findings not fixed yet: reported as annotations instead of failing every run. Remove an
    entry once the product is fixed, and the check guards it again. */
-const KNOWN_AXE_ISSUES = [
-  {
-    route: "blog",
-    width: 390,
-    rule: "target-size",
-    node: ".blog-archive__rss-copy",
-    reason:
-      "touch: the padded RSS copy button (44px, negative margins) overlaps the wrapped 'browse by tag' link box",
-  },
-];
+const KNOWN_AXE_ISSUES: { route: string; width: number; rule: string; node: string; reason: string }[] = [];
 
 const WIDTHS = [
   { name: "desktop", viewport: { width: 1440, height: 900 }, isMobile: false, hasTouch: false },
