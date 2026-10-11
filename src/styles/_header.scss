@@ -589,7 +589,7 @@ body.mobile-menu-open {
 
 .site-header__banner {
   /* A paper mat around the painting, like a framed print; the inner radius follows the outer one */
-  --banner-mat: clamp(0.375rem, 0.8vw, 0.625rem);
+  --banner-mat: clamp(0.125rem, 0.25vw, 0.1875rem);
   --banner-inner-radius: max(0px, calc(var(--radius-lg) - var(--banner-mat)));
 
   position: relative;
@@ -598,8 +598,9 @@ body.mobile-menu-open {
   padding: var(--banner-mat);
   background: var(--surface-card-solid);
 
-  /* 85% of the header container: the same edges as the page frame (--measure-frame) below it */
-  width: 85%;
+  /* A print hung over the page: 85% of the page frame (itself 85% of the header container),
+     centred, so the content below runs wider than the banner */
+  width: calc(85% * 0.85);
   height: clamp(120px, 16vh, 180px);
 
   @media screen and (width >= 768px) {

@@ -1,0 +1,63 @@
+---
+import { getImage } from 'astro:assets';
+import { imageMetadata } from 'astro/assets/utils';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import zazenBanner from '../assets/zazen.webp';
+
+interface Props {
+  /** A post's own banner (public path); the site painting is used when absent */
+  image?: string;
+  /** CSS object-position for the crop, when the subject is off-centre */
+  bannerPosition?: string;
+}
+
+const { image, bannerPosition } = Astro.props;
+
+// The banner is the LCP element: serve a width that fits the viewport instead of the full source.
+// Mirrors .site-header__banner: 85% of the page frame (737px once the layout caps at 65em),
+// gutter to gutter on phones.
+const BANNER_SIZES = '(min-width: 65em) 737px, (min-width: 48rem) calc(72.25vw - 0.9rem), calc(100vw - 3.25rem)';
+
+const readPublicImageSize = async (src: string): Promise<{ width?: number; height?: number }> => {
+  if (!src.startsWith('/')) {
+    return {};
+  }
+  try {
+    const { width, height } = await imageMetadata(await readFile(join(process.cwd(), 'public', src)), src);
+    return { width, height };
+  } catch {
+    return {};
+  }
+};
+
+// Every page gets the same frame, mat and band; only the picture inside differs. A post's image
+// is cropped like the painting, its intrinsic size letting the browser decode it at the right aspect.
+const responsive = image
+  ? undefined
+  : await getImage({ src: zazenBanner, widths: [480, 768, 1024, 1536], format: 'webp' });
+const fallback = image
+  ? { src: image, ...(await readPublicImageSize(image)) }
+  : { src: '/images/zazen.png', width: 1536, height: 900 };
+---
+
+<figure class="banner site-header__banner" id="header-banner">
+  <div class="site-header__banner-container">
+    <picture class="site-header__banner-picture">
+      {responsive && <source srcset={responsive.srcSet.attribute} sizes={BANNER_SIZES} type="image/webp" />}
+      <img
+        src={fallback.src}
+        alt=""
+        role="presentation"
+        class="site-header__banner-image"
+        style={bannerPosition ? `object-position: ${bannerPosition}` : undefined}
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        width={fallback.width}
+        height={fallback.height}
+      />
+    </picture>
+    <div class="site-header__banner-overlay" aria-hidden="true"></div>
+  </div>
+</figure>
