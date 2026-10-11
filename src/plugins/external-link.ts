@@ -26,7 +26,19 @@ const getUrl = (element: Element) => {
   return url.toString();
 };
 
-const isExternal = (url: string, domain: string) => url.startsWith("http") && !url.includes(domain);
+// Compares hostnames: a substring test let `https://other.dev/?ref=heristop.github.io` pass as
+// internal. An empty domain keeps the old meaning of "nothing is external".
+const isExternal = (url: string, domain: string) => {
+  if (!domain || !/^https?:\/\//.test(url)) {
+    return false;
+  }
+  try {
+    const { hostname } = new URL(url);
+    return hostname !== domain && !hostname.endsWith(`.${domain}`);
+  } catch {
+    return false;
+  }
+};
 
 export const externalLink: RehypePlugin = (options?: Options) => {
   const siteDomain = options?.domain ?? "";
@@ -45,6 +57,8 @@ export const externalLink: RehypePlugin = (options?: Options) => {
         element.properties !== null
       ) {
         element.properties["target"] = "_blank";
+        // noopener only: noreferrer would hide this site from the referrer the linked pages see
+        element.properties["rel"] = ["noopener"];
       }
     });
   };

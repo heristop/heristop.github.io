@@ -32,6 +32,18 @@ describe("externalLink plugin", () => {
     expect(anchor.properties?.target).toBe("_blank");
   });
 
+  it("adds rel=noopener to external links", () => {
+    const anchor = makeAnchor("https://other.com/path");
+    run(wrap(anchor), "mysite.com");
+    expect(anchor.properties?.rel).toEqual(["noopener"]);
+  });
+
+  it("treats a link that only mentions the domain in its query as external", () => {
+    const anchor = makeAnchor("https://other.com/post?ref=mysite.com");
+    run(wrap(anchor), "mysite.com");
+    expect(anchor.properties?.target).toBe("_blank");
+  });
+
   it("does not add target for same-domain links", () => {
     const anchor = makeAnchor("https://mysite.com/about");
     run(wrap(anchor), "mysite.com");
