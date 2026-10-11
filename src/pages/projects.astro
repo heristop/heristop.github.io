@@ -5,12 +5,15 @@ import { LINKFOLIO_URL } from "../consts";
 import { getPublishedPosts } from "../utils/posts";
 
 /* The apps are grouped by what they share; each card says one plain sentence. The banners still
-   come from the link-in-bio config (matched by URL), so a new tile there shows up here. */
+   come from the link-in-bio config (matched by URL), so a new tile there shows up here; each card
+   also knows its tile's path, so a build that can't reach the config still shows the art. */
 interface Project {
   name: string;
   url: string;
   description: string;
   daily?: boolean;
+  /* The tile's path on the link-in-bio site, used when its config can't be fetched */
+  banner: string;
   /* A post about this app alone, when its family has no shared story */
   story?: string;
   /* Narrow artwork is letterboxed on its own edge colour instead of zoomed past its pixels */
@@ -35,11 +38,13 @@ const FAMILIES: Family[] = [
       {
         name: "Pix Me!",
         url: "https://pix-me.studio",
+        banner: "/assets/pix-me-tile-v8.webp",
         description: "Turns a selfie into an avatar in styles like pixel art, chibi or comics.",
       },
       {
         name: "Pix Who?",
         url: "https://pix-me.studio/who",
+        banner: "/assets/pix-who-tile-v8.webp",
         description: "Find the mystery face among 24 suspects by asking yes or no questions.",
         daily: true,
       },
@@ -54,11 +59,13 @@ const FAMILIES: Family[] = [
       {
         name: "GutenKu",
         url: "https://gutenku.xyz",
+        banner: "/assets/gutenku-tile-v8.webp",
         description: "Finds haiku hidden in the classic books of Project Gutenberg.",
       },
       {
         name: "GutenGuess",
         url: "https://gutenku.xyz/game",
+        banner: "/assets/gutenguess-tile-v8.webp",
         description: "Guess the classic book from a set of emoji hints.",
         daily: true,
       },
@@ -72,17 +79,20 @@ const FAMILIES: Family[] = [
       {
         name: "LeClap",
         url: "https://leclap.dev",
+        banner: "/assets/leclap-tile-v9.webp",
         description: "Renders videos from a JSON description on your own device, with no upload.",
         story: "2026-08-17-one-descriptor-three-ffmpeg-builds",
       },
       {
         name: "ChaTodo",
         url: "https://chatodo.app",
+        banner: "/assets/chatodo.webp",
         description: "An ADHD-friendly task manager for web, iOS, Android and macOS.",
       },
       {
         name: "Clover Map",
         url: "https://clover-map.nuxt.dev",
+        banner: "/assets/clover-map.webp",
         description: "Lays out a project's tasks as a visual treemap.",
         matte: "rgb(242 242 242)",
       },
@@ -159,7 +169,9 @@ let cardIndex = 0;
             <ul class={`project-family__grid project-family__grid--${family.layout}`} role="list" data-scroll-reveal-group="settle">
               {family.projects.map((project) => {
                 const id = `project-${slugOf(project.name)}`;
-                const banner = banners.get(project.url);
+                // The live config wins (a new tile there shows up here); the known path keeps the
+                // card illustrated when the build can't reach it
+                const banner = banners.get(project.url) ?? new URL(project.banner, LINKFOLIO_URL).href;
                 const eager = cardIndex++ < 2;
                 const projectStory = storyFor(project.story);
                 return (
