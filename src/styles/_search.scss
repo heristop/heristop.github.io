@@ -1,41 +1,35 @@
+@use 'scheme';
+
 .search-overlay {
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
-  background: oklch(98% 0.008 75deg / 25%);
-  backdrop-filter: blur(0) saturate(1);
-  z-index: 999999;
+  background: var(--scrim-color);
+  backdrop-filter: blur(12px);
+  z-index: var(--z-dialog);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+
+  /* Close is quicker than open: dismissal shouldn't hold the page hostage */
   transition:
-    opacity 500ms var(--zen-ease-out),
-    visibility 500ms var(--zen-ease-out),
-    backdrop-filter 500ms var(--zen-ease-out);
+    opacity var(--motion-micro) ease-in,
+    visibility 0s linear 150ms;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: var(--space-xl) var(--space-xl) var(--space-xl) var(--space-xl);
+  padding: var(--space-xl);
   padding-top: 10vh;
   box-sizing: border-box;
 
-  @media (prefers-reduced-motion: no-preference) {
-    &--open {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: all;
-      backdrop-filter: blur(10px) saturate(1.1);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    &--open {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: all;
-      backdrop-filter: blur(6px) saturate(1.05);
-    }
+  &--open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    transition:
+      opacity var(--motion-small) var(--motion-ease-out),
+      visibility 0s;
   }
 
   &[aria-hidden="true"] {
@@ -43,22 +37,25 @@
   }
 
   @media (width <= 767px) {
-    background: oklch(100% 0 0deg / 70%);
-    backdrop-filter: blur(10px) saturate(1.1);
     padding: var(--space-lg);
     padding-top: 8vh;
-    align-items: flex-start;
   }
 }
 
 .search-container {
   max-width: 600px;
   width: 100%;
-  transform: scale(0.95) translateY(-20px);
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(-8px) scale(0.98);
+  transform-origin: top center;
+  transition: transform var(--motion-micro) ease-in;
 
   .search-overlay--open & {
-    transform: scale(1) translateY(0);
+    transform: none;
+    transition: transform var(--motion-small) var(--motion-ease-out);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
   }
 
   @media (width <= 768px) {
@@ -92,13 +89,16 @@
   display: flex;
   align-items: center;
   background: var(--surface-warm);
-  border: 1px solid color-mix(in oklch, var(--text-secondary) 12%, transparent);
+
+  /* A field must read as a field: the outline clears 3:1 against the field's own fill (WCAG 1.4.11).
+     The night needs less ink for the same contrast; see the scheme block at the end. */
+  border: 1px solid color-mix(in oklch, var(--text-secondary) 80%, transparent);
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow:
     0 4px 20px oklch(0% 0 0deg / 6%),
     0 2px 8px oklch(0% 0 0deg / 3%),
-    inset 0 1px 0 oklch(100% 0 0deg / 80%);
+    inset 0 1px 0 color-mix(in oklch, var(--sheen) 80%, transparent);
   transition:
     border-color var(--zen-duration-normal) var(--zen-ease-out),
     box-shadow var(--zen-duration-normal) var(--zen-ease-out);
@@ -119,11 +119,13 @@
   }
 
   &:focus-within {
-    border-color: color-mix(in oklch, var(--primary-color) 15%, transparent);
+    border-color: var(--primary-color);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
     box-shadow:
       0 6px 25px oklch(0% 0 0deg / 8%),
       0 2px 12px oklch(0% 0 0deg / 4%),
-      inset 0 1px 0 oklch(100% 0 0deg / 90%);
+      inset 0 1px 0 color-mix(in oklch, var(--sheen) 90%, transparent);
 
     &::before {
       transform: translateX(100%);
@@ -146,7 +148,7 @@
   width: 2.5rem;
   height: 2.5rem;
   color: color-mix(in oklch, var(--text-secondary) 60%, transparent);
-  transition: color 0.3s ease;
+  transition: color var(--motion-page) ease;
   z-index: 2;
 
 
@@ -165,7 +167,7 @@
     transition:
       color var(--zen-duration-normal) var(--zen-ease-out),
       background-color var(--zen-duration-normal) var(--zen-ease-out),
-      transform 300ms var(--zen-ease-elegant);
+      transform var(--motion-page) var(--zen-ease-elegant);
 
     &:hover, &:focus {
       color: color-mix(in oklch, var(--primary-color) 80%, transparent);
@@ -209,10 +211,9 @@
   padding: 1rem 3.5rem;
   border-radius: inherit;
 
+  /* The ring lives on the wrapper; overflow: hidden there would clip it here */
   &:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-    border-radius: 0.25rem;
+    outline: none;
   }
 
   &::placeholder {
@@ -237,7 +238,7 @@
 
 
 .search-results {
-  background: var(--surface-glass);
+  background: var(--surface-popover);
   border: 1px solid color-mix(in oklch, var(--text-secondary) 8%, transparent);
   border-radius: var(--radius-md);
   box-shadow:
@@ -348,7 +349,7 @@
 
   &:hover, &:focus {
     outline: none;
-    background-color: var(--surface-glass);
+    background-color: color-mix(in oklch, var(--primary-color) 6%, transparent);
     transform: translateX(4px);
 
     .search-result-title {
@@ -412,7 +413,7 @@
 
   .search-result-icon {
     color: var(--text-secondary);
-    transition: transform 0.2s ease;
+    transition: transform var(--motion-small) ease;
     flex-shrink: 0;
     margin-left: var(--space-sm);
   }
@@ -500,7 +501,7 @@
   .header__search-overlay,
   .header__search-container,
   .search-result {
-    transition-duration: 0.1s;
+    transition-duration: var(--motion-micro);
   }
 
   .search-result {
@@ -515,5 +516,18 @@
     &:hover svg, &:focus svg {
       transform: none;
     }
+  }
+}
+
+@media (prefers-contrast: more) {
+  .search-input-wrapper,
+  .search-results {
+    border-color: var(--border-strong);
+  }
+}
+
+@include scheme.night {
+  .search-input-wrapper:not(:focus-within) {
+    border-color: color-mix(in oklch, var(--text-secondary) 55%, transparent);
   }
 }

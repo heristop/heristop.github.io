@@ -22,11 +22,14 @@ describe("<ZenHaikuReveal />", () => {
     expect(container.querySelector(".haiku-card__quote")).toBeTruthy();
   });
 
-  it("fetches haiku text and updates aria-label", async () => {
+  it("exposes the fetched haiku once as visually hidden text", async () => {
     const { container } = render(<ZenHaikuReveal url="/api/haiku" />);
     await waitFor(() => {
       const node = container.querySelector(".haiku-card__quote");
-      expect(node?.getAttribute("aria-label")).toContain("old pond");
+      expect(node?.hasAttribute("aria-label")).toBe(false);
+      expect(node?.querySelector(".sr-only")?.textContent).toContain("old pond");
+      const visible = [...(node?.children ?? [])].filter((child) => !child.classList.contains("sr-only"));
+      expect(visible.every((child) => child.getAttribute("aria-hidden") === "true")).toBe(true);
     });
   });
 
@@ -34,8 +37,8 @@ describe("<ZenHaikuReveal />", () => {
     globalThis.fetch = vi.fn().mockRejectedValue(new Error("nope")) as unknown as typeof fetch;
     const { container } = render(<ZenHaikuReveal url="/api/haiku" />);
     await waitFor(() => {
-      const node = container.querySelector(".haiku-card__quote");
-      expect(node?.getAttribute("aria-label")).toContain("A fresh haiku");
+      const node = container.querySelector(".haiku-card__quote .sr-only");
+      expect(node?.textContent).toContain("A fresh haiku");
     });
   });
 });

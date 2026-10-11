@@ -86,7 +86,7 @@
   }
 
   html[data-garden-transition="enter"]::view-transition-old(root) {
-    animation: garden-step-away 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: garden-step-away 720ms var(--motion-ease-out) both;
   }
 
   html[data-garden-transition="enter"]::view-transition-new(root) {
@@ -100,7 +100,7 @@
   }
 
   html[data-garden-transition="leave"]::view-transition-new(root) {
-    animation: garden-return 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: garden-return 760ms var(--motion-ease-out) both;
   }
 
   @keyframes garden-portal-open {

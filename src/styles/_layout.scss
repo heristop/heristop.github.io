@@ -1,7 +1,3 @@
-.site-layout {
-  view-transition-name: layout-shell;
-}
-
 .site-layout__content {
   view-transition-name: page-body;
   display: flex;
@@ -32,180 +28,21 @@
   view-transition-name: header-sticky;
 }
 
-::view-transition-old(root),
-::view-transition-new(root) {
-  background: var(--primary-bg-color);
-  animation: none;
-}
-
-::view-transition-group(sakura) {
-  animation: none;
-}
-
-::view-transition-old(sakura),
-::view-transition-new(sakura) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-::view-transition-group(layout-shell),
-::view-transition-group(page-body),
-::view-transition-group(page-meta),
-::view-transition-group(header-static),
-::view-transition-group(header-sticky) {
-  animation-duration: var(--zen-transition-duration);
-  animation-timing-function: var(--zen-transition-timing);
-}
-
-::view-transition-old(page-body) {
-  animation: zen-fade-out var(--zen-transition-duration)
-      var(--zen-transition-timing) both;
-  contain: layout style paint;
-  overflow: hidden;
-}
-
-::view-transition-new(page-body) {
-  animation: zen-fade-in var(--zen-transition-duration)
-      var(--zen-transition-timing) both;
-  contain: layout style paint;
-  overflow: hidden;
-}
-
-::view-transition-old(header-static),
-::view-transition-old(header-sticky),
-::view-transition-old(page-meta) {
-  animation: zen-topfade-out calc(var(--zen-transition-duration) * 0.85)
-      var(--zen-transition-timing) both;
-}
-
-::view-transition-new(header-static),
-::view-transition-new(header-sticky),
-::view-transition-new(page-meta) {
-  animation: zen-topfade-in calc(var(--zen-transition-duration) * 0.85)
-      var(--zen-transition-timing) both;
-}
-
-@keyframes zen-fade-out {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  to {
-    opacity: 0;
-    transform: translateY(0.35rem);
-  }
-}
-
-@keyframes zen-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-0.35rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes zen-topfade-out {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  to {
-    opacity: 0;
-    transform: translateY(-0.25rem);
-  }
-}
-
-@keyframes zen-topfade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-0.25rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-::view-transition-group(zazen-world) {
-  animation-duration: calc(var(--zen-transition-duration) * 1.2);
-  animation-timing-function: var(--zen-transition-timing);
-}
-
-::view-transition-old(zazen-world) {
-  animation: zazen-world-fade-out calc(var(--zen-transition-duration) * 1.2)
-      var(--zen-transition-timing) both;
-}
-
-::view-transition-new(zazen-world) {
-  animation: zazen-world-fade-in calc(var(--zen-transition-duration) * 1.2)
-      var(--zen-transition-timing) both;
-}
-
-@keyframes zazen-world-fade-out {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  to {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-}
-
-@keyframes zazen-world-fade-in {
-  from {
-    opacity: 0;
-    transform: scale(1.05);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(layout-shell),
-  ::view-transition-group(page-body),
-  ::view-transition-group(page-meta),
-  ::view-transition-group(header-static),
-  ::view-transition-group(header-sticky),
-  ::view-transition-group(zazen-world) {
-    animation-duration: 1ms !important;
-  }
-
-  ::view-transition-old(root),
-  ::view-transition-new(root),
-  ::view-transition-old(page-body),
-  ::view-transition-new(page-body),
-  ::view-transition-old(header-static),
-  ::view-transition-new(header-static),
-  ::view-transition-old(header-sticky),
-  ::view-transition-new(header-sticky),
-  ::view-transition-old(page-meta),
-  ::view-transition-new(page-meta),
-  ::view-transition-old(zazen-world),
-  ::view-transition-new(zazen-world) {
-    animation: none !important;
-  }
-}
+/* Page transition pseudo-elements (timing, direction, morphs) live in _motion.scss */
 
 .site-layout {
   text-align: left;
   max-width: 65em;
   width: 100%;
   margin: 1.25em auto 1.5em;
-  line-height: 1.5em;
+  line-height: var(--line-height-body);
 
+  /* Column widths for page blocks: the article's reading measure for running text, the full
+     main width for collections */
   &__pre-content {
+    --measure-reading: var(--prose-measure);
+    --measure-wide: 100%;
+
     min-height: 18.75rem;
   }
 
@@ -225,6 +62,12 @@
   &__meta-title {
     margin-top: var(--space-lg);
     width: 100%;
+
+    /* Same scale as page titles; ZenTitleReveal measures this computed font for its line layout */
+    h1[data-reveal] {
+      font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+      line-height: 1.15;
+    }
 
     @media screen and (width >= 40rem) {
       width: 75%;
@@ -269,6 +112,48 @@
 
 .site-layout__pre-content {
   min-height: 18.75rem;
+}
+
+/* Pages (not articles) hang from the frame: title, text and collections share its edges, 85% of
+   the header container inside its --space-md padding. Below 48rem content keeps the full gutter
+   width. */
+.site-layout {
+  --measure-frame: calc((100% - 2 * var(--space-md)) * 0.85);
+}
+
+@media screen and (width >= 48rem) {
+  .site-layout__pre-content--framed > *,
+  .site-layout__content--home {
+    width: var(--measure-frame);
+    margin-inline: auto;
+  }
+}
+
+/* An article is not framed, but its title and prose column never outgrow the frame: on tablets
+   (48rem up to ≈55rem) the frame is narrower than the reading measure, so the column takes the
+   frame's edges; wider screens keep the measure, centred inside them. Below 48rem the column sits
+   at the content gutters like the text. */
+@media screen and (width >= 48rem) {
+  .site-layout__pre-content {
+    --article-measure: min(var(--prose-measure), var(--measure-frame));
+  }
+}
+
+/* Page blocks share the title's left edge. Bare running text keeps the reading measure (ragged
+   right); anything drawn as a surface (cards, intro quotes, collections) takes the full frame so
+   both of its edges meet the banner's. Width is explicit because a set margin stops flex stretch. */
+.l-reading,
+.l-wide {
+  width: 100%;
+  margin-inline: 0 auto;
+}
+
+.l-reading {
+  max-width: var(--measure-reading);
+}
+
+.l-wide {
+  max-width: var(--measure-wide);
 }
 
 .search-open {
@@ -322,6 +207,12 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 1rem;
+
+    /* Columns share the page frame's edges (padding included) while the ink scene keeps the full
+       width. Narrower screens keep the full width so the author chip never wraps in the 2fr column. */
+    @media screen and (width >= 75rem) {
+      max-width: calc(var(--measure-frame) + 2rem);
+    }
   }
 
   &__section {
@@ -413,13 +304,16 @@
   }
 
   &__section-title {
-    font-size: 0.72rem;
+    font-size: var(--font-size-label);
     font-weight: 600;
     color: color-mix(in oklch, var(--heading-color) 70%, var(--text-secondary));
     margin: 0;
     text-align: center;
     text-transform: uppercase;
-    letter-spacing: 0.16em;
+    letter-spacing: var(--tracking-label);
+
+    /* Pinned: these labels are h2 (footer landmark) but keep the h3 leading they were designed with */
+    line-height: 1.35;
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
@@ -466,9 +360,9 @@
     border: 1px solid color-mix(in oklch, var(--primary-color) 16%, transparent);
     color: var(--primary-color);
     transition:
-      background-color 240ms var(--zen-ease-out),
-      border-color 240ms var(--zen-ease-out),
-      transform 240ms var(--zen-ease-out);
+      background-color var(--motion-small) var(--zen-ease-out),
+      border-color var(--motion-small) var(--zen-ease-out),
+      transform var(--motion-small) var(--zen-ease-out);
 
     .icon {
       stroke: var(--primary-color);
@@ -494,10 +388,10 @@
       inset 0 1px 0 color-mix(in oklch, var(--primary-color) 9%, transparent),
       0 10px 28px -20px oklch(0% 0 0deg / 28%);
     transition:
-      background-color 280ms var(--zen-ease-out),
-      border-color 280ms var(--zen-ease-out),
-      box-shadow 280ms var(--zen-ease-elegant),
-      transform 280ms var(--zen-ease-elegant);
+      background-color var(--motion-page) var(--zen-ease-out),
+      border-color var(--motion-page) var(--zen-ease-out),
+      box-shadow var(--motion-page) var(--zen-ease-elegant),
+      transform var(--motion-page) var(--zen-ease-elegant);
   }
 
   &__author:hover &__author-text {
@@ -554,14 +448,14 @@
     gap: 0.7rem;
     padding: 0.5rem 0.75rem;
     border-radius: 0.55rem;
-    color: var(--link-color);
+    color: var(--footer-link-color);
     text-decoration: none;
     font-weight: 500;
     position: relative;
     transition:
-      background-color 260ms var(--zen-ease-out),
-      color 260ms var(--zen-ease-out),
-      transform 260ms var(--zen-ease-out);
+      background-color var(--motion-small) var(--zen-ease-out),
+      color var(--motion-small) var(--zen-ease-out),
+      transform var(--motion-small) var(--zen-ease-out);
 
     &:hover {
       color: var(--link-hover-color);
@@ -601,8 +495,8 @@
     border: 1px solid color-mix(in oklch, var(--primary-color) 16%, transparent);
     color: var(--primary-color);
     transition:
-      background-color 260ms var(--zen-ease-out),
-      border-color 260ms var(--zen-ease-out);
+      background-color var(--motion-small) var(--zen-ease-out),
+      border-color var(--motion-small) var(--zen-ease-out);
 
     .icon {
       stroke: var(--primary-color);
@@ -610,7 +504,7 @@
   }
 
   &__nav-label {
-    transition: transform 260ms var(--zen-ease-out);
+    transition: transform var(--motion-small) var(--zen-ease-out);
   }
 
   &__nav-arrow {
@@ -619,8 +513,8 @@
     color: var(--primary-color);
     stroke: var(--primary-color);
     transition:
-      opacity 260ms var(--zen-ease-out),
-      transform 260ms var(--zen-ease-out);
+      opacity var(--motion-small) var(--zen-ease-out),
+      transform var(--motion-small) var(--zen-ease-out);
   }
 
   &__social-links {
@@ -641,10 +535,10 @@
     color: var(--primary-color);
     text-decoration: none;
     transition:
-      transform 250ms var(--zen-ease-spring),
-      background 250ms var(--zen-ease-out),
-      box-shadow 250ms var(--zen-ease-out),
-      color 250ms;
+      transform var(--motion-small) var(--zen-ease-spring),
+      background var(--motion-small) var(--zen-ease-out),
+      box-shadow var(--motion-small) var(--zen-ease-out),
+      color var(--motion-small);
 
     &:hover {
       background: var(--primary-color);
@@ -657,13 +551,13 @@
       }
 
       img {
-        filter: brightness(0) invert(1);
+        filter: var(--icon-on-primary-filter);
       }
     }
 
     &:active {
       transform: scale(0.95);
-      transition: transform 100ms;
+      transition: transform var(--motion-micro);
     }
 
     &:focus-visible {
@@ -699,7 +593,7 @@
     gap: 0.7rem;
     padding: 0.5rem 0.75rem;
     border-radius: 0.55rem;
-    color: var(--link-color);
+    color: var(--footer-link-color);
     text-decoration: none;
     font: inherit;
     font-weight: 500;
@@ -708,8 +602,8 @@
     cursor: pointer;
     text-align: left;
     transition:
-      background-color 260ms var(--zen-ease-out),
-      color 260ms var(--zen-ease-out);
+      background-color var(--motion-small) var(--zen-ease-out),
+      color var(--motion-small) var(--zen-ease-out);
 
     &:hover {
       color: var(--link-hover-color);
@@ -749,8 +643,8 @@
     border: 1px solid color-mix(in oklch, var(--primary-color) 16%, transparent);
     color: var(--primary-color);
     transition:
-      background-color 260ms var(--zen-ease-out),
-      border-color 260ms var(--zen-ease-out);
+      background-color var(--motion-small) var(--zen-ease-out),
+      border-color var(--motion-small) var(--zen-ease-out);
 
     .icon {
       stroke: var(--primary-color);
@@ -758,7 +652,7 @@
   }
 
   &__link-label {
-    transition: transform 260ms var(--zen-ease-out);
+    transition: transform var(--motion-small) var(--zen-ease-out);
   }
 
   &__link-arrow {
@@ -767,8 +661,8 @@
     color: var(--primary-color);
     stroke: var(--primary-color);
     transition:
-      opacity 260ms var(--zen-ease-out),
-      transform 260ms var(--zen-ease-out);
+      opacity var(--motion-small) var(--zen-ease-out),
+      transform var(--motion-small) var(--zen-ease-out);
   }
 
   &__bottom {
@@ -858,7 +752,7 @@
       );
     border: 1px solid color-mix(in oklch, var(--primary-color) 30%, transparent);
     box-shadow:
-      0 1px 0 oklch(100% 0 0deg / 60%) inset,
+      0 1px 0 color-mix(in oklch, var(--sheen) 60%, transparent) inset,
       0 0 0 4px var(--surface-warm-light),
       0 6px 18px -12px oklch(18% 0.04 350deg / 32%);
     backdrop-filter: blur(6px);
@@ -883,7 +777,7 @@
       letter-spacing: 0.18em;
       transform: translate(-50%, calc(-50% - 1px));
       box-shadow:
-        0 1px 0 oklch(100% 0 0deg / 70%) inset,
+        0 1px 0 color-mix(in oklch, var(--sheen) 70%, transparent) inset,
         0 0 0 4px var(--surface-warm-light),
         0 10px 22px -12px oklch(18% 0.04 350deg / 40%),
         0 0 0 6px color-mix(in oklch, var(--primary-color) 14%, transparent);
@@ -946,7 +840,7 @@
     }
 
     &__social-link {
-      transition: color 0.3s ease;
+      transition: color var(--motion-page) ease;
 
       &:hover {
         transform: none;
@@ -954,7 +848,7 @@
     }
 
     &__profile {
-      transition: filter 0.3s ease;
+      transition: filter var(--motion-page) ease;
 
       &:hover {
         transform: none;
@@ -1871,7 +1765,9 @@
 @media screen and (width <= 48rem) {
   body {
     margin: 0;
-    font-size: 0.9rem;
+
+    /* viewport-fit=cover: a phone on its side keeps the text out from under the notch */
+    padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
   }
 
   .site-layout {
@@ -1891,9 +1787,10 @@
 }
 
 @media screen and (48.0625rem <= width <= 74.9375rem) {
+  /* Landscape phones land here: the gutter widens to clear the notch when there is one */
   body {
-    margin-left: var(--space-lg);
-    margin-right: var(--space-lg);
+    margin-left: max(var(--space-lg), env(safe-area-inset-left));
+    margin-right: max(var(--space-lg), env(safe-area-inset-right));
   }
 
   .site-layout {

@@ -4,10 +4,12 @@ import FormattedDate from "../../components/FormattedDate.astro";
 import Icon from "../../components/Icon.astro";
 import Layout from "../../layouts/Layout.astro";
 import ZenSlide from "../../components/zen/ZenSlide.astro";
-import { getCollection } from "astro:content";
+import { getPublishedPosts } from "../../utils/posts";
+import { SITE_AUTHOR } from "../../consts";
+import { collectionPage } from "../../structured-data";
 
 export const getStaticPaths = async function getStaticPaths() {
-  const posts = await getCollection("blog");
+  const posts = await getPublishedPosts();
 
   const tags = new Set<string>();
   for (const post of posts) {
@@ -35,7 +37,7 @@ const HOURS_PER_DAY = 24;
 const DAYS_PER_MONTH = 30;
 const DAYS_PER_YEAR = 365;
 
-const allPosts = await getCollection("blog");
+const allPosts = await getPublishedPosts();
 const posts = allPosts
   .filter(post => (post.data.tags ?? []).includes(tag))
   .toSorted((postA, postB) => (postB.data.pubDate?.valueOf() ?? 0) - (postA.data.pubDate?.valueOf() ?? 0));
@@ -44,9 +46,29 @@ const delay = 10;
 
 const breadcrumbItems = [
   { name: 'Home', url: '/' },
-  { name: 'Tags', url: '/tags' },
+  { name: 'Tags', url: '/tags/' },
   { name: tag, url: `/tags/${tag}/` },
 ];
+
+// Built from the posts themselves so each tag page gets a distinct snippet, cut on a word
+// boundary to stay inside the ~160 characters a result shows
+const DESCRIPTION_BUDGET = 158;
+const describeTag = () => {
+  const noun = posts.length === 1 ? 'article' : 'articles';
+  const lead = `${posts.length} ${noun} by ${SITE_AUTHOR} on ${tag}: `;
+  const full = lead + posts.map(post => post.data.title).join(' · ');
+  if (full.length <= DESCRIPTION_BUDGET) {
+    return full;
+  }
+  return `${full.slice(0, DESCRIPTION_BUDGET - 1).replace(/[\s·:,;]+\S*$/, '')}…`;
+};
+const tagDescription = describeTag();
+const tagSchema = collectionPage({
+  path: `/tags/${tag}/`,
+  name: `Posts tagged ${tag}`,
+  description: tagDescription,
+  posts,
+});
 
 const formatTimeUnit = (value: number, unit: string) => {
   if (value === 1) {
@@ -86,12 +108,11 @@ const timeAgo = (date: Date) => {
 };
 ---
 
-<BreadcrumbSchema items={breadcrumbItems} />
-
-<Layout title={`Posts tagged ${tag}`} description={`All blog posts tagged with ${tag}`}>
-  <ZenSlide direction="up" delay={200}>
+<Layout title={`Posts tagged ${tag}`} description={tagDescription} headSchema={tagSchema}>
+  <BreadcrumbSchema slot="head" items={breadcrumbItems} />
+  <ZenSlide direction="up" delay={200} className="l-reading">
     <div class="tag-archive__header">
-      <a href="/tags" class="tag-archive__back">
+      <a href="/tags/" class="tag-archive__back">
         <Icon name="arrow-left" size={14} aria-hidden={true} />
         All tags
       </a>
@@ -107,7 +128,9 @@ const timeAgo = (date: Date) => {
     </div>
   </ZenSlide>
 
-  <div class="blog-archive">
+  <div class="blog-archive l-wide">
+    <!-- Keeps the outline h1 > h2 > h3 for the card titles below without changing the layout -->
+    <h2 class="sr-only">Articles tagged {tag}</h2>
     <div class="blog-archive__grid">
       {posts.map((post, index) => {
         const isoDate = post.data.pubDate?.toISOString();
@@ -121,17 +144,21 @@ const timeAgo = (date: Date) => {
             style={cardStyle}
             data-bg={imageSrc ?? ""}
             data-prepared="false"
+            aria-labelledby={[
+              `card-title-${post.id}`,
+              isoDate && post.data.pubDate ? `card-date-${post.id}` : "",
+            ].filter(Boolean).join(" ")}
           >
             <div class="zen-card__wash" aria-hidden="true"></div>
             {isoDate && post.data.pubDate && (
-              <time class="blog-card__date" datetime={isoDate}>
+              <span class="blog-card__date" id={`card-date-${post.id}`}>
                 <Icon name="calendar" size={14} class="blog-card__date-icon" aria-hidden={true} />
                 <FormattedDate date={post.data.pubDate} />
                 <span class="blog-card__date-relative">{timeAgo(post.data.pubDate)}</span>
-              </time>
+              </span>
             )}
 
-            <h3 class="blog-card__title">{post.data.title}</h3>
+            <h3 class="blog-card__title" id={`card-title-${post.id}`}>{post.data.title}</h3>
 
             <span class="blog-card__cta" aria-hidden={true}>
               <Icon name="arrow-right" size={16} class="blog-card__cta-icon" />

@@ -4,9 +4,15 @@
 @use 'layout';
 @use 'navigation';
 @use 'header';
+@use 'theme-toggle';
 @use 'search';
 @use 'blog';
+@use 'mermaid';
 @use 'home';
 @use 'pages';
 @use 'zen';
 @use 'components';
+@use 'motion';
+@use 'ink-reveal';
+@use 'touch';
+@use 'a11y';

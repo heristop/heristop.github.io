@@ -20,15 +20,25 @@ const REDIRECTS: Record<string, string> = {
 };
 ---
 
-<Layout title="404 — Page not found" description="The page you're looking for doesn't exist.">
-  <div class="not-found">
-    <p class="not-found__code">404</p>
-    <h1 class="not-found__title">The path you seek does not exist</h1>
+<Layout title="Page not found" description="The page you're looking for doesn't exist." noindex>
+  <!-- The layout renders the single h1; this page only offers ways forward -->
+  <div class="not-found l-reading">
+    <p class="not-found__lead">The path you seek does not exist.</p>
     <p class="not-found__message">Like a stone garden raked clean, this page holds nothing — yet the journey here was not wasted.</p>
-    <a href="/" class="not-found__link">
-      <Icon name="home" size={16} color="currentColor" aria-hidden={true} />
-      Return home
-    </a>
+    <div class="not-found__actions">
+      <a href="/blog/" class="not-found__link not-found__link--primary">
+        <Icon name="book" size={16} color="currentColor" aria-hidden={true} />
+        Browse reflections
+      </a>
+      <button type="button" class="not-found__link" data-not-found-search>
+        <Icon name="search" size={16} color="currentColor" aria-hidden={true} />
+        Search
+      </button>
+      <a href="/" class="not-found__link">
+        <Icon name="home" size={16} color="currentColor" aria-hidden={true} />
+        Return home
+      </a>
+    </div>
   </div>
 
   <script is:inline define:vars={{ REDIRECTS }}>
@@ -37,58 +47,96 @@ const REDIRECTS: Record<string, string> = {
       globalThis.location.href = REDIRECTS[path];
     }
   </script>
+
+  <script>
+    // Reuse the header's search overlay rather than wiring a second one
+    document.addEventListener("click", (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest("[data-not-found-search]")) {
+        document.querySelector<HTMLElement>(".header__search-toggle")?.click();
+      }
+    });
+  </script>
 </Layout>
 
 <style>
   .not-found {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    min-height: 50vh;
-    gap: 1rem;
-    padding: 2rem;
+    align-items: flex-start;
+    min-height: 40vh;
+    gap: 0.75rem;
+    padding-block: 1rem 2rem;
   }
 
-  .not-found__code {
-    font-size: 5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    opacity: 0.2;
-    line-height: 1;
-    margin: 0;
-  }
-
-  .not-found__title {
-    font-size: 1.4rem;
+  .not-found__lead {
+    font-size: 1.15rem;
+    font-weight: 600;
     color: var(--heading-color);
     margin: 0;
   }
 
   .not-found__message {
     color: var(--text-secondary);
-    max-width: 28rem;
-    line-height: 1.6;
+    max-width: 32rem;
+    margin: 0;
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
   }
 
   .not-found__link {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    margin-top: 1rem;
+    min-height: 2.75rem;
     padding: 0.6rem 1.25rem;
     border-radius: 999px;
-    background: var(--primary-color);
-    color: var(--text-on-dark);
+    border: 1px solid color-mix(in oklch, var(--primary-color) 30%, transparent);
+    background: color-mix(in oklch, var(--primary-color) 8%, transparent);
+    color: var(--link-color-secondary);
+    font: inherit;
     font-weight: 600;
     font-size: 0.875rem;
-    transition: transform var(--zen-duration-fast) var(--zen-ease-out),
-      box-shadow var(--zen-duration-fast) var(--zen-ease-out);
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      transform var(--zen-duration-fast) var(--zen-ease-out),
+      background-color var(--zen-duration-fast) var(--zen-ease-out);
+  }
+
+  .not-found__link--primary {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-on-dark);
   }
 
   .not-found__link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px oklch(0% 0 0deg / 15%);
+    transform: translateY(-1px);
+  }
+
+  .not-found__link:active {
+    transform: scale(0.97);
+    transition-duration: 80ms;
+  }
+
+  .not-found__link:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .not-found__link {
+      transition: none;
+    }
+
+    .not-found__link:hover,
+    .not-found__link:active {
+      transform: none;
+    }
   }
 </style>

@@ -4,14 +4,9 @@ import { Image } from "astro:assets";
 import {
   SITE_DESCRIPTION,
   SITE_TITLE,
-  SITE_URL,
-  SITE_AUTHOR,
-  GITHUB_URL,
-  LINKEDIN_URL,
-  X_URL,
-  BLUESKY_URL,
 } from "../consts";
-import { getCollection } from "astro:content";
+import { person, website } from "../structured-data";
+import { getPublishedPosts } from "../utils/posts";
 import BaseHead from "../components/BaseHead.astro";
 import Footer from "../components/Footer.astro";
 import FormattedDate from "../components/FormattedDate.astro";
@@ -22,6 +17,10 @@ import ZenHaikuReveal from "../components/client/zen-haiku-reveal";
 import ZenSlide from "../components/zen/ZenSlide.astro";
 import SakuraPetals from "../components/SakuraPetals.astro";
 import ZenTextReveal from "@zazencode/ui/text-reveal";
+import textReveal from "@zazencode/ui/text-reveal-motion";
+
+const { TITLE_REVEAL_TIMING, titleTransitionName } = textReveal;
+const TITLE_REVEAL_SESSION_KEY = "zen:home-title-reveal";
 
 export interface Post {
   data: {
@@ -31,7 +30,7 @@ export interface Post {
   };
 }
 
-const allBlogPosts = await getCollection("blog");
+const allBlogPosts = await getPublishedPosts();
 const posts = allBlogPosts.toSorted(
   (postA, postB) => (postB.data.pubDate?.valueOf() ?? 0) - (postA.data.pubDate?.valueOf() ?? 0)
 );
@@ -44,26 +43,33 @@ const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/asset
 
 const haikuDescriptionUrl = "https://raw.githubusercontent.com/heristop/gutenku/main/assets/description.txt";
 
+// The site and its author as linked entities: posts reference both by @id
 const websiteSchema = {
   '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: SITE_TITLE,
-  url: SITE_URL,
-  description: SITE_DESCRIPTION,
-  author: {
-    '@type': 'Person',
-    name: SITE_AUTHOR,
-    url: `${SITE_URL}/about`,
-  },
-  sameAs: [GITHUB_URL, LINKEDIN_URL, X_URL, BLUESKY_URL],
+  '@graph': [website, person],
 };
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <BaseHead title={SITE_TITLE} metaTitle="Zazen Code: Alexandre Mogère on Coding & AI" description={SITE_DESCRIPTION} />
     <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+    <script is:inline define:vars={{ key: TITLE_REVEAL_SESSION_KEY }}>
+      // Hide the post titles before first paint only when their once-per-session reveal will
+      // play; readyState guards the re-run after a client-side swap, when they are already visible
+      try {
+        if (
+          document.readyState === "loading" &&
+          !sessionStorage.getItem(key) &&
+          !matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+          document.documentElement.dataset.revealTitles = "";
+        }
+      } catch {
+        // Storage blocked: titles render settled
+      }
+    </script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -72,6 +78,8 @@ const websiteSchema = {
       <Header title={SITE_TITLE} />
 
       <main aria-label="Main content" class="site-layout__content site-layout__content--home" id="main-content">
+        <!-- The home page shows no visible title; this names it for search engines and screen readers -->
+        <h1 class="sr-only">Zazen Code: Alexandre Mogère on coding and AI</h1>
         <section class="latest-posts" aria-labelledby="latest-posts-heading">
           <ZenSlide direction="up" delay={200}>
             <h2 id="latest-posts-heading" class="section-heading">
@@ -84,7 +92,7 @@ const websiteSchema = {
             <ZenSlide direction="up" delay={400}>
               <ul class="post-list latest-posts__list">
                 {
-                  latestPosts.map((post) => (
+                  latestPosts.map((post, index) => (
                     <li class="post-list__item latest-posts__item">
                       <a class="latest-posts__link zen-hover-lift" href={`/blog/${post.id}/`}>
                         {post.data.pubDate && (
@@ -97,7 +105,15 @@ const websiteSchema = {
                             </span>
                           </span>
                         )}
-                        <ZenTextReveal client:visible text={post.data.title} className="latest-posts__title" mobileStrategy="text" />
+                        <ZenTextReveal
+                          client:visible
+                          text={post.data.title}
+                          className="latest-posts__title"
+                          mobileStrategy="text"
+                          revealOnce={TITLE_REVEAL_SESSION_KEY}
+                          startDelayMs={index * TITLE_REVEAL_TIMING.rowStaggerMs}
+                          viewTransitionName={titleTransitionName(post.data.title)}
+                        />
                         {post.data.tags && post.data.tags.length > 0 && (
                           <div
                             class="latest-posts__tags"
@@ -153,6 +169,7 @@ const websiteSchema = {
             initPanelGlow();
             document.addEventListener('astro:page-load', initPanelGlow);
           </script>
+          <!-- A row title clicked here morphs into the article heading: see PageMotion.astro -->
         </section>
 
         <section class="haiku-card-section" aria-labelledby="haiku-heading">
@@ -226,7 +243,7 @@ const websiteSchema = {
         <div class="search-header">
           <h2 id="search-title" class="sr-only">Search reflections</h2>
           <div class="search-input-component">
-            <div class="search-input-wrapper" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+            <div class="search-input-wrapper">
               <div class="search-input-icon search-input-icon--left">
                 <Icon name="search" size={20} aria-hidden={true} />
               </div>
@@ -255,8 +272,6 @@ const websiteSchema = {
         <div
           class="search-results"
           id="search-results"
-          role="listbox"
-          aria-label="Search results"
         >
           <div class="search-results-content">
             <div class="search-empty">

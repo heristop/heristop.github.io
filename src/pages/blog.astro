@@ -3,7 +3,8 @@ import FormattedDate from "../components/FormattedDate.astro";
 import Icon from "../components/Icon.astro";
 import Layout from "../layouts/Layout.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
-import { getCollection } from "astro:content";
+import { getPublishedPosts } from "../utils/posts";
+import { collectionPage } from "../structured-data";
 
 export interface Post {
   id: string;
@@ -21,7 +22,7 @@ const HOURS_PER_DAY = 24;
 const DAYS_PER_MONTH = 30;
 const DAYS_PER_YEAR = 365;
 
-const allPosts = await getCollection("blog");
+const allPosts = await getPublishedPosts();
 const posts = allPosts.toSorted(
   (postA, postB) => (postB.data.pubDate?.valueOf() ?? 0) - (postA.data.pubDate?.valueOf() ?? 0)
 );
@@ -43,12 +44,23 @@ const groupPostsByYear = (postList: Post[]) => postList.reduce(
   {} as Record<string, Post[]>
 );
 
+const BLOG_DESCRIPTION =
+  "Every article by Alexandre Mogère since 2014: AI coding agents, frontend engineering, JavaScript, TypeScript, Rust and PHP, from weekly digests to case studies.";
+const blogSchema = collectionPage({
+  path: "/blog/",
+  name: "Zazen Code blog archive",
+  description: BLOG_DESCRIPTION,
+  posts,
+});
+
 const postsByYear = groupPostsByYear(posts);
 const sortedYears = Object.keys(postsByYear).toSorted(
   (yearA, yearB) => Number(yearB) - Number(yearA)
 );
 
-const STAGGER_STEP_MS = 60;
+const STAGGER_STEP_MS = 50;
+// The first year's cards rise just after their heading (ZenSlide delay 400 → 240ms)
+const FIRST_CARD_LEAD_MS = 200;
 const STAGGER_MAX_INDEX = 5;
 
 const formatTimeUnit = (value: number, unit: string) => {
@@ -89,7 +101,7 @@ const timeAgo = (date: Date) => {
 };
 ---
 
-<Layout title="All Posts" description="Articles on JavaScript, TypeScript, PHP, and web development by Alexandre Mogere.">
+<Layout title="All Posts" metaTitle="Blog: Coding & AI Articles by Alexandre Mogère" description={BLOG_DESCRIPTION} headSchema={blogSchema}>
   <noscript>
     <style>
       .zen-card {
@@ -100,7 +112,7 @@ const timeAgo = (date: Date) => {
     </style>
   </noscript>
 
-  <ZenSlide direction="up" delay={200}>
+  <ZenSlide direction="up" delay={200} className="l-wide">
     <blockquote class="blog-archive__subscribe">
       <Icon name="rss" size={32} class="blog-archive__subscribe-icon" aria-hidden={true} />
 
@@ -109,38 +121,34 @@ const timeAgo = (date: Date) => {
           type="button"
           class="blog-archive__rss-copy"
           data-url="/rss.xml"
-          data-tooltip="Click to copy feed URL"
-        >RSS</button>
+          aria-label="Copy RSS feed address"
+          data-tooltip="Copy feed address"
+        >RSS<span class="blog-archive__rss-glyph" data-feedback-default><Icon name="copy" size={14} color="currentColor" aria-hidden={true} /></span><span class="blog-archive__rss-glyph" data-feedback-done hidden><Icon name="check" size={14} color="currentColor" aria-hidden={true} /></span></button>
         <span class="blog-archive__subscribe-sep" aria-hidden="true"> · </span>
         or <a class="blog-archive__tags-link" href="/tags/">browse by tag</a>.
       </span>
     </blockquote>
-
-    <script is:inline>
-      const initRssCopy = () => {
-        for (const el of document.querySelectorAll('.blog-archive__rss-copy')) {
-          const btn = /** @type {HTMLButtonElement} */ (el);
-          if (btn.dataset.initialized === 'true') continue;
-          btn.dataset.initialized = 'true';
-          btn.addEventListener('click', async () => {
-            const url = new URL(btn.dataset.url ?? '/rss.xml', globalThis.location.origin).href;
-            await navigator.clipboard.writeText(url);
-            const original = btn.textContent;
-            btn.textContent = 'Copied!';
-            btn.classList.add('blog-archive__rss-copy--copied');
-            setTimeout(() => {
-              btn.textContent = original;
-              btn.classList.remove('blog-archive__rss-copy--copied');
-            }, 2000);
-          });
-        }
-      };
-      initRssCopy();
-      document.addEventListener('astro:page-load', initRssCopy);
-    </script>
   </ZenSlide>
 
-  <div class="blog-archive">
+  <nav class="archive-years l-wide" aria-label="Years" data-archive-years>
+    <div class="archive-years__scroller" data-archive-years-scroller>
+      <ol class="archive-years__list">
+        {sortedYears.map((year, yearIndex) => (
+          <li class="archive-years__item">
+            <a
+              class="archive-years__chip"
+              href={`#year-${year}`}
+              data-year={year}
+              aria-current={yearIndex === 0 ? "true" : undefined}
+            >{year}</a>
+          </li>
+        ))}
+      </ol>
+      <span class="archive-years__tick" aria-hidden="true"></span>
+    </div>
+  </nav>
+
+  <div class="blog-archive l-wide">
     {
       sortedYears.map((year, yearIndex) => (
         <section class="blog-archive__year" aria-labelledby={`year-${year}`}>
@@ -160,8 +168,10 @@ const timeAgo = (date: Date) => {
               ) => {
                 const isoDate = post.data.pubDate?.toISOString();
                 const imageSrc = post.data.image;
-                const cardStyle = `--zen-card-stagger: ${STAGGER_STEP_MS * Math.min(index, STAGGER_MAX_INDEX)}ms`;
+                const cardStyle = `--zen-card-stagger: ${(yearIndex === 0 ? FIRST_CARD_LEAD_MS : 0) + STAGGER_STEP_MS * Math.min(index, STAGGER_MAX_INDEX)}ms`;
 
+                // Title first: the links rotor lists cards by name, and a date-first name sorts them
+                // as "12 Oct…", "17 Aug…" instead of by what they are
                 return (
                   <a
                     class="zen-card blog-card"
@@ -169,10 +179,15 @@ const timeAgo = (date: Date) => {
                     style={cardStyle}
                     data-bg={imageSrc ?? ""}
                     data-prepared="false"
+                    aria-labelledby={[
+                      `card-title-${post.id}`,
+                      isoDate && post.data.pubDate ? `card-date-${post.id}` : "",
+                      post.data.tags?.length ? `card-tags-${post.id}` : "",
+                    ].filter(Boolean).join(" ")}
                   >
                     <div class="zen-card__wash" aria-hidden="true"></div>
                     {isoDate && post.data.pubDate && (
-                      <time class="blog-card__date" datetime={isoDate}>
+                      <span class="blog-card__date" id={`card-date-${post.id}`}>
                         <Icon name="calendar" size={14} class="blog-card__date-icon" aria-hidden={true} />
                         <span
                           class="blog-card__date-text"
@@ -181,12 +196,13 @@ const timeAgo = (date: Date) => {
                           <FormattedDate date={post.data.pubDate} />
                         </span>
                         <span class="blog-card__date-relative">{timeAgo(post.data.pubDate)}</span>
-                      </time>
+                      </span>
                     )}
 
                     {post.data.tags && post.data.tags.length > 0 && (
                       <div
                         class="blog-card__tags"
+                        id={`card-tags-${post.id}`}
                         transition:name={`post-tags-${post.id}`}
                       >
                         {post.data.tags.slice(0, 2).map((tag: string) => (
@@ -195,7 +211,7 @@ const timeAgo = (date: Date) => {
                       </div>
                     )}
 
-                    <h3 class="blog-card__title">{post.data.title}</h3>
+                    <h3 class="blog-card__title" id={`card-title-${post.id}`}>{post.data.title}</h3>
 
                     <span class="blog-card__cta" aria-hidden={true}>
                       <Icon name="arrow-right" size={16} class="blog-card__cta-icon" />
@@ -288,5 +304,234 @@ const timeAgo = (date: Date) => {
       revealZenCards();
       document.addEventListener('astro:page-load', revealZenCards);
     }
+  </script>
+
+  <script>
+    import { copyWithFeedback, ensureLiveRegion } from "../components/client/feedback";
+
+    const initRssCopy = () => {
+      for (const btn of document.querySelectorAll<HTMLButtonElement>(".blog-archive__rss-copy")) {
+        if (btn.dataset.initialized === "true") {
+          continue;
+        }
+        btn.dataset.initialized = "true";
+        ensureLiveRegion();
+        btn.addEventListener("click", () => {
+          const url = new URL(btn.dataset.url ?? "/rss.xml", globalThis.location.origin).href;
+          void copyWithFeedback(btn, url);
+        });
+      }
+    };
+
+    /* ── Year jump ──
+       A 1px reading line sits just under the sticky stack (header + this row); the year whose
+       section crosses it is the current one. Near the end the last, short years can never reach
+       the line, so the footer coming into view hands the highlight to the last year. */
+    const FALLBACK_TOP_PX = 64;
+    const LINE_GAP_PX = 12;
+    const JUMP_LOCK_MS = 1200;
+    const FADE_EDGE_PX = 2;
+
+    let teardownYears: (() => void) | undefined;
+
+    const initYearNav = () => {
+      teardownYears?.();
+      teardownYears = undefined;
+
+      const nav = document.querySelector<HTMLElement>("[data-archive-years]");
+      const scroller = nav?.querySelector<HTMLElement>("[data-archive-years-scroller]");
+      const tick = nav?.querySelector<HTMLElement>(".archive-years__tick");
+      const host = nav?.parentElement;
+      if (!nav || !scroller || !tick || !host) {
+        return;
+      }
+
+      const chips = [...nav.querySelectorAll<HTMLAnchorElement>(".archive-years__chip")];
+      const sections = chips
+        .map((chip) => document.getElementById(`year-${chip.dataset.year ?? ""}`)?.closest("section"))
+        .filter((section): section is HTMLElement => section instanceof HTMLElement);
+      if (chips.length === 0 || sections.length === 0) {
+        return;
+      }
+
+      const reducedMotion = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
+      const behavior = (): ScrollBehavior => (reducedMotion.matches ? "auto" : "smooth");
+
+      let current = chips.find((chip) => chip.getAttribute("aria-current") === "true") ?? chips[0];
+      let bandChip = current;
+      let footerVisible = false;
+      let jumpUntil = 0;
+      let observer: IntersectionObserver | undefined;
+
+      const placeTick = () => {
+        tick.style.transform = `translateX(${current.offsetLeft + current.offsetWidth / 2}px)`;
+      };
+
+      // Keep the current chip inside the scroller on narrow screens, clear of the fade
+      const revealChip = (chip: HTMLElement) => {
+        const pad = 24;
+        const left = chip.offsetLeft;
+        const right = left + chip.offsetWidth;
+        if (left < scroller.scrollLeft + pad || right > scroller.scrollLeft + scroller.clientWidth - pad) {
+          scroller.scrollTo({ left: left - pad, behavior: behavior() });
+        }
+      };
+
+      const setCurrent = (chip: HTMLAnchorElement) => {
+        if (chip === current) {
+          return;
+        }
+        current.removeAttribute("aria-current");
+        chip.setAttribute("aria-current", "true");
+        current = chip;
+        placeTick();
+        revealChip(chip);
+      };
+
+      const settle = () => {
+        if (Date.now() < jumpUntil) {
+          return;
+        }
+        setCurrent(footerVisible ? chips[chips.length - 1] : bandChip);
+      };
+
+      const chipFor = (section: Element) =>
+        chips[sections.indexOf(section as HTMLElement)] ?? bandChip;
+
+      const measure = () => {
+        const header = document.querySelector<HTMLElement>(".site-header-nav");
+        const top = header?.offsetHeight || FALLBACK_TOP_PX;
+        host.style.setProperty("--archive-years-top", `${top}px`);
+        host.style.setProperty("--archive-years-height", `${nav.offsetHeight}px`);
+        return top + nav.offsetHeight + LINE_GAP_PX;
+      };
+
+      const observe = () => {
+        observer?.disconnect();
+        const line = measure();
+        const below = Math.max(globalThis.innerHeight - line - 1, 0);
+        observer = new IntersectionObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              bandChip = chipFor(entry.target);
+            }
+          }
+          settle();
+        }, { rootMargin: `-${line}px 0px -${below}px 0px` });
+        for (const section of sections) {
+          observer.observe(section);
+        }
+        placeTick();
+      };
+
+      const footer = document.querySelector(".site-footer");
+      const footerObserver = new IntersectionObserver(([entry]) => {
+        footerVisible = entry?.isIntersecting ?? false;
+        settle();
+      });
+      if (footer) {
+        footerObserver.observe(footer);
+      }
+
+      // Stuck: the intro above the row has scrolled away under the header
+      const intro = nav.previousElementSibling;
+      let stuckObserver: IntersectionObserver | undefined;
+      const watchStuck = () => {
+        stuckObserver?.disconnect();
+        if (!intro) {
+          return;
+        }
+        const top = Number.parseFloat(host.style.getPropertyValue("--archive-years-top")) || FALLBACK_TOP_PX;
+        stuckObserver = new IntersectionObserver(([entry]) => {
+          const gone = entry !== undefined && !entry.isIntersecting && entry.boundingClientRect.bottom <= top;
+          nav.toggleAttribute("data-stuck", gone);
+        }, { rootMargin: `-${top}px 0px 0px 0px` });
+        stuckObserver.observe(intro);
+      };
+
+      // Fade only the edges that hide more chips
+      let fadeFrame = 0;
+      const updateFades = () => {
+        fadeFrame = 0;
+        const max = scroller.scrollWidth - scroller.clientWidth;
+        nav.toggleAttribute("data-fade-start", scroller.scrollLeft > FADE_EDGE_PX);
+        nav.toggleAttribute("data-fade-end", scroller.scrollLeft < max - FADE_EDGE_PX);
+      };
+      const onScrollRow = () => {
+        if (fadeFrame === 0) {
+          fadeFrame = requestAnimationFrame(updateFades);
+        }
+      };
+      scroller.addEventListener("scroll", onScrollRow, { passive: true });
+
+      let resizeFrame = 0;
+      const onResize = () => {
+        cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(() => {
+          observe();
+          watchStuck();
+          updateFades();
+        });
+      };
+      globalThis.addEventListener("resize", onResize, { passive: true });
+
+      const onClick = (event: MouseEvent) => {
+        const chip = (event.target as Element | null)?.closest<HTMLAnchorElement>(".archive-years__chip");
+        const target = chip ? document.getElementById(`year-${chip.dataset.year ?? ""}`) : null;
+        if (!chip || !target || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+        event.preventDefault();
+        bandChip = chip;
+        jumpUntil = Date.now() + JUMP_LOCK_MS;
+        setCurrent(chip);
+        target.scrollIntoView({ behavior: behavior(), block: "start" });
+        history.replaceState(history.state, "", `#${target.id}`);
+        // Keyboard users continue from the year they jumped to
+        if (!target.hasAttribute("tabindex")) {
+          target.setAttribute("tabindex", "-1");
+        }
+        target.focus({ preventScroll: true });
+      };
+      const onScrollEnd = () => {
+        if (jumpUntil !== 0) {
+          jumpUntil = 0;
+          settle();
+        }
+      };
+      nav.addEventListener("click", onClick);
+      globalThis.addEventListener("scrollend", onScrollEnd, { passive: true });
+
+      observe();
+      watchStuck();
+      updateFades();
+      requestAnimationFrame(() => {
+        nav.dataset.ready = "true";
+      });
+
+      teardownYears = () => {
+        observer?.disconnect();
+        stuckObserver?.disconnect();
+        footerObserver.disconnect();
+        cancelAnimationFrame(fadeFrame);
+        cancelAnimationFrame(resizeFrame);
+        scroller.removeEventListener("scroll", onScrollRow);
+        globalThis.removeEventListener("resize", onResize);
+        globalThis.removeEventListener("scrollend", onScrollEnd);
+        nav.removeEventListener("click", onClick);
+      };
+    };
+
+    const init = () => {
+      initRssCopy();
+      initYearNav();
+    };
+
+    init();
+    document.addEventListener("astro:page-load", init);
+    document.addEventListener("astro:before-swap", () => {
+      teardownYears?.();
+      teardownYears = undefined;
+    });
   </script>
 </Layout>

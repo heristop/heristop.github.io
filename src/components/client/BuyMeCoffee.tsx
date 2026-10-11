@@ -344,7 +344,7 @@ export default function BuyMeCoffee({ url }: { url: string }) {
         .bmc__icon circle,
         .bmc__icon ellipse,
         .bmc__icon path {
-          transition: all 0.15s ease;
+          transition: all var(--motion-micro) ease;
         }
 
         .bmc__wave--1 {
@@ -392,7 +392,7 @@ export default function BuyMeCoffee({ url }: { url: string }) {
           font-size: 0.85rem;
           font-weight: 600;
           opacity: 0.8;
-          transition: opacity 0.3s ease;
+          transition: opacity var(--motion-page) ease;
         }
 
         .bmc__link:hover .bmc__label {

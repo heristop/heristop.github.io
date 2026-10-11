@@ -1,5 +1,8 @@
+@use 'scheme';
+
 .site-header-static {
   position: relative;
+  z-index: var(--z-header);
   background: transparent;
 }
 
@@ -19,6 +22,9 @@
 }
 
 .header__nav-initial {
+  /* The banner follows in DOM order; lift the nav row so its tooltips and menus overlap it */
+  position: relative;
+  z-index: 2;
   margin-bottom: var(--space-md);
 }
 
@@ -36,39 +42,24 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
-
-  &--active {
-    visibility: visible;
-    pointer-events: all;
-  }
-
-  /* driven by scroll JS */
-  --nav-opacity: 0;
-  --nav-translate: -100%;
-  --nav-blur: 0px;
-
-  opacity: 1;
-  transform: translateY(var(--nav-translate));
-  background: oklch(95% 0.01 75deg / calc(0.94 + var(--nav-opacity) * 0.06));
-  backdrop-filter: blur(calc(8px + var(--nav-blur))) saturate(calc(1.1 + var(--nav-opacity) * 0.2));
-  border-bottom: none;
+  z-index: var(--z-header);
+  opacity: 0;
+  background: var(--surface-bar-translucent);
+  backdrop-filter: blur(16px) saturate(1.2);
   box-shadow:
-    0 4px 32px oklch(0% 0 0deg / calc(0.02 + var(--nav-opacity) * 0.08)),
-    0 8px 40px oklch(95% 0.01 75deg / calc(0.1 + var(--nav-opacity) * 0.15)),
-    0 1px 3px oklch(0% 0 0deg / calc(0.05 + var(--nav-opacity) * 0.15));
+    0 4px 24px oklch(0% 0 0deg / 6%),
+    0 1px 3px oklch(0% 0 0deg / 8%);
   transition:
-    opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-    transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-    background-color 0.3s ease,
-    backdrop-filter 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
-  will-change: transform, opacity;
+    opacity var(--motion-small) var(--zen-ease-out),
+    visibility 0s linear 200ms;
 
   &--active {
     visibility: visible;
+    opacity: 1;
     pointer-events: all;
+    transition:
+      opacity var(--motion-small) var(--zen-ease-out),
+      visibility 0s;
   }
 
   &::after {
@@ -79,13 +70,28 @@
     right: 0;
     height: 1px;
     background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--primary-color) 30%, transparent), transparent);
-    opacity: var(--nav-opacity, 0);
     pointer-events: none;
   }
 
   &__container {
     width: 100%;
-    padding: 0 var(--space-md);
+    padding-block: 0;
+    padding-inline: max(var(--space-md), env(safe-area-inset-left)) max(var(--space-md), env(safe-area-inset-right));
+  }
+}
+
+/* Keep the sticky bar on the same column as the page so brand and search don't jump sideways */
+@media screen and (width >= 48rem) {
+  .site-header-nav .header__nav-content {
+    max-width: 65em;
+    padding: 0;
+  }
+}
+
+@media screen and (48.0625rem <= width <= 74.9375rem) {
+  .site-header-nav__container {
+    padding-block: 0;
+    padding-inline: max(var(--space-lg) * 2, env(safe-area-inset-left)) max(var(--space-lg) * 2, env(safe-area-inset-right));
   }
 }
 
@@ -110,7 +116,7 @@
     color: var(--primary-color);
     text-decoration: none;
     transition:
-      color 0.2s ease,
+      color var(--motion-small) ease,
       letter-spacing 600ms var(--zen-ease-elegant);
 
     &:hover {
@@ -138,7 +144,7 @@
     transition:
       transform 400ms var(--zen-ease-elegant),
       width 400ms var(--zen-ease-elegant),
-      opacity 300ms var(--zen-ease-gentle);
+      opacity var(--motion-page) var(--zen-ease-gentle);
     will-change: transform, width;
     z-index: 0;
 
@@ -157,7 +163,7 @@
       );
       border-radius: 1px;
       opacity: 0;
-      transition: opacity 300ms var(--zen-ease-gentle);
+      transition: opacity var(--motion-page) var(--zen-ease-gentle);
     }
   }
 
@@ -179,10 +185,10 @@
     font-weight: 500;
     text-decoration: none;
     font-size: 1rem;
-    color: var(--link-color-secondary);
+    color: var(--nav-link-color);
     padding: 0.45rem 0.75rem;
     border-radius: var(--radius-md);
-    transition: color 300ms var(--zen-ease-gentle);
+    transition: color var(--motion-page) var(--zen-ease-gentle);
     z-index: 1;
 
     &:hover {
@@ -207,7 +213,7 @@
         height: 4px;
         border-radius: 50%;
         background: var(--primary-color);
-        animation: dot-appear 300ms var(--zen-ease-elegant) both;
+        animation: dot-appear var(--motion-page) var(--zen-ease-elegant) both;
       }
     }
   }
@@ -237,11 +243,11 @@
     padding: var(--space-xs);
     border-radius: var(--radius-md);
     transition:
-      background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-      transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      background-color var(--motion-page) var(--motion-ease-out),
+      transform var(--motion-small) var(--motion-ease-out);
     gap: 4px;
     position: relative;
-    z-index: 1101;
+    z-index: calc(var(--z-header) + 1);
 
     &:hover {
       background: color-mix(in oklch, var(--link-color-secondary) 12%, transparent);
@@ -250,7 +256,7 @@
 
     &:active {
       transform: scale(0.95);
-      transition-duration: 0.1s;
+      transition-duration: var(--motion-micro);
     }
 
     &--active {
@@ -266,7 +272,9 @@
     width: 1.5rem;
     height: 2px;
     background: var(--link-color-secondary);
-    transition: all 0.4s var(--zen-ease-elegant);
+    transition:
+      transform var(--motion-small) var(--zen-ease-out),
+      opacity var(--motion-micro) var(--zen-ease-out);
     border-radius: 2px;
     transform-origin: center;
     position: relative;
@@ -291,37 +299,34 @@
   &__nav--mobile {
     display: none;
     flex-direction: column;
-    gap: var(--space-md);
-    padding: var(--space-lg);
-    background: var(--surface-warm);
-    border: 1px solid var(--border-subtle);
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: var(--surface-popover);
+    border: 1px solid var(--border-bar);
     border-radius: var(--radius-lg);
     box-shadow:
       0 20px 40px oklch(0% 0 0deg / 15%),
       0 1px 0 var(--border-glass) inset;
-    backdrop-filter: none;
-    position: fixed;
-    top: 0;
+
+    /* Hangs below the bar (its positioned ancestor) so the toggle stays tappable to close it */
+    position: absolute;
+    top: calc(100% + var(--space-sm));
     left: 0;
     right: 0;
-    z-index: 9999;
+    z-index: var(--z-header);
+    max-height: calc(100dvh - 5rem);
+    overflow-y: auto;
     margin: 0 var(--space-sm);
-    transform: translateY(-100%);
-    opacity: 0;
-    transition:
-      transform 0.4s var(--zen-ease-elegant),
-      opacity 0.3s ease;
+    transform-origin: top right;
   }
 
   &__nav--mobile-open {
     display: flex;
-    transform: translateY(0);
-    opacity: 1;
-    animation: mobile-menu-reveal 0.4s var(--zen-ease-elegant);
+    animation: mobile-menu-reveal var(--motion-small) var(--motion-ease-out) both;
   }
 
   &__link--mobile {
-    padding: var(--space-lg);
+    padding: var(--space-ml) var(--space-lg);
     margin: 0;
     border-radius: var(--radius-md);
     font-size: 1.2rem;
@@ -332,27 +337,20 @@
     align-items: center;
     justify-content: center;
     font-weight: 500;
-    opacity: 0;
-    transform: translateX(-20px);
-    animation: mobile-link-reveal 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    animation-delay: 0.1s;
+    animation: mobile-link-reveal var(--motion-small) var(--motion-ease-out) both;
     transition:
-      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-      border-color 0.2s ease;
+      background-color var(--motion-small) ease,
+      border-color var(--motion-small) ease;
 
-    &:nth-child(2) { animation-delay: 0.2s; }
-    &:nth-child(3) { animation-delay: 0.3s; }
-    &:nth-child(4) { animation-delay: 0.4s; }
-    &:nth-child(5) { animation-delay: 0.5s; }
-    &:nth-child(6) { animation-delay: 0.6s; }
-    &:nth-child(7) { animation-delay: 0.7s; }
-    &:nth-child(8) { animation-delay: 0.8s; }
+    &:nth-child(2 of .header__link--mobile) { animation-delay: 30ms; }
+    &:nth-child(3 of .header__link--mobile) { animation-delay: 60ms; }
+    &:nth-child(4 of .header__link--mobile) { animation-delay: 90ms; }
+    &:nth-child(5 of .header__link--mobile) { animation-delay: 120ms; }
+    &:nth-child(6 of .header__link--mobile) { animation-delay: 150ms; }
 
     &:hover {
       border-color: color-mix(in oklch, var(--link-color-secondary) 40%, transparent);
       background: color-mix(in oklch, var(--link-color-secondary) 8%, transparent);
-      transform: translateY(-1px);
-      transition: all 0.2s ease;
     }
 
     &.active {
@@ -373,6 +371,7 @@
   color: var(--primary-color);
   font-size: 1.25rem;
   font-weight: 600;
+  line-height: 1.25;
 
   a {
     font-weight: inherit;
@@ -382,9 +381,9 @@
     position: relative;
     display: inline-block;
     transition:
-      color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-      letter-spacing 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      color var(--motion-page) var(--motion-ease-out),
+      letter-spacing var(--motion-page) var(--motion-ease-out),
+      transform var(--motion-page) var(--motion-ease-out);
 
     &:hover {
       color: var(--link-color-secondary-hover);
@@ -394,7 +393,7 @@
 
     &:active {
       transform: translateY(0);
-      transition-duration: 0.1s;
+      transition-duration: var(--motion-micro);
     }
 
     &::after {
@@ -404,7 +403,7 @@
       background: radial-gradient(ellipse at center, var(--link-color-secondary-hover) 0%, transparent 70%);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease;
+      transition: opacity var(--motion-page) ease;
       z-index: -1;
       filter: blur(8px);
     }
@@ -449,30 +448,26 @@ body.mobile-menu-open {
 }
 
 @keyframes mobile-menu-reveal {
-  0% {
-    transform: translateY(-100%) scale(0.95);
+  from {
+    transform: translateY(-8px) scale(0.98);
     opacity: 0;
   }
 
-  50% {
-    opacity: 0.8;
-  }
-
-  100% {
-    transform: translateY(0) scale(1);
+  to {
+    transform: none;
     opacity: 1;
   }
 }
 
 @keyframes mobile-link-reveal {
-  0% {
+  from {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateY(-4px);
   }
 
-  100% {
+  to {
     opacity: 1;
-    transform: translateX(0);
+    transform: none;
   }
 }
 
@@ -507,19 +502,22 @@ body.mobile-menu-open {
   color: var(--link-color-secondary);
   position: relative;
   transition:
-    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.2s ease;
+    background-color var(--motion-page) var(--motion-ease-out),
+    transform var(--motion-small) var(--motion-ease-out),
+    color var(--motion-small) ease;
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -3px;
-    border-radius: inherit;
-    border: 2px solid color-mix(in oklch, var(--primary-color) 40%, transparent);
-    opacity: 0;
-    animation: search-pulse 2s var(--zen-ease-elegant) 1.5s 2 both;
-    pointer-events: none;
+  /* First-visit hint, desktop only: on the compact mobile bar the ring touches the top edge */
+  @media (width >= 48rem) and (prefers-reduced-motion: no-preference) {
+    &--hint::before {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: inherit;
+      border: 2px solid color-mix(in oklch, var(--primary-color) 40%, transparent);
+      opacity: 0;
+      animation: search-pulse 2s var(--zen-ease-elegant) 1.5s 2 both;
+      pointer-events: none;
+    }
   }
 
   @keyframes search-pulse {
@@ -546,7 +544,7 @@ body.mobile-menu-open {
 
   &:active {
     transform: scale(0.95);
-    transition-duration: 0.1s;
+    transition-duration: var(--motion-micro);
   }
 
   &[aria-expanded="true"] {
@@ -563,11 +561,6 @@ body.mobile-menu-open {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .header__search-toggle::before {
-    animation: none;
-    display: none;
-  }
-
   .header__link.active::after {
     animation: none;
   }
@@ -582,7 +575,27 @@ body.mobile-menu-open {
 .site-header__banner {
   position: relative;
   margin: 0 auto;
-  max-width: 85%;
+
+  /* 85% of the header container: the same edges as the page frame (--measure-frame) below it */
+  width: 85%;
+
+  /* The painting is cropped to a band whose height follows its width, so it keeps one shape from
+     tablet to desktop instead of turning into a slab where the viewport is tall */
+  aspect-ratio: 3.5 / 1;
+  min-height: 7rem;
+
+  /* Phones: the page content runs gutter to gutter (1.625rem each side), so the banner does too
+     instead of sitting narrower than everything under it. A taller 3:1 keeps the figure legible. */
+  @media screen and (width < 48rem) {
+    --banner-width: calc(100vw - 3.25rem);
+
+    width: var(--banner-width);
+    aspect-ratio: 3 / 1;
+
+    /* The header container is narrower than the page; split the difference to stay centred */
+    margin-inline: calc((100% - var(--banner-width)) / 2);
+  }
+
   overflow: hidden;
   border-radius: var(--radius-lg);
   box-shadow:
@@ -593,16 +606,6 @@ body.mobile-menu-open {
   transition:
     box-shadow 600ms var(--zen-ease-out),
     transform 600ms var(--zen-ease-out);
-  height: clamp(120px, 16vh, 180px);
-
-  @media screen and (width >= 768px) {
-    height: clamp(180px, 20vh, 250px);
-  }
-
-  @media screen and (width >= 1024px) {
-    height: clamp(180px, 20vh, 230px);
-  }
-
   animation: banner-reveal 1200ms var(--zen-ease-out) backwards;
 
   @media (prefers-reduced-motion: no-preference) {
@@ -652,15 +655,20 @@ body.mobile-menu-open {
   top: 0;
   left: 0;
   width: 100%;
-  height: 120%;
+
+  /* Overscan for the parallax: it travels at most 30px (MAX_PARALLAX_SCROLL × 0.1 in
+     header-init.ts), so a fixed 2rem keeps the bottom covered whatever the band's height */
+  height: calc(100% + 2rem);
   object-fit: cover;
-  object-position: center;
+
+  /* The band crops a 3:1 illustration; sit the crop slightly above centre so the figure's head
+     and the bonsai crown stay in frame rather than the desk */
+  object-position: 50% 35%;
   border-radius: var(--radius-lg);
 
-  /* --scroll-y set by JS */
+  /* --scroll-y set by JS each frame; a transition here would make it trail the scroll */
   transform: translateY(calc(var(--scroll-y, 0px) * -0.1)) scale(1);
   will-change: transform;
-  transition: transform 600ms var(--zen-ease-out);
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 
@@ -710,6 +718,30 @@ body.mobile-menu-open {
       oklch(0% 0 0deg / 8%) 100%
     );
     border-radius: var(--radius-lg);
+  }
+}
+
+/* A post's own banner often carries its title or a diagram: shown whole at its natural ratio
+   (width and height come from the file, so nothing shifts), on the same column as the title.
+   No crop, no parallax overscan and no hover zoom, which would all clip its edges. */
+.site-header__banner--post {
+  aspect-ratio: auto;
+  min-height: 0;
+
+  .site-header__banner-image {
+    position: static;
+    display: block;
+    height: auto;
+    object-fit: fill;
+    transform: none;
+    will-change: auto;
+    image-rendering: auto;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .site-header__banner--post:hover .site-header__banner-image {
+    transform: none;
   }
 }
 
@@ -806,13 +838,14 @@ body.mobile-menu-open {
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1001;
+    z-index: var(--z-sheet);
     opacity: 1 !important;
-    transform: translateY(0) !important;
+    visibility: visible;
     pointer-events: all;
-    background: oklch(95% 0.01 75deg / 86%);
+    padding-top: env(safe-area-inset-top);
+    background: var(--surface-bar-translucent);
     backdrop-filter: blur(12px) saturate(1.15);
-    border-bottom: 1px solid color-mix(in oklch, var(--primary-color) 12%, transparent);
+    border-bottom: 1px solid var(--border-bar);
     box-shadow: 0 6px 20px -12px color-mix(in oklch, var(--primary-color) 22%, transparent);
   }
 
@@ -828,7 +861,7 @@ body.mobile-menu-open {
   .header__brand-mini {
     display: block;
     font-size: 1.05rem;
-    line-height: 1;
+    line-height: 1.25;
   }
 
   .header__brand-link {
@@ -870,7 +903,8 @@ body.mobile-menu-open {
   }
 
   .site-header-nav__container {
-    padding: 0 var(--space-md);
+    padding-block: 0;
+    padding-inline: max(var(--space-md), env(safe-area-inset-left)) max(var(--space-md), env(safe-area-inset-right));
   }
 
   .header__nav-content {
@@ -885,18 +919,13 @@ body.mobile-menu-open {
     align-items: center;
   }
 
-  .title {
-    font-size: 1.3rem;
-    line-height: 1.3;
-  }
-
   .header__search-header {
     margin-bottom: var(--space-md);
   }
 
   .header__search-overlay {
     /* above mobile menu */
-    z-index: 9999 !important;
+    z-index: var(--z-dialog) !important;
     padding-top: 1rem;
   }
 
@@ -924,12 +953,12 @@ body.mobile-menu-open {
   align-items: center;
   gap: 0.3rem;
   padding: 0.2rem 0.4rem;
-  border: 1px solid #a9b586;
+  border: 1px solid var(--badge-new-border);
   border-radius: 5px 5px 5px 1px;
-  background: linear-gradient(135deg, #365748, #203e34);
-  color: #fff0bd;
-  box-shadow: 0 2px 5px #243d3020, inset 0 1px #ffffff18;
-  font-family: "JetBrains Mono", monospace;
+  background: var(--badge-new-bg);
+  color: var(--badge-new-text);
+  box-shadow: var(--badge-new-shadow);
+  font-family: var(--font-mono);
   font-size: 0.55rem;
   font-weight: 700;
   line-height: 1;
@@ -938,13 +967,13 @@ body.mobile-menu-open {
   white-space: nowrap;
   pointer-events: none;
   transform: translateX(-50%) rotate(-5deg);
-  transition: transform 180ms ease-out;
+  transition: transform var(--motion-micro) ease-out;
 
   &::before {
     content: "";
     width: 4px;
     height: 4px;
-    background: #e6bc79;
+    background: var(--badge-new-gem);
     transform: rotate(45deg);
   }
 }
@@ -962,5 +991,228 @@ body.mobile-menu-open {
 @media (prefers-reduced-motion: reduce) {
   .header__new-badge {
     transition: none;
+  }
+}
+
+/* ── Phones: the menu is a bottom sheet ──
+   Below 600px the rows rise from the bottom edge into the thumb's reach instead of hanging from
+   the bar. Enter over --motion-page on the ease-out, leave quicker on the exit curve; a drag
+   (header-init.ts) writes the transform directly and hands its speed to the release. From
+   600px up the dropdown above is unchanged. */
+.header__sheet-handle {
+  display: none;
+}
+
+@media screen and (width < 37.5rem) {
+  /* The bar's frosted material moves onto a pseudo-element: a backdrop-filter on the bar itself
+     makes it the containing block of every fixed descendant, which would pin the sheet to it */
+  .site-header-nav {
+    background: none;
+    backdrop-filter: none;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: var(--surface-bar-translucent);
+      backdrop-filter: blur(12px) saturate(1.15);
+      pointer-events: none;
+    }
+  }
+
+  .site-header-nav .header__nav--mobile {
+    position: fixed;
+    inset: auto 0 0;
+    margin: 0;
+    gap: var(--space-xs);
+    max-height: calc(100dvh - 4.5rem - env(safe-area-inset-top));
+
+    /* Clear of the home indicator below and the rounded corners on either side */
+    padding:
+      0
+      max(var(--space-md), env(safe-area-inset-right))
+      max(var(--space-lg), env(safe-area-inset-bottom) + var(--space-sm))
+      max(var(--space-md), env(safe-area-inset-left));
+    border: 1px solid var(--border-bar);
+    border-bottom: 0;
+    border-radius: 1.25rem 1.25rem 0 0;
+    background: var(--surface-popover);
+    box-shadow:
+      0 -16px 40px -12px oklch(0% 0 0deg / 18%),
+      0 -2px 8px -4px oklch(0% 0 0deg / 8%),
+      inset 0 1px 0 var(--border-glass);
+
+    /* The page behind is locked; vertical travel on the sheet is the drag, never a scroll */
+    touch-action: none;
+    transform: translate3d(0, 100%, 0);
+    transform-origin: bottom center;
+    visibility: hidden;
+    animation: none;
+    transition:
+      transform var(--motion-exit) var(--motion-ease-exit),
+      visibility 0s linear var(--motion-exit);
+
+    /* Stays laid out while closed, so the open state is a transition that can be grabbed */
+    &:not(.header__nav--mobile-open) {
+      display: flex;
+    }
+
+    .header__link--mobile {
+      min-height: 3.25rem;
+      animation-name: none;
+    }
+  }
+
+  .site-header-nav .header__nav--mobile-open {
+    transform: none;
+    visibility: visible;
+    animation: none;
+    transition:
+      transform var(--motion-page) var(--motion-ease-out),
+      visibility 0s;
+  }
+
+  .site-header-nav .header__nav--dragging {
+    transition: none;
+  }
+
+  /* The grabber: a 36×5 pill drawn inside a 44px-tall target that also closes the sheet */
+  .header__sheet-handle {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    grid-column: 1 / -1;
+    align-self: center;
+    width: 4.5rem;
+    min-height: 2.75rem;
+    margin-bottom: calc(var(--space-xs) * -1);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: none;
+    cursor: grab;
+
+    &::before {
+      content: "";
+      width: 2.25rem;
+      height: 0.3125rem;
+      border-radius: 999px;
+      background: color-mix(in oklch, var(--text-secondary) 38%, transparent);
+      transition: background-color var(--motion-micro) var(--motion-ease-out);
+    }
+
+    &:active::before {
+      background: color-mix(in oklch, var(--text-secondary) 60%, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: -2px;
+    }
+  }
+
+  /* The scrim leaves with the sheet rather than blinking out from under it */
+  body.mobile-menu-closing::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-scrim);
+    background: var(--scrim-color);
+    pointer-events: none;
+    animation: sheet-scrim-out var(--motion-exit) var(--motion-ease-exit) both;
+  }
+
+  /* Rows settle in just behind the sheet, top first */
+  @media (prefers-reduced-motion: no-preference) {
+    .site-header-nav .header__nav--mobile-open .header__link--mobile {
+      animation-name: sheet-row-in;
+      animation-duration: var(--motion-small);
+      animation-timing-function: var(--motion-ease-out);
+      animation-fill-mode: both;
+    }
+  }
+
+  /* Reduced motion: no travel, a quick fade in and out */
+  @media (prefers-reduced-motion: reduce) {
+    .site-header-nav .header__nav--mobile {
+      transform: none;
+      opacity: 0;
+      transition:
+        opacity var(--motion-micro) ease,
+        visibility 0s linear var(--motion-micro);
+    }
+
+    .site-header-nav .header__nav--mobile-open {
+      opacity: 1;
+      transition:
+        opacity var(--motion-micro) ease,
+        visibility 0s;
+    }
+
+    body.mobile-menu-closing::after {
+      animation-duration: var(--motion-micro);
+    }
+  }
+}
+
+@keyframes sheet-scrim-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+/* ── Daypart wash ──
+   At dawn and dusk (the visitor's clock, stamped on <html> before paint by BaseHead) the banner
+   takes a faint wash of the hour's light from the sky down; the rest of the day it is untouched.
+   Static: it only fades in on a fresh load, never on a page swap. */
+:root[data-daypart="dawn"] {
+  --daypart-wash: oklch(85% 0.05 60deg / 12%);
+  --daypart-angle: 160deg;
+}
+
+:root[data-daypart="dusk"] {
+  --daypart-wash: oklch(70% 0.08 30deg / 14%);
+  --daypart-angle: 200deg;
+}
+
+:root[data-daypart] .site-header__banner-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    var(--daypart-angle),
+    var(--daypart-wash) 0%,
+    color-mix(in oklch, var(--daypart-wash) 55%, transparent) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-daypart][data-daypart-fade] .site-header__banner-container::after {
+    animation: daypart-wash-in var(--motion-page) var(--motion-ease-out) both;
+  }
+}
+
+/* At night the painting is already dimmed; the hour's light is only a hint on it */
+@include scheme.night {
+  .site-header__banner-container::after {
+    opacity: 0.35;
+  }
+}
+
+@keyframes daypart-wash-in {
+  from {
+    opacity: 0;
   }
 }

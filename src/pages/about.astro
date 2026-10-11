@@ -6,38 +6,28 @@ import SocialNetworks from "../components/SocialNetworks.astro";
 import ZenFade from "../components/zen/ZenFade.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
 import BuyMeCoffee from "../components/client/BuyMeCoffee";
-import {
-  SITE_URL,
-  GITHUB_URL,
-  LINKEDIN_URL,
-  X_URL,
-  BLUESKY_URL,
-  LINKFOLIO_URL,
-  BUY_ME_COFFEE_URL,
-} from "../consts";
+import { LINKFOLIO_URL, BUY_ME_COFFEE_URL } from "../consts";
+import { WEBSITE_ID, absoluteUrl, person } from "../structured-data";
 
+// ProfilePage whose main entity is the shared author entity every post points to by @id
 const personSchema = {
   '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: 'Alexandre Mogere',
-  url: `${SITE_URL}/about`,
-  jobTitle: 'Chapter Lead / Principal Engineer',
-  worksFor: {
-    '@type': 'Organization',
-    name: 'Carrefour',
-  },
-  knowsAbout: ['JavaScript', 'TypeScript', 'Vue', 'React', 'Node.js', 'PHP', 'Rust', 'AI', 'Web Development'],
-  sameAs: [GITHUB_URL, LINKEDIN_URL, X_URL, BLUESKY_URL],
-};
----
+  '@type': 'ProfilePage',
+  '@id': absoluteUrl('/about/'),
+  url: absoluteUrl('/about/'),
+  name: 'About Alexandre Mogère',
+  isPartOf: { '@id': WEBSITE_ID },
+  mainEntity: person,
+};---
 
 <Layout
   title="About"
-  description="Alexandre Mogère — Chapter Lead / Principal Engineer at Carrefour, writing Zazen Code since 2014 on coding & AI, JavaScript, TypeScript, Vue, React, Node.js, PHP, Rust, and AI."
+  metaTitle="About Alexandre Mogère, Principal Engineer | Zazen Code"
+  description="Alexandre Mogère (heristop), Chapter Lead and Principal Engineer at Carrefour, writing Zazen Code since 2014 on coding with AI, JavaScript, TypeScript and Rust."
   headSchema={personSchema}
 >
   <div class="about">
-    <header class="about__intro">
+    <header class="about__intro l-wide">
       <ZenSlide direction="up" delay={100}>
         <div class="about__hero">
           <img
@@ -59,7 +49,7 @@ const personSchema = {
       </ZenSlide>
     </header>
 
-    <section class="about-meta" aria-labelledby="personal-info-heading">
+    <section class="about-meta l-wide" aria-labelledby="personal-info-heading">
       <h2 class="sr-only" id="personal-info-heading">At a glance</h2>
       <ZenSlide direction="up" delay={500}>
         <div class="about-meta__grid">
@@ -87,14 +77,14 @@ const personSchema = {
       </ZenSlide>
     </section>
 
-    <section class="about__broadcasts" aria-labelledby="broadcasts-heading">
+    <section class="about__broadcasts l-wide" aria-labelledby="broadcasts-heading">
       <ZenSlide direction="up" delay={700}>
         <h2 id="broadcasts-heading" class="icon-heading social-heading">
           <Icon name="share-2" size={20} aria-hidden={true} /> Zen Broadcasts
         </h2>
       </ZenSlide>
 
-      <SocialNetworks filter="socialnetwork" variant="compact" baseDelay={800} />
+      <SocialNetworks filter="socialnetwork" variant="compact" baseDelay={300} />
     </section>
 
     <ZenFade delay={900}>
@@ -157,6 +147,11 @@ const personSchema = {
     .about__lead {
       flex: 1;
     }
+  }
+
+  /* The global blockquote is a wrapping flex row, which splits this sentence into fragments */
+  .about__lead {
+    display: block;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -273,11 +268,17 @@ const personSchema = {
 <script>
   const armWave = () => {
     const waveEmoji = document.querySelector(".about__wave") as HTMLElement | null;
-    if (!waveEmoji) {
+    // astro:page-load also fires on the first load; bind once per element
+    if (!waveEmoji || waveEmoji.dataset.waveBound) {
       return;
     }
+    waveEmoji.dataset.waveBound = "true";
 
     waveEmoji.addEventListener("mouseenter", () => {
+      // Inline animation would override the reduced-motion rule in CSS
+      if (globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
       waveEmoji.style.animation = "none";
       setTimeout(() => {
         waveEmoji.style.animation = "wave 1.8s ease-in-out 3";

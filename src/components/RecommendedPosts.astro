@@ -1,13 +1,13 @@
 ---
 import Icon from './Icon.astro';
-import { getCollection } from 'astro:content';
+import { getPublishedPosts } from '../utils/posts';
 
 const { currentPostSlug, conclusion } = Astro.props;
 
 export const getRecommendedPosts = async (slug: string) => {
   const MAX_RECOMMENDED_POSTS = 3;
   const RECENT_POSTS_COUNT = -3;
-  const posts = await getCollection('blog');
+  const posts = await getPublishedPosts();
   const currentIndex = posts.findIndex(post => post.id === slug);
 
   const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : undefined;
@@ -54,7 +54,8 @@ const recommendedPosts = await getRecommendedPosts(currentPostSlug);
 
   <div class="recommended-posts__divider"></div>
 
-  <h3 class="recommended-posts__heading">
+  {/* Styled as an h3, but it closes the article rather than belonging to its last section */}
+  <h3 class="recommended-posts__heading" aria-level="2">
     <Icon name="compass" size={18} aria-hidden={true} class="recommended-posts__heading-icon" /> Explore More
   </h3>
 
@@ -62,7 +63,7 @@ const recommendedPosts = await getRecommendedPosts(currentPostSlug);
     {
       recommendedPosts.map(post => (
         <li>
-          <a href={`/blog/${post.id}`}>{post.data.title}</a>
+          <a href={`/blog/${post.id}/`}>{post.data.title}</a>
         </li>
       ))
     }

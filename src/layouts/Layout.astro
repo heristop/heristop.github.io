@@ -16,16 +16,20 @@ type Props = Partial<CollectionEntry<"blog">["data"]> & {
   readingTime?: number;
   isArticle?: boolean;
   headSchema?: Record<string, unknown>;
+  /** Keeps the page out of search results (404, utility pages); links on it are still followed */
+  noindex?: boolean;
 };
 
-const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, tags, headSchema } = Astro.props;
+const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, tags, headSchema, noindex } = Astro.props;
 
 ---
 
 <html lang="en">
   <head>
-    <BaseHead title={title} metaTitle={metaTitle} description={description} image={image} isArticle={isArticle} pubDate={pubDate} updatedDate={updatedDate} tags={tags} />
+    <BaseHead title={title} metaTitle={metaTitle} description={description} image={image} isArticle={isArticle} pubDate={pubDate} updatedDate={updatedDate} tags={tags} noindex={noindex} />
     {headSchema && <script is:inline type="application/ld+json" set:html={JSON.stringify(headSchema)} />}
+    <!-- Page-specific structured data lands in <head>, not before <html> where it pushed the charset out of the first 1024 bytes -->
+    <slot name="head" />
   </head>
 
   <body>
@@ -34,7 +38,8 @@ const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, t
     <div class="site-layout">
       <Header title={SITE_TITLE} {image} />
 
-      <div class="site-layout__pre-content">
+      <!-- The page h1 lives in the main landmark, so the skip link and landmark navigation land on it -->
+      <main class:list={["site-layout__pre-content", { "site-layout__pre-content--framed": !isArticle }]} id="main-content">
         <div class="site-layout__meta">
           <div class="site-layout__meta-title">
             {title && (
@@ -45,10 +50,10 @@ const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, t
           </div>
         </div>
 
-        <main aria-label="Main content" class="site-layout__content" id="main-content">
+        <div class="site-layout__content">
           <slot />
-        </main>
-      </div>
+        </div>
+      </main>
 
       <Footer />
     </div>
@@ -95,7 +100,6 @@ const { title, metaTitle, description, image, isArticle, pubDate, updatedDate, t
         <div
           class="search-results"
           id="search-results"
-          aria-label="Search results"
         >
           <div class="search-results-content">
             <div class="search-empty">

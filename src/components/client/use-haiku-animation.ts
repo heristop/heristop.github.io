@@ -6,9 +6,9 @@ import textReveal from "@zazencode/ui/text-reveal-motion";
 const { buildWordDrifts, maxAnimationEnd, useReducedMotion } = textReveal;
 const { getHaikuCharClass } = dissolve;
 
-const APPEAR_DELAY_MS = 200;
-const HAIKU_BASE_DURATION_MS = 1000;
-const BREATHE_BUFFER_MS = 300;
+const APPEAR_DELAY_MS = 120;
+const HAIKU_BASE_DURATION_MS = 750;
+const BREATHE_BUFFER_MS = 200;
 const BREATHE_TIMEOUT_MS = 12_000;
 
 interface HaikuAnimationResult {

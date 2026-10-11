@@ -1,19 +1,37 @@
 ---
 import HeaderLink from './HeaderLink.astro';
 import Icon from './Icon.astro';
+import ThemeToggle from './ThemeToggle.astro';
 import { getImage } from 'astro:assets';
+import { imageMetadata } from 'astro/assets/utils';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { SITE_TITLE } from '../consts';
 import zazenBanner from '../assets/zazen.webp';
 
 const { image } = Astro.props;
 
-// The banner is the LCP element: serve a width that fits the viewport instead of the full source
-const BANNER_SIZES = '(min-width: 1100px) 900px, 85vw';
+// The painting is the LCP element: serve a width that fits the viewport instead of the full source.
+// Mirrors .site-header__banner: 85% of the header container (867px once the layout caps at 65em),
+// gutter to gutter on phones.
+const BANNER_SIZES = '(min-width: 65em) 867px, (min-width: 48rem) calc(85vw - 1.0625rem), calc(100vw - 3.25rem)';
 const responsiveBanner = image
   ? undefined
   : await getImage({ src: zazenBanner, widths: [480, 768, 1024, 1536], format: 'webp' });
-const bannerSrcSet = responsiveBanner?.srcSet.attribute ?? image;
-const bannerImageFallback = image || '/images/zazen.png';
+
+// A post's banner is shown whole; its intrinsic size reserves the space so nothing shifts on load
+const readPostBannerSize = async (src: string): Promise<{ width?: number; height?: number }> => {
+  if (!src.startsWith('/')) {
+    return {};
+  }
+  try {
+    const { width, height } = await imageMetadata(await readFile(join(process.cwd(), 'public', src)), src);
+    return { width, height };
+  } catch {
+    return {};
+  }
+};
+const postBanner = image ? { src: image, ...(await readPostBannerSize(image)) } : undefined;
 
 const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 ---
@@ -23,7 +41,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
   <div class="site-header__container">
     <div class="header__brand-section">
       <div class="site-header__title title">
-        <a href="/" aria-label="Go to homepage">{title}</a>
+        <a href="/" aria-label={`${SITE_TITLE}, home`}>{title}</a>
       </div>
     </div>
 
@@ -68,12 +86,14 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
             <Icon name="search" size={20} aria-hidden={true} />
           </button>
 
+          <ThemeToggle id="initial" />
+
           <!-- Mobile Menu Toggle -->
           <button
             class="header__mobile-toggle"
             aria-label="Toggle navigation menu"
             aria-expanded="false"
-            aria-controls="initial-nav"
+            aria-controls="initial-mobile-nav"
             type="button"
           >
             <span class="header__hamburger"></span>
@@ -87,6 +107,8 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
           class="header__nav header__nav--mobile"
           id="initial-mobile-nav"
         >
+          <!-- Grabber of the phone bottom sheet: drag it down, or press it, to close -->
+          <button class="header__sheet-handle" type="button" aria-label="Close menu"></button>
           <HeaderLink
             class="header__link header__link--mobile"
             href="/">Home</HeaderLink
@@ -111,33 +133,47 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
       </div>
     </nav>
 
-    <figure class="banner site-header__banner" id="header-banner">
-      <div class="site-header__banner-container">
-        <picture class="site-header__banner-picture">
-          <source
-            srcset={bannerSrcSet}
-            sizes={responsiveBanner ? BANNER_SIZES : undefined}
-            type="image/webp"
-          />
-          <source
-            srcset={bannerImageFallback}
-            type="image/png"
-          />
+    {postBanner ? (
+      <figure class="banner site-header__banner site-header__banner--post" id="header-banner">
+        <div class="site-header__banner-container">
           <img
-            src={bannerImageFallback}
+            src={postBanner.src}
             alt=""
             role="presentation"
             class="site-header__banner-image"
             loading="eager"
             fetchpriority="high"
             decoding="async"
-            width="1200"
-            height="400"
+            width={postBanner.width}
+            height={postBanner.height}
           />
-        </picture>
-        <div class="site-header__banner-overlay" aria-hidden="true"></div>
-      </div>
-    </figure>
+        </div>
+      </figure>
+    ) : (
+      <figure class="banner site-header__banner" id="header-banner">
+        <div class="site-header__banner-container">
+          <picture class="site-header__banner-picture">
+            <source
+              srcset={responsiveBanner?.srcSet.attribute}
+              sizes={BANNER_SIZES}
+              type="image/webp"
+            />
+            <img
+              src="/images/zazen.png"
+              alt=""
+              role="presentation"
+              class="site-header__banner-image"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+              width="1536"
+              height="900"
+            />
+          </picture>
+          <div class="site-header__banner-overlay" aria-hidden="true"></div>
+        </div>
+      </figure>
+    )}
   </div>
 </header>
 
@@ -150,7 +186,7 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
   <div class="site-header-nav__container">
     <div class="header__nav-content">
       <div class="header__brand-mini">
-        <a href="/" class="header__brand-link" aria-label="Go to homepage"
+        <a href="/" class="header__brand-link" aria-label={`${SITE_TITLE}, home`}
           >{title}</a
         >
       </div>
@@ -190,12 +226,14 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
           <Icon name="search" size={20} aria-hidden={true} />
         </button>
 
+        <ThemeToggle id="sticky" />
+
         <!-- Mobile Menu Toggle -->
         <button
           class="header__mobile-toggle"
           aria-label="Toggle navigation menu"
           aria-expanded="false"
-          aria-controls="header-nav"
+          aria-controls="mobile-nav"
           type="button"
         >
           <span class="header__hamburger"></span>
@@ -207,6 +245,8 @@ const title = `{ ${SITE_TITLE.replace(' ', '_')} }`;
 
     <!-- Mobile Navigation -->
     <div class="header__nav header__nav--mobile" id="mobile-nav">
+      <!-- Grabber of the phone bottom sheet: drag it down, or press it, to close -->
+      <button class="header__sheet-handle" type="button" aria-label="Close menu"></button>
       <HeaderLink
         class="header__link header__link--mobile"
         href="/">Home</HeaderLink

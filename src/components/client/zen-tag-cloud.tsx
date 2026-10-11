@@ -1,10 +1,5 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { loadPretext, usesCoarsePointer } from "@zazencode/ui/pretext-loader";
-import type { LayoutLine } from "@chenglou/pretext";
-import textReveal from "@zazencode/ui/text-reveal-motion";
-import type { CharDrift } from "@zazencode/ui/text-reveal-motion";
-
-const { buildCharDrifts, getCharClass, getSmokeStyle, maxAnimationEnd, useReducedMotion } = textReveal;
 
 interface TagItem {
   tag: string;
@@ -29,31 +24,6 @@ const SIZE_CLASS: Record<TagItem["size"], string> = {
   sm: "",
   md: "tags-page__pill--md",
   lg: "tags-page__pill--lg",
-};
-
-const TAG_DURATION_MS = 700;
-const TAG_STAGGER_MS = 45;
-const APPEAR_DELAY_MS = 80;
-const SETTLE_BUFFER_MS = 250;
-const NBSP = "\u00A0";
-
-const makeSingleLine = (text: string): LayoutLine[] => [
-  {
-    end: { graphemeIndex: 0, segmentIndex: 0 },
-    start: { graphemeIndex: 0, segmentIndex: 0 },
-    text,
-    width: 0,
-  },
-];
-
-// All pills switch to "in" together at APPEAR_DELAY_MS; the stagger lives in the CSS delays
-const getPillDelayMs = (index: number) => APPEAR_DELAY_MS + 2 * index * TAG_STAGGER_MS;
-
-const buildPillChars = (tag: string, index: number): CharDrift[][] => {
-  const offset = index * TAG_STAGGER_MS;
-  return buildCharDrifts(makeSingleLine(tag), TAG_DURATION_MS).map((line) =>
-    line.map((charDrift) => ({ ...charDrift, delay: charDrift.delay + offset }))
-  );
 };
 
 const waitForFonts = async (fonts: string[]): Promise<void> => {
@@ -107,128 +77,42 @@ const useTextWidths = (tags: TagItem[]): Map<string, number> | null => {
   return widths;
 };
 
-const useRevealPhases = (tags: TagItem[], reducedMotion: boolean) => {
-  const [mounted, setMounted] = useState(false);
-  const [appeared, setAppeared] = useState(false);
-  const [settled, setSettled] = useState(false);
-
-  const charsByTag = useMemo(
-    () => tags.map((item, index) => buildPillChars(item.tag, index)),
-    [tags]
-  );
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (reducedMotion || appeared) {
-      return;
-    }
-    const timer = setTimeout(() => {
-      setAppeared(true);
-    }, APPEAR_DELAY_MS);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [appeared, reducedMotion]);
-
-  useEffect(() => {
-    if (reducedMotion || !appeared || settled) {
-      return;
-    }
-    let lastEnd = 0;
-    for (const chars of charsByTag) {
-      lastEnd = Math.max(lastEnd, maxAnimationEnd(chars));
-    }
-    const timer = setTimeout(() => {
-      setSettled(true);
-    }, lastEnd + SETTLE_BUFFER_MS);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [appeared, charsByTag, reducedMotion, settled]);
-
-  return {
-    appeared: appeared || reducedMotion,
-    charsByTag,
-    mounted,
-    settled: settled || reducedMotion,
-  };
-};
-
 interface PillProps {
-  appeared: boolean;
-  charsByLine: CharDrift[][];
   index: number;
   item: TagItem;
-  reducedMotion: boolean;
-  showPlainText: boolean;
   textWidth: number | undefined;
 }
 
-const TagPill = memo(
-  ({ appeared, charsByLine, index, item, reducedMotion, showPlainText, textWidth }: PillProps) => {
-    const style = {
-      "--tag-pill-delay": `${getPillDelayMs(index)}ms`,
-      ...(textWidth === undefined ? {} : { "--tag-text-width": `${textWidth}px` }),
-    } as React.CSSProperties;
+// The entrance is a CSS keyframe staggered by --i, so it starts from the SSR markup
+// and never delays the hover transition
+const TagPill = memo(({ index, item, textWidth }: PillProps) => {
+  const style = {
+    "--i": index,
+    ...(textWidth === undefined ? {} : { "--tag-text-width": `${textWidth}px` }),
+  } as React.CSSProperties;
 
-    const pillClass = [
-      "tags-page__pill",
-      SIZE_CLASS[item.size],
-      reducedMotion ? "" : "tags-page__pill--flow",
-      appeared ? "tags-page__pill--in" : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
+  const pillClass = ["tags-page__pill", SIZE_CLASS[item.size]].filter(Boolean).join(" ");
 
-    const charClass = getCharClass(false, appeared, reducedMotion);
-
-    return (
-      <a className={pillClass} href={`/tags/${item.tag}/`} style={style}>
-        <span className="tags-page__pill-name" aria-label={item.tag}>
-          {showPlainText ? (
-            <span aria-hidden="true">{item.tag}</span>
-          ) : (
-            charsByLine.map((lineChars, lineIndex) => (
-              <span key={`line-${lineIndex}`} aria-hidden="true" style={{ display: "inline" }}>
-                {lineChars.map((charDrift) => (
-                  <span
-                    key={charDrift.key}
-                    className={charClass}
-                    style={getSmokeStyle(charDrift, reducedMotion)}
-                  >
-                    {charDrift.char === " " ? NBSP : charDrift.char}
-                  </span>
-                ))}
-              </span>
-            ))
-          )}
-        </span>
-        <span className="tags-page__pill-count">{item.count}</span>
-      </a>
-    );
-  }
-);
+  return (
+    <a className={pillClass} href={`/tags/${item.tag}/`} style={style}>
+      <span className="tags-page__pill-name">{item.tag}</span>
+      <span className="tags-page__pill-count">{item.count}</span>
+      {/* A bare number after the tag reads as "agents 1"; say what it counts */}
+      <span className="sr-only">{item.count === 1 ? " post" : " posts"}</span>
+    </a>
+  );
+});
 
 const ZenTagCloud = ({ tags }: Props) => {
-  const reducedMotion = useReducedMotion();
   const textWidths = useTextWidths(tags);
-  const { appeared, charsByTag, mounted, settled } = useRevealPhases(tags, reducedMotion);
-  const showPlainText = !mounted || settled;
 
   return (
     <div className="tags-page__cloud">
       {tags.map((item, index) => (
         <TagPill
           key={item.tag}
-          appeared={appeared}
-          charsByLine={charsByTag[index]}
           index={index}
           item={item}
-          reducedMotion={reducedMotion}
-          showPlainText={showPlainText}
           textWidth={textWidths?.get(`${item.tag}\u0000${item.size}`)}
         />
       ))}

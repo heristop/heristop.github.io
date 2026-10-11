@@ -17,7 +17,8 @@ body {
   height: 100%;
   position: relative;
   font-family: Comfortaa, sans-serif;
-  font-size: 0.9rem;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
   font-weight: 400;
   text-align: left;
   margin: 0;
@@ -52,24 +53,23 @@ h4 {
   font-family: Comfortaa, sans-serif;
   font-weight: 700;
   color: var(--heading-color);
-  line-height: 1.3;
-  letter-spacing: -0.02em;
-  text-shadow: 0 1px 2px oklch(30% 0.08 355deg / 8%);
-  transition: color 320ms var(--zen-ease-out);
+  transition: color var(--motion-page) var(--zen-ease-out);
 }
 
+/* Tracking tightens and leading closes as size grows */
 h1 {
-  font-size: 1.25em;
-  font-weight: 700;
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   margin: 0 0 var(--space-sm) 0;
-  text-shadow: 0 1px 0 oklch(0% 0 0deg / 8%);
 }
 
 h2 {
-  font-size: 1.15em;
-  font-weight: 600;
-  margin: var(--space-ml) 0 var(--space-sm) 0;
-  text-shadow: 0 1px 0 oklch(0% 0 0deg / 8%);
+  font-size: 1.5em;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin: var(--space-lg) 0 var(--space-sm) 0;
 }
 
 .icon-heading {
@@ -83,14 +83,16 @@ h2 {
 }
 
 h3 {
-  font-size: 1.05em;
-  font-weight: 500;
-  margin: var(--space-md) 0 var(--space-xs) 0;
+  font-size: 1.2em;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: var(--space-ml) 0 var(--space-xs) 0;
 }
 
 h4 {
-  font-size: 0.95em;
-  font-weight: 500;
+  font-size: 1.05em;
+  font-weight: 600;
+  line-height: 1.4;
   margin: var(--space-md) 0 var(--space-xs) 0;
 }
 
@@ -149,7 +151,7 @@ a {
   color: var(--link-color);
   text-decoration: none;
   position: relative;
-  transition: color 280ms var(--zen-ease-out);
+  transition: color var(--motion-page) var(--zen-ease-out);
 
   &::after {
     content: '';
@@ -161,7 +163,7 @@ a {
     background: var(--link-hover-color);
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 320ms var(--zen-ease-out);
+    transition: transform var(--motion-page) var(--zen-ease-out);
   }
 
   /* Suppress underline on button-styled and icon links */
@@ -206,10 +208,10 @@ a {
   }
 
   &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary-color) 20%, transparent);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+    box-shadow: none;
     border-radius: 2px;
-    transition: box-shadow 200ms var(--zen-ease-out);
   }
 }
 
@@ -233,17 +235,22 @@ a {
   padding: 8px;
   text-decoration: none;
   border-radius: 4px;
-  z-index: 100;
+  z-index: var(--z-toast);
   overflow: visible;
 }
 
-button:focus,
-input:focus,
-textarea:focus,
-select:focus {
-  outline: 2px solid var(--primary-color);
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+/* Page headings receive focus programmatically after a route swap; they aren't controls */
+h1[tabindex="-1"]:focus {
+  outline: none;
 }
 
 hr {
@@ -272,7 +279,9 @@ hr {
 
   .post-nav-hint {
     animation: none !important;
-    opacity: 0.8 !important;
+
+    /* Full opacity: at 0.8 the hint text falls to 4.2:1 on the warm surface (1.4.3) */
+    opacity: 1 !important;
   }
 
   .navigation-hint {

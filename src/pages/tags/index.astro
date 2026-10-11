@@ -1,10 +1,11 @@
 ---
-import { getCollection } from "astro:content";
+import { getPublishedPosts } from "../../utils/posts";
 import Layout from "../../layouts/Layout.astro";
 import ZenSlide from "../../components/zen/ZenSlide.astro";
 import ZenTagCloud from "../../components/client/zen-tag-cloud";
+import { SITE_LANGUAGE, WEBSITE_ID, absoluteUrl } from "../../structured-data";
 
-const posts = await getCollection("blog");
+const posts = await getPublishedPosts();
 
 const tagCounts = new Map<string, number>();
 for (const post of posts) {
@@ -32,6 +33,29 @@ const getSize = (count: number): TagSize => {
   return "sm";
 };
 
+const TAGS_DESCRIPTION =
+  "Browse every Zazen Code article by topic: AI agents, Claude, MCP, frontend, JavaScript, Rust, Symfony and more, with the number of posts under each tag.";
+const tagsSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "@id": absoluteUrl("/tags/"),
+  url: absoluteUrl("/tags/"),
+  name: "Blog topics and tags",
+  description: TAGS_DESCRIPTION,
+  inLanguage: SITE_LANGUAGE,
+  isPartOf: { "@id": WEBSITE_ID },
+  mainEntity: {
+    "@type": "ItemList",
+    numberOfItems: sortedEntries.length,
+    itemListElement: sortedEntries.map(([tag], index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: absoluteUrl(`/tags/${tag}/`),
+      name: tag,
+    })),
+  },
+};
+
 const tagItems = sortedEntries.map(([tag, count]) => ({
   count,
   size: getSize(count),
@@ -39,14 +63,14 @@ const tagItems = sortedEntries.map(([tag, count]) => ({
 }));
 ---
 
-<Layout title="Tags" description="Browse blog posts by tag">
-  <ZenSlide direction="up" delay={200}>
+<Layout title="Tags" metaTitle="Blog Topics and Tags | Zazen Code" description={TAGS_DESCRIPTION} headSchema={tagsSchema}>
+  <ZenSlide direction="up" delay={200} className="l-reading">
     <p class="tags-page__intro">
       Browse all topics covered in my reflections.
     </p>
   </ZenSlide>
 
-  <div class="tags-page">
+  <div class="tags-page l-wide">
     <ZenSlide direction="up" delay={400}>
       <ZenTagCloud client:visible tags={tagItems} />
     </ZenSlide>
@@ -61,7 +85,6 @@ const tagItems = sortedEntries.map(([tag, count]) => ({
 
 <style>
   .tags-page__intro {
-    text-align: center;
     color: var(--text-secondary);
     margin-bottom: 2rem;
   }
@@ -70,10 +93,8 @@ const tagItems = sortedEntries.map(([tag, count]) => ({
     display: flex;
     flex-wrap: wrap;
     gap: 0.65rem 0.6rem;
-    justify-content: center;
     max-width: 52rem;
-    margin: 0 auto;
-    padding: 0.5rem;
+    padding: 0.5rem 0;
   }
 
   .tags-page :global(.tags-page__pill) {
@@ -90,31 +111,26 @@ const tagItems = sortedEntries.map(([tag, count]) => ({
     letter-spacing: 0.02em;
     text-decoration: none;
     line-height: 1.2;
-    transform: translateY(6px);
-    opacity: 0;
+    /* Entrance is an animation so its stagger never delays the hover transition below */
+    animation: tag-pill-in var(--motion-small) var(--zen-ease-out) backwards;
+    animation-delay: min(calc(var(--i, 0) * 12ms), 480ms);
     transition:
       background-color var(--zen-duration-fast) var(--zen-ease-out),
       border-color var(--zen-duration-fast) var(--zen-ease-out),
       color var(--zen-duration-fast) var(--zen-ease-out),
-      transform 560ms var(--zen-ease-elegant),
-      opacity 560ms var(--zen-ease-elegant),
-      box-shadow 320ms var(--zen-ease-out);
-    transition-delay:
-      0ms,
-      0ms,
-      0ms,
-      var(--tag-pill-delay, 0ms),
-      var(--tag-pill-delay, 0ms),
-      0ms;
+      transform var(--motion-small) var(--zen-ease-out),
+      box-shadow var(--motion-page) var(--zen-ease-out);
+  }
+
+  @keyframes tag-pill-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
   }
 
   .tags-page :global(.tags-page__pill::after) {
     content: none;
-  }
-
-  .tags-page :global(.tags-page__pill--in) {
-    transform: translateY(0);
-    opacity: 1;
   }
 
   .tags-page :global(.tags-page__pill:hover) {
@@ -178,7 +194,8 @@ const tagItems = sortedEntries.map(([tag, count]) => ({
   }
 
   .tags-page :global(.tags-page__pill-count) {
-    font-size: 0.7em;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
     padding: 0.12rem 0.4rem;
     border-radius: 999px;
     background: color-mix(in oklch, var(--primary-color) 10%, transparent);
@@ -194,16 +211,15 @@ const tagItems = sortedEntries.map(([tag, count]) => ({
   }
 
   .tags-page__empty {
-    text-align: center;
     color: var(--text-secondary);
     padding: var(--space-xl);
   }
 
   @media (prefers-reduced-motion: reduce) {
     .tags-page :global(.tags-page__pill) {
+      animation: none;
       transition: none;
       transform: none;
-      opacity: 1;
     }
 
     .tags-page :global(.tags-page__pill-name::after) {

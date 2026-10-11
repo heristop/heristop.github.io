@@ -5,16 +5,16 @@ import SocialNetworks from "../components/SocialNetworks.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
 ---
 
-<Layout title="Projects" description="Projects page">
-  <ZenSlide direction="up" delay={200}>
+<Layout title="Projects" metaTitle="Side Projects by Alexandre Mogère | Zazen Code" description="Side projects by Alexandre Mogère: Pix Me!, Pix Who?, GutenKu, GutenGuess, LeClap, ChaTodo and Clover Map, small apps and games built with web tech and AI.">
+  <ZenSlide direction="up" delay={200} className="l-wide">
     <blockquote>Welcome to my Digital Playground.</blockquote>
   </ZenSlide>
 
-  <ZenSlide direction="up" delay={400}>
+  <ZenSlide direction="up" delay={400} className="l-wide">
     <h2 class="projects-page__heading icon-heading links-heading">
       <Icon name="compass" size={20} /> Compass Links
     </h2>
   </ZenSlide>
 
-  <SocialNetworks filter="project" baseDelay={600} />
+  <SocialNetworks filter="project" baseDelay={200} />
 </Layout>

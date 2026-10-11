@@ -54,18 +54,16 @@
     display: flex;
     overflow: hidden;
     border-radius: var(--radius-lg);
-    transform: translate3d(0, 2rem, 0) scale(0.94);
+    transform: translate3d(0, 1rem, 0) scale(0.97);
     transform-style: preserve-3d;
     transform-origin: center bottom;
     opacity: 0;
-    filter: blur(6px);
     transition:
-      opacity 620ms var(--zen-ease-elegant),
-      transform 720ms var(--zen-ease-elegant),
-      filter 620ms var(--zen-ease-elegant),
+      opacity var(--social-card-entrance, 400ms) var(--zen-ease-elegant),
+      transform var(--social-card-entrance, 400ms) var(--zen-ease-elegant),
       box-shadow 500ms var(--zen-ease-gentle);
     transition-delay: var(--social-card-stagger, 0ms);
-    will-change: opacity, transform, filter;
+    will-change: opacity, transform;
 
     &::after {
       content: "";
@@ -86,13 +84,16 @@
     border: 1px solid transparent;
     background-clip: padding-box;
 
+    /* Tilt follows the pointer through a short linear transition rather than snapping per frame */
     &--hover {
       transform: perspective(800px) rotateX(var(--tilt-x))
         rotateY(var(--tilt-y)) translate3d(0, 0, 0);
       border-color: color-mix(in oklch, var(--primary-color) 15%, transparent);
       transition:
-        box-shadow 300ms var(--zen-ease-gentle),
-        border-color 300ms var(--zen-ease-gentle);
+        transform var(--motion-micro) linear,
+        box-shadow var(--motion-page) var(--zen-ease-gentle),
+        border-color var(--motion-page) var(--zen-ease-gentle);
+      transition-delay: 0ms;
 
       &::after {
         opacity: 1;
@@ -102,8 +103,15 @@
     &--visible {
       opacity: 1;
       transform: translate3d(0, 0, 0) scale(1);
-      filter: blur(0);
       will-change: auto;
+    }
+
+    &--settled:not(.social-network__card--hover) {
+      transition:
+        transform var(--motion-page) var(--motion-ease-out),
+        box-shadow var(--motion-page) var(--zen-ease-gentle),
+        border-color var(--motion-page) var(--zen-ease-gentle);
+      transition-delay: 0ms;
     }
 
     &--visible.social-network__card--hover {
@@ -114,15 +122,17 @@
     @media (prefers-reduced-motion: reduce) {
       opacity: 1;
       transform: none;
-      filter: none;
       transition: none;
 
-      &--hover {
+      &--hover,
+      &--visible.social-network__card--hover,
+      &--settled:not(.social-network__card--hover) {
         transform: none;
+        transition: none;
+      }
 
-        &::after {
-          opacity: 0;
-        }
+      &--hover::after {
+        opacity: 0;
       }
     }
 
@@ -461,8 +471,8 @@
     border: 1px solid transparent;
     border-radius: 9999px;
     transition:
-      background-color 300ms ease-in-out,
-      color 300ms ease-in-out;
+      background-color var(--motion-page) ease-in-out,
+      color var(--motion-page) ease-in-out;
     font-size: 0.75rem;
 
     &:hover {
@@ -471,7 +481,7 @@
 
       .social-share__icon {
         transform: scale(1.1);
-        filter: brightness(0) invert(1);
+        filter: var(--icon-on-primary-filter);
       }
     }
 
@@ -499,7 +509,7 @@
   &__icon {
     width: 1.2rem;
     height: 1.2rem;
-    transition: transform 300ms ease-in-out;
+    transition: transform var(--motion-page) ease-in-out;
 
     &--with-text {
       width: 1rem;
@@ -523,6 +533,14 @@
     cursor: pointer;
   }
 
+  &__glyph {
+    display: inline-flex;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
   &__link--support {
     position: relative;
     isolation: isolate;
@@ -536,19 +554,19 @@
     border: 1px solid
       color-mix(in oklch, var(--primary-color) 80%, oklch(20% 0.03 355deg));
     box-shadow:
-      0 1px 0 color-mix(in oklch, oklch(100% 0 0deg) 32%, transparent) inset,
+      0 1px 0 color-mix(in oklch, var(--sheen) 32%, transparent) inset,
       0 4px 14px -8px color-mix(in oklch, var(--primary-color) 60%, transparent),
       0 1px 2px color-mix(in oklch, oklch(0% 0 0deg) 20%, transparent);
     font-weight: 600;
     letter-spacing: 0.005em;
     transform: translateZ(0);
     transition:
-      transform 320ms var(--zen-ease-elegant),
-      box-shadow 320ms var(--zen-ease-elegant),
-      background 320ms var(--zen-ease-elegant);
+      transform var(--motion-page) var(--zen-ease-elegant),
+      box-shadow var(--motion-page) var(--zen-ease-elegant),
+      background var(--motion-page) var(--zen-ease-elegant);
 
     .social-share__icon {
-      filter: brightness(0) invert(1);
+      filter: var(--icon-on-primary-filter);
     }
 
     &-shimmer {
@@ -559,14 +577,14 @@
       background: linear-gradient(
         110deg,
         transparent 20%,
-        color-mix(in oklch, oklch(100% 0 0deg) 35%, transparent) 50%,
+        color-mix(in oklch, var(--sheen) 35%, transparent) 50%,
         transparent 80%
       );
       transform: translateX(-140%);
       opacity: 0;
       transition:
         transform 900ms var(--zen-ease-elegant),
-        opacity 320ms var(--zen-ease-elegant);
+        opacity var(--motion-page) var(--zen-ease-elegant);
       z-index: -1;
     }
 
@@ -582,7 +600,7 @@
       color: var(--text-on-dark);
       transform: translateY(-2px);
       box-shadow:
-        0 1px 0 color-mix(in oklch, oklch(100% 0 0deg) 40%, transparent) inset,
+        0 1px 0 color-mix(in oklch, var(--sheen) 40%, transparent) inset,
         0 10px 24px -10px
           color-mix(in oklch, var(--primary-color) 70%, transparent),
         0 2px 6px color-mix(in oklch, oklch(0% 0 0deg) 24%, transparent),
@@ -590,7 +608,7 @@
 
       .social-share__icon {
         transform: scale(1.1);
-        filter: brightness(0) invert(1);
+        filter: var(--icon-on-primary-filter);
       }
 
       .social-share__link--support-shimmer {
@@ -602,7 +620,7 @@
     &:active {
       transform: translateY(0);
       box-shadow:
-        0 1px 0 color-mix(in oklch, oklch(100% 0 0deg) 28%, transparent) inset,
+        0 1px 0 color-mix(in oklch, var(--sheen) 28%, transparent) inset,
         0 2px 8px -4px
           color-mix(in oklch, var(--primary-color) 50%, transparent);
     }
@@ -628,7 +646,7 @@
 
 .zazen-modal {
   position: fixed;
-  z-index: 10;
+  z-index: var(--z-raised);
   inset: 0;
   overflow: auto;
 
@@ -651,7 +669,7 @@
     position: fixed;
     inset: 0;
     background-color: var(--backdrop-color);
-    transition: opacity 150ms ease-in-out;
+    transition: opacity var(--motion-micro) ease-in-out;
   }
 
   &__dialog {
@@ -663,7 +681,7 @@
     overflow: hidden;
     box-shadow: 0 25px 50px -12px oklch(0% 0 0deg / 25%);
     transform: translateZ(0);
-    transition: all 150ms ease-in-out;
+    transition: all var(--motion-micro) ease-in-out;
     width: 100vw;
 
     @media screen and (width >= 40rem) {
@@ -705,7 +723,7 @@
     font-size: 1rem;
     font-weight: 500;
     color: var(--text-on-dark);
-    transition: background-color 150ms ease-in-out;
+    transition: background-color var(--motion-micro) ease-in-out;
 
     &:hover {
       background-color: var(--link-hover-color);
@@ -761,6 +779,9 @@
 
 .img-fixed-height {
   height: 16rem;
+
+  /* Build-time width/height attributes set the aspect ratio; the width follows the fixed height */
+  width: auto;
   border: 2px solid var(--border-image);
 }
 
@@ -779,6 +800,36 @@
   border: 2px solid var(--border-image);
 }
 
+/* A pair of figures shares the prose row: each takes half, less half the gap, so two .img-half
+   shots sit side by side inside the 41.25rem column. They stack on phones. */
+.img-container:has(> .img-figure + .img-figure) {
+  gap: var(--space-ml);
+  align-items: flex-start;
+
+  > .img-figure {
+    flex: 1 1 calc(50% - var(--space-ml) / 2);
+    min-width: 0;
+  }
+
+  .img-half {
+    width: 100%;
+  }
+
+  @media (width < 768px) {
+    flex-direction: column;
+    align-items: center;
+
+    > .img-figure {
+      flex-basis: auto;
+      width: 100%;
+    }
+
+    .img-half {
+      max-width: 21rem;
+    }
+  }
+}
+
 .img-rounded {
   border-radius: 0.5rem;
 }
@@ -789,8 +840,9 @@
   color: var(--text-on-surface);
 }
 
+/* Block margin only: the inline margin stays auto so the prose column keeps it centred */
 .img-margin {
-  margin: 1rem;
+  margin-block: 1rem;
 }
 
 .img-margin-y {
@@ -840,7 +892,7 @@
   border-radius: 50%;
   color: var(--text-secondary);
   opacity: 0.6;
-  transition: all 0.2s ease;
+  transition: all var(--motion-small) ease;
 
   &:hover {
     opacity: 1;
@@ -851,4 +903,241 @@
 
 .site-footer__about {
   position: relative;
+}
+
+/* ── Copy feedback (client/feedback.ts) ──
+   The control's icon gives way to a check that settles from 0.9 to full size, then the icon
+   returns after a beat. The words never change, so nothing beside the control moves. */
+[data-feedback-done]:not([hidden]) {
+  animation: feedback-settle var(--motion-micro) var(--motion-ease-out) both;
+}
+
+@keyframes feedback-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-feedback-done]:not([hidden]) {
+    animation-name: zen-fade-in;
+  }
+}
+
+.blog-archive__rss-glyph {
+  display: inline-flex;
+  vertical-align: -0.12em;
+  margin-inline-start: 0.2em;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.blog-archive__rss-copy[data-feedback="done"] {
+  color: var(--primary-color);
+}
+
+/* ── Archive year jump (/blog/) ──
+   A quiet row of years under the intro that sticks below the header. The current year is drawn
+   in ink with a short rose tick that slides between years; the row scrolls sideways (snapping,
+   edges fading) when it outgrows the frame. Headings land just below the row. */
+@property --archive-fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --archive-fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
+}
+
+.archive-years {
+  position: sticky;
+  top: var(--archive-years-top, 4rem);
+  z-index: 3;
+  animation: zen-fade-in var(--motion-small) var(--motion-ease-out) 300ms both;
+
+  /* Once it floats over the cards the row becomes a second tier of the header: the same solid bar
+     colour, bled to both viewport edges (a spread shadow, so it adds no scrollable overflow) and
+     closed by the bar's hairline */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--surface-bar);
+    box-shadow:
+      0 0 0 100vmax var(--surface-bar),
+      0 1px 0 100vmax var(--border-bar);
+    clip-path: inset(0 -100vmax -1px);
+    opacity: 0;
+    transition: opacity var(--motion-small) var(--motion-ease-out);
+    pointer-events: none;
+  }
+
+  &[data-stuck]::before {
+    opacity: 1;
+  }
+
+  @media screen and (width < 48rem) {
+    top: var(--archive-years-top, calc(3.5625rem + env(safe-area-inset-top)));
+  }
+}
+
+.archive-years__scroller {
+  --archive-fade-start: 0px;
+  --archive-fade-end: 0px;
+
+  position: relative;
+
+  /* The first year's digits sit on the frame edge; the chip's padding hangs outside it */
+  margin-inline: -0.6rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 1.5rem;
+  scrollbar-width: none;
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 var(--archive-fade-start),
+    #000 calc(100% - var(--archive-fade-end)),
+    transparent
+  );
+  transition:
+    --archive-fade-start var(--motion-small) var(--motion-ease-out),
+    --archive-fade-end var(--motion-small) var(--motion-ease-out);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.archive-years[data-fade-start] .archive-years__scroller {
+  --archive-fade-start: 1.5rem;
+}
+
+.archive-years[data-fade-end] .archive-years__scroller {
+  --archive-fade-end: 1.5rem;
+}
+
+.archive-years__list {
+  display: flex;
+  gap: 0.125rem;
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.archive-years__item {
+  scroll-snap-align: start;
+}
+
+.archive-years__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0 0.6rem;
+  border-radius: var(--radius-md, 0.5rem);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--motion-micro) var(--motion-ease-out),
+    background-color var(--motion-micro) var(--motion-ease-out),
+    transform var(--motion-micro) var(--motion-ease-out);
+
+  &::after {
+    content: none;
+  }
+
+  &[aria-current="true"] {
+    color: var(--heading-color);
+    font-weight: 600;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: -2px;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--heading-color);
+      background-color: color-mix(in oklch, var(--primary-color) 7%, transparent);
+    }
+  }
+
+  @media (pointer: coarse) {
+    min-height: 2.75rem;
+  }
+}
+
+/* The tick rides under the current year; its centre is set from script, so only transform moves */
+.archive-years__tick {
+  position: absolute;
+  bottom: 0.3rem;
+  left: -0.25rem;
+  width: 0.5rem;
+  height: 0.1875rem;
+  border-radius: 999px;
+  background: var(--primary-color);
+  opacity: 0;
+  pointer-events: none;
+
+  .archive-years[data-ready] & {
+    opacity: 1;
+    transition:
+      transform var(--motion-small) var(--motion-ease-out),
+      opacity var(--motion-micro) var(--motion-ease-out);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-years {
+    animation: none;
+  }
+
+  .archive-years__chip:active {
+    transform: none;
+  }
+
+  .archive-years[data-ready] .archive-years__tick {
+    transition: opacity var(--motion-micro) var(--motion-ease-out);
+  }
+}
+
+/* Year headings land just under the header and the year row */
+.blog-archive .blog-archive__year-heading {
+  scroll-margin-top: calc(
+    var(--archive-years-top, 4rem) + var(--archive-years-height, 2.5rem) + 0.75rem
+  );
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 0.25rem;
+    border-radius: var(--radius-sm, 0.25rem);
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
 }

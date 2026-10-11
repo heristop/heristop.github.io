@@ -1,6 +1,9 @@
-const DISSOLVE_RADIUS = 80;
+// Kept gentle: the haiku is read with the pointer resting nearby, it should only ripple
+const DISSOLVE_RADIUS = 48;
 const DISSOLVE_RADIUS_SQ = DISSOLVE_RADIUS * DISSOLVE_RADIUS;
-const DISSOLVE_OPACITY_FACTOR = 0.85;
+const DISSOLVE_OPACITY_FACTOR = 0.45;
+// A pointer at rest means the reader is reading; let the verse recover after this long
+const DISSOLVE_IDLE_MS = 1500;
 const DISSOLVE_DRIFT_FACTOR = 0.6;
 const DISSOLVE_ROTATION_FACTOR = 0.4;
 const DISSOLVE_SCALE_FACTOR = 0.08;
@@ -10,10 +13,10 @@ const DISSOLVE_TRANSITION_FULL =
   "opacity 120ms ease, transform 120ms ease, filter 120ms ease, color 120ms ease";
 const DISSOLVE_TRANSITION_LIGHT = "opacity 120ms ease, transform 120ms ease, color 120ms ease";
 const RECOVER_TRANSITION_FULL =
-  "opacity 650ms var(--zen-ease-spring), transform 650ms var(--zen-ease-spring), filter 650ms var(--zen-ease-spring), color 650ms var(--zen-ease-spring)";
+  "opacity 400ms var(--zen-ease-spring), transform 400ms var(--zen-ease-spring), filter 400ms var(--zen-ease-spring), color 400ms var(--zen-ease-spring)";
 const RECOVER_TRANSITION_LIGHT =
-  "opacity 650ms var(--zen-ease-spring), transform 650ms var(--zen-ease-spring), color 650ms var(--zen-ease-spring)";
-const ACCENT_COLOR = "#c2185b";
+  "opacity 400ms var(--zen-ease-spring), transform 400ms var(--zen-ease-spring), color 400ms var(--zen-ease-spring)";
+const ACCENT_COLOR = "var(--primary-color)";
 
 const touchDevice =
   typeof globalThis.matchMedia === "function" &&
@@ -121,6 +124,8 @@ const getHaikuCharClass = (
 
 const haikuDissolve = {
   applyDissolveToElement,
+  DISSOLVE_IDLE_MS,
+  DISSOLVE_RADIUS,
   getHaikuCharClass,
   processCharEntry,
   resetElement,

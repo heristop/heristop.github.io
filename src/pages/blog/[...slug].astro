@@ -1,6 +1,8 @@
 ---
 import "katex/dist/katex.min.css";
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getPublishedPosts } from '../../utils/posts';
+import { isPublished } from '../../utils/post-visibility';
 import type { CollectionEntry } from 'astro:content';
 import BlogPostSchema from "../../components/BlogPostSchema.astro";
 import BreadcrumbSchema from "../../components/BreadcrumbSchema.astro";
@@ -9,13 +11,14 @@ import Icon from "../../components/Icon.astro";
 import Layout from "../../layouts/Layout.astro";
 import PostTags from "../../components/client/PostTags";
 import RecommendedPosts from "../../components/RecommendedPosts.astro";
+import TableOfContents from "../../components/TableOfContents.astro";
 import SocialShare from "../../components/SocialShare.astro";
 import { BUY_ME_COFFEE_URL } from "../../consts";
 
 const currentPostSlug = Astro.props.id;
 
 export const getStaticPaths = async function getStaticPaths() {
-  const posts = await getCollection("blog");
+  const posts = await getPublishedPosts();
   return posts.map((post) => ({
     params: { slug: post.id },
     props: post,
@@ -24,15 +27,26 @@ export const getStaticPaths = async function getStaticPaths() {
 type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 const {conclusion} = post.data;
+// Only reachable in dev: production builds never emit an unpublished post
+const isUnpublished = !isPublished(post.data);
 
 const plainText = post.body ?? "";
 const WORDS_PER_MINUTE = 200;
 const words = plainText.split(/\s+/).length;
 const readingTime = Math.ceil(words / WORDS_PER_MINUTE);
 
-const allPostsCollection = await getCollection("blog");
+// An outline earns its place only on long, sectioned pieces; digests are lists of links already
+const TOC_MIN_SECTIONS = 4;
+const TOC_MIN_WORDS = 800;
+const isDigest = post.data.tags.includes("weekly-digest");
+const showToc =
+  !isDigest &&
+  words > TOC_MIN_WORDS &&
+  headings.filter((heading) => heading.depth === 2).length >= TOC_MIN_SECTIONS;
+
+const allPostsCollection = await getPublishedPosts();
 const allPosts = allPostsCollection.toSorted(
   (postA, postB) => (postB.data.pubDate?.valueOf() ?? 0) - (postA.data.pubDate?.valueOf() ?? 0)
 );
@@ -54,30 +68,36 @@ const postUrl = `https://heristop.github.io/blog/${currentPostSlug}/`;
 const postData = {
   ...post.data,
   isArticle: true,
+  noindex: isUnpublished,
   readingTime,
   tags: post.data.tags,
 };
 
 const breadcrumbItems = [
   { name: 'Home', url: '/' },
-  { name: 'Blog', url: '/blog' },
+  { name: 'Blog', url: '/blog/' },
   { name: post.data.title, url: postUrl },
 ];
 ---
 
-<BlogPostSchema
-  title={post.data.title}
-  description={post.data.description}
-  pubDate={post.data.pubDate}
-  updatedDate={post.data.updatedDate}
-  image={post.data.image}
-  url={postUrl}
-/>
-<BreadcrumbSchema items={breadcrumbItems} />
-
 <Layout {...postData}>
+  <BlogPostSchema
+    slot="head"
+    title={post.data.title}
+    description={post.data.description}
+    pubDate={post.data.pubDate}
+    updatedDate={post.data.updatedDate}
+    image={post.data.image}
+    url={postUrl}
+    tags={post.data.tags}
+    wordCount={words}
+  />
+  <BreadcrumbSchema slot="head" items={breadcrumbItems} />
   <div class="post-page">
     <div class="post-page__meta zen-stagger">
+      <a class="post-page__back" href="/blog/" data-back-to-list>
+        <span aria-hidden="true">←</span> All reflections
+      </a>
       <div class="post-page__meta-info">
         <div class="post-page__date">
           <Icon name="calendar" size={16} class="post-page__date-icon" aria-hidden={true} />
@@ -94,6 +114,11 @@ const breadcrumbItems = [
           <Icon name="book" size={16} class="post-page__reading-icon" aria-hidden={true} />
           <span>{readingTime} min read</span>
         </div>
+        {isUnpublished && (
+          <span class="post-page__draft" title="Hidden from production builds">
+            {post.data.draft ? 'Draft' : 'Scheduled'}
+          </span>
+        )}
       </div>
       <div class="post-page__share">
         <SocialShare
@@ -111,6 +136,8 @@ const breadcrumbItems = [
       </div>
     )}
 
+    {showToc && <TableOfContents {headings} />}
+
     <Content />
 
     <div class="post-page__share-bottom">
@@ -121,6 +148,23 @@ const breadcrumbItems = [
         supportUrl={BUY_ME_COFFEE_URL}
       />
     </div>
+
+    {(previousPost || nextPost) && (
+      <nav class="post-page__pager" aria-label="More reflections">
+        {previousPost && (
+          <a class="post-page__pager-link post-page__pager-link--previous" href={`/blog/${previousPost.id}/`} rel="prev">
+            <span class="post-page__pager-label">← Previous</span>
+            <span class="post-page__pager-title">{previousPost.data.title}</span>
+          </a>
+        )}
+        {nextPost && (
+          <a class="post-page__pager-link post-page__pager-link--next" href={`/blog/${nextPost.id}/`} rel="next">
+            <span class="post-page__pager-label">Next →</span>
+            <span class="post-page__pager-title">{nextPost.data.title}</span>
+          </a>
+        )}
+      </nav>
+    )}
 
     <blockquote class="post-page__endquote">
       <RecommendedPosts {currentPostSlug} {conclusion} />
@@ -148,6 +192,10 @@ const breadcrumbItems = [
     data-next-title={nextPost?.data.title}
   ></div>
   <script>
+    import { navigate } from "astro:transitions/client";
+    import { mayNavigateWithArrows } from "../../components/client/arrow-nav-guard";
+    import { initPostToc } from "../../components/client/post-toc";
+
     // Bundled once and re-initialised on every page load; each page's listeners are torn down
     // before the next swap so client-side navigation never stacks handlers.
     interface NavPost {
@@ -156,13 +204,58 @@ const breadcrumbItems = [
     }
     type Direction = "previous" | "next";
 
-    const NAVIGATION_DELAY = 150;
     const HINT_FADE_DELAY = 300;
     const HINT_DISPLAY_DURATION = 1000;
     const TABLET_BREAKPOINT = 1024;
     const SWIPE_THRESHOLD = 100;
     const SWIPE_TIMEOUT = 500;
     const VERTICAL_THRESHOLD = 50;
+    const HINT_SESSION_KEY = "zen:post-nav-hint";
+    // Below this the floating corner overlaps the reading column, and a lesson must not sit on text
+    const HINT_MIN_WIDTH = 1100;
+    // A swipe that starts on content the reader scrolls sideways belongs to that content
+    const HORIZONTAL_SCROLLERS = "pre, table, .katex-display, .mermaid, .mermaid-wide";
+    // The outer edges belong to the system back/forward swipe (iOS, Android gesture navigation)
+    const EDGE_GUTTER = 24;
+    const HAPTIC_TICK_MS = 8;
+
+    const ownedElsewhere = (touch: Touch) =>
+      touch.clientX <= EDGE_GUTTER ||
+      touch.clientX >= globalThis.innerWidth - EDGE_GUTTER ||
+      document.body.classList.contains("mobile-menu-open") ||
+      document.body.classList.contains("search-open");
+
+    const startsInHorizontalScroller = (target: EventTarget | null) => {
+      let node = target instanceof Element ? target : null;
+      if (node?.closest(HORIZONTAL_SCROLLERS)) {
+        return true;
+      }
+      while (node && node !== document.body) {
+        if (node.scrollWidth > node.clientWidth && getComputedStyle(node).overflowX !== "visible") {
+          return true;
+        }
+        node = node.parentElement;
+      }
+      return false;
+    };
+
+    // The keyboard/swipe hint is a one-time lesson, not chrome to keep over the text
+    const takeHintSlot = () => {
+      // The table of contents rail already owns that gutter; the lesson waits for a shorter piece
+      const railShown = document.querySelector(".post-toc--rail")?.checkVisibility() ?? false;
+      if (globalThis.innerWidth < HINT_MIN_WIDTH || railShown) {
+        return false;
+      }
+      try {
+        if (sessionStorage.getItem(HINT_SESSION_KEY)) {
+          return false;
+        }
+        sessionStorage.setItem(HINT_SESSION_KEY, "1");
+      } catch {
+        // Storage blocked: show it, it fades on its own
+      }
+      return true;
+    };
 
     const isTouchDevice = "ontouchstart" in globalThis || navigator.maxTouchPoints > 0;
     const shouldUseTouchNavigation = () =>
@@ -212,9 +305,11 @@ const breadcrumbItems = [
       previousPost: NavPost | undefined,
       nextPost: NavPost | undefined,
       shouldUseTouch: boolean,
+      showHint: boolean,
     ) => {
       const arrows: string[] = [];
-      if (previousPost) {
+      // Touch readers get the pager at the end of the article instead of arrows over the text
+      if (previousPost && !shouldUseTouch) {
         const title = escapeAttribute(previousPost.title);
         arrows.push(`
           <a
@@ -226,7 +321,7 @@ const breadcrumbItems = [
           >\u2190</a>
         `);
       }
-      if (nextPost) {
+      if (nextPost && !shouldUseTouch) {
         const title = escapeAttribute(nextPost.title);
         arrows.push(`
           <a
@@ -238,14 +333,15 @@ const breadcrumbItems = [
           >\u2192</a>
         `);
       }
-      if (arrows.length === 0) {
-        return "";
-      }
       const hintText = shouldUseTouch
         ? "Swipe left/right to navigate reflections"
         : "Use \u2190 \u2192 keys to navigate reflections";
-      return `<div class="post-nav-arrows">${arrows.join("")}</div>
-        <span class="post-nav-hint" role="status" aria-live="polite">${hintText}</span>`;
+      // Not a live region: a hint that shows on every article would be spoken on every visit
+      const hint = showHint
+        ? `<span class="post-nav-hint">${hintText}</span>`
+        : "";
+      const arrowGroup = arrows.length > 0 ? `<div class="post-nav-arrows">${arrows.join("")}</div>` : "";
+      return arrowGroup + hint;
     };
 
     const isEditable = (element: Element | null) =>
@@ -254,6 +350,112 @@ const breadcrumbItems = [
         element.tagName === "TEXTAREA" ||
         element.tagName === "SELECT" ||
         element.isContentEditable);
+
+    // Once the reader starts reading the lesson is learnt (or unwanted): it fades and is gone
+    const HINT_DISMISS_MS = 160;
+    const dismissHintOnScroll = (hint: HTMLElement | null, signal: AbortSignal) => {
+      if (!hint) {
+        return;
+      }
+      globalThis.addEventListener(
+        "scroll",
+        () => {
+          const from = getComputedStyle(hint).opacity;
+          hint.getAnimations().forEach((animation) => {
+            animation.cancel();
+          });
+          hint
+            .animate([{ opacity: from }, { opacity: 0 }], {
+              duration: HINT_DISMISS_MS,
+              easing: "cubic-bezier(0.4, 0, 1, 1)",
+              fill: "forwards",
+            })
+            .finished.then(() => {
+              hint.remove();
+            })
+            .catch(() => {
+              hint.remove();
+            });
+        },
+        { passive: true, once: true, signal },
+      );
+    };
+
+    /* "All reflections" returns to the list where the reader left it: when the list is the
+       previous history entry, going back lets the router restore its scroll position (and run the
+       return morph) instead of opening a fresh copy at the top. */
+    let cameFromList = false;
+    document.addEventListener("astro:before-preparation", (event) => {
+      const { from } = event as unknown as { from: URL };
+      cameFromList = from.pathname === "/blog/";
+    });
+    const previousEntryIsList = () => {
+      const nav = (globalThis as { navigation?: { currentEntry?: { index: number }; entries: () => { url: string | null }[] } }).navigation;
+      const index = nav?.currentEntry?.index;
+      if (nav && typeof index === "number" && index > 0) {
+        const url = nav.entries()[index - 1]?.url;
+        return url ? new URL(url).pathname === "/blog/" : false;
+      }
+      return cameFromList;
+    };
+    const initBackToList = (signal: AbortSignal) => {
+      const link = document.querySelector<HTMLAnchorElement>("[data-back-to-list]");
+      link?.addEventListener(
+        "click",
+        (event) => {
+          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+            return;
+          }
+          if (previousEntryIsList()) {
+            event.preventDefault();
+            history.back();
+          }
+        },
+        { signal },
+      );
+    };
+
+    /* Looping clips play only for readers who have not asked for less motion, and only while on
+       screen; they keep their native controls, so pausing is always one tap away (2.2.2). */
+    const initMotionVideos = (signal: AbortSignal) => {
+      const videos = [...document.querySelectorAll<HTMLVideoElement>(".post-page video[data-motion-autoplay]")];
+      if (videos.length === 0) {
+        return;
+      }
+      const reduceMotion = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
+      const pausedByReader = new WeakSet<HTMLVideoElement>();
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const { target, isIntersecting } of entries) {
+            const video = target as HTMLVideoElement;
+            if (isIntersecting && !reduceMotion.matches && !pausedByReader.has(video)) {
+              void video.play().catch(() => {});
+            } else if (!isIntersecting && !video.paused) {
+              video.dataset.autoPaused = "";
+              video.pause();
+            }
+          }
+        },
+        { threshold: 0.5 },
+      );
+      for (const video of videos) {
+        video.addEventListener(
+          "pause",
+          () => {
+            if ("autoPaused" in video.dataset) {
+              delete video.dataset.autoPaused;
+            } else {
+              pausedByReader.add(video);
+            }
+          },
+          { signal },
+        );
+        observer.observe(video);
+      }
+      signal.addEventListener("abort", () => {
+        observer.disconnect();
+      });
+    };
 
     const initPostNavigation = (
       previousPost: NavPost | undefined,
@@ -272,9 +474,7 @@ const breadcrumbItems = [
           return;
         }
         showNavigationHint(direction, targetPost);
-        setTimeout(() => {
-          globalThis.location.href = `/blog/${targetPost.id}/`;
-        }, NAVIGATION_DELAY);
+        void navigate(`/blog/${targetPost.id}/`);
       };
 
       const useTouch = shouldUseTouchNavigation();
@@ -286,7 +486,14 @@ const breadcrumbItems = [
           "touchstart",
           (event) => {
             const touch = event.touches[0];
-            if (isEditable(document.activeElement) || !touch) {
+            touchStartX = 0;
+            if (
+              isEditable(document.activeElement) ||
+              !touch ||
+              event.touches.length > 1 ||
+              ownedElsewhere(touch) ||
+              startsInHorizontalScroller(event.target)
+            ) {
               return;
             }
             touchStartX = touch.clientX;
@@ -313,12 +520,15 @@ const breadcrumbItems = [
             ) {
               return;
             }
-            if (deltaX > 0 && previousPost) {
+            const direction: Direction | undefined =
+              deltaX > 0 && previousPost ? "previous" : deltaX < 0 && nextPost ? "next" : undefined;
+            if (direction) {
               event.preventDefault();
-              navigateToPost("previous");
-            } else if (deltaX < 0 && nextPost) {
-              event.preventDefault();
-              navigateToPost("next");
+              // A single soft tick marks the page turn where the platform allows it (not iOS)
+              if ("vibrate" in navigator) {
+                navigator.vibrate(HAPTIC_TICK_MS);
+              }
+              navigateToPost(direction);
             }
           },
           { passive: false, signal },
@@ -327,13 +537,7 @@ const breadcrumbItems = [
         document.addEventListener(
           "keydown",
           (event) => {
-            if (
-              isEditable(document.activeElement) ||
-              event.ctrlKey ||
-              event.metaKey ||
-              event.altKey ||
-              event.shiftKey
-            ) {
+            if (!mayNavigateWithArrows(event, document.activeElement)) {
               return;
             }
             if (event.key === "ArrowLeft" && previousPost) {
@@ -352,8 +556,13 @@ const breadcrumbItems = [
       indicators.className = "post-navigation-indicators";
       indicators.setAttribute("role", "region");
       indicators.setAttribute("aria-label", "Blog post navigation");
-      indicators.innerHTML = buildIndicatorButtons(previousPost, nextPost, useTouch);
+      const markup = buildIndicatorButtons(previousPost, nextPost, useTouch, takeHintSlot());
+      if (!markup) {
+        return;
+      }
+      indicators.innerHTML = markup;
       document.body.append(indicators);
+      dismissHintOnScroll(indicators.querySelector<HTMLElement>(".post-nav-hint"), signal);
     };
 
     const initReadingProgress = (signal: AbortSignal) => {
@@ -423,6 +632,9 @@ const breadcrumbItems = [
       const { signal } = pageEvents;
       initPostNavigation(readPost(data, "previous"), readPost(data, "next"), signal);
       initReadingProgress(signal);
+      initPostToc(signal);
+      initBackToList(signal);
+      initMotionVideos(signal);
       scrollToHash();
     });
 
@@ -432,3 +644,17 @@ const breadcrumbItems = [
     });
   </script>
 </Layout>
+
+<style>
+  /* Dev-only preview marker; never rendered in a production build */
+  .post-page__draft {
+    align-self: center;
+    padding: 0.1rem 0.55rem;
+    border: 1px dashed currentColor;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+</style>

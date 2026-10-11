@@ -1,16 +1,3 @@
-@keyframes ink-breathe {
-  0%,
-  100% {
-    opacity: 0.08;
-    filter: blur(5px);
-  }
-
-  50% {
-    opacity: 0.15;
-    filter: blur(7px);
-  }
-}
-
 .reading-progress {
   position: absolute;
   bottom: 0;
@@ -26,7 +13,7 @@
   );
   transform-origin: left;
   transform: scaleX(0);
-  z-index: 10;
+  z-index: var(--z-raised);
   pointer-events: none;
   border-radius: 0 1.5px 1.5px 0;
   mask-image: linear-gradient(
@@ -38,9 +25,9 @@
     oklch(0% 0 0deg / 40%) 85%,
     transparent 100%
   );
-  transition:
-    opacity 620ms var(--zen-ease-elegant),
-    transform 620ms var(--zen-ease-elegant);
+
+  /* No transform transition: the scroll handler already paints every frame, easing only lags it */
+  transition: opacity 620ms var(--zen-ease-elegant);
 
   &::before {
     content: "";
@@ -62,8 +49,6 @@
     filter: blur(5px);
     border-radius: inherit;
     pointer-events: none;
-    animation: ink-breathe var(--zen-duration-breath) var(--zen-ease-in-out)
-      infinite;
   }
 }
 
@@ -71,26 +56,27 @@
   position: fixed;
   top: 0;
   bottom: auto;
-  z-index: 9999;
+  z-index: var(--z-progress);
 }
 
 .scroll-to-top {
   position: fixed;
-  bottom: calc(2rem + 5.5rem);
-  right: 2rem;
-  width: 2.5rem;
-  height: 2.5rem;
+
+  /* Stacks above the post nav arrows; drops to their slot on touch, where they are hidden */
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 3.25rem);
+  right: calc(2rem + env(safe-area-inset-right));
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 8px;
   border: 1px solid color-mix(in oklch, var(--primary-color) 15%, transparent);
-  background: var(--surface-glass);
+  background: var(--surface-card-solid);
   color: var(--primary-color);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 1px 6px oklch(0% 0 0deg / 6%);
-  z-index: 50;
-  opacity: 0.7;
+  z-index: var(--z-sticky);
   transition:
     transform var(--zen-duration-normal) var(--zen-ease-elegant),
     opacity var(--zen-duration-normal) var(--zen-ease-elegant),
@@ -98,13 +84,20 @@
     border-color var(--zen-duration-normal) var(--zen-ease-elegant),
     box-shadow var(--zen-duration-normal) var(--zen-ease-elegant);
 
+  @media (width <= 768px) {
+    right: calc(1rem + env(safe-area-inset-right));
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
   &:hover {
     transform: translateY(-2px);
-    opacity: 1;
     background: color-mix(
       in oklch,
-      var(--primary-color) 10%,
-      var(--surface-glass)
+      var(--primary-color) 8%,
+      var(--surface-card-solid)
     );
     border-color: color-mix(in oklch, var(--primary-color) 30%, transparent);
     box-shadow:
@@ -123,12 +116,6 @@
 
   &[hidden] {
     display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reading-progress::after {
-    animation: none;
   }
 }
 
@@ -220,7 +207,7 @@
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 3px;
-  transition: color 280ms var(--zen-ease-out);
+  transition: color var(--motion-page) var(--zen-ease-out);
 
   &:hover {
     color: var(--link-hover-color);
@@ -238,7 +225,7 @@
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 3px;
-  transition: color 280ms var(--zen-ease-out);
+  transition: color var(--motion-page) var(--zen-ease-out);
 
   &::after {
     content: none;
@@ -280,23 +267,94 @@
   }
 }
 
-.post-page {
-  line-height: 1.75;
+/* ≈68ch of 17px Comfortaa, in rem so the title (larger font) and prose share one column */
+.site-layout__pre-content {
+  --prose-measure: 41.25rem;
+}
 
-  p {
-    margin: 1em 0;
+.post-page {
+  --prose-color: oklch(27% 0.02 15deg);
+
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--prose-color);
+
+  /* One centred reading column shared with the title; code and tables stay inside it and
+     scroll horizontally, only figures and wide diagrams break out */
+  > * {
+    max-width: var(--article-measure, var(--prose-measure));
+    margin-inline: auto;
   }
 
+  > :is(figure, .mermaid, .mermaid-wide, .katex-display) {
+    max-width: none;
+  }
+
+  > :is(pre, table) {
+    overflow-x: auto;
+  }
+
+  /* Replaced elements are inline by default, so margin-inline: auto alone would not centre them */
+  > :is(video, img, iframe, embed, object) {
+    display: block;
+    height: auto;
+  }
+
+  /* A markdown image alone in its paragraph */
+  p > img:only-child {
+    display: block;
+    margin-inline: auto;
+  }
+
+  * :is(video, iframe, embed, object) {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Inline code wraps on narrow screens instead of widening the page; clone keeps the chip on each line */
+  code:not(pre code) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    box-decoration-break: clone;
+  }
+
+  p {
+    margin-block: 1em;
+  }
+
+  /* Sizes come from the global type scale; only rhythm and weight are set here */
   h2 {
-    margin: 1.5rem 0 0.5rem;
+    margin-block: 2.4em 0.6em;
+    font-weight: 700;
   }
 
   h3 {
-    margin: 1.25rem 0 0.35rem;
+    margin-block: 1.8em 0.4em;
+    font-weight: 700;
   }
 
   h4 {
-    margin: 1rem 0 0.35rem;
+    margin-block: 1.6em 0.3em;
+    font-weight: 600;
+  }
+
+  :is(h2, h3, h4) + :is(h3, h4) {
+    margin-top: 0.8em;
+  }
+
+  /* Permalink follows the heading's last word instead of hanging in a gutter phones don't have;
+     a quiet hint on hover or keyboard focus, full strength only on the "#" itself */
+  .heading-anchor {
+    position: static;
+    margin-inline-start: 0.3em;
+    padding-inline: 0.15em;
+    text-shadow: none;
+    transition: opacity var(--motion-micro) var(--motion-ease-out);
+  }
+
+  :is(h2, h3, h4):is(:hover, :focus-within) > .heading-anchor {
+    opacity: 0.4;
+    text-shadow: none;
   }
 
   ul,
@@ -311,11 +369,11 @@
   }
 
   pre {
-    margin: 1.25rem 0;
+    margin-block: 1.5rem;
   }
 
   hr {
-    margin: 2rem 0;
+    margin-block: 2rem;
   }
 
   blockquote.post-page__endquote {
@@ -341,6 +399,7 @@
 
   li::before {
     content: "•";
+    content: "•" / "";
     color: var(--primary-color);
     position: absolute;
     left: -0.8em;
@@ -389,7 +448,7 @@ code {
   color: var(--primary-color);
   background-color: var(--code-inline-bg);
   border: 1px solid var(--code-inline-border);
-  box-shadow: 0 1px 0 oklch(100% 0 0deg / 45%) inset;
+  box-shadow: 0 1px 0 color-mix(in oklch, var(--sheen) 45%, transparent) inset;
   white-space: nowrap;
   transition:
     background-color var(--zen-duration-fast) var(--zen-ease-out),
@@ -741,11 +800,11 @@ tbody tr:hover {
   transform: translate3d(0, 1.25rem, 0) scale(0.97);
   opacity: 0;
   transition:
-    opacity 620ms var(--zen-ease-elegant),
-    transform 720ms var(--zen-ease-elegant),
-    box-shadow 320ms var(--zen-ease-out),
-    border-color 320ms var(--zen-ease-out),
-    color 320ms ease;
+    opacity var(--motion-page) var(--motion-ease-out),
+    transform 400ms var(--motion-ease-out),
+    box-shadow var(--motion-page) var(--zen-ease-out),
+    border-color var(--motion-page) var(--zen-ease-out),
+    color var(--motion-page) ease;
   transition-delay: var(--zen-card-stagger, 0ms);
   overflow: hidden;
   text-decoration: none;
@@ -778,8 +837,8 @@ tbody tr:hover {
 
     .zen-card__wash {
       transform: translateX(110%);
-      transition: transform 800ms var(--zen-ease-elegant);
-      transition-delay: calc(var(--zen-card-stagger, 0ms) + 200ms);
+      transition: transform 600ms var(--zen-ease-elegant);
+      transition-delay: calc(var(--zen-card-stagger, 0ms) + 120ms);
     }
   }
 
@@ -829,7 +888,7 @@ tbody tr:hover {
 
     &:hover,
     &:focus-within {
-      background: oklch(100% 0 0deg / 44%);
+      background: color-mix(in oklch, var(--sheen) 44%, transparent);
       border-color: color-mix(in oklch, var(--primary-color) 24%, transparent);
 
       .blog-card__cta {
@@ -898,8 +957,8 @@ tbody tr:hover {
   font-weight: 600;
   box-shadow: 0 6px 12px -10px oklch(0% 0 0deg / 18%);
   transition:
-    background 200ms ease,
-    color 200ms ease;
+    background var(--motion-small) ease,
+    color var(--motion-small) ease;
   pointer-events: none;
 }
 
@@ -918,6 +977,7 @@ tbody tr:hover {
 
 .blog-card__date-relative::before {
   content: "•";
+  content: "•" / "";
   margin-right: 0.4rem;
   color: color-mix(in oklch, var(--primary-color) 35%, transparent);
 }
@@ -955,7 +1015,7 @@ tbody tr:hover {
   display: inline-flex;
   align-items: center;
   gap: 0;
-  transition: color 320ms var(--zen-ease-out);
+  transition: color var(--motion-page) var(--zen-ease-out);
   align-self: flex-start;
   pointer-events: none;
   position: relative;
@@ -1111,7 +1171,7 @@ tbody tr:hover {
     margin-left: 2rem;
 
     a {
-      transition: color 280ms var(--zen-ease-out);
+      transition: color var(--motion-page) var(--zen-ease-out);
 
       &:hover {
         color: var(--link-hover-color);
@@ -1193,7 +1253,7 @@ tbody tr:hover {
 
 /* Mermaid diagrams. rehype-mermaid emits inline SVG at build time (see astro.config.mjs), wrapped
    in a <p> by the markdown pipeline, so the frame lives on the svg itself rather than a container
-   we do not control. Colours come from mermaidConfig.themeVariables; everything here is layout. */
+   we do not control. Colours come from the --mermaid-* tokens in _mermaid.scss; everything here is layout. */
 svg[aria-roledescription^="flowchart"] {
   display: block;
   width: 100%;
@@ -1203,7 +1263,7 @@ svg[aria-roledescription^="flowchart"] {
   padding: var(--space-lg);
   border: 1px solid color-mix(in oklch, var(--primary-color) 20%, transparent);
   border-radius: var(--radius-lg);
-  background-color: var(--surface-warm, oklch(98% 0.008 75deg));
+  background-color: var(--mermaid-canvas, var(--surface-warm));
 
   /* No font-family override here on purpose: mermaid bakes measured label widths into the SVG,
      so restyling the font after the fact clips every label. The stack is set in astro.config.mjs. */
@@ -1219,4 +1279,288 @@ svg[aria-roledescription^="flowchart"] {
   svg[aria-roledescription^="flowchart"] {
     padding: var(--space-md);
   }
+}
+
+/* Wide article diagrams retain readable labels on narrow screens. */
+.mermaid-wide {
+  overflow-x: auto;
+
+  /* Matched by id: the a11y plugin replaces aria-roledescription with role="img" */
+  svg[id^="mermaid-"] {
+    display: block;
+    width: 100%;
+    min-width: 34rem;
+    margin-inline: auto;
+    box-sizing: border-box;
+  }
+}
+
+/* Article title sits on the prose column (the layout's 75% title slot is for page titles) */
+.site-layout__meta-title:has(h1[data-reveal]) {
+  width: 100%;
+
+  h1[data-reveal] {
+    max-width: var(--article-measure, var(--prose-measure));
+    margin-inline: auto;
+  }
+}
+
+/* Article title: hidden from first paint until its reveal hydrates, so the SSR text never shows,
+   vanishes and reveals again. Arriving via the home-list morph or with reduced motion it stays
+   visible and the reveal is skipped; the failsafe covers an island that never hydrates. */
+.site-layout__meta-title h1[data-reveal="pending"] {
+  opacity: 0;
+  animation: text-reveal-failsafe 0s linear 1.5s forwards;
+
+  html[data-title-morph] & {
+    opacity: 1;
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+.site-layout__meta-title h1[data-reveal="loading"] {
+  opacity: 0;
+}
+
+@keyframes text-reveal-failsafe {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Way back to the list: a quiet line above the meta row, not a button ── */
+.post-page__back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-block-size: 2.75rem;
+  margin-block: -0.75rem -0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--motion-micro) var(--motion-ease-out);
+
+  > span {
+    transition: transform var(--motion-micro) var(--motion-ease-out);
+  }
+
+  &:hover {
+    color: var(--primary-color);
+
+    > span {
+      transform: translateX(-2px);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+/* ── Table of contents (long, sectioned pieces only) ──
+   Below 90rem a collapsed disclosure under the tags; from 90rem a sticky rail in the right gutter,
+   clear of the column and of the (then narrowed) breakouts. An 8px rose tick marks the section
+   being read and slides to the next one. */
+.post-page .post-toc__list {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0 0 0 1rem;
+  list-style: none;
+}
+
+.post-page .post-toc__item {
+  /* Static, so the links measure their offset from the nav that holds the tick */
+  position: static;
+  margin: 0;
+  padding: 0;
+
+  /* The prose list marker does not apply to an outline */
+  &::before {
+    content: none;
+  }
+}
+
+.post-page .post-toc__link {
+  display: block;
+  padding-block: 0.3rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  text-decoration: none;
+  text-wrap: pretty;
+  transition: color var(--motion-micro) var(--motion-ease-out);
+
+  &:hover,
+  &[aria-current] {
+    color: var(--primary-color);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.post-page .post-toc nav {
+  position: relative;
+}
+
+.post-page .post-toc__tick {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 8px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--primary-color);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--motion-small) var(--motion-ease-out),
+    opacity var(--motion-micro) var(--motion-ease-out);
+
+  &[data-visible] {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: opacity var(--motion-micro) var(--motion-ease-out);
+  }
+}
+
+.post-page > .post-toc--inline {
+  margin-block: 0 1.75rem;
+  border-block: 1px solid color-mix(in oklch, var(--primary-color) 14%, transparent);
+  font-size: 0.9rem;
+
+  .post-toc__list {
+    padding-block-end: 0.75rem;
+  }
+}
+
+.post-page .post-toc__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-block-size: 2.75rem;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+  transition: color var(--motion-micro) var(--motion-ease-out);
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  /* A chevron that turns to point down while open */
+  &::after {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-inline-start: auto;
+    border-right: 1.5px solid currentcolor;
+    border-bottom: 1.5px solid currentcolor;
+    transform: rotate(-45deg);
+    transition: transform var(--motion-small) var(--motion-ease-out);
+  }
+
+  &:hover {
+    color: var(--primary-color);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.post-page .post-toc[open] > .post-toc__summary {
+  color: var(--primary-color);
+
+  &::after {
+    transform: translateY(-0.15rem) rotate(45deg);
+  }
+}
+
+.post-page > .post-toc--rail {
+  display: none;
+}
+
+@media screen and (width >= 90rem) {
+  .post-page > .post-toc--inline {
+    display: none;
+  }
+
+  /* A zero-height sticky anchor: it holds the rail at the reading height for the whole article
+     without taking any room in the column */
+  .post-page > .post-toc--rail {
+    --toc-gap: 3rem;
+
+    display: block;
+    position: sticky;
+    top: 6.5rem;
+    z-index: 1;
+    max-width: none;
+    height: 0;
+    margin: 0;
+  }
+
+  .post-page .post-toc__rail {
+    position: absolute;
+    top: 0;
+    inset-inline-start: calc(50% + var(--article-measure, var(--prose-measure)) / 2 + var(--toc-gap));
+    width: 12.5rem;
+    max-height: calc(100dvh - 9rem);
+    overflow-y: auto;
+    font-size: 0.8125rem;
+    transition:
+      opacity var(--motion-small) var(--motion-ease-out),
+      visibility 0s linear;
+  }
+
+  .post-page .post-toc[data-ended] > .post-toc__rail {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--motion-small) var(--motion-ease-out),
+      visibility 0s linear var(--motion-small);
+  }
+
+  .post-page .post-toc__title {
+    margin: 0 0 0.5rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Breakouts stop short of the rail instead of running underneath it */
+  .post-page:has(> .post-toc--rail) > :is(figure, .mermaid, .mermaid-wide, .katex-display) {
+    max-width: calc(var(--article-measure, var(--prose-measure)) + 4rem);
+  }
+}
+
+/* ── Arrow-key lesson: docked above the corner arrows, narrow enough to stay clear of the column
+   (it is only offered from 1100px; see the article script) ── */
+.post-navigation-indicators .post-nav-hint {
+  right: 0;
+  bottom: calc(100% + 0.5rem);
+  width: max-content;
+  max-width: 9.5rem;
+  white-space: normal;
+  text-wrap: balance;
+  line-height: 1.35;
 }

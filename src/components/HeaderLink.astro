@@ -13,8 +13,16 @@ const isActive = normalizedHref === '/'
   ? normalizedPath === '/'
   : normalizedPath === normalizedHref
     || normalizedPath.startsWith(`${normalizedHref}/`);
+
+// The underline alone tells sighted readers where they are; screen readers hear "current page"
+// (or "current" for a section such as Blog while reading one of its articles)
+const currentState = isActive ? (normalizedPath === normalizedHref ? 'page' : 'true') : undefined;
+
+// Pages are emitted as directories and canonicalised with a trailing slash; linking to the bare
+// path costs crawlers (and visitors) a GitHub Pages 301 on every nav click.
+const canonicalHref = /^\/(?:[^#?]*\/)?[^/#?.]+$/.test(normalizedHref) ? `${normalizedHref}/` : href;
 ---
 
-<a href={href} class:list={[className, { active: isActive }]} {...props}
+<a href={canonicalHref} class:list={[className, { active: isActive }]} aria-current={currentState} {...props}
   ><slot />{normalizedHref === "/path-of-stones" && <span class="header__new-badge" aria-hidden="true">New</span>}</a
 >

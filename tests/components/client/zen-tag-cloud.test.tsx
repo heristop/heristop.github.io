@@ -49,6 +49,8 @@ describe("<ZenTagCloud />", () => {
     expect(links[1]).toHaveAttribute("href", "/tags/astro/");
     expect(screen.getByText("3")).toBeInTheDocument();
     expect(screen.getByText("1")).toBeInTheDocument();
+    expect(links[0]).toHaveAccessibleName(/zen\s*3\s*posts/);
+    expect(links[1]).toHaveAccessibleName(/astro\s*1\s*post$/);
   });
 
   it("skips Pretext tag measurement on coarse pointer devices", async () => {

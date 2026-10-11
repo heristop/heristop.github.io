@@ -23,10 +23,10 @@ const currentPath = normalizePath(Astro.url.pathname);
 
 const navEntries: { href: string; icon: IconName; label: string }[] = [
   { href: '/', icon: 'home', label: 'Home' },
-  { href: '/blog', icon: 'book-open', label: 'Blog' },
-  { href: '/projects', icon: 'layers', label: 'Projects' },
-  { href: '/about', icon: 'info', label: 'About' },
-  { href: '/path-of-stones', icon: 'map', label: 'Garden' },
+  { href: '/blog/', icon: 'book-open', label: 'Blog' },
+  { href: '/projects/', icon: 'layers', label: 'Projects' },
+  { href: '/about/', icon: 'info', label: 'About' },
+  { href: '/path-of-stones/', icon: 'map', label: 'Garden' },
 ];
 
 const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href) !== currentPath);
@@ -48,10 +48,9 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
     <!-- About Section -->
     <section
       class="site-footer__section site-footer__about"
-      aria-labelledby="footer-about"
     >
       <a
-        href="/about"
+        href="/about/"
         class="site-footer__profile"
         aria-label="About me"
         data-tooltip="About me"
@@ -60,7 +59,7 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
         <FooterPortrait />
       </a>
       <div class="site-footer__info">
-        <h3 id="footer-about" class="site-footer__title">{SITE_TITLE}</h3>
+        <h2 id="footer-about" class="site-footer__title">{SITE_TITLE}</h2>
         <address class="site-footer__contact">
           <p class="site-footer__author">
             <span class="site-footer__meta-chip" aria-hidden="true">
@@ -84,9 +83,8 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
     <!-- Navigation Section -->
     <section
       class="site-footer__section site-footer__nav"
-      aria-labelledby="footer-nav"
     >
-      <h3 id="footer-nav" class="site-footer__section-title">Navigate</h3>
+      <h2 id="footer-nav" class="site-footer__section-title">Navigate</h2>
       <nav aria-label="Footer navigation">
         <ul class="site-footer__nav-list">
           {
@@ -109,9 +107,8 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
     <!-- Social & Links Section -->
     <section
       class="site-footer__section site-footer__social"
-      aria-labelledby="footer-social"
     >
-      <h3 id="footer-social" class="site-footer__section-title">Connect</h3>
+      <h2 id="footer-social" class="site-footer__section-title">Connect</h2>
 
       <!-- Social Media -->
       <div class="site-footer__social-links">
@@ -182,6 +179,7 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
           type="button"
           class="site-footer__link site-footer__rss-copy"
           data-url="/rss.xml"
+          aria-label="Copy RSS Feed URL"
           data-tooltip="Click to copy feed URL"
           data-tooltip-placement="top"
         >
@@ -202,7 +200,7 @@ const visibleNavEntries = navEntries.filter((entry) => normalizePath(entry.href)
     <p class="site-footer__copyright">
       <span class="site-footer__copyright-year">© 2014&ndash;{currentYear}</span>
       <span class="site-footer__copyright-sep" aria-hidden="true">·</span>
-      <span class="site-footer__copyright-brand">{brandMark}</span>
+      <span class="site-footer__copyright-brand"><span aria-hidden="true">{brandMark}</span><span class="sr-only">{SITE_TITLE}</span></span>
       <span class="site-footer__copyright-sep" aria-hidden="true">·</span>
       <span class="site-footer__copyright-tag">
         <Icon name="feather" size={12} class="site-footer__copyright-icon" aria-hidden={true} />

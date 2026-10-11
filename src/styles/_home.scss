@@ -1,3 +1,5 @@
+@use 'scheme';
+
 .latest-posts__link {
   display: flex;
   align-items: center;
@@ -201,6 +203,19 @@
         display: none;
       }
     }
+
+    /* On phones the rows are already cards; a second frame around them only costs title width */
+    @media (width < 48rem) {
+      padding: 0;
+      background: none;
+      border: 0;
+      box-shadow: none;
+
+      &::before,
+      &::after {
+        display: none;
+      }
+    }
   }
 
   &__list {
@@ -224,10 +239,10 @@
       var(--home-card-shadow-soft),
       0 1px 0 var(--border-image);
     transition:
-      transform 280ms var(--zen-ease-elegant),
-      box-shadow 280ms var(--zen-ease-elegant),
-      border-color 250ms var(--zen-ease-out),
-      background 250ms var(--zen-ease-out);
+      transform var(--motion-page) var(--zen-ease-elegant),
+      box-shadow var(--motion-page) var(--zen-ease-elegant),
+      border-color var(--motion-small) var(--zen-ease-out),
+      background var(--motion-small) var(--zen-ease-out);
 
     &::before {
       content: "";
@@ -239,7 +254,7 @@
       border-radius: 999px;
       background: linear-gradient(180deg, color-mix(in oklch, var(--primary-color) 65%, transparent), color-mix(in oklch, var(--primary-color) 0%, transparent));
       opacity: 0;
-      transition: opacity 300ms var(--zen-ease-elegant);
+      transition: opacity var(--motion-page) var(--zen-ease-elegant);
     }
 
     &:hover,
@@ -285,7 +300,7 @@
       box-shadow:
         var(--home-card-shadow-soft),
         inset 0 1px 3px oklch(0% 0 0deg / 4%);
-      transition: transform 100ms, box-shadow 100ms;
+      transition: transform var(--motion-micro), box-shadow var(--motion-micro);
     }
 
     &:focus-visible {
@@ -308,7 +323,7 @@
     display: inline-block;
     padding: 0.15rem 0.45rem;
     border-radius: 999px;
-    transition: background 280ms var(--zen-ease-elegant);
+    transition: background var(--motion-page) var(--zen-ease-elegant);
   }
 
   &__link {
@@ -320,6 +335,21 @@
     padding: 0.85rem 1rem 0.85rem 1.35rem;
     text-decoration: none;
     color: var(--heading-color);
+
+    /* Date gets its own line so the title keeps the full row width */
+    @media (width < 48rem) {
+      flex-wrap: wrap;
+      row-gap: 0.2rem;
+
+      .latest-posts__date {
+        flex-basis: 100%;
+      }
+
+      .latest-posts__title {
+        flex: 1;
+        min-width: 0;
+      }
+    }
   }
 
   &__title {
@@ -327,6 +357,17 @@
     font-weight: 600;
     line-height: 1.45;
     text-align: left;
+
+    /* Hidden before first paint only when its once-per-session reveal will play (see index.astro);
+       the failsafe shows it anyway if the island never hydrates */
+    html[data-reveal-titles] &[data-reveal="pending"] {
+      opacity: 0;
+      animation: text-reveal-failsafe 0s linear 1.5s forwards;
+    }
+
+    &[data-reveal="loading"] {
+      opacity: 0;
+    }
   }
 
   &__link-icon {
@@ -379,9 +420,9 @@
     position: relative;
     overflow: hidden;
     transition:
-      transform 280ms var(--zen-ease-elegant),
-      box-shadow 280ms var(--zen-ease-elegant),
-      background-color 250ms var(--zen-ease-out);
+      transform var(--motion-page) var(--zen-ease-elegant),
+      box-shadow var(--motion-page) var(--zen-ease-elegant),
+      background-color var(--motion-small) var(--zen-ease-out);
 
     &::before {
       content: "";
@@ -416,7 +457,7 @@
 
     .icon {
       color: inherit;
-      transition: transform 300ms var(--zen-ease-elegant);
+      transition: transform var(--motion-page) var(--zen-ease-elegant);
     }
   }
 
@@ -476,7 +517,7 @@
   border-radius: calc(var(--radius-md) + 0.125rem);
   padding: clamp(1rem, 2.5vw, 1.5rem) clamp(1.1rem, 3vw, 1.65rem)
     clamp(1.1rem, 3vw, 1.65rem);
-  background: linear-gradient(150deg, oklch(100% 0 0deg / 82%), oklch(94% 0.015 75deg / 60%));
+  background: var(--surface-haiku);
   border: 1px solid var(--border-glass-strong);
   box-shadow:
     var(--home-card-shadow),
@@ -559,7 +600,7 @@
     color: var(--link-color-secondary);
     text-decoration: none;
     border-bottom: 1px dotted color-mix(in oklch, var(--primary-color) 45%, transparent);
-    transition: color 0.2s ease;
+    transition: color var(--motion-small) ease;
 
     &:hover {
       color: var(--link-color-secondary-hover);
@@ -693,12 +734,53 @@
     letter-spacing: 0.015em;
     margin-top: auto;
   }
+}
 
-  @media screen and (width >= 48rem) {
-    .latest-posts__panel,
-    & {
-      margin: 0 clamp(0.4rem, 0vw, 0rem);
+/* Night garden: cards become solid paper with a lit top rim (scoped in _scheme.scss). Translucent
+   glass over a near-black page only muddies; blur stays on the header alone. */
+@include scheme.night {
+  --night-card-rim: inset 0 1px 0 oklch(100% 0 0deg / 6%);
+  --night-card-raised: oklch(25.5% 0.018 350deg);
+  --night-card-lifted: oklch(27.5% 0.02 350deg);
+  --night-card-lifted-shadow:
+    var(--home-card-shadow-hover),
+    0 0 0 1px color-mix(in oklch, var(--primary-color) 8%, transparent),
+    inset 0 1px 0 oklch(100% 0 0deg / 8%);
+
+  .latest-posts__panel,
+  .haiku-card {
+    background: var(--surface-card-solid);
+    box-shadow:
+      var(--home-card-shadow),
+      var(--night-card-rim);
+  }
+
+  .latest-posts__item,
+  .haiku-card__content {
+    background: var(--night-card-raised);
+    box-shadow:
+      var(--home-card-shadow-soft),
+      var(--night-card-rim);
+  }
+
+  /* A lifted row catches a little more light; touch screens only see it while pressed */
+  .latest-posts__item:is(:focus-within, :active) {
+    background: var(--night-card-lifted);
+    box-shadow: var(--night-card-lifted-shadow);
+  }
+
+  @media (hover: hover) {
+    .latest-posts__item:hover {
+      background: var(--night-card-lifted);
+      box-shadow: var(--night-card-lifted-shadow);
+    }
+  }
+
+  /* Phones: the rows are the cards (see .latest-posts__panel above), so the frame stays off */
+  @media (width < 48rem) {
+    .latest-posts__panel {
+      background: none;
+      box-shadow: none;
     }
   }
 }
-

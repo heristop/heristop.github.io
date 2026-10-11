@@ -66,7 +66,8 @@ const resolveIconSrc = (iconSrc: NetworkIcon) => {
   return "";
 };
 
-const STAGGER_STEP_MS = 120;
+const STAGGER_STEP_MS = 60;
+const ENTRANCE_MS = 400;
 const STAGGER_MAX_INDEX = 5;
 
 ---
@@ -82,14 +83,14 @@ const STAGGER_MAX_INDEX = 5;
         return (
           <div
             class={`social-network__card ${modifier}`}
-            style={`--social-card-stagger: ${baseDelay + STAGGER_STEP_MS * Math.min(index, STAGGER_MAX_INDEX)}ms`}
+            style={`--social-card-stagger: ${baseDelay + STAGGER_STEP_MS * Math.min(index, STAGGER_MAX_INDEX)}ms; --social-card-entrance: ${ENTRANCE_MS}ms`}
             data-prepared="false"
           >
             <a href={network.url} target="_blank" rel="noopener noreferrer" class="social-network__link">
               <div class="social-network__image-shell">
                 <Image
                   src={resolveIconSrc(network.iconSrc)}
-                  alt={network.description}
+                  alt=""
                   width={imgWidth}
                   height={imgHeight}
                   class="social-network__image"
@@ -113,9 +114,19 @@ const STAGGER_MAX_INDEX = 5;
 
 {networks.length > 0 && (
   <script type="module" is:inline>
+    // Once the staggered entrance has played, drop its delay so hover tilt and reset respond at once
+    const settle = (card) => {
+      card.classList.add('social-network__card--settled');
+    };
+
     const reveal = (card) => {
       requestAnimationFrame(() => {
         card.classList.add('social-network__card--visible');
+        const style = getComputedStyle(card);
+        const total =
+          Number.parseFloat(style.getPropertyValue('--social-card-stagger')) +
+          Number.parseFloat(style.getPropertyValue('--social-card-entrance'));
+        setTimeout(() => settle(card), Number.isFinite(total) ? total : 0);
       });
     };
 
@@ -164,6 +175,9 @@ const STAGGER_MAX_INDEX = 5;
     const TILT_MAX = 6;
 
     const setupCardInteractions = () => {
+      // Tilt and glow follow a cursor; a tap emulates mousemove with no mouseleave after it, which
+      // left the card tilted. Touch gets the press state from _touch.scss instead.
+      if (!globalThis.matchMedia?.('(hover: hover) and (pointer: fine)').matches) return;
       const cards = document.querySelectorAll('.social-network__card');
 
       for (const card of cards) {

@@ -1,31 +1,35 @@
 .post-navigation-indicators {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  right: calc(2rem + env(safe-area-inset-right));
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 0.35rem;
-  z-index: 50;
+  z-index: var(--z-sticky);
   pointer-events: auto;
 
   @media (width <= 768px) {
-    bottom: 1rem;
-    right: 1rem;
+    right: calc(1rem + env(safe-area-inset-right));
   }
 }
 
 .post-nav-arrows {
   display: flex;
   gap: 0.35rem;
+
+  /* Touch readers get the end-of-article pager; floating arrows would sit on the text */
+  @media (hover: none) and (pointer: coarse) {
+    display: none;
+  }
 }
 
 .post-nav-indicator {
-  background: var(--surface-glass);
+  background: var(--surface-card-solid);
   border: 1px solid color-mix(in oklch, var(--primary-color) 15%, transparent);
   border-radius: 8px;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,16 +42,14 @@
     background var(--zen-duration-normal) var(--zen-ease-elegant),
     border-color var(--zen-duration-normal) var(--zen-ease-elegant),
     box-shadow var(--zen-duration-normal) var(--zen-ease-elegant);
-  opacity: 0.7;
   cursor: pointer;
   padding: 0;
   margin: 0;
   text-decoration: none;
 
   &:hover {
-    opacity: 1;
     transform: translateY(-2px);
-    background: color-mix(in oklch, var(--primary-color) 10%, var(--surface-glass));
+    background: color-mix(in oklch, var(--primary-color) 8%, var(--surface-card-solid));
     border-color: color-mix(in oklch, var(--primary-color) 30%, transparent);
     box-shadow:
       0 3px 12px oklch(0% 0 0deg / 10%),
@@ -61,17 +63,14 @@
   &:focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
-    opacity: 1;
-  }
-
-  @media (width <= 768px) {
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 14px;
   }
 }
 
 .post-nav-hint {
+  /* Beside the arrows rather than under them, so it never pushes them into the back-to-top button */
+  position: absolute;
+  right: calc(100% + 0.5rem);
+  bottom: 0.55rem;
   text-align: right;
   font-size: 0.7rem;
   color: var(--text-secondary);
@@ -81,8 +80,10 @@
   background: var(--surface-warm);
   white-space: nowrap;
   opacity: 0;
-  animation: fade-in-up var(--zen-duration-normal) var(--zen-ease-out) 1s both;
-  margin-top: 0.15rem;
+  pointer-events: none;
+
+  /* Shown once per session, then gets out of the way of the text */
+  animation: post-nav-hint-life 5s var(--zen-ease-out) 1s both;
 
   @media (width <= 768px) {
     font-size: 0.65rem;
@@ -97,7 +98,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.5rem;
-  z-index: 50;
+  z-index: var(--z-sticky);
   pointer-events: auto;
 
   @media (width <= 768px) {
@@ -146,7 +147,7 @@
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-lg);
   opacity: 0;
-  z-index: 1000;
+  z-index: var(--z-toast);
   pointer-events: none;
   max-width: 20rem;
   box-shadow:
@@ -183,6 +184,83 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+}
+
+@keyframes post-nav-hint-life {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  8%,
+  85% {
+    opacity: 0.9;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+
+@keyframes post-nav-hint-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  8%,
+  85% {
+    opacity: 0.9;
+  }
+}
+
+/* End-of-article prev/next, the touch replacement for the floating arrows */
+.post-page__pager {
+  display: none;
+  gap: 0.75rem;
+  margin-block: 2rem 0;
+
+  @media (hover: none) and (pointer: coarse) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  }
+}
+
+.post-page__pager-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height: 2.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface-card-solid);
+  border: 1px solid color-mix(in oklch, var(--primary-color) 15%, transparent);
+  color: var(--heading-color);
+  text-decoration: none;
+  transition: transform var(--motion-micro) var(--zen-ease-out);
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &--next {
+    text-align: right;
+  }
+}
+
+.post-page__pager-label {
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--primary-color);
+}
+
+.post-page__pager-title {
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 @keyframes fade-in-up {
@@ -222,7 +300,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .post-nav-hint,
+  .post-nav-hint {
+    animation-name: post-nav-hint-fade;
+  }
+
   .global-nav-hint {
     animation: none;
     opacity: 0.8;

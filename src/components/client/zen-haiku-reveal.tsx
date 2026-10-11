@@ -7,13 +7,12 @@ import type { CharDrift } from "@zazencode/ui/text-reveal-motion";
 import type { CharCacheEntry } from "./haiku-dissolve";
 
 const { getSmokeStyle, useReducedMotion } = textReveal;
-const { processCharEntry, resetElement } = dissolve;
+const { DISSOLVE_IDLE_MS, DISSOLVE_RADIUS, processCharEntry, resetElement } = dissolve;
 
 interface Props {
   url: string;
 }
 
-const DISSOLVE_RADIUS = 80;
 const SIMPLE_APPEAR_DELAY_MS = 80;
 const SIMPLE_FADE_DURATION_MS = 420;
 
@@ -210,11 +209,19 @@ interface CardPointerOptions {
 }
 
 const useHandleMove = (opts: CardPointerOptions) => {
-  const { containerRef, reducedMotion, appeared, apply } = opts;
+  const { containerRef, reducedMotion, appeared, apply, reset } = opts;
   const rafRef = useRef<number>(0);
+  const idleRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => () => {
+    cancelAnimationFrame(rafRef.current);
+    clearTimeout(idleRef.current);
+  }, []);
 
   return useCallback((clientX: number, clientY: number) => {
     if (reducedMotion || !appeared) { return; }
+    clearTimeout(idleRef.current);
+    idleRef.current = setTimeout(reset, DISSOLVE_IDLE_MS);
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
       // Every layout read happens before the first style write of the frame
@@ -227,7 +234,7 @@ const useHandleMove = (opts: CardPointerOptions) => {
         card.classList.add("haiku-card--hover");
       }
     });
-  }, [containerRef, reducedMotion, appeared, apply]);
+  }, [containerRef, reducedMotion, appeared, apply, reset]);
 };
 
 const useTouchEvents = (
@@ -313,6 +320,12 @@ const getSimpleFadeStyle = (appeared: boolean, reducedMotion: boolean): React.CS
   };
 };
 
+/* aria-label is ignored on a plain div, so the verse is read from visually hidden text exactly
+   once while the animated glyphs stay aria-hidden */
+const HaikuSpokenText = ({ text }: { text: string | undefined }) => (
+  <span className="sr-only">{text ?? "Loading today's verse..."}</span>
+);
+
 const SimpleHaikuReveal = ({ url }: Props) => {
   const text = useHaikuFetch(url);
   const reducedMotion = useReducedMotion();
@@ -333,8 +346,8 @@ const SimpleHaikuReveal = ({ url }: Props) => {
   return (
     <div
       className="haiku-card__quote"
-      aria-label={text ?? "Loading today's verse..."}
     >
+      <HaikuSpokenText text={text} />
       {text === undefined && <HaikuSkeleton />}
       {text !== undefined && (
         <span aria-hidden="true" style={getSimpleFadeStyle(appeared || reducedMotion, reducedMotion)}>
@@ -364,10 +377,10 @@ const FullHaikuReveal = ({ url }: Props) => {
     <div
       ref={containerRef}
       className="haiku-card__quote"
-      aria-label={text ?? "Loading today's verse..."}
       onMouseMove={collapsed ? undefined : onMouseMove}
       onMouseLeave={collapsed ? undefined : onLeave}
     >
+      <HaikuSpokenText text={text} />
       {text === undefined && <HaikuSkeleton />}
       {text !== undefined && words.length > 0 && (
         collapsed ? (

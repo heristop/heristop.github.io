@@ -10,6 +10,8 @@ interface Props {
 
 const { url, size = 72, label = 'Scan to connect', tooltip } = Astro.props;
 const tooltipText = tooltip ?? `Scan or click to open ${label}`;
+// Spelled out, the scheme is noise ("h t t p s colon slash slash"); the host is what identifies it
+const spokenUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
 const svg = await QRCode.toString(url, {
   type: 'svg',
@@ -30,7 +32,7 @@ const themedSvg = svg.replaceAll('stroke="#000000"', 'stroke="currentColor"');
   target="_blank"
   rel="noopener noreferrer"
   class="qr-code"
-  aria-label={`${label} — ${url}`}
+  aria-label={`${label} — ${spokenUrl}`}
   data-tooltip={tooltipText}
   data-tooltip-placement="top"
 >
@@ -52,6 +54,19 @@ const themedSvg = svg.replaceAll('stroke="#000000"', 'stroke="currentColor"');
 
     &:hover {
       text-decoration: none;
+    }
+
+    /* The code sits flush right on wide layouts, where a centred tooltip wider than it
+       would run past the viewport and scroll the page; align the bubble to its right edge */
+    &[data-tooltip]::before {
+      left: auto;
+      right: 0;
+      transform: translateY(6px);
+    }
+
+    &:hover::before,
+    &:focus-visible::before {
+      transform: none;
     }
   }
 
