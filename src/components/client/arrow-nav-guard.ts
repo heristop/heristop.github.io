@@ -1,6 +1,6 @@
 /* Left/Right switch to the previous/next article, but only when nothing focused needs those keys
    itself: text fields move the caret, code blocks and diagrams scroll sideways, menus and
-   dialogs move between their items (WCAG 2.1.1 / 2.1.4) */
+   dialogs move between their items, an article's video player seeks (WCAG 2.1.1 / 2.1.4) */
 export const ARROW_KEY_OWNERS = [
   "input",
   "textarea",
@@ -18,6 +18,7 @@ export const ARROW_KEY_OWNERS = [
   "[role='tablist']",
   "[role='radiogroup']",
   "[role='dialog']",
+  ".zen-video",
 ].join(", ");
 
 export const arrowKeysOwnedByFocus = (element: Element | null): boolean => {

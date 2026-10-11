@@ -1,8 +1,13 @@
 ---
 import "katex/dist/katex.min.css";
+// The dyslexia-friendly face, one variable file for every weight: only its @font-face rules ship
+// here, and a browser fetches a face once text uses it, so it downloads when the reader turns
+// that mode on (_blog.scss)
+import "@fontsource-variable/atkinson-hyperlegible-next/wght.css";
 import { render } from 'astro:content';
 import { getPublishedPosts } from '../../utils/posts';
 import { isPublished } from '../../utils/post-visibility';
+import { countWords, readingMinutes } from '../../utils/reading-time';
 import type { CollectionEntry } from 'astro:content';
 import BlogPostSchema from "../../components/BlogPostSchema.astro";
 import BreadcrumbSchema from "../../components/BreadcrumbSchema.astro";
@@ -10,6 +15,8 @@ import FormattedDate from "../../components/FormattedDate.astro";
 import Icon from "../../components/Icon.astro";
 import Layout from "../../layouts/Layout.astro";
 import PostTags from "../../components/client/PostTags";
+import ReaderSettings from "../../components/ReaderSettings.astro";
+import VideoPlayerIcons from "../../components/VideoPlayerIcons.astro";
 import RecommendedPosts from "../../components/RecommendedPosts.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
 import SocialShare from "../../components/SocialShare.astro";
@@ -32,10 +39,8 @@ const {conclusion} = post.data;
 // Only reachable in dev: production builds never emit an unpublished post
 const isUnpublished = !isPublished(post.data);
 
-const plainText = post.body ?? "";
-const WORDS_PER_MINUTE = 200;
-const words = plainText.split(/\s+/).length;
-const readingTime = Math.ceil(words / WORDS_PER_MINUTE);
+const words = countWords(post.body ?? "");
+const readingTime = readingMinutes(words);
 
 // An outline earns its place only on long, sectioned pieces; digests are lists of links already
 const TOC_MIN_SECTIONS = 4;
@@ -114,6 +119,7 @@ const breadcrumbItems = [
           <Icon name="book" size={16} class="post-page__reading-icon" aria-hidden={true} />
           <span>{readingTime} min read</span>
         </div>
+        <ReaderSettings />
         {isUnpublished && (
           <span class="post-page__draft" title="Hidden from production builds">
             {post.data.draft ? 'Draft' : 'Scheduled'}
@@ -171,6 +177,7 @@ const breadcrumbItems = [
     </blockquote>
   </div>
 
+  <VideoPlayerIcons />
   <div class="reading-progress" aria-hidden="true"></div>
   <button
     class="scroll-to-top"
@@ -195,6 +202,7 @@ const breadcrumbItems = [
     import { navigate } from "astro:transitions/client";
     import { mayNavigateWithArrows } from "../../components/client/arrow-nav-guard";
     import { initPostToc } from "../../components/client/post-toc";
+    import { initZenVideos } from "../../components/client/zen-video";
 
     // Bundled once and re-initialised on every page load; each page's listeners are torn down
     // before the next swap so client-side navigation never stacks handlers.
@@ -416,7 +424,7 @@ const breadcrumbItems = [
     };
 
     /* Looping clips play only for readers who have not asked for less motion, and only while on
-       screen; they keep their native controls, so pausing is always one tap away (2.2.2). */
+       screen; they keep their controls (zen-video.ts), so pausing is always one tap away (2.2.2). */
     const initMotionVideos = (signal: AbortSignal) => {
       const videos = [...document.querySelectorAll<HTMLVideoElement>(".post-page video[data-motion-autoplay]")];
       if (videos.length === 0) {
@@ -634,6 +642,7 @@ const breadcrumbItems = [
       initReadingProgress(signal);
       initPostToc(signal);
       initBackToList(signal);
+      initZenVideos(signal);
       initMotionVideos(signal);
       scrollToHash();
     });

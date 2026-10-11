@@ -187,6 +187,9 @@ importers:
       '@chenglou/pretext':
         specifier: ^0.0.9
         version: 0.0.9
+      '@fontsource-variable/atkinson-hyperlegible-next':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@fontsource/comfortaa':
         specifier: ^5.3.0
         version: 5.3.0
@@ -792,6 +795,9 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@fontsource-variable/atkinson-hyperlegible-next@5.3.0':
+    resolution: {integrity: sha512-UnLzNUy1RWoLDfydAatP4NaRm99X/WbQEph7q/PymJnCFIOOwKOx3pBmp5ys8trO0dM+CKGuJgeZP9fAR4mQpA==}
 
   '@fontsource/comfortaa@5.3.0':
     resolution: {integrity: sha512-ab4DERH0q6ko8QCpEZzOV9ebK39LgQ2oM91AkLNqu0VIxxwT0nV2D3sOuI7iLirWWq4IMooaIN6/2llxrDN2JA==}
@@ -5137,6 +5143,8 @@ snapshots:
       tslib: 2.8.1
 
   '@exodus/bytes@1.16.0': {}
+
+  '@fontsource-variable/atkinson-hyperlegible-next@5.3.0': {}
 
   '@fontsource/comfortaa@5.3.0': {}
 

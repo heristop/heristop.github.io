@@ -1,0 +1,87 @@
+---
+/**
+ * ReaderSettings — the article's "Reading" menu in the post meta row: text size (A− / A+, with
+ * the current percentage), a dyslexia-friendly switch and a reset. It wears the theme menu
+ * (ThemeToggle.astro) and follows its keyboard model; wiring lives in ./client/reader-settings.ts.
+ * Styles: src/styles/_reader-settings.scss, the prose side in src/styles/_blog.scss.
+ */
+import Icon from "./Icon.astro";
+
+const menuId = "reader-menu";
+const valueId = "reader-menu-value";
+---
+
+<div class="theme-toggle reader-settings" data-reader-settings>
+  <button
+    class="reader-settings__button"
+    type="button"
+    aria-label="Reading options"
+    aria-haspopup="menu"
+    aria-expanded="false"
+    aria-controls={menuId}
+  >
+    <Icon name="a-large-small" size={18} color="currentColor" class="reader-settings__icon" aria-hidden={true} />
+    <span class="reader-settings__label">Reading</span>
+  </button>
+
+  <div class="theme-toggle__menu reader-settings__menu" id={menuId} role="menu" aria-label="Reading options">
+    <div class="reader-settings__size" role="group" aria-label="Text size">
+      <button
+        class="theme-toggle__option reader-settings__step"
+        type="button"
+        role="menuitem"
+        tabindex="-1"
+        aria-label="Smaller text"
+        aria-describedby={valueId}
+        data-reader-step="-1"
+      >
+        <Icon name="a-arrow-down" size={20} color="currentColor" aria-hidden={true} />
+      </button>
+      <span class="reader-settings__value" id={valueId} aria-hidden="true" data-reader-value>100%</span>
+      <button
+        class="theme-toggle__option reader-settings__step"
+        type="button"
+        role="menuitem"
+        tabindex="-1"
+        aria-label="Larger text"
+        aria-describedby={valueId}
+        data-reader-step="1"
+      >
+        <Icon name="a-arrow-up" size={20} color="currentColor" aria-hidden={true} />
+      </button>
+    </div>
+
+    <div class="theme-toggle__separator" role="separator"></div>
+
+    <button
+      class="theme-toggle__option theme-toggle__option--switch"
+      type="button"
+      role="menuitemcheckbox"
+      aria-checked="false"
+      tabindex="-1"
+      data-reader-legible
+    >
+      <Icon name="book-open" size={16} color="currentColor" class="theme-toggle__option-icon" aria-hidden={true} />
+      <span class="theme-toggle__option-label">Dyslexia-friendly</span>
+      <span class="theme-toggle__switch" aria-hidden="true"></span>
+    </button>
+
+    <button
+      class="theme-toggle__option reader-settings__reset"
+      type="button"
+      role="menuitem"
+      tabindex="-1"
+      aria-disabled="true"
+      data-reader-reset
+    >
+      <Icon name="rotate-ccw" size={16} color="currentColor" class="theme-toggle__option-icon" aria-hidden={true} />
+      <span class="theme-toggle__option-label">Reset</span>
+    </button>
+  </div>
+
+  <span class="sr-only" role="status" data-reader-status></span>
+</div>
+
+<script>
+  import "./client/reader-settings";
+</script>

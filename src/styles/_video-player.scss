@@ -1,0 +1,694 @@
+@use 'scheme';
+
+/* ── Article video player (client/zen-video.ts) ─────────────────────────────────────────────
+   A clip framed like the article's other media: rounded, resting on the card shadow by day and
+   lit at the rim by night. Its controls float on a small sheet of paper (ink after dusk) that is
+   opaque enough to read over any frame, and step aside while the clip plays. The rose disc in
+   the middle is the one primary control; the rest stay quiet until the reader reaches for them.
+   ──────────────────────────────────────────────────────────────────────────────────────────── */
+
+/* Zero specificity: the authored width, the .img-* classes and the prose column all win */
+:where(.zen-video) {
+  width: 100%;
+  max-width: 100%;
+}
+
+.post-page .zen-video {
+  --zen-video-radius: 0.75rem;
+  --zen-video-ink: oklch(24% 0.03 350deg);
+  --zen-video-ink-soft: color-mix(in oklch, var(--zen-video-ink) 72%, transparent);
+  --zen-video-chrome: oklch(97.5% 0.008 75deg / 88%);
+  --zen-video-chrome-solid: oklch(97.5% 0.008 75deg);
+  --zen-video-chrome-edge: oklch(100% 0 0deg / 65%);
+  --zen-video-track: color-mix(in oklch, var(--zen-video-ink) 16%, transparent);
+  --zen-video-buffer: color-mix(in oklch, var(--zen-video-ink) 30%, transparent);
+  --zen-video-fill: var(--primary-color);
+  --zen-video-picture: oklch(17% 0.015 350deg);
+  --zen-video-veil: oklch(16% 0.02 350deg / 38%);
+  --zen-video-control: 2.75rem;
+
+  position: relative;
+  display: block;
+  margin-inline: auto;
+
+  /* The authored border on .img-* classes belongs to stills; the frame here is shadow and rim */
+  border: 0;
+  border-radius: var(--zen-video-radius);
+  overflow: hidden;
+  isolation: isolate;
+  container-type: inline-size;
+  background: var(--zen-video-picture);
+  box-shadow: var(--home-card-shadow);
+  color: var(--zen-video-ink);
+  font-family: Comfortaa, sans-serif;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Rim: a hairline and a top-edge catch of light, drawn above the picture */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    border-radius: inherit;
+    box-shadow:
+      inset 0 0 0 1px var(--border-image),
+      inset 0 1px 0 color-mix(in oklch, var(--sheen) 55%, transparent);
+    pointer-events: none;
+  }
+
+  > video {
+    display: block;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    cursor: pointer;
+  }
+
+  /* Playing with the controls away: the picture alone, without a pointer parked on it */
+  &[data-state="playing"][data-controls="hidden"] {
+    cursor: none;
+
+    > video {
+      cursor: none;
+    }
+  }
+}
+
+@include scheme.night {
+  .post-page .zen-video {
+    --zen-video-ink: oklch(93% 0.015 60deg);
+    --zen-video-chrome: oklch(21% 0.018 350deg / 88%);
+    --zen-video-chrome-solid: oklch(21% 0.018 350deg);
+    --zen-video-chrome-edge: oklch(100% 0 0deg / 10%);
+    --zen-video-picture: oklch(13% 0.012 350deg);
+
+    box-shadow:
+      var(--home-card-shadow),
+      0 0 0 1px oklch(100% 0 0deg / 6%);
+  }
+}
+
+/* ── Veil: a soft ink gradient that seats the bar and catches clicks on the picture ── */
+.zen-video__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to top, var(--zen-video-veil), transparent 55%);
+  cursor: pointer;
+  transition: opacity var(--motion-small) var(--motion-ease-out);
+
+  .zen-video[data-state="idle"] & {
+    background: linear-gradient(to top, oklch(16% 0.02 350deg / 22%), transparent 60%);
+  }
+
+  .zen-video[data-controls="hidden"] & {
+    opacity: 0;
+    transition-duration: var(--motion-exit);
+    transition-timing-function: var(--motion-ease-exit);
+  }
+}
+
+/* ── The disc: play and pause, a calm rose stone in the middle of the picture ── */
+.zen-video__disc {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 3.75rem;
+  height: 3.75rem;
+  margin: -1.875rem 0 0 -1.875rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: var(--text-on-dark);
+  box-shadow:
+    0 12px 28px -10px color-mix(in oklch, var(--primary-color) 70%, oklch(0% 0 0deg)),
+    0 0 0 6px color-mix(in oklch, var(--primary-color) 18%, transparent),
+    inset 0 1px 0 oklch(100% 0 0deg / 22%);
+  cursor: pointer;
+  transition:
+    opacity var(--motion-small) var(--motion-ease-out),
+    scale var(--motion-small) var(--motion-ease-out),
+    translate var(--motion-small) var(--motion-ease-out);
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: currentcolor;
+  }
+
+  /* The play triangle's mass sits left of its box: nudge it to look centred */
+  &[aria-label="Play"] svg {
+    translate: 0.125rem 0;
+  }
+
+  &:active {
+    scale: 0.94;
+    transition-duration: var(--motion-micro);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--zen-video-chrome-solid);
+    outline-offset: 3px;
+  }
+
+  /* Before the first play, a slightly larger stone invites the tap */
+  .zen-video[data-state="idle"] & {
+    scale: 1.12;
+  }
+
+  .zen-video[data-controls="hidden"] &,
+  .zen-video[data-state="error"] & {
+    opacity: 0;
+    scale: 0.92;
+    pointer-events: none;
+    transition-duration: var(--motion-exit);
+    transition-timing-function: var(--motion-ease-exit);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .zen-video__disc:hover {
+    scale: 1.05;
+  }
+
+  .zen-video[data-state="idle"] .zen-video__disc:hover {
+    scale: 1.16;
+  }
+}
+
+/* ── Duration chip on the poster, so the reader knows the ask before pressing play ── */
+.zen-video__chip {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
+  background: var(--zen-video-chrome);
+  color: var(--zen-video-ink);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(12px) saturate(160%);
+
+  .zen-video:not([data-state="idle"]) & {
+    display: none;
+  }
+}
+
+/* ── Buffering: a thin ring turning around the disc ── */
+.zen-video__spinner {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 2;
+  width: 5rem;
+  height: 5rem;
+  margin: -2.5rem 0 0 -2.5rem;
+  border: 2px solid oklch(100% 0 0deg / 22%);
+  border-top-color: var(--zen-video-fill);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-small) var(--motion-ease-out);
+
+  .zen-video[data-buffering] & {
+    opacity: 1;
+    animation: zen-video-spin 900ms linear infinite;
+  }
+}
+
+@keyframes zen-video-spin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+@keyframes zen-video-breathe {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ── Error: the picture dims and says so plainly, with a way to try again ── */
+.zen-video__error {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  place-content: center;
+  align-items: center;
+  padding: var(--space-lg);
+  background: oklch(18% 0.02 350deg / 86%);
+  color: oklch(94% 0.015 60deg);
+  text-align: center;
+
+  &[hidden] {
+    display: none;
+  }
+
+  > svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: oklch(80% 0.1 358deg);
+  }
+}
+
+.zen-video__error-text {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* ── The bar: a sheet of paper (ink at night) floating over the bottom of the picture ── */
+.zen-video__bar {
+  position: absolute;
+  inset: auto 0.5rem 0.5rem;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  padding: 0 0.25rem 0.125rem;
+  border: 1px solid var(--zen-video-chrome-edge);
+  border-radius: max(0.5rem, calc(var(--zen-video-radius) - 0.25rem));
+  background: var(--zen-video-chrome);
+  box-shadow: 0 10px 28px -14px oklch(10% 0.02 350deg / 55%);
+  backdrop-filter: blur(16px) saturate(160%);
+  transition:
+    opacity var(--motion-small) var(--motion-ease-out),
+    translate var(--motion-small) var(--motion-ease-out);
+
+  .zen-video[data-controls="hidden"] & {
+    opacity: 0;
+    translate: 0 var(--motion-travel-y);
+    pointer-events: none;
+    transition-duration: var(--motion-exit);
+    transition-timing-function: var(--motion-ease-exit);
+  }
+
+  /* The poster asks one thing only: play */
+  .zen-video:is([data-state="idle"], [data-state="error"]) & {
+    visibility: hidden;
+    opacity: 0;
+  }
+}
+
+.zen-video__row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.zen-video__spacer {
+  flex: 1;
+}
+
+/* ── Scrubber: 24px of layout, 44px of reach (the extra rises into the picture above) ── */
+.zen-video__scrubber {
+  --zen-video-progress: 0;
+  --zen-video-buffered: 0;
+
+  position: relative;
+  height: 1.5rem;
+  margin-inline: 0.5rem;
+  cursor: pointer;
+  touch-action: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -1.25rem 0 0;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.zen-video__track {
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 0.25rem;
+  margin-top: -0.125rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--zen-video-track);
+  transition: scale var(--motion-micro) var(--motion-ease-out);
+
+  > span {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+  }
+}
+
+.zen-video__buffered {
+  background: var(--zen-video-buffer);
+  scale: var(--zen-video-buffered) 1;
+}
+
+.zen-video__played {
+  background: var(--zen-video-fill);
+  scale: var(--zen-video-progress) 1;
+}
+
+.zen-video__rail {
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 0;
+  translate: calc(var(--zen-video-progress) * 100%) 0;
+  pointer-events: none;
+}
+
+/* The playhead glows softly, like a lantern on the path */
+.zen-video__playhead {
+  position: absolute;
+  top: -0.4375rem;
+  left: -0.4375rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 50%;
+  background: var(--zen-video-fill);
+  box-shadow:
+    0 0 0 3px color-mix(in oklch, var(--zen-video-fill) 22%, transparent),
+    0 0 12px 1px color-mix(in oklch, var(--zen-video-fill) 55%, transparent);
+  scale: 0.7;
+  transition: scale var(--motion-micro) var(--motion-ease-out);
+}
+
+.zen-video__scrubber:is(:focus-visible, :active),
+.zen-video[data-scrubbing] .zen-video__scrubber {
+  .zen-video__track {
+    scale: 1 1.5;
+  }
+
+  .zen-video__playhead {
+    scale: 1;
+  }
+}
+
+.zen-video__scrubber:focus-visible .zen-video__playhead {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .zen-video__scrubber:hover {
+    .zen-video__track {
+      scale: 1 1.5;
+    }
+
+    .zen-video__playhead {
+      scale: 1;
+    }
+  }
+}
+
+/* ── Buttons: 44px of reach, a 20px glyph, a quiet wash on hover ── */
+.post-page .zen-video__button {
+  display: inline-grid;
+  flex: none;
+  grid-auto-flow: column;
+  place-items: center;
+  place-content: center;
+  min-width: var(--zen-video-control);
+  height: var(--zen-video-control);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--zen-video-ink);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-micro) var(--motion-ease-out),
+    scale var(--motion-micro) var(--motion-ease-out);
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  &:active {
+    scale: 0.92;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+  }
+
+  &[aria-pressed="true"] {
+    color: var(--zen-video-fill);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .post-page .zen-video__button:hover {
+    background: color-mix(in oklch, var(--zen-video-ink) 9%, transparent);
+  }
+}
+
+.post-page .zen-video__retry {
+  /* Sits on the dimmed picture, not the bar */
+  gap: 0.5rem;
+  width: auto;
+  padding-inline: 1rem;
+  border-radius: 999px;
+  background: oklch(100% 0 0deg / 10%);
+  color: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.post-page .zen-video__speed {
+  padding-inline: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.zen-video__time {
+  padding-inline: 0.375rem;
+  color: var(--zen-video-ink);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.zen-video__total {
+  color: var(--zen-video-ink-soft);
+}
+
+/* ── Volume: a short range beside the mute button, where a mouse can set it ── */
+.zen-video__volume {
+  display: none;
+  width: 4.5rem;
+  height: var(--zen-video-control);
+  margin: 0 0.25rem;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+
+  &::-webkit-slider-runnable-track {
+    height: 0.25rem;
+    border-radius: 999px;
+    background: var(--zen-video-track);
+  }
+
+  &::-moz-range-track {
+    height: 0.25rem;
+    border-radius: 999px;
+    background: var(--zen-video-track);
+  }
+
+  &::-moz-range-progress {
+    height: 0.25rem;
+    border-radius: 999px;
+    background: var(--zen-video-fill);
+  }
+
+  &::-webkit-slider-thumb {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-top: -0.25rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--zen-video-fill);
+    appearance: none;
+  }
+
+  &::-moz-range-thumb {
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--zen-video-fill);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .zen-video__volume {
+    display: block;
+  }
+}
+
+/* ── Narrow players: the volume goes first (hardware keys own it there), then the time's total ── */
+@container (width < 28rem) {
+  .zen-video__volume {
+    display: none;
+  }
+
+  .post-page .zen-video__disc {
+    width: 3.25rem;
+    height: 3.25rem;
+    margin: -1.625rem 0 0 -1.625rem;
+  }
+
+  /* On a short picture the bar takes a third of it: the disc rises to the middle of what is left */
+  .zen-video:not([data-state="idle"]) .zen-video__disc {
+    translate: 0 -2.25rem;
+  }
+
+  .zen-video:not([data-state="idle"]) .zen-video__spinner {
+    translate: 0 -2.25rem;
+  }
+}
+
+@container (width < 20rem) {
+  .zen-video__pip {
+    display: none;
+  }
+}
+
+/* ── Full screen: the picture fills the screen, letterboxed in ink ── */
+.post-page .zen-video:fullscreen {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+
+  > video {
+    height: 100%;
+    object-fit: contain;
+  }
+
+  &::after {
+    display: none;
+  }
+
+  .zen-video__bar {
+    inset-inline: max(1rem, calc(50% - 30rem));
+    bottom: 1.5rem;
+  }
+}
+
+/* ── Preferences ── */
+
+/* Less motion: the controls appear and leave at once; the buffering ring breathes instead of turning */
+@media (prefers-reduced-motion: reduce) {
+  .zen-video :is(.zen-video__veil, .zen-video__disc, .zen-video__bar, .zen-video__spinner) {
+    transition: none;
+  }
+
+  .zen-video[data-controls] .zen-video__bar {
+    translate: none;
+  }
+
+  .zen-video[data-buffering] .zen-video__spinner {
+    border-color: var(--zen-video-fill);
+    animation: zen-video-breathe 1.6s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .zen-video :is(.zen-video__bar, .zen-video__chip) {
+    background: var(--zen-video-chrome-solid);
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .post-page .zen-video {
+    --zen-video-chrome: var(--zen-video-chrome-solid);
+    --zen-video-chrome-edge: var(--zen-video-ink);
+    --zen-video-ink-soft: var(--zen-video-ink);
+  }
+}
+
+/* Windows high contrast: system colours, and the painted fills kept so progress still reads */
+@media (forced-colors: active) {
+  .zen-video__bar,
+  .zen-video__chip {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    backdrop-filter: none;
+  }
+
+  .post-page .zen-video__disc {
+    border: 2px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+    box-shadow: none;
+  }
+
+  .zen-video__track,
+  .zen-video__playhead,
+  .zen-video__volume {
+    forced-color-adjust: none;
+  }
+
+  .zen-video__track {
+    background: GrayText;
+  }
+
+  .zen-video__buffered {
+    background: CanvasText;
+    opacity: 0.5;
+  }
+
+  .zen-video__played,
+  .zen-video__playhead {
+    background: Highlight;
+    box-shadow: none;
+  }
+
+  .post-page .zen-video__button[aria-pressed="true"] {
+    color: Highlight;
+  }
+
+  .zen-video__spinner {
+    border-color: CanvasText;
+    border-top-color: Highlight;
+  }
+}
+
+@media print {
+  .zen-video :is(.zen-video__bar, .zen-video__disc, .zen-video__spinner, .zen-video__veil) {
+    display: none;
+  }
+}

@@ -17,6 +17,7 @@ import PageMotion from './PageMotion.astro';
 import InkReveal from './InkReveal.astro';
 import { cloudflareToken } from '../analytics';
 import { THEME_STORAGE_KEY } from './client/theme-preference';
+import { READER_FONT_KEY, READER_SIZES, READER_SIZE_KEY } from './client/reader-preference';
 import { SITE_AUTHOR, SITE_TITLE } from '../consts';
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -119,6 +120,42 @@ const imageAlt = isArticle ? `Cover image for “${title}”` : `${SITE_TITLE}, 
       apply(document);
     });
   }
+</script>
+
+<!--
+  Reader boot: an article's text size and legible face, stamped on <html> before first paint so
+  the prose never reflows once it shows. Mirrors readReaderPreferences + applyReaderPreferences in
+  client/reader-preference.ts; only `.post-page` reads the attributes, so other pages ignore them.
+-->
+<script is:inline define:vars={{ sizeKey: READER_SIZE_KEY, fontKey: READER_FONT_KEY, sizes: READER_SIZES }}>
+  (function () {
+    var apply = function (doc) {
+      var size = "";
+      var font = "";
+      try {
+        var stored = Number(localStorage.getItem(sizeKey));
+        if (stored !== 100 && sizes.indexOf(stored) !== -1) size = String(stored);
+        if (localStorage.getItem(fontKey) === "legible") font = "legible";
+      } catch (e) {
+        /* storage blocked: the defaults */
+      }
+      var root = doc.documentElement;
+      if (size) root.setAttribute("data-reader-size", size);
+      else root.removeAttribute("data-reader-size");
+      if (font) root.setAttribute("data-reader-font", font);
+      else root.removeAttribute("data-reader-font");
+    };
+    apply(document);
+    if (!window.__readerBoot) {
+      window.__readerBoot = true;
+      document.addEventListener("astro:before-swap", function (event) {
+        apply(event.newDocument);
+      });
+      document.addEventListener("astro:after-swap", function () {
+        apply(document);
+      });
+    }
+  })();
 </script>
 
 <!--

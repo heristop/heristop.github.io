@@ -1,0 +1,28 @@
+---
+import Icon from "./Icon.astro";
+import type { IconName } from "@zazencode/ui/icon-registry";
+
+/* The video player (client/zen-video.ts) draws its controls from these Lucide glyphs: rendered
+   once at build time from the shared registry, cloned per player, inert until then. */
+const glyphs: IconName[] = [
+  "play",
+  "pause",
+  "volume-2",
+  "volume-x",
+  "maximize",
+  "minimize",
+  "picture-in-picture",
+  "captions",
+  "captions-off",
+  "rotate-ccw",
+  "triangle-alert",
+];
+---
+
+<template id="zen-video-icons">
+  {glyphs.map((name) => (
+    <span data-icon={name}>
+      <Icon name={name} size={20} color="currentColor" aria-hidden={true} />
+    </span>
+  ))}
+</template>
