@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🗻 - Weeks 3-4"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 3 and 4 of 2025: Tailwind CSS v4, Cypress 14, Storybook 8.5, JavaScript Rising Stars 2024, CSS text-box-trim and anchor positioning."
 pubDate: "2025-01-27"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.webp"
@@ -77,23 +77,8 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ## 📜 Historical Fun Fact
 
-- Did you know? The first website ever created is still online! Check out [the world's first website](http://info.cern.ch/?ref=heristop.github.io). It's a nostalgic trip back to 1991. 🕰️
+- Did you know? The first website ever created is still online! Check out [the world's first website](https://info.cern.ch/?ref=heristop.github.io). It's a nostalgic trip back to 1991. 🕰️
 
 ---
 
-**Cited Sources:**
-
-- Rising Stars
-- Smashing Magazine
-- Tailwind CSS
-- Storybook
-- Cypress Blog
-- Vue Cheatsheet
-- Syncfusion
-- OpenReplay
-- Medium
-- Tiger Abrodi Blog
-- AgentStation
-- Chrome Developers
-- CSS-Tricks
-- LogRocket Blog
+**Cited Sources:** Rising Stars, Smashing Magazine, Tailwind CSS, Storybook, Cypress Blog, Vue Cheatsheet, Syncfusion, OpenReplay, Medium, Tiger Abrodi Blog, AgentStation, Chrome Developers, CSS-Tricks, LogRocket Blog

@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🍵 - Weeks 37-38"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 37 and 38 of 2024: TypeScript 5.6, htmx 2.0, Vue's reactivity boost, CSS linear() animations and the NgRx Signals Store."
 pubDate: "2024-09-23"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
@@ -79,9 +79,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- Medium
-- LogRocket
-- Telerik
-- Syncfusion
+**Cited Sources:** Medium, LogRocket, Telerik, Syncfusion

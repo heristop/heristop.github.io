@@ -225,7 +225,7 @@ Don't forget to include ExtJS too, otherwise you are going to have a blank page!
 app/console assetic:dump
 ```
 
-You can also use the YUI compressor to optimize and minify your code. See how to configure it here: [YUI Filters](http://symfony.com/doc/current/cookbook/assetic/yuicompressor.html#configure-the-yui-filters).
+You can also use the YUI compressor to optimize and minify your code. See how to configure it here: [YUI Filters](https://symfony.com/doc/current/cookbook/assetic/yuicompressor.html#configure-the-yui-filters).
 
 ### Viewport
 

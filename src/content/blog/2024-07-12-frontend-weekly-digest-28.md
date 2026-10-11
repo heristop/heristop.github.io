@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🍵 - Weeks 27-28"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 27 and 28 of 2024: the polyfill.io supply chain attack, trojanized jQuery packages on npm, Vitest 2.0 and Axios versus Fetch."
 pubDate: "2024-07-12"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
@@ -65,14 +65,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- DEV Community
-- Telerik Blog
-- CSS-Tricks
-- Sansec
-- UX Design Bootcamp
-- The Hacker News
-- GitHub
-- MDN Web Docs
-- Builder.io
+**Cited Sources:** DEV Community, Telerik Blog, CSS-Tricks, Sansec, UX Design Bootcamp, The Hacker News, GitHub, MDN Web Docs, Builder.io

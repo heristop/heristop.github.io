@@ -1,6 +1,6 @@
 ---
 title: "I shipped a feature while visiting a photo exhibition"
-description: "I shipped a feature to production from my phone while visiting a photo exhibition — Claude Code handled everything from design to deployment. It was impressive, but surprisingly unsatisfying: without effort, there's no resistance, no sense of accomplishment. And if everyone can ship this fast, we're probably building massive technical debt without even realizing it."
+description: "I shipped a feature to production from my phone while visiting a photo exhibition. Impressive, but surprisingly unsatisfying: without effort, no resistance."
 pubDate: "2026-02-26"
 conclusion: "The natural difficulty of development served as a regulator. It forced us to prioritize, to simplify, to let go. Today, that brake is gone.\nThe real question may no longer be 'what can we build?' but 'what framework do we set for ourselves so we don't break everything?'"
 image: "/images/posts/2026-02-26-shipped-feature-while-visiting-expo/josé-manuel-infante.webp"

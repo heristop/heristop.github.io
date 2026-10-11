@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 📰 - Week 45"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, week 45 of 2023: the fight for the main thread, reading page speed reports, Angular deferrable views and Google's Project IDX."
 pubDate: "2023-11-11"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -43,7 +43,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- Smashing Magazine
-- The New Stack
+**Cited Sources:** Smashing Magazine, The New Stack

@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🧘 - Weeks 29-30"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 29 and 30 of 2024: animating height: auto in CSS, ECMAScript 2024, detecting @starting-style support and Svelte 5 runes."
 pubDate: "2024-07-26"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -65,15 +65,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- Bram.us
-- Dev.to
-- Web Dev Simplified
-- LogRocket
-- The New Stack
-- FreeCodeCamp
-- UX Planet
-- Craft Better Software
-- Builder.io
-- Chrome Developer Blog
+**Cited Sources:** Bram.us, Dev.to, Web Dev Simplified, LogRocket, The New Stack, FreeCodeCamp, UX Planet, Craft Better Software, Builder.io, Chrome Developer Blog

@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🌸 - Weeks 33-34"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 33 and 34 of 2024: React Native goes stable, native CSS vertical centering, the safe assignment operator and Angular signals."
 pubDate: "2024-08-26"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -53,10 +53,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- bennadel.com
-- dev.to
-- build-your-own.org
-- logrocket.com
-- sakisv.net
+**Cited Sources:** bennadel.com, dev.to, build-your-own.org, logrocket.com, sakisv.net

@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 📰 - Week 46"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, week 46 of 2023: Redwood goes all in on React Server Components, the new React docs, open GraphQL federation and GPT-4 Turbo."
 pubDate: "2023-11-17"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -31,6 +31,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- The New Stack
+**Cited Sources:** The New Stack

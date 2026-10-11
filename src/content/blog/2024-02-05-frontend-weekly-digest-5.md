@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🍵 - Weeks 3-5"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 3 to 5 of 2024: WASI 0.2 for WebAssembly, Vue turns ten, Playwright tests with coverage in Vite and modern reactive patterns in JS."
 pubDate: "2024-02-05"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.webp"
@@ -47,10 +47,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- The New Stack
-- Medium
-- LevelUp GitConnected
-- Twitter
-- Design System Checklist
+**Cited Sources:** The New Stack, Medium, LevelUp GitConnected, Twitter, Design System Checklist

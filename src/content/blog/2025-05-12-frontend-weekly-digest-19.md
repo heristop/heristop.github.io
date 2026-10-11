@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 💮 - Week 18–19"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 18 and 19 of 2025: Angular 20 RC, Node.js 24, GSAP 3.13, Astro 5.7, Nuxt 3.17, the CSS shape() function and JSX over the wire."
 pubDate: "2025-05-12"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -73,25 +73,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-* Medium
-* DEV Community
-* Svelte Blog
-* Astro Blog
-* Nuxt Blog
-* Node.js Blog
-* GSAP Blog
-* Electron Blog
-* Web.dev
-* WebKit Blog
-* InfoWorld
-* Overreacted
-* Vue School
-* Netguru
-* Smashing Magazine
-* Vue.js Events
-* Google I/O
-* Reddit
-* Codrops
-* freeCodeCamp
+**Cited Sources:** Medium, DEV Community, Svelte Blog, Astro Blog, Nuxt Blog, Node.js Blog, GSAP Blog, Electron Blog, Web.dev, WebKit Blog, InfoWorld, Overreacted, Vue School, Netguru, Smashing Magazine, Vue.js Events, Google I/O, Reddit, Codrops, freeCodeCamp

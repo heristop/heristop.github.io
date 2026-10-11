@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🎍 - Week 11-12"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 11 and 12 of 2025: the TypeScript compiler ported to Go, Next.js 15.2 security patch, Oxlint beta, Nuxt 3.16 and Nuxt UI v3."
 pubDate: "2025-03-24"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
@@ -75,7 +75,7 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 - **Web Components vs Frameworks:** [Smashing Article](https://www.smashingmagazine.com/2025/03/web-components-vs-framework-components?ref=heristop.github.io)
 
-- **Performance Mistakes in Next.js:** [Read more](https://javascript.plainenglish.io/10-performance-killing-mistakes-i-made-in-my-next-js-app-99d890607746?ref=heristop.github.io)
+- **Performance Mistakes in Next.js:** [10 performance-killing mistakes in a Next.js app](https://javascript.plainenglish.io/10-performance-killing-mistakes-i-made-in-my-next-js-app-99d890607746?ref=heristop.github.io)
 
 - **Fluid Typography Debate:** [Rutter’s take](https://clagnut.com/blog/2441?ref=heristop.github.io)
 
@@ -120,25 +120,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- JavaScript Plain English
-- Motion.dev
-- Nuxt Blog
-- Medium
-- Svelte Blog
-- Socket.dev
-- Rsdoctor
-- LogRocket
-- Daily.dev
-- Microsoft Edge Dev Blog
-- MDN
-- WebKit Blog
-- Smashing Magazine
-- Clagnut
-- Cloud Four
-- JSWorld Conference
-- Frontrunners
-- React Miami
-- CityJS London
-- Codrops
+**Cited Sources:** JavaScript Plain English, Motion.dev, Nuxt Blog, Medium, Svelte Blog, Socket.dev, Rsdoctor, LogRocket, Daily.dev, Microsoft Edge Dev Blog, MDN, WebKit Blog, Smashing Magazine, Clagnut, Cloud Four, JSWorld Conference, Frontrunners, React Miami, CityJS London, Codrops

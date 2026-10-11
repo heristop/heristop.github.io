@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🧘 - Weeks 2-3"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 2 and 3 of 2026: jQuery 4.0, TypeScript 7 in Go, Vite 8 beta with Rolldown, Vue 3.6 Vapor Mode, Bun 1.3 and Remix 3 leaving React."
 pubDate: "2026-01-19"
 conclusion: "That’s it for this week’s frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -65,15 +65,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- jQuery Blog
-- InfoQ
-- Vite Blog
-- Node.js Blog
-- Svelte Blog
-- Deno Blog
-- Vue School
-- LogRocket
-- DEV Community
-- VoidZero
+**Cited Sources:** jQuery Blog, InfoQ, Vite Blog, Node.js Blog, Svelte Blog, Deno Blog, Vue School, LogRocket, DEV Community, VoidZero

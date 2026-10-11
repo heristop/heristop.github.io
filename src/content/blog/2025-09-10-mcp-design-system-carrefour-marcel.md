@@ -1,6 +1,6 @@
 ---
 title: "How We Connected our Design System to Code Assist with MCP"
-description: "At Carrefour, in the Design System Tech Team, we built an MCP server that enables AI assistants to understand and generate code for our Design System. Result: developers can prompt `create a product card with price and rating` and get production-ready Marcel code with the right components, tokens, and patterns."
+description: "At Carrefour, we built an MCP server so AI assistants can generate production-ready code for our Marcel Design System, with the right components and tokens."
 pubDate: "2025-09-10"
 conclusion: "👉 Interested in implementing MCP for your Design System? The protocol is open source and the community is growing. Feel free to reach out with questions!"
 image: "/images/posts/2025-09-10-mcp-design-system-carrefour-marcel/c4-kit.webp"

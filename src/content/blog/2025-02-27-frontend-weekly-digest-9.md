@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🧘 - Weeks 8-9"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 8 and 9 of 2025: Create React App is deprecated, Vue 3.6 preview, Nuxt DevTools 2.0, Interop 2025 and the SolidJS 2.0 roadmap."
 pubDate: "2025-02-27"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -107,22 +107,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- React Blog
-- Ninja Squad
-- Angular Dev
-- Cypress Blog
-- GitHub
-- Threlte
-- SolidJS
-- Next.js Blog
-- Astro Blog
-- Storybook Blog
-- tRPC Blog
-- WebKit Blog
-- Chrome Developers
-- Socket.dev
-- Web.dev
-- Stack Overflow Blog
-- Svelte Summit
+**Cited Sources:** React Blog, Ninja Squad, Angular Dev, Cypress Blog, GitHub, Threlte, SolidJS, Next.js Blog, Astro Blog, Storybook Blog, tRPC Blog, WebKit Blog, Chrome Developers, Socket.dev, Web.dev, Stack Overflow Blog, Svelte Summit

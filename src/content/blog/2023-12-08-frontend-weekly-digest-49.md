@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🎍 - Week 49"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, week 49 of 2023: Vitest 1.0, Svelte Summit highlights with a Svelte 5 preview, Vue feature flag composables and typographic hierarchy."
 pubDate: "2023-12-08"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -47,13 +47,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- Svelte Blog
-- GitHub
-- Codrops
-- Pimp My Type
-- Dev.to
-- Scribble Diffusion
-- Iconbuddy
-- Elysium
+**Cited Sources:** Svelte Blog, GitHub, Codrops, Pimp My Type, Dev.to, Scribble Diffusion, Iconbuddy, Elysium

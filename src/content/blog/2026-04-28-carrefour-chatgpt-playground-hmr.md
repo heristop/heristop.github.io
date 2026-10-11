@@ -1,6 +1,6 @@
 ---
 title: "How we shipped Carrefour inside ChatGPT"
-description: "How a Vite playground with HMR absorbed the instability of OpenAI's Apps SDK and accelerated the development of Carrefour In-App for ChatGPT, the first European retailer to let people shop directly inside ChatGPT."
+description: "How a Vite playground with HMR absorbed the instability of OpenAI's Apps SDK and sped up Carrefour In-App for ChatGPT, a first for a European retailer."
 pubDate: "2026-04-28"
 image: "/images/posts/2026-04-28-carrefour-chatgpt-playground-hmr/carrefour-chatgpt-banner.png"
 tags: ["case-study", "carrefour", "chatgpt", "mcp", "apps-sdk", "vite", "hmr", "dx"]

@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 💮 - Weeks 10-11"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 10 and 11 of 2024: TypeScript 5.4, Vue Vapor Mode without a virtual DOM, the JSR registry, WinterJS 1.0 and async versus defer."
 pubDate: "2024-03-15"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
@@ -67,16 +67,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- Dev.to
-- JSR.io
-- Hashnode
-- Medium
-- TypeScript Blog
-- BlockNote.js
-- Eloquent JavaScript
-- Tech Reads
-- Wasmer.io
-- FreeCodeCamp
-- Daily.dev
+**Cited Sources:** Dev.to, JSR.io, Hashnode, Medium, TypeScript Blog, BlockNote.js, Eloquent JavaScript, Tech Reads, Wasmer.io, FreeCodeCamp, Daily.dev

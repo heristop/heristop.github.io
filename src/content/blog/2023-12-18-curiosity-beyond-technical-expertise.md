@@ -1,6 +1,6 @@
 ---
 title: "Valuing Curiosity Beyond Technical Expertise in Developers"
-description: ""
+description: "Should you hire an expert in one framework or a curious mind? As a Chapter Lead, I argue curiosity and adaptability outlast narrow technical expertise."
 pubDate: "2023-12-01"
 conclusion: "☝ Recruiting an expert based on current competencies is like programming the obsolescence of tomorrow; preferring a curious mind, on the other hand, is preparing for the future by reducing this risk and embracing innovation."
 image: "/images/posts/headway-5QgIuuBxKwM-unsplash.webp"

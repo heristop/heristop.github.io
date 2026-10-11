@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🗻 - Week 26"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, week 26 of 2024: TypeScript 5.5, Turborepo 2.0, Astro 4.11, the new JavaScript Set methods and visual testing with Chromatic and Playwright."
 pubDate: "2024-06-28"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -101,17 +101,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- dev.to
-- astro.build
-- goodpractices.design
-- developer.mozilla.org
-- turbo.build
-- The New Stack
-- LogRocket Blog
-- JSWorldConference.com
-- RubenPeregrina.com
-- spin.atomicobject.com
-- tympanus.net
-- ITNEXT
+**Cited Sources:** dev.to, astro.build, goodpractices.design, developer.mozilla.org, turbo.build, The New Stack, LogRocket Blog, JSWorldConference.com, RubenPeregrina.com, spin.atomicobject.com, tympanus.net, ITNEXT

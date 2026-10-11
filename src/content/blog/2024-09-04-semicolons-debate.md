@@ -1,6 +1,7 @@
 ---
 title: "The Great Semicolon Debate in JavaScript: A Comprehensive Analysis"
-description: Sharing practical tips and the latest trends in JavaScript
+metaTitle: "The Great Semicolon Debate in JavaScript"
+description: "Semicolons or not in JavaScript? The arguments on both sides, how Angular, Vue, React, Nuxt, Next.js and Remix handle them, and how ASI really works."
 pubDate: "2024-09-04"
 conclusion: "💡 In the end, the goal is to produce high-quality, maintainable JavaScript code. The semicolon debate, while important, should not overshadow this primary objective. By making an informed decision and maintaining consistency, you can ensure that your codebase remains clean and efficient, with or without semicolons."
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"

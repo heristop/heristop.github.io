@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🌸 - Weeks 12-13"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 12 and 13 of 2024: Angular merges with Wiz, VitePress 1.0, Nuxt 3.11, leaving Sass for native CSS and understanding INP."
 pubDate: "2024-03-29"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/fili-santillan-qp51FQhBnS0-unsplash.webp"
@@ -67,16 +67,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- Ruben Peregrina
-- Nue.js
-- Vue.js Blog
-- Graphite.dev
-- Nuxt.com
-- Dev.to
-- Focus Reactive
-- TresJS
-- Romgrk.com
-- CodersBlock
-- Sentry.io
+**Cited Sources:** Ruben Peregrina, Nue.js, Vue.js Blog, Graphite.dev, Nuxt.com, Dev.to, Focus Reactive, TresJS, Romgrk.com, CodersBlock, Sentry.io

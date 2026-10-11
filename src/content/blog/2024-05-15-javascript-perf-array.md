@@ -1,6 +1,6 @@
 ---
 title: "Why Use a Set Instead of an Array in JavaScript?"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Array.includes() in a loop costs O(n × m), Set.has() brings it down to O(n). A practical JavaScript example on choosing a Set for fast membership checks."
 pubDate: "2024-05-15"
 conclusion: "☝ Using a Set to check if an element belongs to a list is often much more performant than using an array, especially when the list is long. This reduces the time complexity, significantly improving code performance. For frequent lookup operations, prefer optimized data structures like Set."
 image: "/images/posts/greg-rakozy-vw3Ahg4x1tY-unsplash.webp"

@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🎍 - Weeks 8-9"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 8 and 9 of 2024: React 19 and its compiler, Angular 17 best practices, the GSAP animation library and the WhoCanUse accessibility tool."
 pubDate: "2024-03-04"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
@@ -57,14 +57,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- React Training
-- Stackademic Blog
-- LevelUp GitConnected
-- GSAP
-- WhoCanUse
-- SVG Tutorial
-- AWS Labs (GitHub)
-- YouTube
-- BigBinary
+**Cited Sources:** React Training, Stackademic Blog, LevelUp GitConnected, GSAP, WhoCanUse, SVG Tutorial, AWS Labs (GitHub), YouTube, BigBinary

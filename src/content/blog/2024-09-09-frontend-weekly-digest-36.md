@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🗻 - Weeks 35-36"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 35 and 36 of 2024: Vue 3.5, Next.js 15 RC, Rspack 1.0, Nuxt 3.13, JavaScript generators and a frontend security checklist."
 pubDate: "2024-09-09"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.webp"
@@ -85,17 +85,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- itnext.io
-- syncfusion.com
-- vuejs.org
-- nuxt.com
-- trevorlasn.com
-- stackademic.com
-- timetime.in
-- angular.dev
-- eieio.games
-- youtube.com
-- telerik.com
-- ishadeed.com
+**Cited Sources:** itnext.io, syncfusion.com, vuejs.org, nuxt.com, trevorlasn.com, stackademic.com, timetime.in, angular.dev, eieio.games, youtube.com, telerik.com, ishadeed.com

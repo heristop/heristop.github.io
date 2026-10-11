@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 💮 - Week 43-44"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 43 and 44 of 2024: Svelte 5 is out, Sass deprecates @import, the State of CSS 2024, native form validation and Zustand versus Redux."
 pubDate: "2024-11-04"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -69,18 +69,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- Atomic Object
-- State of CSS
-- Expression Statement
-- CSS-Tricks
-- DEV.to
-- JetBrains Blog
-- Svelte Blog
-- LogRocket Blog
-- SVGator
-- Codaily.dev
-- ThemeSelection
-- Medium (Java Revisited)
-- Medium (Mohan Byte)
+**Cited Sources:** Atomic Object, State of CSS, Expression Statement, CSS-Tricks, DEV.to, JetBrains Blog, Svelte Blog, LogRocket Blog, SVGator, Codaily.dev, ThemeSelection, Medium (Java Revisited), Medium (Mohan Byte)

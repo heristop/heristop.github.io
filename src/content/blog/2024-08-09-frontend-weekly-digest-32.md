@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 💮 - Week 32"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, week 32 of 2024: Evan You on the future of Vue, Storybook 8.2, TypeScript 5.5, the Shadow DOM as an iframe and zoneless Angular 18."
 pubDate: "2024-08-09"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -112,17 +112,4 @@ _When you let a backend dev code the synchronized swimming choreography in CSS:_
 
 ---
 
-**Cited Sources:**
-
-- Dev.to
-- CSS-Tricks
-- LogRocket
-- ESLint
-- Transistor.fm
-- Astro.build
-- Storybook.js.org
-- OpenReplay.com
-- WebDeveloper.beehiiv.com
-- Mailcoach.app
-- Platformatic.dev
-- Stackademic.com
+**Cited Sources:** Dev.to, CSS-Tricks, LogRocket, ESLint, Transistor.fm, Astro.build, Storybook.js.org, OpenReplay.com, WebDeveloper.beehiiv.com, Mailcoach.app, Platformatic.dev, Stackademic.com

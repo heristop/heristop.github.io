@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🧘 - Weeks 6-7"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 6 and 7 of 2024: Vite 5.1, Rich Harris on Svelte 5, five CSS snippets including subgrid, and mobile accessibility barriers."
 pubDate: "2024-02-19"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -45,10 +45,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- YouTube
-- Web.dev
-- Smashing Magazine
-- Vite.js
-- LearnTypeScript.online
+**Cited Sources:** YouTube, Web.dev, Smashing Magazine, Vite.js, LearnTypeScript.online

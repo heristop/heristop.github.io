@@ -1,6 +1,6 @@
 ---
 title: "Pix Who? The Pix Me universe is expanding"
-description: "I asked my Vibe Code Assist to build me the most addictive game in the universe. The result: Pix Who? — a daily guessing game with degraded photos, sprays, and 7 questions max."
+description: "I asked my Vibe Code Assist to build the most addictive game in the universe. The result: Pix Who?, a daily guessing game with degraded photos and sprays."
 pubDate: "2026-03-30"
 image: "/images/posts/2026-03-30-pix-who/poster.webp"
 tags: ["ai", "pix-me", "game", "case-study"]

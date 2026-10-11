@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🌸 - Weeks 21-23"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 21 to 23 of 2025: Angular 20, Remix reimagined, async Svelte, Anime.js v4, Safari 26 at WWDC and Dan Abramov on progressive JSON."
 pubDate: "2025-06-10"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.webp"
@@ -29,7 +29,7 @@ A packed couple of weeks covering mid-May through early June 2025. Major framewo
 
 ## 🛠️ Developer Tools & Libraries
 
-* **[Node.js v24 Released](http://nodesource.com/blog/Node.js-version-24/?ref=heristop.github.io)**: npm 11, V8 12.4, and diagnostic improvements. Node keeps chugging along.
+* **[Node.js v24 Released](https://nodesource.com/blog/Node.js-version-24/?ref=heristop.github.io)**: npm 11, V8 12.4, and diagnostic improvements. Node keeps chugging along.
 * **[Sleeker Node.js Experience](https://www.developer-tech.com/news/nodejs-24-a-faster-sleeker-javascript-experience/?ref=heristop.github.io)**: Faster startup times and better module handling. Your CI pipelines thank you.
 * **[Native TypeScript Compiler](https://devblogs.microsoft.com/typescript/typescript-native-port/?ref=heristop.github.io)**: Microsoft rewrote `tsc` in Go — 10× faster. Your IDE might actually keep up with your typing now.
 * **[Anime.js v4](https://github.com/juliangarnier/anime/releases?ref=heristop.github.io)**: The beloved animation library is back with a major update. Time to make those micro-interactions shine.
@@ -74,32 +74,4 @@ A packed couple of weeks covering mid-May through early June 2025. Major framewo
 
 ---
 
-**Cited Sources:**
-
-* Bacancy Technology
-* Remix Blog
-* Svelte Blog
-* NodeSource
-* Developer Tech
-* Microsoft DevBlogs
-* GitHub (Anime.js)
-* Tailwind CSS Blog
-* Socket.dev
-* Storybook Blog
-* Chrome Developers
-* PPC Land
-* Apple Developer
-* WebKit Blog
-* Overreacted
-* LogRocket
-* Smashing Magazine
-* The New Stack
-* Frontend Masters
-* Evil Martians
-* VoidZero
-* CSS-Tricks
-* Svelte Summit
-* Google I/O
-* Apple WWDC
-* Codrops
-* Benjamin Aster
+**Cited Sources:** Bacancy Technology, Remix Blog, Svelte Blog, NodeSource, Developer Tech, Microsoft DevBlogs, GitHub (Anime.js), Tailwind CSS Blog, Socket.dev, Storybook Blog, Chrome Developers, PPC Land, Apple Developer, WebKit Blog, Overreacted, LogRocket, Smashing Magazine, The New Stack, Frontend Masters, Evil Martians, VoidZero, CSS-Tricks, Svelte Summit, Google I/O, Apple WWDC, Codrops, Benjamin Aster

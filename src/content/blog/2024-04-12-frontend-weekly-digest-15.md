@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🗻 - Weeks 14-15"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 14 and 15 of 2024: Bun 1.1 and the Bun versus Node.js question, server-only code in Next.js, Tailwind animations and HTML tips."
 pubDate: "2024-04-12"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/jackson-sophat-wUbNvDTsOIc-unsplash.webp"
@@ -49,12 +49,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- Dev.to
-- Substack
-- Builder.io
-- Bun.sh
-- Tailwind CSS Animated
-- HTML Cheat Sheet
-- FreeCodeCamp
+**Cited Sources:** Dev.to, Substack, Builder.io, Bun.sh, Tailwind CSS Animated, HTML Cheat Sheet, FreeCodeCamp

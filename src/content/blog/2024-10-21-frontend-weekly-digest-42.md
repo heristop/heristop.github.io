@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🎍 - Week 41-42"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 41 and 42 of 2024: Deno 2.0, the VoidZero announcement, Chrome DevTools 130, ESLint for JSON and Markdown, and Cypress to Playwright."
 pubDate: "2024-10-21"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
@@ -106,10 +106,4 @@ _When you realize you left your wallet on Earth:_
 
 ---
 
-**Cited Sources:**
-
-- MDN Web Docs
-- Smashing Magazine
-- Telerik Blog
-- Chrome Developers
-- DEV.to
+**Cited Sources:** MDN Web Docs, Smashing Magazine, Telerik Blog, Chrome Developers, DEV.to

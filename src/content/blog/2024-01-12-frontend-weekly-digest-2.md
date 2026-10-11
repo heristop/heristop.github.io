@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🗻 - Week 2"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, week 2 of 2024: JavaScript's lead in 2023, the Fediverse gaining ground, how lazy loading works, web fonts and vue0 as a v0.dev alternative."
 pubDate: "2024-01-12"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -47,10 +47,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- The New Stack
-- FreeCodeCamp
-- Litmus
-- HTML Cheat Sheet
-- GitHub
+**Cited Sources:** The New Stack, FreeCodeCamp, Litmus, HTML Cheat Sheet, GitHub

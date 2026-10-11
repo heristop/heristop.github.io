@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 💮 - Weeks 22-23"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 22 and 23 of 2024: TypeScript 5.5 beta, Storybook 8.1, transitions to display: none, Chrome prerendering and microfrontend patterns."
 pubDate: "2024-06-07"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -91,21 +91,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- devblogs.microsoft.com
-- svelte.dev
-- storybook.js.org
-- blog.jiayihu.net
-- dev.to
-- medium.com
-- bitsrc.io
-- developer.chrome.com
-- logrocket.com
-- michaelnthiessen.com
-- youtube.com
-- erikheemskerk.nl
-- telerik.com
-- make.wordpress.org
-- tympanus.net
-- itnext.io
+**Cited Sources:** devblogs.microsoft.com, svelte.dev, storybook.js.org, blog.jiayihu.net, dev.to, medium.com, bitsrc.io, developer.chrome.com, logrocket.com, michaelnthiessen.com, youtube.com, erikheemskerk.nl, telerik.com, make.wordpress.org, tympanus.net, itnext.io

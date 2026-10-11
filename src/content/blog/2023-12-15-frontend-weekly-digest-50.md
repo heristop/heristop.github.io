@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 💮 - Week 50"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, week 50 of 2023: Netlify's State of Web Development report, Astro's rise in satisfaction, CSS Wrapped 2023 and Vercel monorepo support."
 pubDate: "2023-12-15"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -47,12 +47,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- Netlify
-- InfoQ
-- Computerworld
-- Chrome Developers
-- DevClass
-- Sanity.io
-- The New Stack
+**Cited Sources:** Netlify, InfoQ, Computerworld, Chrome Developers, DevClass, Sanity.io, The New Stack

@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🗻 - Summer 2025"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, summer 2025: the Angular summer update, React's use() API replacing useContext, Vue post-flush watchers, htmx and whether you need Next.js."
 pubDate: "2025-09-08"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.webp"
@@ -64,23 +64,4 @@ Summer 2025 was hot — and not just the weather. Major framework updates, new t
 
 ---
 
-**Cited Sources:**
-
-* Angular Blog
-* LogRocket
-* Michael Thiessen
-* GitHub (Front-End Checklist)
-* GitHub (JavaScript Algorithms)
-* GitHub (Awesome Node.js Security)
-* Brad Woods Layout Generator
-* SVGL App
-* Animate Icons
-* JSV9000
-* CSS-Tip
-* Theatre.js
-* JSDev Space
-* VoidZero
-* DEV Community
-* Swizec Blog
-* Curbanii Blog
-* YouTube  
+**Cited Sources:** Angular Blog, LogRocket, Michael Thiessen, GitHub (Front-End Checklist), GitHub (JavaScript Algorithms), GitHub (Awesome Node.js Security), Brad Woods Layout Generator, SVGL App, Animate Icons, JSV9000, CSS-Tip, Theatre.js, JSDev Space, VoidZero, DEV Community, Swizec Blog, Curbanii Blog, YouTube

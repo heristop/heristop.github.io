@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🍵 - Weeks 16-17"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 16 and 17 of 2024: ECMAScript 2024 takes shape, Next.js 14.2, Biome 1.7, Vue versus React and Tailwind CSS anti-patterns."
 pubDate: "2024-04-26"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -65,15 +65,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- InfoWorld
-- Dev.to
-- Next.js
-- Biome.js
-- Medium
-- OpenReplay
-- Atomic Object
-- Java Code Geeks
-- JS Naked Day
-- The New Stack
+**Cited Sources:** InfoWorld, Dev.to, Next.js, Biome.js, Medium, OpenReplay, Atomic Object, Java Code Geeks, JS Naked Day, The New Stack

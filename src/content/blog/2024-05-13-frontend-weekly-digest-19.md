@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🧘 - Weeks 18-19"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 18 and 19 of 2024: React 19 beta, ESLint 9, Angular 18 features, the Vue ecosystem in 2024 and domain-driven design with Nuxt layers."
 pubDate: "2024-05-13"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/kobu-agency-ipARHaxETRk-unsplash.webp"
@@ -89,21 +89,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- Frontend Masters
-- Vue.js Developers
-- Vue School
-- KnowledgeHut
-- React.dev
-- Coder Oasis
-- Antfu.me
-- ESLint.org
-- Chris Burnell
-- Medium
-- Atomic Object
-- Vercel
-- YouTube
-- GitConnected
-- CSS-Tip
-- Wicky Nillia
+**Cited Sources:** Frontend Masters, Vue.js Developers, Vue School, KnowledgeHut, React.dev, Coder Oasis, Antfu.me, ESLint.org, Chris Burnell, Medium, Atomic Object, Vercel, YouTube, GitConnected, CSS-Tip, Wicky Nillia

@@ -1,6 +1,6 @@
 ---
 title: "My Agents Ship Six Features in Parallel. How Do I Review Them?"
-description: "Agents can finish several user stories before I have reviewed the first. I now ask each one to deliver a short before-and-after video with its merge request, so I can see what changed before diving into the code."
+description: "Agents can finish several user stories before I have reviewed the first. Now each one delivers a short before-and-after video with its merge request."
 image: "/images/posts/2026-09-06-every-failure-here-exits-zero/before-after-banner.webp"
 pubDate: "2026-09-06"
 tags: ["ai-agents", "code-review", "playwright", "mcp", "case-study"]

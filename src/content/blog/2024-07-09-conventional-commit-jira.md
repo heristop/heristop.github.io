@@ -1,6 +1,7 @@
 ---
 title: "Implementing Conventional Commits with Jira Ticket Prefix Validation"
-description: "Learn how to set up and configure conventional commits with a customizable Jira ticket prefix in uppercase letters for better commit message practices and seamless tracking of issues and tasks."
+metaTitle: "Conventional Commits with Jira Ticket Prefix Validation"
+description: "How to set up conventional commits with a customizable uppercase Jira ticket prefix, for better commit messages and seamless tracking of issues and tasks."
 pubDate: "2024-07-09"
 conclusion: 'Remember, clear commit messages make everyone''s life easier, and linking commits to Jira tickets keeps your project organized and your team informed. And please, try to avoid being the "last commit" developer - your team will thank you! Now go forth and commit with style! 💪'
 image: "/images/posts/2024-07-09-conventional-commit-jira/banner.webp"

@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🌸 - Weeks 24-25"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 24 and 25 of 2024: Nuxt 3.12 on the road to Nuxt 4, Astro server islands, the State of JS 2023 and Angular signals versus ngOnChanges."
 pubDate: "2024-06-21"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/2024-06-21-state-of-js/state_of_js.webp"
@@ -85,16 +85,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- logrocket.com
-- stateofjs.com
-- nuxt.com
-- astro.build
-- codingfantasy.com
-- community.appsmith.com
-- dev.to
-- itnext.io
-- anthonyhobday.com
-- youtube.com
-- finout.io
+**Cited Sources:** logrocket.com, stateofjs.com, nuxt.com, astro.build, codingfantasy.com, community.appsmith.com, dev.to, itnext.io, anthonyhobday.com, youtube.com, finout.io

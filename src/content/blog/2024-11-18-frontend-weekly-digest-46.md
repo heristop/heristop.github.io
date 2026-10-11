@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🌸 - Weeks 45-46"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 45 and 46 of 2024: Angular 19 and its resource API, Storybook 8.4, WebStorm 2024.3, the new CSS logo and anchor positioning practice."
 pubDate: "2024-11-18"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-L8KQIPCODV8-unsplash.webp"
@@ -102,9 +102,4 @@ _When you need to handle responsive design on your overalls:_
 
 ---
 
-**Cited Sources:**
-
-- Dev.to
-- JetBrains Blog
-- CSS-Tricks
-- Marmelab Blog
+**Cited Sources:** Dev.to, JetBrains Blog, CSS-Tricks, Marmelab Blog

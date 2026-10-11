@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🍵 - Weeks 5-6"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 5 and 6 of 2025: Vitest 3.0, Bun 1.2, NgRx 19 signals, Rspack 1.2, React Native 0.77, Angular 19.2 streaming resources and Temporal."
 pubDate: "2025-02-10"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
@@ -81,19 +81,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- Angular Architects
-- Marmelab
-- Jacob Paris Blog
-- Dev.to
-- The New Stack
-- Bun.sh
-- Vitest
-- Rspack.dev
-- Ionic Blog
-- React Native Blog
-- TypeScript-ESLint
-- 2ality
-- ESLint Blog
-- MDN Web Docs
+**Cited Sources:** Angular Architects, Marmelab, Jacob Paris Blog, Dev.to, The New Stack, Bun.sh, Vitest, Rspack.dev, Ionic Blog, React Native Blog, TypeScript-ESLint, 2ality, ESLint Blog, MDN Web Docs

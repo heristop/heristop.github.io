@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 📰 - Week 47"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, week 47 of 2023: Vite 5.0 with Rollup 4, PHP 8.3, the latest Playwright updates and a Firefox demo of the CSS :has() selector."
 pubDate: "2023-11-24"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -39,11 +39,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- FrontTribe
-- Learner Bits
-- Vite.js
-- DevClass
-- Playwright
-- Twitter
+**Cited Sources:** FrontTribe, Learner Bits, Vite.js, DevClass, Playwright, Twitter

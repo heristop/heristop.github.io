@@ -1,5 +1,6 @@
 ---
 title: "🤖🤳 “Pix Me!”: Integrates Gemini 2.0 Flash for Next-Gen Avatar Image"
+metaTitle: "Pix Me! Integrates Gemini 2.0 Flash for Avatar Images"
 description: "Explore the magic of AI-powered image transformation with Pix Me!, a fun and free app that turns your selfies into pop culture icons."
 pubDate: "2025-03-23"
 conclusion: "Remember, in the world of Pix Me!, your face is not just your face - it's a canvas for a thousand fantastic facets of yourself. What will you discover?"

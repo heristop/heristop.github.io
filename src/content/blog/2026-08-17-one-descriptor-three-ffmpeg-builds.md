@@ -1,6 +1,6 @@
 ---
 title: "One Descriptor, Three FFmpeg Builds"
-description: "Rendering video with no server means shipping FFmpeg to Node, to WebAssembly, and statically linked into a Rust core on iOS and Android. Porting it is the easy part — the three builds don't have the same filters, or the same encoders."
+description: "Rendering video with no server means shipping FFmpeg to Node, WebAssembly and a Rust core on mobile. Porting is easy; the builds don't share the same filters."
 image: "/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/one-to-three-banner.webp"
 pubDate: "2026-08-17"
 tags: ["ffmpeg", "rust", "webassembly", "react-native", "case-study"]
@@ -14,16 +14,23 @@ Every browser-based video editor I've used does the same thing: you upload your 
 So the question behind **[LeClap](https://leclap.dev)** was narrow and testable: **can the render happen where the footage already is?** Not "mostly", not "the preview at least" — the actual encode, on the actual device, with the same engine a server would use.
 
 <div class="img-container">
-  <img
-    class="img-large"
+  <video
+    class="img-large post-video"
     style="border-radius: 0.875rem"
-    src="/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/on-device-render.gif"
-    alt="A phone composing a template on-device: tapping Create my video, FFmpeg rendering on the handset, then the finished clip playing back — no upload, no server"
+    poster="/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/on-device-render-poster.webp"
+    aria-label="A phone composing a template on-device: tapping Create my video, FFmpeg rendering on the handset, then the finished clip playing back — no upload, no server"
     width="720"
     height="406"
-    loading="lazy"
-    decoding="async"
-  />
+    muted
+    playsinline
+    loop
+    controls
+    preload="none"
+    data-motion-autoplay
+  >
+    <source src="/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/on-device-render.webm" type="video/webm" />
+    <source src="/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/on-device-render.mp4" type="video/mp4" />
+  </video>
 </div>
 
 The answer is yes — with an asterisk I'll get to. The cost is not the one I expected: I assumed the hard part would be performance. It wasn't. **The hard part is that "FFmpeg" is not one thing.** Ship it three ways and you get three different sets of filters and three different encoders, and a filter graph that works on your laptop can fail silently on a phone.
@@ -52,6 +59,8 @@ The engine defines an abstract adapter and three concrete implementations. An *a
 
 ```mermaid
 flowchart TD
+    accTitle: One descriptor, three FFmpeg builds
+    accDescr: descriptor.json feeds the engine, which checks which filters exist. With all of them it emits the FFmpeg command directly; with only the LGPL subset it swaps eq and drops boxblur first. The same command then runs on Node with libx264, in the browser with libx264, and on the phone with openh264.
     D["descriptor.json"] --> E["Engine"]
     E --> C{"Which filters exist?"}
 

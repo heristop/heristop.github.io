@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🧘 - Weeks 39-40"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 39 and 40 of 2024: Angular incremental hydration, Node.js performance hooks, server components in Nuxt and leaving useEffect alone."
 pubDate: "2024-10-07"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -106,14 +106,4 @@ _When Elon jumps, Tesla stock drops:_
 
 ---
 
-**Cited Sources:**
-
-- vueschool.io
-- dev.to
-- blog.logrocket.com
-- css-tricks.com
-- weser.io
-- medium.com
-- masteringnuxt.com
-- levelup.gitconnected.com
-- blog.openreplay.com
+**Cited Sources:** vueschool.io, dev.to, blog.logrocket.com, css-tricks.com, weser.io, medium.com, masteringnuxt.com, levelup.gitconnected.com, blog.openreplay.com

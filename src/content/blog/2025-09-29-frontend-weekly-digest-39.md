@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🍵 - Weeks 38-39"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 38 and 39 of 2025: TresJS v5, Nuxt UI v4, Reshaped goes open source, MCP UI, ViteConf 2025 and the State of JavaScript survey."
 pubDate: "2025-09-29"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
@@ -57,25 +57,4 @@ Two weeks of frontend goodness packed into one digest. Framework updates, shiny 
 
 ---
 
-**Cited Sources:**
-
-* TresJS Blog
-* Nuxt Blog
-* JavaScript Plain English
-* Reshaped Blog
-* Chonkie AI Docs
-* Tailwind CSS Animations
-* Medium (Lens.js)
-* Slidev
-* DEV Community
-* Brad Woods Layout Land
-* Ahmad Shadeed
-* React Just Parallax
-* MCP UI
-* Fliiipbook
-* State of JS Survey
-* ViteConf
-* Vue Fes Japan
-* Ironic Sans
-* Poke-Holo
-* Emil Kowalski  
+**Cited Sources:** TresJS Blog, Nuxt Blog, JavaScript Plain English, Reshaped Blog, Chonkie AI Docs, Tailwind CSS Animations, Medium (Lens.js), Slidev, DEV Community, Brad Woods Layout Land, Ahmad Shadeed, React Just Parallax, MCP UI, Fliiipbook, State of JS Survey, ViteConf, Vue Fes Japan, Ironic Sans, Poke-Holo, Emil Kowalski

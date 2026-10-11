@@ -1,6 +1,6 @@
 ---
 title: "From data to deck: frontend insights at Carrefour"
-description: "Five months after the Frontend Observatory, two new deliverables: a per-project dashboard and auto-generated slideshows scoped to each Digital Factory — deployed on GitLab Pages, exportable, ready for performance reviews."
+description: "Five months after the Frontend Observatory: a per-project dashboard and auto-generated slideshows for each Digital Factory, deployed on GitLab Pages."
 pubDate: "2026-05-26"
 image: "/images/posts/2026-05-26-gitlab-frontend-insights-df-slideshow/slideshow-banner.png"
 tags: ["case-study", "carrefour", "gitlab", "frontend", "design-system", "tooling", "tech-score"]

@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🌸 - Week 52 - 1"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest for the new year: Vue 3.4, 2024 predictions from framework maintainers, CSS nesting and cascade layers, and the case against localStorage."
 pubDate: "2024-01-04"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/paul-esch-laurent-oZMUrWFHOB4-unsplash.webp"
@@ -55,13 +55,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- The New Stack
-- Vue.js Blog
-- Frontend Focus
-- Medium
-- Builder.io
-- Dev.to
-- Permit.io
-- WebSkitters
+**Cited Sources:** The New Stack, Vue.js Blog, Frontend Focus, Medium, Builder.io, Dev.to, Permit.io, WebSkitters

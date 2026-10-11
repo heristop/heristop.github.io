@@ -1,6 +1,6 @@
 ---
 title: "When Measuring a Code Assistant Ends Up Breaking It"
-description: "Token billing for AI coding tools and token-based productivity scores are both textbook Goodhart's law — and 2026 sent the bill, from Microsoft to Anthropic itself."
+description: "Token billing for AI coding tools and token-based productivity scores are textbook Goodhart's law — and 2026 sent the bill, from Microsoft to Anthropic."
 pubDate: "2026-06-03"
 image: "/images/posts/william-warby-WahfNoqbYnM-unsplash.webp"
 tags: ["ai", "opinion", "tokens", "goodhart", "developer-productivity"]

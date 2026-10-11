@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🎍 - Week 31"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, week 31 of 2024: Svelte 5 runes, Chrome 127 DevTools, useMemo versus useCallback, clean functions and why structured data matters."
 pubDate: "2024-08-02"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
@@ -81,16 +81,4 @@ _When you try to center a div but accidentally send your surfer to the stratosph
 
 ---
 
-**Cited Sources:**
-
-- logrocket.com
-- thenewstack.io
-- webdevsimplified.com
-- developer.chrome.com
-- bram.us
-- dev.to
-- freecodecamp.org
-- uxplanet.org
-- craftbettersoftware.com
-- histoire.dev
-- builder.io
+**Cited Sources:** logrocket.com, thenewstack.io, webdevsimplified.com, developer.chrome.com, bram.us, dev.to, freecodecamp.org, uxplanet.org, craftbettersoftware.com, histoire.dev, builder.io

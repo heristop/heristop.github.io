@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🧘 - Week 48"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, week 48 of 2023: Vite moves toward Rust, the case for React Server Components, CSS container queries and animating height to auto."
 pubDate: "2023-12-01"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-hMYODfDWs9M-unsplash.webp"
@@ -51,12 +51,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- The New Stack
-- Smashing Magazine
-- Dev.to
-- MDN Web Docs
-- CSS-IRL
-- Blog du Modérateur
-- Product Hunt
+**Cited Sources:** The New Stack, Smashing Magazine, Dev.to, MDN Web Docs, CSS-IRL, Blog du Modérateur, Product Hunt

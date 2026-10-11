@@ -1,6 +1,6 @@
 ---
 title: "Frontend Development Weekly Digest 🎍 - Weeks 20-21"
-description: Sharing practical tips and the latest trends in JavaScript
+description: "Frontend digest, weeks 20 and 21 of 2024: Angular 18 release, React 19 features, the forensics of React Server Components and CSS :has() with select."
 pubDate: "2024-05-23"
 conclusion: "That's it for this week's frontend digest! What are you most excited about? Happy coding! 🚀"
 image: "/images/posts/ferenc-almasi-VPmMy8YA_cU-unsplash.webp"
@@ -81,13 +81,4 @@ tags: ["frontend", "weekly-digest", "javascript", "css"]
 
 ---
 
-**Cited Sources:**
-
-- app.daily.dev
-- dev.to
-- smashingmagazine.com
-- blog.angular.dev
-- youtube.com
-- blog.logrocket.com
-- logaretm.com
-- openreplay.com
+**Cited Sources:** app.daily.dev, dev.to, smashingmagazine.com, blog.angular.dev, youtube.com, blog.logrocket.com, logaretm.com, openreplay.com
