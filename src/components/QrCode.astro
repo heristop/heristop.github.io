@@ -56,11 +56,11 @@ const themedSvg = svg.replaceAll('stroke="#000000"', 'stroke="currentColor"');
       text-decoration: none;
     }
 
-    /* The code sits flush right on wide layouts, where a centred tooltip wider than it
-       would run past the viewport and scroll the page; align the bubble to its right edge */
+    /* The code sits flush left (the about page's QR disclosure), where a centred tooltip wider
+       than it would run past the viewport and scroll the page; align the bubble to its left edge */
     &[data-tooltip]::before {
-      left: auto;
-      right: 0;
+      left: 0;
+      right: auto;
       transform: translateY(6px);
     }
 

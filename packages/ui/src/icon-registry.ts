@@ -46,6 +46,8 @@ import {
   Volume2,
   VolumeX,
   X,
+  // About page: the QR disclosure
+  QrCode,
 } from "lucide-react";
 
 // Explicit imports keep the full Lucide catalogue out of the client bundle.
@@ -97,6 +99,8 @@ export const icons = {
   "volume-2": Volume2,
   "volume-x": VolumeX,
   x: X,
+  // About page: the QR disclosure
+  "qr-code": QrCode,
 } as const;
 
 export type IconName = keyof typeof icons;

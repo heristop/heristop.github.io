@@ -6,18 +6,18 @@ test.describe('About Page Visual Tests', () => {
     await testResponsiveScreenshots(page, '/about', 'about');
   });
 
-  test('should display social networks section correctly', async ({ page }) => {
+  test('should display the Elsewhere links correctly', async ({ page }) => {
     await page.goto('/about');
     await waitForPageLoad(page);
     await waitForImagesLoad(page);
 
-    // Focus on social networks section
-    const socialSection = page.locator('h2:has-text("Social Networks")').locator('..');
+    // Focus on the Elsewhere section
+    const socialSection = page.locator('section[aria-labelledby="about-elsewhere-heading"]');
     await socialSection.scrollIntoViewIfNeeded();
 
     await page.screenshot({
       clip: await socialSection.boundingBox() || undefined,
-      path: 'test-results/about-social-networks.png',
+      path: 'test-results/about-elsewhere.png',
     });
   });
 });

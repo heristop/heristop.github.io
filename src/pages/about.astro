@@ -2,12 +2,14 @@
 import Icon from "../components/Icon.astro";
 import Layout from "../layouts/Layout.astro";
 import QrCode from "../components/QrCode.astro";
-import SocialNetworks from "../components/SocialNetworks.astro";
 import ZenFade from "../components/zen/ZenFade.astro";
 import ZenSlide from "../components/zen/ZenSlide.astro";
 import BuyMeCoffee from "../components/client/BuyMeCoffee";
-import { LINKFOLIO_URL, BUY_ME_COFFEE_URL } from "../consts";
+import FormattedDate from "../components/FormattedDate.astro";
+import { siBluesky, siGithub, siInstagram, siX } from "simple-icons";
+import { LINKFOLIO_URL, BUY_ME_COFFEE_URL, SITE_PSEUDO, SITE_AUTHOR } from "../consts";
 import { WEBSITE_ID, absoluteUrl, person } from "../structured-data";
+import { getPublishedPosts } from "../utils/posts";
 
 // ProfilePage whose main entity is the shared author entity every post points to by @id
 const personSchema = {
@@ -18,7 +20,94 @@ const personSchema = {
   name: 'About Alexandre Mogère',
   isPartOf: { '@id': WEBSITE_ID },
   mainEntity: person,
-};---
+};
+
+// Writing: the latest essay, never a draft (even in dev) and never a weekly digest
+const DIGEST_TAG = "weekly-digest";
+const WRITING_TAGS_SHOWN = 3;
+const published = (await getPublishedPosts(false)).toSorted(
+  (a, b) => (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0),
+);
+const latestEssay = published.find((post) => !post.data.tags.includes(DIGEST_TAG));
+
+// The Now block is as fresh as the last thing published, digests included
+const nowUpdated = published[0]?.data.pubDate;
+
+// The stack the bio names, as the quiet line under Working
+const STACK = "JavaScript, TypeScript, Vue, React, Node.js, PHP, Rust and AI";
+
+// Elsewhere and Building both come from the link-in-bio config, as the projects page does
+interface LinkfolioEntry {
+  title: string;
+  description: string;
+  url: string;
+  group: string;
+}
+
+const fetchLinkfolio = async (): Promise<LinkfolioEntry[]> => {
+  try {
+    const response = await fetch(`${LINKFOLIO_URL}/api/config`);
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    const config: { socialNetworks?: LinkfolioEntry[] } = await response.json();
+    return config.socialNetworks ?? [];
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn("Unable to load remote links:", error);
+    }
+    return [];
+  }
+};
+
+const linkfolio = await fetchLinkfolio();
+const projects = linkfolio.filter((entry) => entry.group === "project");
+
+// The services' own logos, drawn in the page's ink rather than their brand colours. simple-icons
+// dropped LinkedIn at the brand's request, so its mark is inlined here.
+const LINKEDIN_PATH =
+  "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z";
+
+const NETWORKS: Record<string, { name: string; logo: string; order: number }> = {
+  X: { name: "X", logo: siX.path, order: 0 },
+  BlueSky: { name: "Bluesky", logo: siBluesky.path, order: 1 },
+  Instagram: { name: "Instagram", logo: siInstagram.path, order: 2 },
+  GitHub: { name: "GitHub", logo: siGithub.path, order: 3 },
+  LinkedIn: { name: "LinkedIn", logo: LINKEDIN_PATH, order: 4 },
+};
+
+const handleFor = (url: string) => {
+  const { hostname, pathname } = new URL(url);
+  const path = pathname.replace(/^\/|\/$/g, "");
+  if (hostname.endsWith("bsky.app")) {
+    return path.replace(/^profile\//, "");
+  }
+  if (hostname.endsWith("linkedin.com")) {
+    return path;
+  }
+  if (hostname.endsWith("github.com")) {
+    return path;
+  }
+  return `@${path}`;
+};
+
+const sentenceCase = (text: string) => text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+
+const elsewhere = linkfolio
+  .filter((entry) => entry.group === "socialnetwork")
+  .map((entry) => {
+    const network = NETWORKS[entry.title];
+    return {
+      url: entry.url,
+      name: network?.name ?? entry.title,
+      logo: network?.logo,
+      order: network?.order ?? Number.MAX_SAFE_INTEGER,
+      description: sentenceCase(entry.description),
+      handle: handleFor(entry.url),
+    };
+  })
+  .toSorted((a, b) => a.order - b.order);
+---
 
 <Layout
   title="About"
@@ -27,265 +116,644 @@ const personSchema = {
   headSchema={personSchema}
 >
   <div class="about">
-    <header class="about__intro l-wide">
-      <ZenSlide direction="up" delay={100}>
-        <div class="about__hero">
-          <img
-            class="about__avatar"
-            src="/images/avatar.webp"
-            alt="Alexandre Mogère"
-            width="112"
-            height="112"
-            loading="eager"
-            decoding="async"
-          />
-          <blockquote class="about__lead">
-            Hello, I'm <b>heristop</b>! <span class="about__wave">👋</span>
-            I'm Alexandre — a Chapter Lead / Principal Engineer based in Paris,
-            leading teams that build web applications across JavaScript, TypeScript,
-            Vue, React, Node.js, PHP, Rust, and AI.
-          </blockquote>
+    <ZenSlide direction="up" delay={100} className="l-wide">
+      <header class="about-profile">
+        <img
+          class="about__avatar"
+          src="/images/avatar.webp"
+          alt=""
+          width="96"
+          height="96"
+          loading="eager"
+          decoding="async"
+        />
+        <div class="about-profile__text">
+          <h2 class="about-profile__name">{SITE_AUTHOR}</h2>
+          <p class="about-profile__handle">@{SITE_PSEUDO}</p>
+          <p class="about-profile__role">Chapter Lead / Principal Engineer at Carrefour · Paris</p>
+          <p class="about-profile__birthday">Birthday · 4 November</p>
         </div>
-      </ZenSlide>
-    </header>
+      </header>
+      <div class="about__bio">
+        <p class="about__lead">Hello, I'm {SITE_PSEUDO}!</p>
+        <p class="about__body">
+          I lead teams that build web applications across {STACK}, and I've been writing Zazen Code
+          since 2014.
+        </p>
+      </div>
+    </ZenSlide>
 
-    <section class="about-meta l-wide" aria-labelledby="personal-info-heading">
-      <h2 class="sr-only" id="personal-info-heading">At a glance</h2>
-      <ZenSlide direction="up" delay={500}>
-        <div class="about-meta__grid">
-          <ul class="about-meta__list">
-            <li class="about-meta__item">
-              <Icon name="briefcase" size={18} aria-hidden={true} class="about-meta__icon" />
-              <span class="about-meta__content">
-                <span class="about-meta__role">Chapter Lead / Principal Engineer</span>
-                <span class="about-meta__subtitle">@Carrefour</span>
-              </span>
-            </li>
-            <li class="about-meta__item">
-              <Icon name="map-pin" size={18} aria-hidden={true} class="about-meta__icon" />
-              <span class="about-meta__text">Paris, France</span>
-            </li>
-            <li class="about-meta__item">
-              <Icon name="calendar" size={18} aria-hidden={true} class="about-meta__icon" />
-              <span class="about-meta__text">4 November</span>
-            </li>
-          </ul>
-          <div class="about-meta__qr">
-            <QrCode url={LINKFOLIO_URL} label="Link in bio" />
+    <hr data-scroll-reveal="fade" />
+
+    <ZenSlide direction="up" delay={300} className="l-wide">
+      <section class="about-now" aria-labelledby="about-now-heading">
+        <div class="about-now__header" data-scroll-reveal>
+          <h2 id="about-now-heading" class="about__heading">Now</h2>
+          {nowUpdated && (
+            <p class="about-now__updated">Updated <FormattedDate date={nowUpdated} showYear /></p>
+          )}
+        </div>
+        <dl class="about-now__list" data-scroll-reveal-group>
+          <div class="about-now__row">
+            <dt class="about-now__key">Working</dt>
+            <dd class="about-now__value">
+              <span class="about-now__title">Leading web application teams at Carrefour</span>
+              <span class="about-now__note">{STACK}</span>
+            </dd>
           </div>
-        </div>
-      </ZenSlide>
-    </section>
+          {latestEssay && (
+            <div class="about-now__row about-now__row--link">
+              <dt class="about-now__key">Writing</dt>
+              <dd class="about-now__value">
+                <a class="about-now__link about-now__title" href={`/blog/${latestEssay.id}/`}>{latestEssay.data.title}</a>
+                <span class="about-now__note about-now__note--meta">
+                  {latestEssay.data.pubDate && (
+                    <span class="about-now__date"><FormattedDate date={latestEssay.data.pubDate} showYear /></span>
+                  )}
+                  {latestEssay.data.tags.slice(0, WRITING_TAGS_SHOWN).map((tag) => (
+                    <span class="latest-posts__tag">{tag}</span>
+                  ))}
+                </span>
+                <span class="about-now__arrow" aria-hidden="true"><Icon name="arrow-right" size={14} color="currentColor" aria-hidden={true} /></span>
+              </dd>
+            </div>
+          )}
+          <div class="about-now__row about-now__row--link">
+            <dt class="about-now__key">Building</dt>
+            <dd class="about-now__value">
+              <a class="about-now__link about-now__title" href="/projects/">
+                {projects.length > 0 ? `${projects.length} side projects` : "Side projects"}
+              </a>
+              {projects.length > 0 && (
+                <span class="about-now__note">{projects.map((project) => project.title).join(", ")}</span>
+              )}
+              <span class="about-now__arrow" aria-hidden="true"><Icon name="arrow-right" size={14} color="currentColor" aria-hidden={true} /></span>
+            </dd>
+          </div>
+          <div class="about-now__row about-now__row--link">
+            <dt class="about-now__key">Daily</dt>
+            <dd class="about-now__value">
+              <a class="about-now__link about-now__title" href="/#haiku-heading">Today's haiku</a>
+              <span class="about-now__note">On the home page, from GutenKu, a new one every day</span>
+              <span class="about-now__arrow" aria-hidden="true"><Icon name="arrow-right" size={14} color="currentColor" aria-hidden={true} /></span>
+            </dd>
+          </div>
+        </dl>
+      </section>
+    </ZenSlide>
 
-    <section class="about__broadcasts l-wide" aria-labelledby="broadcasts-heading">
-      <ZenSlide direction="up" delay={700}>
-        <h2 id="broadcasts-heading" class="icon-heading social-heading">
-          <Icon name="share-2" size={20} aria-hidden={true} /> Zen Broadcasts
-        </h2>
-      </ZenSlide>
+    <hr data-scroll-reveal="fade" />
 
-      <SocialNetworks filter="socialnetwork" variant="compact" baseDelay={300} />
-    </section>
+    <ZenSlide direction="up" delay={500} className="l-wide">
+      <section class="about-elsewhere" aria-labelledby="about-elsewhere-heading">
+        <h2 id="about-elsewhere-heading" class="about__heading" data-scroll-reveal>Elsewhere</h2>
+        {elsewhere.length > 0 && (
+          <ul class="about-elsewhere__list" data-scroll-reveal-group>
+            {elsewhere.map((link) => (
+              <li class="about-elsewhere__item">
+                <a class="about-elsewhere__link" href={link.url} target="_blank" rel="me noopener noreferrer">
+                  <span class="about-elsewhere__glyph" aria-hidden="true">
+                    {link.logo ? (
+                      <svg class="about-elsewhere__logo" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" focusable="false">
+                        <path d={link.logo} />
+                      </svg>
+                    ) : (
+                      <Icon name="external-link" size={16} color="currentColor" aria-hidden={true} />
+                    )}
+                  </span>
+                  <span class="about-elsewhere__body">
+                    <span class="about-elsewhere__name">{link.name}</span>
+                    <span class="about-elsewhere__description">{link.description}</span>
+                  </span>
+                  <span class="about-elsewhere__handle">
+                    {link.handle}
+                    <Icon name="arrow-up-right" size={13} color="currentColor" class="about-elsewhere__arrow" aria-hidden={true} />
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
 
-    <ZenFade delay={900}>
-      <BuyMeCoffee client:visible url={BUY_ME_COFFEE_URL} />
+        <details class="about-qr" data-scroll-reveal>
+          <summary class="about-qr__toggle">
+            <Icon name="qr-code" size={16} color="currentColor" aria-hidden={true} />
+            <span class="about-qr__show">Show QR code</span>
+            <span class="about-qr__hide">Hide QR code</span>
+          </summary>
+          <div class="about-qr__panel">
+            <QrCode url={LINKFOLIO_URL} label="Link in bio" size={112} />
+          </div>
+        </details>
+      </section>
+    </ZenSlide>
+
+    <ZenFade delay={700}>
+      <div data-scroll-reveal="settle">
+        <BuyMeCoffee client:visible url={BUY_ME_COFFEE_URL} />
+      </div>
     </ZenFade>
   </div>
 </Layout>
 
 <style>
-  /* Vertical rhythm: generous, breathing separation between movements */
+  /* One sheet: the person, what they are doing now, where else to find them, then a quiet cup */
   .about {
+    /* The bio and the Now block share one reading column */
+    --about-measure: 42rem;
+
     display: flex;
     flex-direction: column;
-    gap: clamp(1.75rem, 5vw, 3rem);
+    gap: clamp(1.5rem, 4vw, 2.25rem);
   }
 
-  .about__intro {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(0.85rem, 2.5vw, 1.25rem);
+  .about hr {
+    margin-block: 0;
   }
 
-  /* Portrait + lead: stacked on mobile, side-by-side from 40rem up */
-  .about__hero {
+  /* ── Profile ── */
+  .about-profile {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: clamp(0.9rem, 3vw, 1.4rem);
+    align-items: center;
+    gap: clamp(1rem, 3vw, 1.4rem);
   }
 
   .about__avatar {
     flex-shrink: 0;
-    width: clamp(4.75rem, 13vw, 7rem);
-    height: clamp(4.75rem, 13vw, 7rem);
+    width: 6rem;
+    height: 6rem;
     object-fit: cover;
     border-radius: 50%;
     border: 2px solid var(--surface-glass-strong);
     box-shadow:
       0 14px 28px -16px color-mix(in oklch, var(--primary-color) 45%, transparent),
       var(--shadow-sm);
-    transition:
-      transform 520ms var(--zen-ease-elegant),
-      box-shadow 520ms var(--zen-ease-elegant);
   }
 
-  .about__avatar:hover {
-    transform: translateY(-2px) scale(1.03);
-    box-shadow:
-      0 18px 34px -14px color-mix(in oklch, var(--primary-color) 55%, transparent),
-      var(--shadow-md);
+  .about-profile__text {
+    min-width: 0;
   }
 
-  @media screen and (width >= 40rem) {
-    .about__hero {
-      flex-direction: row;
-      align-items: center;
-      gap: clamp(1.1rem, 3vw, 1.75rem);
-    }
-
-    .about__lead {
-      flex: 1;
-    }
+  .about-profile__name {
+    margin: 0;
+    font-size: clamp(1.35rem, 3.5vw, 1.6rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--heading-color);
   }
 
-  /* The global blockquote is a wrapping flex row, which splits this sentence into fragments */
+  .about-profile__handle,
+  .about-profile__role,
+  .about-profile__birthday {
+    margin: 0;
+  }
+
+  .about-profile__handle {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--primary-color);
+  }
+
+  .about-profile__role {
+    margin-block-start: 0.35rem;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: var(--text-secondary);
+  }
+
+  .about-profile__birthday {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+  }
+
+  /* The greeting is the lead, the rest one comfortable paragraph at reading measure */
+  .about__bio {
+    max-width: var(--about-measure);
+    margin-block-start: clamp(1.25rem, 3vw, 1.75rem);
+  }
+
+  .about__lead,
+  .about__body {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
   .about__lead {
-    display: block;
+    font-size: clamp(1.15rem, 2.4vw, 1.3rem);
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+    color: var(--heading-color);
+  }
+
+  .about__body {
+    margin-block-start: 0.4rem;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--text-on-surface);
+  }
+
+  @media screen and (width < 30rem) {
+    .about__avatar {
+      width: 4.5rem;
+      height: 4.5rem;
+    }
+  }
+
+  /* ── Section titles: small, quiet, the content carries the weight ── */
+  .about__heading {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--heading-color);
+  }
+
+  /* ── Now: four rows of one shape (a mono key with its dot, a title, a quiet line), held to the
+     bio's measure. Linked rows are the link, tinted on hover like the blog index. ── */
+  .about-now {
+    --now-pad-x: 0.75rem;
+    --now-key-w: 6.25rem;
+
+    max-width: var(--about-measure);
+  }
+
+  .about-now__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    margin-block-end: 0.5rem;
+  }
+
+  .about-now__header .about__heading {
+    margin: 0;
+  }
+
+  .about-now__updated {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-label);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+  }
+
+  .about-now__list {
+    margin: 0;
+    margin-inline: calc(var(--now-pad-x) * -1);
+  }
+
+  .about-now__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--now-key-w) minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: 1rem;
+    padding: 0.85rem var(--now-pad-x);
+    border-radius: var(--radius-lg);
+    transition:
+      background-color var(--motion-micro) var(--zen-ease-out),
+      scale var(--motion-micro) var(--zen-ease-out);
+  }
+
+  /* Hairlines sit between rows only, inset to the text, and step aside for a tinted row */
+  .about-now__row + .about-now__row::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: var(--now-pad-x);
+    height: 1px;
+    background: color-mix(in oklch, var(--hr-color) 22%, transparent);
+    transition: opacity var(--motion-micro) var(--zen-ease-out);
+  }
+
+  .about-now__key {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-label);
+    font-weight: 500;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--text-secondary);
+  }
+
+  .about-now__key::before {
+    content: "";
+    flex-shrink: 0;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background: color-mix(in oklch, var(--primary-color) 45%, transparent);
+    transition: background-color var(--motion-small) var(--zen-ease-out);
+  }
+
+  .about-now__value {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 0.75rem;
+    min-width: 0;
+    margin: 0;
+  }
+
+  .about-now__title,
+  .about-now__note {
+    grid-column: 1;
+  }
+
+  .about-now__title {
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--heading-color);
+    text-wrap: pretty;
+  }
+
+  /* Static, so its stretched ::after measures the row rather than the link (global a is relative) */
+  .about-now__link {
+    position: static;
+    text-decoration: none;
+    transition: color var(--motion-small) var(--zen-ease-out);
+  }
+
+  /* The whole row answers the link */
+  .about-now__link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: var(--radius-lg);
+  }
+
+  .about-now__link:focus-visible {
+    outline: none;
+  }
+
+  .about-now__link:focus-visible::after {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .about-now__note {
+    margin-block-start: 0.2rem;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  .about-now__note--meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .about-now__date {
+    margin-inline-end: 0.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+
+  .about-now__arrow {
+    display: inline-flex;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    transition:
+      transform var(--motion-small) var(--zen-ease-out),
+      color var(--motion-small) var(--zen-ease-out),
+      opacity var(--motion-small) var(--zen-ease-out);
+  }
+
+  .about-now__row--link:is(:hover, :focus-within) {
+    background-color: color-mix(in oklch, var(--primary-color) 6%, transparent);
+  }
+
+  .about-now__row--link:is(:hover, :focus-within)::before,
+  .about-now__row--link:is(:hover, :focus-within) + .about-now__row::before {
+    opacity: 0;
+  }
+
+  .about-now__row--link:is(:hover, :focus-within) .about-now__link {
+    color: var(--link-color-secondary);
+  }
+
+  .about-now__row--link:is(:hover, :focus-within) .about-now__key::before {
+    background: var(--primary-color);
+  }
+
+  .about-now__row--link:is(:hover, :focus-within) .about-now__arrow {
+    color: var(--primary-color);
+    opacity: 1;
+    transform: translateX(3px);
+  }
+
+  .about-now__row--link:is(:hover, :focus-within) .latest-posts__tag {
+    border-color: color-mix(in oklch, var(--primary-color) 28%, transparent);
+    background: color-mix(in oklch, var(--primary-color) 12%, transparent);
+    color: var(--primary-color);
+  }
+
+  /* Phones: the key becomes a caption over its title */
+  @media screen and (width < 30rem) {
+    .about-now__row {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 0.3rem;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .about__avatar:hover {
+    .about-now__row--link:is(:hover, :focus-within) .about-now__arrow {
       transform: none;
     }
   }
 
-  .about__wave {
-    display: inline-block;
-    font-size: 1.1em;
-    transform-origin: 70% 80%;
-    animation: wave 1.8s ease-in-out 1;
+  /* ── Elsewhere: one list, monochrome glyphs, handles on the right ── */
+  .about-elsewhere__list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .about__wave {
-      animation: none;
+  @media screen and (width >= 48rem) {
+    .about-elsewhere__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  /* Coordinates card — balances the QR, left-aligned rows, no nested cards.
-     Namespaced as .about-meta to avoid the homepage's shared .about-info styles. */
-  .about-meta__grid {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: clamp(0.75rem, 2vw, 1rem);
+  .about-elsewhere__item {
+    border-bottom: 1px solid color-mix(in oklch, var(--hr-color) 22%, transparent);
   }
 
-  .about-meta__list {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.85rem;
-    margin: 0;
-    padding: clamp(1rem, 3vw, 1.35rem) clamp(1.1rem, 3.5vw, 1.5rem);
-    list-style: none;
-    background: var(--surface-card);
-    border: 1px solid var(--surface-glass-strong);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .about-meta__item {
-    display: flex;
+  .about-elsewhere__link {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr) auto;
     align-items: center;
-    gap: 0.7rem;
-    color: var(--text-on-surface);
+    gap: 0.8rem;
+    min-height: 2.75rem;
+    padding: 0.65rem 0.5rem;
+    margin-inline: -0.5rem;
+    border-radius: var(--radius-lg);
+    color: inherit;
+    text-decoration: none;
+    transition: background-color var(--motion-small) var(--zen-ease-out);
   }
 
-  .about-meta__icon {
-    flex-shrink: 0;
+  .about-elsewhere__link:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 0;
+  }
+
+  .about-elsewhere__glyph {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: color-mix(in oklch, var(--primary-color) 11%, transparent);
     color: var(--primary-color);
+    transition:
+      background-color var(--motion-small) var(--zen-ease-out),
+      color var(--motion-small) var(--zen-ease-out);
   }
 
-  .about-meta__content {
+  .about-elsewhere__body {
     display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0.4rem;
+    flex-direction: column;
+    min-width: 0;
   }
 
-  .about-meta__role {
+  .about-elsewhere__name {
+    font-size: 0.95rem;
     font-weight: 700;
+    line-height: 1.35;
     color: var(--heading-color);
   }
 
-  .about-meta__subtitle,
-  .about-meta__text {
+  .about-elsewhere__description {
+    font-size: 0.8rem;
+    line-height: 1.4;
     color: var(--text-secondary);
   }
 
-  .about-meta__qr {
-    display: flex;
-    justify-content: center;
+  .about-elsewhere__handle {
+    display: inline-flex;
     align-items: center;
+    gap: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
   }
 
-  @media screen and (width >= 40rem) {
-    .about-meta__grid {
-      flex-direction: row;
-      align-items: stretch;
+  .about-elsewhere__arrow {
+    flex-shrink: 0;
+    transition: transform var(--motion-small) var(--zen-ease-out);
+  }
+
+  .about-elsewhere__link:hover {
+    background: color-mix(in oklch, var(--primary-color) 6%, transparent);
+  }
+
+  .about-elsewhere__link:hover .about-elsewhere__glyph {
+    background: var(--primary-color);
+    color: var(--primary-bg-color);
+  }
+
+  .about-elsewhere__link:hover .about-elsewhere__arrow {
+    transform: translate(2px, -2px);
+  }
+
+  /* Phones: the handle drops under the description so long ones never squeeze the name */
+  @media screen and (width < 30rem) {
+    .about-elsewhere__link {
+      grid-template-columns: 2.25rem minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      row-gap: 0.1rem;
     }
 
-    .about-meta__qr {
-      flex-shrink: 0;
+    .about-elsewhere__glyph {
+      grid-row: span 2;
+    }
+
+    .about-elsewhere__handle {
+      grid-column: 2;
     }
   }
 
-  .about__broadcasts {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  /* ── QR code, on request ── */
+  .about-qr {
+    margin-top: 1rem;
   }
 
-  @keyframes wave {
-    0%,
-    100% {
-      transform: rotate(0deg);
+  .about-qr__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    padding-inline: 0.25rem;
+    margin-inline: -0.25rem;
+    border-radius: var(--radius-md);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .about-qr__toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .about-qr__toggle:hover {
+    color: var(--heading-color);
+  }
+
+  .about-qr__toggle:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .about-qr__hide,
+  .about-qr[open] .about-qr__show {
+    display: none;
+  }
+
+  .about-qr[open] .about-qr__hide {
+    display: inline;
+  }
+
+  .about-qr__panel {
+    padding: 0.5rem 0 0.25rem;
+    animation: about-qr-in var(--motion-small) var(--zen-ease-out);
+  }
+
+  @keyframes about-qr-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
     }
-    20%,
-    60% {
-      transform: rotate(-25deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .about-elsewhere__link:hover .about-elsewhere__arrow {
+      transform: none;
     }
-    40%,
-    80% {
-      transform: rotate(25deg);
+
+    .about-qr__panel {
+      animation: none;
     }
   }
 </style>
-
-<script>
-  const armWave = () => {
-    const waveEmoji = document.querySelector(".about__wave") as HTMLElement | null;
-    // astro:page-load also fires on the first load; bind once per element
-    if (!waveEmoji || waveEmoji.dataset.waveBound) {
-      return;
-    }
-    waveEmoji.dataset.waveBound = "true";
-
-    waveEmoji.addEventListener("mouseenter", () => {
-      // Inline animation would override the reduced-motion rule in CSS
-      if (globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        return;
-      }
-      waveEmoji.style.animation = "none";
-      setTimeout(() => {
-        waveEmoji.style.animation = "wave 1.8s ease-in-out 3";
-      }, 10);
-    });
-  };
-
-  armWave();
-  document.addEventListener("astro:page-load", armWave);
-</script>
