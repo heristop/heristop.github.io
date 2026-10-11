@@ -259,9 +259,6 @@ const elsewhere = linkfolio
 <style>
   /* One sheet: the person, what they are doing now, where else to find them, then a quiet cup */
   .about {
-    /* The bio and the Now block share one reading column */
-    --about-measure: 42rem;
-
     display: flex;
     flex-direction: column;
     gap: clamp(1.5rem, 4vw, 2.25rem);
@@ -326,9 +323,9 @@ const elsewhere = linkfolio
     color: var(--text-secondary);
   }
 
-  /* The greeting is the lead, the rest one comfortable paragraph at reading measure */
+  /* The greeting is the lead, the rest one paragraph. Every section of the sheet shares the page's
+     column, so the bio, Now and Elsewhere start and end on the same edges */
   .about__bio {
-    max-width: var(--about-measure);
     margin-block-start: clamp(1.25rem, 3vw, 1.75rem);
   }
 
@@ -348,7 +345,7 @@ const elsewhere = linkfolio
 
   .about__body {
     margin-block-start: 0.4rem;
-    font-size: 1rem;
+    font-size: 1.0625rem;
     line-height: 1.75;
     color: var(--text-on-surface);
   }
@@ -370,12 +367,10 @@ const elsewhere = linkfolio
   }
 
   /* ── Now: four rows of one shape (a mono key with its dot, a title, a quiet line), held to the
-     bio's measure. Linked rows are the link, tinted on hover like the blog index. ── */
+     page's column like Elsewhere. Linked rows are the link, tinted on hover like the blog index. ── */
   .about-now {
     --now-pad-x: 0.75rem;
     --now-key-w: 6.25rem;
-
-    max-width: var(--about-measure);
   }
 
   .about-now__header {
