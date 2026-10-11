@@ -664,13 +664,17 @@
     display: block;
   }
 
+  /* A caption under the card: as wide as the card it captions, centred on it, set as a sentence
+     (label tracking is for uppercase labels, not running text) */
   &__credit {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
+    display: block;
+    width: min(18rem, 100%);
     font-size: 0.8rem;
+    line-height: 1.5;
     color: var(--text-secondary);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.01em;
+    text-align: center;
+    text-wrap: balance;
     margin-top: 0.5rem;
 
     a {

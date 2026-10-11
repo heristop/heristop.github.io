@@ -70,7 +70,7 @@ describe("renderNoResults", () => {
     const container = document.createElement("div");
     container.textContent = "previous";
     renderNoResults("astro", container);
-    expect(container.textContent).toContain(`No reflections found for "astro"`);
+    expect(container.textContent).toContain("No reflections found for “astro”");
     expect(container.querySelector(".search-empty")).toBeTruthy();
   });
 });
@@ -174,7 +174,7 @@ describe("describeSearchResults", () => {
   });
 
   it("names the query when nothing matches", () => {
-    expect(describeSearchResults(0, "astro")).toBe(`No reflections found for "astro"`);
+    expect(describeSearchResults(0, "astro")).toBe("No reflections found for “astro”");
   });
 });
 

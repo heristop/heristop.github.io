@@ -13,8 +13,11 @@ interface Props {
   url: string;
 }
 
-const SIMPLE_APPEAR_DELAY_MS = 80;
+// Same two-frame beat as the full reveal (use-haiku-animation.ts)
+const SIMPLE_APPEAR_DELAY_MS = 34;
 const SIMPLE_FADE_DURATION_MS = 420;
+// A stalled request must not leave the skeleton shimmering forever; past this the fallback shows
+const HAIKU_FETCH_TIMEOUT_MS = 8000;
 
 const HaikuSkeleton = () => (
   <div className="haiku-skeleton" aria-hidden="true">
@@ -71,7 +74,9 @@ const useHaikuFetch = (url: string) => {
   useEffect(() => {
     const fetchHaiku = async () => {
       try {
-        const res = await fetch(`${url}?t=${Date.now()}`);
+        const res = await fetch(`${url}?t=${Date.now()}`, {
+          signal: AbortSignal.timeout(HAIKU_FETCH_TIMEOUT_MS),
+        });
         if (!res.ok) { throw new Error("Failed to fetch haiku"); }
         const value = await res.text();
         setText(value.trim());
@@ -323,7 +328,7 @@ const getSimpleFadeStyle = (appeared: boolean, reducedMotion: boolean): React.CS
 /* aria-label is ignored on a plain div, so the verse is read from visually hidden text exactly
    once while the animated glyphs stay aria-hidden */
 const HaikuSpokenText = ({ text }: { text: string | undefined }) => (
-  <span className="sr-only">{text ?? "Loading today's verse..."}</span>
+  <span className="sr-only">{text ?? "Loading today’s verse…"}</span>
 );
 
 const SimpleHaikuReveal = ({ url }: Props) => {

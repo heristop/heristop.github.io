@@ -648,13 +648,17 @@ const breadcrumbItems = [
 <style>
   /* Dev-only preview marker; never rendered in a production build */
   .post-page__draft {
+    /* Last in the row at every width: the reading time is re-ordered from 40rem */
+    order: 3;
     align-self: center;
-    padding: 0.1rem 0.55rem;
-    border: 1px dashed currentColor;
+    padding: 0.125rem 0.55rem;
+    border: 1px dashed color-mix(in oklch, var(--primary-color) 55%, transparent);
     border-radius: 999px;
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
+    color: var(--primary-color);
+    font-size: var(--font-size-label);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    line-height: 1.4;
     text-transform: uppercase;
-    opacity: 0.8;
   }
 </style>

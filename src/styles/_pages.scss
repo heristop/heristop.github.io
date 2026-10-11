@@ -202,35 +202,11 @@
         0 1px 2px oklch(0% 0 0deg / 5%),
         0 4px 12px -4px oklch(18% 0.03 350deg / 8%);
 
-      &::before {
-        content: "";
-        position: absolute;
-        top: 20%;
-        bottom: 20%;
-        left: 0;
-        width: 2px;
-        background: linear-gradient(
-          180deg,
-          transparent,
-          color-mix(in oklch, var(--primary-color) 35%, transparent) 30%,
-          color-mix(in oklch, var(--primary-color) 35%, transparent) 70%,
-          transparent
-        );
-        border-radius: 1px;
-        z-index: 2;
-        opacity: 0.5;
-        transition: opacity 500ms var(--zen-ease-gentle);
-      }
-
       &:hover,
       &:focus-within {
         box-shadow:
           0 2px 4px oklch(0% 0 0deg / 7%),
           0 12px 28px -6px oklch(18% 0.03 350deg / 14%);
-
-        &::before {
-          opacity: 1;
-        }
 
         .social-network__image {
           transform: scale(1.03);
@@ -411,8 +387,9 @@
       object-position: center;
     }
 
+    /* Same inset as the featured tiles, so every title in the bento starts on one line */
     .social-network__card--standard .social-network__content {
-      padding: 0.75rem 0.85rem 0.85rem;
+      padding: 0.85rem 1.15rem 1rem;
     }
   }
 }
@@ -470,9 +447,12 @@
     color: var(--text-on-surface);
     border: 1px solid transparent;
     border-radius: 9999px;
+
+    /* The rose arrives on the pointer, not a beat later (ease-out, micro) */
     transition:
-      background-color var(--motion-page) ease-in-out,
-      color var(--motion-page) ease-in-out;
+      background-color var(--motion-micro) var(--motion-ease-out),
+      color var(--motion-micro) var(--motion-ease-out),
+      scale var(--motion-micro) var(--motion-ease-out);
     font-size: 0.75rem;
 
     &:hover {
@@ -483,6 +463,11 @@
         transform: scale(1.1);
         filter: var(--icon-on-primary-filter);
       }
+    }
+
+    /* Same press as the touch layer (_touch.scss), so a mouse click is answered too */
+    &:active {
+      scale: 0.97;
     }
 
     &:focus-visible {
@@ -509,7 +494,11 @@
   &__icon {
     width: 1.2rem;
     height: 1.2rem;
-    transition: transform var(--motion-page) ease-in-out;
+
+    /* The glyph's ink turns with the pill instead of flipping before the rose has arrived */
+    transition:
+      transform var(--motion-small) var(--motion-ease-out),
+      filter var(--motion-micro) var(--motion-ease-out);
 
     &--with-text {
       width: 1rem;
@@ -563,7 +552,8 @@
     transition:
       transform var(--motion-page) var(--zen-ease-elegant),
       box-shadow var(--motion-page) var(--zen-ease-elegant),
-      background var(--motion-page) var(--zen-ease-elegant);
+      background var(--motion-page) var(--zen-ease-elegant),
+      scale var(--motion-micro) var(--motion-ease-out);
 
     .social-share__icon {
       filter: var(--icon-on-primary-filter);

@@ -14,8 +14,8 @@
 
   /* Close is quicker than open: dismissal shouldn't hold the page hostage */
   transition:
-    opacity var(--motion-micro) ease-in,
-    visibility 0s linear 150ms;
+    opacity var(--motion-exit) var(--motion-ease-exit),
+    visibility 0s linear var(--motion-exit);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -47,7 +47,7 @@
   width: 100%;
   transform: translateY(-8px) scale(0.98);
   transform-origin: top center;
-  transition: transform var(--motion-micro) ease-in;
+  transition: transform var(--motion-exit) var(--motion-ease-exit);
 
   .search-overlay--open & {
     transform: none;
@@ -299,7 +299,7 @@
   justify-content: center;
   padding: 3rem 2rem;
   text-align: center;
-  color: color-mix(in oklch, var(--text-secondary) 80%, transparent);
+  color: var(--text-secondary);
 
   &-icon {
     margin-bottom: 1rem;
@@ -312,6 +312,12 @@
     font-size: 0.95rem;
     font-weight: 400;
     line-height: 1.5;
+  }
+
+  /* The way on, one step quieter than the verdict above it */
+  p.search-empty__hint {
+    margin-top: 0.35rem;
+    font-size: 0.82rem;
   }
 
   @media (width <= 480px) {

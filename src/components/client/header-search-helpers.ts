@@ -99,7 +99,7 @@ const describeSearchResults = (count: number, query: string): string => {
     return "";
   }
   if (count === 0) {
-    return `No reflections found for "${query}"`;
+    return `No reflections found for “${query}”`;
   }
   return count === 1 ? "1 reflection found" : `${count} reflections found`;
 };
@@ -262,8 +262,12 @@ const renderNoResults = (query: string, searchResults: HTMLElement): void => {
   inner.className = "search-empty";
   inner.append(createNoResultsSvg());
   const paragraph = document.createElement("p");
-  paragraph.textContent = `No reflections found for "${query}"`;
-  inner.append(paragraph);
+  paragraph.textContent = `No reflections found for “${query}”`;
+  // A dead end offers a way on: titles and tags are what the search reads
+  const hint = document.createElement("p");
+  hint.className = "search-empty__hint";
+  hint.textContent = "Try a shorter word, or a tag such as css or ai.";
+  inner.append(paragraph, hint);
   emptyDiv.append(inner);
   searchResults.replaceChildren(emptyDiv);
 };
@@ -276,7 +280,7 @@ const showEmptyState = (searchResults: HTMLElement): void => {
   /* Static SVG icon (compile-time constant) - safe to set via innerHTML. */
   inner.innerHTML = SEARCH_EMPTY_SVG;
   const paragraph = document.createElement("p");
-  paragraph.textContent = "Start typing to search reflections...";
+  paragraph.textContent = "Start typing to search reflections…";
   inner.append(paragraph);
   wrapper.append(inner);
   searchResults.replaceChildren(wrapper);

@@ -53,7 +53,23 @@ h4 {
   font-family: Comfortaa, sans-serif;
   font-weight: 700;
   color: var(--heading-color);
+  text-wrap: balance;
   transition: color var(--motion-page) var(--zen-ease-out);
+}
+
+/* Running text never ends a paragraph on a lone word */
+p,
+li,
+blockquote,
+figcaption,
+dd {
+  text-wrap: pretty;
+}
+
+/* A rose wash, not the OS blue: selection reads as the accent on paper too (night is in _themes) */
+::selection {
+  background: color-mix(in oklch, var(--primary-color) 22%, transparent);
+  color: var(--heading-color);
 }
 
 /* Tracking tightens and leading closes as size grows */

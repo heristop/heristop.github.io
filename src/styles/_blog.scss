@@ -1253,8 +1253,9 @@ tbody tr:hover {
 
 /* Mermaid diagrams. rehype-mermaid emits inline SVG at build time (see astro.config.mjs), wrapped
    in a <p> by the markdown pipeline, so the frame lives on the svg itself rather than a container
-   we do not control. Colours come from the --mermaid-* tokens in _mermaid.scss; everything here is layout. */
-svg[aria-roledescription^="flowchart"] {
+   we do not control. Colours come from the --mermaid-* tokens in _mermaid.scss; everything here is layout.
+   Matched by mermaid's own class: the a11y plugin swaps aria-roledescription for role="img". */
+svg.flowchart[id^="mermaid-"] {
   display: block;
   width: 100%;
   max-width: 30rem;
@@ -1271,12 +1272,11 @@ svg[aria-roledescription^="flowchart"] {
   /* Edge labels ship an opaque background that shows as a pale box over the connector. */
   .edgeLabel {
     color: var(--text-secondary);
-    font-size: 0.8em;
   }
 }
 
 @media screen and (width < 40rem) {
-  svg[aria-roledescription^="flowchart"] {
+  svg.flowchart[id^="mermaid-"] {
     padding: var(--space-md);
   }
 }
@@ -1495,6 +1495,27 @@ svg[aria-roledescription^="flowchart"] {
   }
 }
 
+/* The outline unfolds from the summary instead of appearing whole: it settles down a few pixels as
+   it inks in, and on closing lifts away on the exit beat before the space is given back. Opacity
+   and translate only, so the panel's height still changes in a single step. */
+.post-page > .post-toc--inline::details-content {
+  opacity: 0;
+  translate: 0 calc(var(--motion-travel-y) * -1);
+  transition:
+    opacity var(--motion-exit) var(--motion-ease-exit),
+    translate var(--motion-exit) var(--motion-ease-exit),
+    content-visibility var(--motion-exit) allow-discrete;
+}
+
+.post-page > .post-toc--inline[open]::details-content {
+  opacity: 1;
+  translate: none;
+  transition:
+    opacity var(--motion-small) var(--motion-ease-out),
+    translate var(--motion-small) var(--motion-ease-out),
+    content-visibility var(--motion-small) allow-discrete;
+}
+
 .post-page > .post-toc--rail {
   display: none;
 }
@@ -1563,4 +1584,111 @@ svg[aria-roledescription^="flowchart"] {
   white-space: normal;
   text-wrap: balance;
   line-height: 1.35;
+}
+
+/* ── Print: an article on paper is the prose and its figures, in ink on white. Night tokens step
+   back to the paper ones, the chrome (navigation, sharing, outline, pager, footer) stays on
+   screen, and external links spell out where they lead. Code keeps its lacquer so its light
+   tokens stay legible instead of printing pale on white. ── */
+@media print {
+  @page {
+    margin: 16mm 18mm;
+  }
+
+  /* Doubled :root outweighs both the night scope and :root[data-theme="dark"], so paper wins in
+     either theme */
+  html:root:root {
+    --primary-color: oklch(42% 0.13 358deg);
+    --link-color: var(--primary-color);
+    --link-color-secondary: var(--primary-color);
+    --heading-color: oklch(26% 0.1 355deg);
+    --text-color: oklch(20% 0.01 55deg);
+    --text-secondary: oklch(38% 0.01 55deg);
+    --primary-bg-color: oklch(100% 0 0deg);
+    --surface-warm: oklch(100% 0 0deg);
+    --surface-popover: oklch(100% 0 0deg);
+    --surface-card-solid: oklch(100% 0 0deg);
+    --table-border: oklch(85% 0.005 250deg);
+
+    color-scheme: light;
+    background: var(--primary-bg-color);
+  }
+
+  html:root body {
+    background: none;
+    color: var(--text-color);
+  }
+
+  body::before,
+  .skip-link,
+  .site-header-nav,
+  .header__nav-initial,
+  .sakura-layer,
+  .search-overlay,
+  .reading-progress,
+  .scroll-to-top,
+  .post-navigation-indicators,
+  .post-page__back,
+  .post-page__share,
+  .post-page__share-bottom,
+  .post-toc,
+  .post-page__pager,
+  .recommended-posts__divider,
+  .recommended-posts__heading,
+  .recommended-posts > ul,
+  .site-footer {
+    display: none !important;
+  }
+
+  .site-layout {
+    max-width: none;
+    margin: 0;
+  }
+
+  .site-header__banner {
+    box-shadow: none;
+  }
+
+  html:root .post-page {
+    --prose-color: oklch(18% 0.01 15deg);
+
+    font-size: 11pt;
+    line-height: 1.55;
+  }
+
+  .post-page :is(h2, h3, h4) {
+    break-after: avoid;
+  }
+
+  .post-page :is(pre, figure, blockquote, table, img, .mermaid-wide) {
+    break-inside: avoid;
+  }
+
+  .post-page :is(p, li) {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .post-page pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    print-color-adjust: exact;
+  }
+
+  .post-page :is(p, li) > a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    position: static;
+    width: auto;
+    height: auto;
+    background: none;
+    transform: none;
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+  }
+
+  .post-page__endquote {
+    box-shadow: none;
+    background: none;
+  }
 }
