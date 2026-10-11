@@ -1,0 +1,49 @@
+---
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+// Astro reads heading text after the permalink "#" has been appended to it
+const sections = headings
+  .filter((heading) => heading.depth === 2)
+  .map((heading) => ({ slug: heading.slug, text: heading.text.replace(/#\s*$/, "").trim() }));
+---
+
+{/* Two renderings of one outline, only one displayed at a time (so only one is in the
+    accessibility tree): a disclosure in the reading flow below 90rem, a sticky rail in the right
+    gutter from 90rem up. Both are kept in sync by post-toc.ts. */}
+<details class="post-toc post-toc--inline" data-post-toc>
+  <summary class="post-toc__summary">In this piece</summary>
+  <nav aria-label="In this piece">
+    <ol class="post-toc__list" role="list">
+      {sections.map((section) => (
+        <li class="post-toc__item">
+          <a class="post-toc__link" href={`#${section.slug}`} data-toc-slug={section.slug}>
+            {section.text}
+          </a>
+        </li>
+      ))}
+    </ol>
+    <span class="post-toc__tick" aria-hidden="true"></span>
+  </nav>
+</details>
+
+<div class="post-toc post-toc--rail" data-post-toc>
+  <nav class="post-toc__rail" aria-label="In this piece">
+    <p class="post-toc__title" aria-hidden="true">In this piece</p>
+    <ol class="post-toc__list" role="list">
+      {sections.map((section) => (
+        <li class="post-toc__item">
+          <a class="post-toc__link" href={`#${section.slug}`} data-toc-slug={section.slug}>
+            {section.text}
+          </a>
+        </li>
+      ))}
+    </ol>
+    <span class="post-toc__tick" aria-hidden="true"></span>
+  </nav>
+</div>
