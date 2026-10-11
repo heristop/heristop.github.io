@@ -17,7 +17,7 @@ So the question behind **[LeClap](https://leclap.dev)** was narrow and testable:
   <figure class="img-figure">
     <video
       class="img-large post-video"
-      style="border-radius: 0.875rem"
+      style="border-radius: 0.875rem; width: 100%"
       poster="/images/posts/2026-08-17-one-descriptor-three-ffmpeg-builds/leclap-v3-poster.webp"
       aria-label="The launch film for LeClap's engine, ffmpeg-video-composer v3: text cards laid out like a web page, sound effects, word-by-word captions, one template in three formats, the builder writing a template from a sentence, a render on the phone, then a wall of the built-in effects"
       width="1280"
