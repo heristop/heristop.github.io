@@ -323,6 +323,18 @@
     max-width: none;
   }
 
+  /* A link inside running text needs more than colour to stand out (1.4.1): a quiet static hairline,
+     which firms up on hover; no animated sweep */
+  :is(p, li, blockquote, td, figcaption) > a:not([class]) {
+    text-decoration: underline 1px color-mix(in oklch, currentcolor 40%, transparent);
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color var(--motion-small) var(--zen-ease-out), color var(--motion-page) var(--zen-ease-out);
+
+    &:hover {
+      text-decoration-color: currentcolor;
+    }
+  }
+
   > :where(.post-page__meta, .post-page__tags-slot) {
     max-width: var(--masthead-measure);
   }
