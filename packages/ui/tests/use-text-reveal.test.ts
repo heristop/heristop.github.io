@@ -4,12 +4,15 @@ import type { LayoutLine } from "@chenglou/pretext";
 
 const {
   buildCharDrifts,
+  buildTitleCharDrifts,
   buildWordDrifts,
   getCharClass,
   getSmokeClass,
   getSmokeStyle,
   maxAnimationEnd,
   seededRandom,
+  TITLE_REVEAL_TIMING,
+  titleTransitionName,
 } = textReveal;
 
 const makeLine = (text: string): LayoutLine => ({
@@ -114,5 +117,37 @@ describe("getSmokeStyle", () => {
     expect(style["--drift-x"]).toMatch(/px$/);
     expect(style["--char-duration"]).toMatch(/ms$/);
     expect(style.display).toBe("inline-block");
+  });
+});
+
+describe("buildTitleCharDrifts", () => {
+  it("lands a long title within the shared ~600ms budget", () => {
+    const long = "x".repeat(120);
+    const drifts = buildTitleCharDrifts([makeLine(long.slice(0, 60)), makeLine(long.slice(60))]);
+    const budget = TITLE_REVEAL_TIMING.charStaggerBudgetMs + TITLE_REVEAL_TIMING.durationMs;
+    expect(maxAnimationEnd(drifts)).toBeLessThanOrEqual(budget);
+  });
+
+  it("keeps drift, rotation and blur within the title limits", () => {
+    for (const drift of buildTitleCharDrifts([makeLine("A quiet title")]).flat()) {
+      expect(Math.abs(drift.driftX)).toBeLessThanOrEqual(TITLE_REVEAL_TIMING.driftXPx);
+      expect(drift.driftY).toBeLessThanOrEqual(-TITLE_REVEAL_TIMING.driftYMinPx);
+      expect(drift.driftY).toBeGreaterThanOrEqual(-TITLE_REVEAL_TIMING.driftYMaxPx);
+      expect(Math.abs(drift.rotation)).toBeLessThanOrEqual(TITLE_REVEAL_TIMING.rotationDeg);
+      expect(drift.blur).toBeLessThanOrEqual(TITLE_REVEAL_TIMING.blurMaxPx);
+    }
+  });
+
+  it("offsets every char by the row delay", () => {
+    const [[first]] = buildTitleCharDrifts([makeLine("ab")], 140);
+    expect(first.delay).toBe(140);
+  });
+});
+
+describe("titleTransitionName", () => {
+  it("is stable for a title and differs between titles", () => {
+    expect(titleTransitionName("Zen")).toBe(titleTransitionName("Zen"));
+    expect(titleTransitionName("Zen")).not.toBe(titleTransitionName("Code"));
+    expect(titleTransitionName("Zen")).toMatch(/^post-title-[a-z0-9]+$/);
   });
 });

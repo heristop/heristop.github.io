@@ -31,11 +31,21 @@ const DEFAULT_BASE_DURATION_MS = 900;
 
 const segmenter = new Intl.Segmenter();
 
-// Shared by every title reveal (home list and article heading) so they land at the same pace
+// Shared by every title reveal (home list and article heading) so they land at the same pace.
+// Titles drift less than haiku: a sentence mid-reveal must still read as a sentence.
 const TITLE_REVEAL_TIMING = {
-  durationMs: 420,
-  settleBufferMs: 200,
-  staggerScale: 0.35,
+  blurMaxPx: 1.5,
+  // Per-char stagger shrinks on long titles so the whole title lands within ~600ms
+  charStaggerBudgetMs: 450,
+  charStaggerMaxMs: 10,
+  driftXPx: 6,
+  driftYMaxPx: 8,
+  driftYMinPx: 4,
+  durationMs: 150,
+  rotationDeg: 3,
+  // Rows overlap like a breath out rather than a queue: the home list settles within ~1.2s
+  rowStaggerMs: 50,
+  settleBufferMs: 120,
 } as const;
 
 interface LineStyleOptions {
@@ -71,6 +81,8 @@ interface CharDriftParams {
   key: string;
   seed: number;
 }
+
+const round2 = (value: number): number => Math.round(value * 100) / 100;
 
 const seededRandom = (seed: number): number => {
   const val = Math.sin(seed * SEED_FACTOR_A + SEED_FACTOR_B) * SEED_MULTIPLIER;
@@ -152,6 +164,55 @@ const buildCharDrifts = (
     });
   });
 
+const buildTitleCharDrifts = (lines: LayoutLine[], startDelayMs = 0): CharDrift[][] => {
+  const {
+    blurMaxPx,
+    charStaggerBudgetMs,
+    charStaggerMaxMs,
+    driftXPx,
+    driftYMaxPx,
+    driftYMinPx,
+    durationMs,
+    rotationDeg,
+  } = TITLE_REVEAL_TIMING;
+  const charsByLine = lines.map((line) =>
+    Array.from(segmenter.segment(line.text), (seg) => seg.segment),
+  );
+  const total = Math.max(
+    charsByLine.reduce((sum, chars) => sum + chars.length, 0),
+    1,
+  );
+  const stagger = Math.min(charStaggerMaxMs, charStaggerBudgetMs / total);
+  let globalIndex = 0;
+  return charsByLine.map((chars, lineIndex) =>
+    chars.map((char, charIndex) => {
+      const seed = lineIndex * CHARS_PER_LINE + charIndex + 1;
+      const edgeness = Math.abs(globalIndex / total - HALF) * 2;
+      const drift: CharDrift = {
+        blur: blurMaxPx * (HALF + edgeness * HALF),
+        char,
+        delay: Math.round(startDelayMs + globalIndex * stagger),
+        driftX: (seededRandom(seed) - HALF) * 2 * driftXPx,
+        driftY: -(driftYMinPx + seededRandom(seed + SEED_OFFSET_Y) * (driftYMaxPx - driftYMinPx)),
+        duration: durationMs,
+        key: `${lineIndex}-${charIndex}-${char}`,
+        rotation: (seededRandom(seed + SEED_OFFSET_R) - HALF) * 2 * rotationDeg,
+      };
+      globalIndex += 1;
+      return drift;
+    }),
+  );
+};
+
+// Home list title and article heading share this name so the title morphs across the navigation
+const titleTransitionName = (text: string): string => {
+  let hash = 0;
+  for (const char of text) {
+    hash = (Math.imul(hash, 31) + (char.codePointAt(0) ?? 0)) | 0;
+  }
+  return `post-title-${(hash >>> 0).toString(36)}`;
+};
+
 const buildWordDrifts = (
   inputText: string,
   baseDuration = DEFAULT_BASE_DURATION_MS,
@@ -201,13 +262,14 @@ const getSmokeStyle = (charDrift: CharDrift, reducedMotion: boolean): React.CSSP
   if (reducedMotion) {
     return { display: "inline-block" };
   }
+  // Rounded so server and client agree on the markup (Math.sin differs in the last digits)
   return {
-    "--char-blur": `${charDrift.blur}px`,
+    "--char-blur": `${round2(charDrift.blur)}px`,
     "--char-delay": `${charDrift.delay}ms`,
     "--char-duration": `${charDrift.duration}ms`,
-    "--drift-r": `${charDrift.rotation}deg`,
-    "--drift-x": `${charDrift.driftX}px`,
-    "--drift-y": `${charDrift.driftY}px`,
+    "--drift-r": `${round2(charDrift.rotation)}deg`,
+    "--drift-x": `${round2(charDrift.driftX)}px`,
+    "--drift-y": `${round2(charDrift.driftY)}px`,
     display: "inline-block",
   } as React.CSSProperties;
 };
@@ -242,6 +304,7 @@ const maxAnimationEnd = (drifts: CharDrift[][] | WordDrift[]): number => {
 
 const textRevealExports = {
   buildCharDrifts,
+  buildTitleCharDrifts,
   buildWordDrifts,
   getCharClass,
   getLineStyle,
@@ -250,6 +313,7 @@ const textRevealExports = {
   maxAnimationEnd,
   seededRandom,
   TITLE_REVEAL_TIMING,
+  titleTransitionName,
   useReducedMotion,
   useTextLayout,
 };

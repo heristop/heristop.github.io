@@ -28,8 +28,18 @@ const mockMatchMedia = (coarsePointer: boolean) => {
   });
 };
 
+// Pages hide pending titles before first paint when the reveal should play
+const hidePendingTitles = () => {
+  const style = document.createElement("style");
+  style.dataset.test = "reveal";
+  style.textContent = '[data-reveal="pending"], [data-reveal="loading"] { opacity: 0; }';
+  document.head.append(style);
+};
+
 beforeEach(() => {
   vi.restoreAllMocks();
+  document.head.querySelector('style[data-test="reveal"]')?.remove();
+  sessionStorage.clear();
   Object.defineProperty(HTMLElement.prototype, "offsetWidth", {
     configurable: true,
     value: 240,
@@ -84,6 +94,7 @@ describe("<ZenTextReveal />", () => {
 
   it("keeps character reveal for mobile simple strategy on desktop", async () => {
     mockMatchMedia(false);
+    hidePendingTitles();
     const { container } = render(<ZenTextReveal text="abc" mobileStrategy="text" />);
 
     await waitFor(() => {
@@ -93,6 +104,7 @@ describe("<ZenTextReveal />", () => {
 
   it("fast-forwards the reveal and settles when the title is hovered", async () => {
     mockMatchMedia(false);
+    hidePendingTitles();
     const updatePlaybackRate = vi.fn();
     const animation = { finished: Promise.resolve(), updatePlaybackRate };
     Object.defineProperty(HTMLElement.prototype, "getAnimations", {
@@ -114,5 +126,59 @@ describe("<ZenTextReveal />", () => {
     });
     expect(container.textContent).toBe("abc");
     delete (HTMLElement.prototype as { getAnimations?: unknown }).getAnimations;
+  });
+
+  it("fast-forwards the reveal when the title link receives keyboard focus", async () => {
+    mockMatchMedia(false);
+    hidePendingTitles();
+    const updatePlaybackRate = vi.fn();
+    const animation = { finished: Promise.resolve(), updatePlaybackRate };
+    Object.defineProperty(HTMLElement.prototype, "getAnimations", {
+      configurable: true,
+      value: () => [animation],
+    });
+    const { container } = render(
+      <a href="/post">
+        <ZenTextReveal text="abc" />
+      </a>,
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector("[class*='haiku-char']")).toBeTruthy();
+    });
+    fireEvent.focusIn(container.querySelector("a")!);
+    await waitFor(() => {
+      expect(updatePlaybackRate).toHaveBeenCalledWith(4);
+    });
+    await waitFor(() => {
+      expect(container.querySelector("[class*='haiku-char']")).toBeNull();
+    });
+    delete (HTMLElement.prototype as { getAnimations?: unknown }).getAnimations;
+  });
+
+  it("renders settled text without a reveal when the title is already visible", async () => {
+    mockMatchMedia(false);
+    const { container } = render(<ZenTextReveal text="abc" />);
+
+    await waitFor(() => {
+      expect(container.querySelector("[data-reveal='settled']")).toBeTruthy();
+    });
+    expect(container.querySelector("[class*='haiku-char']")).toBeNull();
+    expect(container.textContent).toBe("abc");
+  });
+
+  it("plays a once-per-session reveal only on the first visit", async () => {
+    mockMatchMedia(false);
+    hidePendingTitles();
+    const first = render(<ZenTextReveal text="abc" revealOnce="test:reveal" />);
+    await waitFor(() => {
+      expect(first.container.querySelector("[data-reveal='play'], [data-reveal='loading']")).toBeTruthy();
+    });
+    first.unmount();
+
+    const second = render(<ZenTextReveal text="abc" revealOnce="test:reveal" />);
+    await waitFor(() => {
+      expect(second.container.querySelector("[data-reveal='settled']")).toBeTruthy();
+    });
   });
 });
