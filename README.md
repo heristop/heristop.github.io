@@ -47,7 +47,7 @@ See the [game package guide](packages/path-of-stones/README.md) for commands, re
 
 ## Author
 
-**Alexandre Mogère** — [GitHub](https://github.com/heristop) · [LinkedIn](https://linkedin.com/in/alexandre-mogere) · [Bluesky](https://bsky.app/profile/heristop.bsky.social)
+**Alexandre Mogère** — [GitHub](https://github.com/heristop) · [LinkedIn](https://linkedin.com/in/heristop) · [Bluesky](https://bsky.app/profile/heristop.bsky.social)
 
 If you enjoy the content, you can [buy me a coffee](https://buymeacoffee.com/heristop). ☕
 

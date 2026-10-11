@@ -1,6 +1,7 @@
 import {
   BLUESKY_URL,
   GITHUB_URL,
+  INSTAGRAM_URL,
   LINKEDIN_URL,
   LINKFOLIO_URL,
   SITE_AUTHOR,
@@ -39,7 +40,7 @@ const person = {
     "AI coding agents",
     "Web Development",
   ],
-  sameAs: [GITHUB_URL, LINKEDIN_URL, X_URL, BLUESKY_URL, LINKFOLIO_URL],
+  sameAs: [GITHUB_URL, LINKEDIN_URL, X_URL, BLUESKY_URL, INSTAGRAM_URL, LINKFOLIO_URL],
 };
 
 const website = {

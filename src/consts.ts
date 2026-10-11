@@ -9,9 +9,10 @@ const LINKFOLIO_URL = "https://heristop.vercel.app";
 
 // Social Media Links
 const GITHUB_URL = "https://github.com/heristop";
-const LINKEDIN_URL = "https://linkedin.com/in/alexandre-mogere";
+const LINKEDIN_URL = "https://linkedin.com/in/heristop";
 const X_URL = "https://x.com/heristop";
 const BLUESKY_URL = "https://bsky.app/profile/heristop.bsky.social";
+const INSTAGRAM_URL = "https://instagram.com/heristop";
 const BUY_ME_COFFEE_URL = "https://buymeacoffee.com/heristop";
 
 export {
@@ -26,5 +27,6 @@ export {
   LINKEDIN_URL,
   X_URL,
   BLUESKY_URL,
+  INSTAGRAM_URL,
   BUY_ME_COFFEE_URL,
 };
