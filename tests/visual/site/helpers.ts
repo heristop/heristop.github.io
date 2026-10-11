@@ -88,6 +88,15 @@ export async function gotoSettled(page: Page, path: string): Promise<number | un
     window.scrollTo(0, 0);
   });
   await page.waitForLoadState("networkidle").catch(() => undefined);
+  // Lazy thumbnails (the blog index) can still be decoding after the network goes quiet, which
+  // leaves two full-page captures a few rows apart: wait until every image has painted
+  await page
+    .evaluate(() =>
+      Promise.all(
+        [...document.images].map((image) => (image.complete ? image.decode().catch(() => undefined) : undefined)),
+      ),
+    )
+    .catch(() => undefined);
   // The scroll-through toggles scroll-driven chrome (the TOC rail fades in and out): let those
   // finite transitions finish before anything is measured
   await page
