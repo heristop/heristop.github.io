@@ -11,8 +11,19 @@ describe("<BuyMeCoffee />", () => {
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
   });
 
-  it("renders the cup label", () => {
+  it("renders the label with its secondary line", () => {
     render(<BuyMeCoffee url="https://example.com" />);
-    expect(screen.getAllByText(/buy me a coffee/i).length).toBeGreaterThan(0);
+    expect(screen.getByText("Buy me a coffee")).toBeInTheDocument();
+    expect(screen.getByText("Support my writing")).toBeInTheDocument();
+  });
+
+  it("is named by its visible text alone, leaving the new-tab hint to new-tab-links", () => {
+    const { container } = render(<BuyMeCoffee url="https://example.com" />);
+    const link = screen.getByRole("link");
+    expect(link).toHaveAccessibleName("Buy me a coffee Support my writing");
+    expect(link).not.toHaveAttribute("aria-label");
+    for (const svg of container.querySelectorAll("svg")) {
+      expect(svg).toHaveAttribute("aria-hidden", "true");
+    }
   });
 });

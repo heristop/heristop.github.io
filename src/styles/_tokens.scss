@@ -136,6 +136,13 @@
   --badge-new-text: oklch(95% 0.07 95deg);
   --badge-new-gem: oklch(82% 0.09 75deg);
   --badge-new-shadow: 0 2px 5px oklch(32% 0.03 160deg / 13%), inset 0 1px oklch(100% 0 0deg / 9%);
+
+  /* Coffee cup illustration (support link): warm umber ink on glazed paper */
+  --cup-ink: oklch(33% 0.05 35deg);
+  --cup-ceramic: var(--surface-card-solid);
+  --cup-coffee: oklch(46% 0.075 45deg);
+  --cup-eye: var(--surface-card-solid);
+  --cup-pupil: var(--cup-ink);
 }
 
 /* Night garden: the same paper, after dusk. Warm ink instead of black, rose lifted so it
@@ -204,4 +211,9 @@
     --border-strong: oklch(80% 0.01 60deg / 35%);
     --badge-new-border: oklch(60% 0.06 120deg);
     --badge-new-shadow: 0 2px 6px oklch(0% 0 0deg / 40%), inset 0 1px oklch(100% 0 0deg / 9%);
+    --cup-ink: oklch(88% 0.035 40deg); /* moonlit line drawing */
+    --cup-ceramic: oklch(29% 0.02 350deg);
+    --cup-coffee: oklch(52% 0.07 42deg);
+    --cup-eye: oklch(92% 0.015 60deg);
+    --cup-pupil: var(--code-bg-color);
 }

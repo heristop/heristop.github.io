@@ -1,0 +1,372 @@
+@use 'scheme';
+
+/* ── Buy me a coffee (about page) ──
+   A glazed paper medallion holding a hand-inked cup. Every colour comes from the tokens (the cup
+   has its own --cup-* set in _tokens.scss), so the night theme is the same drawing under the moon.
+   The disc is the press target; the whole column (disc and label) is the link. */
+
+.bmc {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem auto 0;
+}
+
+.bmc__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.25rem 0.75rem 0.5rem;
+  border-radius: var(--radius-lg);
+  color: var(--heading-color);
+  text-decoration: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+/* The medallion: an irregular round, like a disc cut from washi, with a rose wash bleeding in
+   from two sides, a fine foot ring, and the same top sheen and soft shadow as the site's cards */
+.bmc__content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 7.5rem;
+  height: 7.5rem;
+  padding-top: 0.75rem;
+  border-radius: 50% 47% 52% 49% / 49% 53% 47% 51%;
+  background:
+    radial-gradient(circle at 30% 24%, color-mix(in oklch, var(--primary-color) 11%, transparent), transparent 58%),
+    radial-gradient(circle at 76% 80%, color-mix(in oklch, var(--link-hover-color) 10%, transparent), transparent 54%),
+    var(--surface-card-solid);
+  box-shadow:
+    inset 0 1px 0 var(--sheen),
+    inset 0 0 0 1px color-mix(in oklch, var(--primary-color) 16%, transparent),
+    var(--home-card-shadow-soft);
+  overflow: hidden;
+  touch-action: none;
+  transition:
+    translate var(--motion-small) var(--motion-ease-out),
+    scale var(--motion-micro) var(--motion-ease-out),
+    box-shadow var(--motion-small) var(--motion-ease-out);
+
+  /* Foot ring, as on the base of a tea bowl */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0.4rem;
+    border: 1px solid color-mix(in oklch, var(--primary-color) 12%, transparent);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /* The wash deepens on hover; a layer fades because gradients themselves cannot transition */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 42%, color-mix(in oklch, var(--primary-color) 12%, transparent), transparent 68%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--motion-small) var(--motion-ease-out);
+  }
+}
+
+.bmc__link:focus-visible .bmc__content {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+
+.bmc__link:hover .bmc__content::after,
+.bmc__link:focus-visible .bmc__content::after {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bmc__link:hover .bmc__content {
+    translate: 0 -2px;
+    box-shadow:
+      inset 0 1px 0 var(--sheen),
+      inset 0 0 0 1px color-mix(in oklch, var(--primary-color) 26%, transparent),
+      var(--home-card-shadow-hover);
+  }
+
+  /* Answers on press, not release; touch gets the whole-link press from _touch.scss */
+  .bmc__link:active .bmc__content {
+    translate: 0 0;
+    scale: 0.97;
+    transition-duration: 80ms;
+  }
+}
+
+/* ── The cup ── */
+
+.bmc__shadow {
+  position: absolute;
+  bottom: 1.7rem;
+  left: 50%;
+  width: 2rem;
+  height: 0.25rem;
+  margin-left: -1rem;
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--cup-ink) 16%, transparent);
+  animation: bmc-shadow var(--zen-duration-breath) var(--motion-ease-in-out) infinite;
+}
+
+.bmc__cup {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.25rem;
+  height: 4.25rem;
+  scale: 0.92;
+  transform: rotate(-3deg) rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg));
+  transition:
+    transform var(--motion-small) var(--motion-ease-out),
+    scale var(--motion-page) var(--motion-ease-out);
+  filter: drop-shadow(0 0.2rem 0.3rem color-mix(in oklch, var(--cup-ink) 16%, transparent));
+
+  /* Float on `translate` so it composes with the pointer tilt on `transform` */
+  animation: bmc-float var(--zen-duration-breath) var(--motion-ease-in-out) infinite;
+}
+
+.bmc__cup--loaded {
+  scale: 1;
+}
+
+.bmc__icon {
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+
+.bmc__ceramic {
+  fill: var(--cup-ceramic);
+}
+
+.bmc__coffee {
+  fill: var(--cup-coffee);
+}
+
+.bmc__crema {
+  fill: color-mix(in oklch, var(--cup-coffee) 55%, var(--cup-eye));
+}
+
+.bmc__coffee-deep {
+  fill: color-mix(in oklch, var(--cup-coffee) 60%, var(--cup-pupil));
+  opacity: 0.5;
+}
+
+.bmc__line {
+  fill: none;
+  stroke: var(--cup-ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bmc__rim {
+  stroke: color-mix(in oklch, var(--cup-ink) 22%, transparent);
+  stroke-linecap: round;
+}
+
+.bmc__blush {
+  fill: var(--link-hover-color);
+  opacity: 0.3;
+  transition: opacity var(--motion-small) var(--motion-ease-out);
+}
+
+.bmc__content--hover .bmc__blush {
+  opacity: 0.6;
+}
+
+.bmc__eye {
+  fill: var(--cup-eye);
+  stroke: var(--cup-ink);
+  stroke-width: 1.3;
+}
+
+.bmc__pupil {
+  fill: var(--cup-pupil);
+}
+
+.bmc__glint {
+  fill: var(--cup-eye);
+}
+
+.bmc__wave--1 {
+  animation: bmc-wave1 3s var(--motion-ease-in-out) infinite;
+}
+
+.bmc__wave--2 {
+  animation: bmc-wave2 3.6s var(--motion-ease-in-out) infinite;
+}
+
+/* Steam: three rose brush strokes drawn and lifted away */
+.bmc__steam {
+  position: absolute;
+  top: -1.5rem;
+  left: 50%;
+  width: 2.5rem;
+  height: 3rem;
+  overflow: visible;
+  translate: -50% 0;
+}
+
+.bmc__steam-path {
+  fill: none;
+  stroke: var(--primary-color);
+  stroke-linecap: round;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  opacity: 0;
+  filter: blur(0.4px);
+  animation: bmc-steam var(--zen-duration-breath) var(--motion-ease-in-out) infinite;
+}
+
+.bmc__steam-path--2 {
+  animation-delay: calc(var(--zen-duration-breath) * 0.2);
+}
+
+.bmc__steam-path--3 {
+  animation-delay: calc(var(--zen-duration-breath) * 0.4);
+}
+
+/* ── Label: what it is, then why ── */
+
+.bmc__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.bmc__label {
+  color: var(--heading-color);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+  transition: color var(--motion-small) var(--motion-ease-out);
+}
+
+.bmc__hint {
+  color: var(--text-secondary);
+  font-size: var(--font-size-label);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+.bmc__link:hover .bmc__label,
+.bmc__link:focus-visible .bmc__label {
+  color: var(--primary-color);
+}
+
+/* At night the medallion sits on ink, so its shadow needs the rim to read as a raised edge */
+@include scheme.night {
+  .bmc__content {
+    box-shadow:
+      inset 0 1px 0 var(--sheen),
+      inset 0 0 0 1px color-mix(in oklch, var(--primary-color) 22%, transparent),
+      var(--home-card-shadow-soft);
+  }
+
+  .bmc__steam-path {
+    filter: none;
+  }
+}
+
+@keyframes bmc-float {
+  50% {
+    translate: 0 -0.15rem;
+  }
+}
+
+@keyframes bmc-shadow {
+  50% {
+    scale: 0.8 1;
+    opacity: 0.65;
+  }
+}
+
+@keyframes bmc-wave1 {
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes bmc-wave2 {
+  50% {
+    transform: translateX(-2px);
+  }
+}
+
+@keyframes bmc-steam {
+  0% {
+    stroke-dashoffset: 60;
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  15% {
+    opacity: 0.55;
+  }
+
+  50% {
+    stroke-dashoffset: 0;
+    opacity: 0.45;
+    transform: translate(calc(var(--attract-x, 0) * 4px), calc(var(--attract-y, 0) * -3px));
+  }
+
+  85% {
+    opacity: 0.15;
+  }
+
+  100% {
+    stroke-dashoffset: -60;
+    opacity: 0;
+    transform: translate(calc(var(--attract-x, 0) * 6px), -4px);
+  }
+}
+
+@media (width <= 48em) {
+  .bmc__content {
+    width: 6.5rem;
+    height: 6.5rem;
+  }
+
+  .bmc__cup--loaded {
+    scale: 0.9;
+  }
+}
+
+/* Reduced motion: no float, waves, steam drift or tilt; the cup and wisps hold still, and hover
+   answers with colour and shadow instead of lift */
+@media (prefers-reduced-motion: reduce) {
+  .bmc__cup,
+  .bmc__shadow,
+  .bmc__wave,
+  .bmc__steam-path {
+    animation: none;
+  }
+
+  .bmc__cup {
+    transform: rotate(-3deg);
+    transition: none;
+  }
+
+  .bmc__steam-path {
+    stroke-dashoffset: 0;
+    opacity: 0.35;
+  }
+
+  .bmc__link:hover .bmc__content,
+  .bmc__link:active .bmc__content {
+    translate: none;
+    scale: none;
+  }
+}
