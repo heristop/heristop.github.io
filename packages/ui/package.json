@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.9",
-    "lucide-react": "^1.52.0"
+    "lucide-react": "^1.54.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",

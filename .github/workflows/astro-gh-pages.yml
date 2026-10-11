@@ -50,7 +50,7 @@ jobs:
       # failing the job after a green build and skipping the deploy. Doing it by hand is less magic and
       # one less moving part; the action only ever wrapped these five steps.
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
