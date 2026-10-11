@@ -98,11 +98,7 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
         : 'Use \u2190 \u2192 keys to navigate pages';
 
       parts.push(`
-        <span
-          class="post-nav-hint global-nav-hint"
-          role="status"
-          aria-live="polite"
-        >${hintText}</span>
+        <span class="post-nav-hint global-nav-hint">${hintText}</span>
       `);
     }
 
@@ -128,7 +124,11 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
 
   const setupGlobalKeyboardNavigation = (isInputFocused, navigateToPage, signal) => {
     document.addEventListener('keydown', (event) => {
-      if (isInputFocused() || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+      // Same rule as src/components/client/arrow-nav-guard.ts (this script is inline, so it can't import it)
+      const owner = document.activeElement?.closest?.(
+        "pre, table, .mermaid-wide, .katex-display, [role='region'], [role='menu'], [role='listbox'], [role='slider'], [role='tablist'], [role='radiogroup'], [role='dialog']",
+      );
+      if (isInputFocused() || owner || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
         return;
       }
 
@@ -157,10 +157,23 @@ const nextPage = currentIndex >= 0 ? navPages[nextIndex] : undefined;
     let touchStartY = 0;
     let touchStartTime = 0;
 
+    // The outer edges belong to the system back/forward swipe; open overlays and sideways
+    // scrollers own their own gestures
+    const EDGE_GUTTER = 24;
+    const ownsGesture = (touch, target) =>
+      touch.clientX <= EDGE_GUTTER ||
+      touch.clientX >= globalThis.innerWidth - EDGE_GUTTER ||
+      document.body.classList.contains('mobile-menu-open') ||
+      document.body.classList.contains('search-open') ||
+      (target instanceof Element &&
+        target.closest('pre, table, .mermaid-wide, .katex-display, [data-swipe-ignore]') !== null);
+
     document.addEventListener('touchstart', (event) => {
+      touchStartX = 0;
       if (isInputFocused()) {return;}
 
       const touch = event.touches[0];
+      if (!touch || ownsGesture(touch, event.target)) {return;}
       touchStartX = touch.clientX;
       touchStartY = touch.clientY;
       touchStartTime = Date.now();

@@ -7,6 +7,9 @@ const {
   renderNoResults,
   showEmptyState,
   handleSearchKeyNavigation,
+  describeSearchResults,
+  ensureSearchStatus,
+  trapDialogFocus,
 } = searchHelpers;
 
 beforeEach(() => {
@@ -43,7 +46,8 @@ describe("createSearchResultItem", () => {
       tags: ["zen", "code", "haiku", "ignored"],
     });
     expect(item.tagName).toBe("LI");
-    expect(item.getAttribute("role")).toBe("option");
+    expect(item.hasAttribute("role")).toBe(false);
+    expect(item.hasAttribute("aria-label")).toBe(false);
     const anchor = item.querySelector("a.search-result");
     expect(anchor?.getAttribute("href")).toBe("/blog/hello-world/");
     expect(item.querySelector("h3")?.textContent).toBe("Hello World");
@@ -156,5 +160,85 @@ describe("handleSearchKeyNavigation", () => {
       searchResults: results,
     });
     expect(document.activeElement).toBe(first);
+  });
+});
+
+describe("describeSearchResults", () => {
+  it("stays silent for an empty query", () => {
+    expect(describeSearchResults(0, "   ")).toBe("");
+  });
+
+  it("announces counts with the right plural", () => {
+    expect(describeSearchResults(1, "css")).toBe("1 reflection found");
+    expect(describeSearchResults(4, "css")).toBe("4 reflections found");
+  });
+
+  it("names the query when nothing matches", () => {
+    expect(describeSearchResults(0, "astro")).toBe(`No reflections found for "astro"`);
+  });
+});
+
+describe("ensureSearchStatus", () => {
+  it("creates one polite status region inside the search container and reuses it", () => {
+    const overlay = document.createElement("div");
+    const container = document.createElement("div");
+    container.className = "search-container";
+    overlay.append(container);
+    const first = ensureSearchStatus(overlay);
+    const second = ensureSearchStatus(overlay);
+    expect(first).toBe(second);
+    expect(first.getAttribute("role")).toBe("status");
+    expect(first.parentElement).toBe(container);
+    expect(overlay.querySelectorAll("[role='status']")).toHaveLength(1);
+  });
+});
+
+describe("trapDialogFocus", () => {
+  const setup = () => {
+    const outside = document.createElement("button");
+    const dialog = document.createElement("div");
+    const input = document.createElement("input");
+    const close = document.createElement("button");
+    const result = document.createElement("a");
+    result.href = "/blog/x/";
+    dialog.append(input, close, result);
+    document.body.append(outside, dialog);
+    return { close, dialog, input, outside, result };
+  };
+
+  it("wraps Tab from the last control back to the first", () => {
+    const { dialog, input, result } = setup();
+    result.focus();
+    const event = new KeyboardEvent("keydown", { key: "Tab", cancelable: true });
+    trapDialogFocus(event, dialog);
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(input);
+  });
+
+  it("wraps Shift+Tab from the first control to the last", () => {
+    const { dialog, input, result } = setup();
+    input.focus();
+    const event = new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, cancelable: true });
+    trapDialogFocus(event, dialog);
+    expect(document.activeElement).toBe(result);
+  });
+
+  it("lets Tab move normally between inner controls and ignores other keys", () => {
+    const { close, dialog, input } = setup();
+    input.focus();
+    const tab = new KeyboardEvent("keydown", { key: "Tab", cancelable: true });
+    trapDialogFocus(tab, dialog);
+    expect(tab.defaultPrevented).toBe(false);
+    close.focus();
+    const other = new KeyboardEvent("keydown", { key: "a", cancelable: true });
+    trapDialogFocus(other, dialog);
+    expect(document.activeElement).toBe(close);
+  });
+
+  it("pulls focus back in when it has escaped the dialog", () => {
+    const { dialog, input, outside } = setup();
+    outside.focus();
+    trapDialogFocus(new KeyboardEvent("keydown", { key: "Tab", cancelable: true }), dialog);
+    expect(document.activeElement).toBe(input);
   });
 });

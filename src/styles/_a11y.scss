@@ -1,0 +1,78 @@
+/* Accessibility fixes that cut across components: text contrast the themes miss, and the
+   Windows high contrast (forced colours) pass. Imported last so it wins without !important
+   except where it has to beat an inline style. */
+
+/* ── 1.4.3 Contrast ── */
+
+/* The placeholder is a hint (the field has a real label) but it is still text: the 70% mix fell
+   to 3.4:1 on paper and 4.3:1 at night */
+.search-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+/* rose-pine's "pine" and "muted" (comments) sit at 3.4–3.7:1 on the site's code surface. Shiki
+   writes them as inline styles, so only !important reaches them; the replacements keep the hue
+   and clear 4.5:1 in both themes (the code surface is dark in both) */
+.astro-code span[style*="#31748F" i] {
+  color: #569fbb !important;
+}
+
+.astro-code span[style*="#6E6A86" i] {
+  color: #908caa !important;
+}
+
+/* ── Forced colours (Windows high contrast) ── */
+
+@media (forced-colors: active) {
+  /* Rings drawn with box-shadow vanish here; give every focus a system-coloured outline */
+  :focus-visible,
+  .search-input-wrapper:focus-within {
+    outline: 2px solid Highlight !important;
+    outline-offset: 2px;
+  }
+
+  .skip-link:focus {
+    border: 2px solid ButtonText;
+  }
+
+  /* Bars and dots painted with background-color would be erased to Canvas */
+  .header__hamburger,
+  .theme-toggle__pip {
+    forced-color-adjust: none;
+    background: ButtonText;
+    box-shadow: none;
+  }
+
+  .header__mobile-toggle--active .header__hamburger {
+    background: Highlight;
+  }
+
+  .reading-progress,
+  .reading-progress * {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  /* Floating surfaces are separated by shadow and blur, both of which are dropped */
+  .theme-toggle__menu,
+  .search-container,
+  .header__nav--mobile-open,
+  .post-nav-hint,
+  .global-nav-hint,
+  [data-tooltip]::after {
+    border: 1px solid CanvasText;
+  }
+
+  .theme-toggle__option[aria-checked="true"] {
+    outline: 1px solid Highlight;
+  }
+
+  /* The monochrome brand icons are <img> files, which forced colours never repaint: keep them
+     visible when the system palette is dark */
+  @media (prefers-color-scheme: dark) {
+    img[src^="/icons/"] {
+      filter: invert(1);
+    }
+  }
+}

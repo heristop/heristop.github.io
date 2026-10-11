@@ -86,11 +86,39 @@ const createSearchResultLink = (post: BlogPost): HTMLAnchorElement => {
 };
 
 const createSearchResultItem = (post: BlogPost): HTMLLIElement => {
+  /* A plain list of links: Tab and the arrow keys move between real links, so listbox/option
+     roles (which forbid focusable children) would misdescribe it */
   const listItem = document.createElement("li");
-  listItem.setAttribute("role", "option");
-  listItem.setAttribute("aria-label", post.title);
   listItem.append(createSearchResultLink(post));
   return listItem;
+};
+
+/* Text for the polite status region: one short sentence per settled query, nothing while empty */
+const describeSearchResults = (count: number, query: string): string => {
+  if (!query.trim()) {
+    return "";
+  }
+  if (count === 0) {
+    return `No reflections found for "${query}"`;
+  }
+  return count === 1 ? "1 reflection found" : `${count} reflections found`;
+};
+
+const SEARCH_STATUS_ID = "search-status";
+
+/* The live region must exist before its text changes, or screen readers skip the first update */
+const ensureSearchStatus = (searchOverlay: HTMLElement): HTMLElement => {
+  const existing = searchOverlay.querySelector<HTMLElement>(`#${SEARCH_STATUS_ID}`);
+  if (existing !== null) {
+    return existing;
+  }
+  const status = document.createElement("p");
+  status.id = SEARCH_STATUS_ID;
+  status.className = "sr-only";
+  status.setAttribute("role", "status");
+  const container = searchOverlay.querySelector(".search-container") ?? searchOverlay;
+  container.append(status);
+  return status;
 };
 
 const handleSearchShortcuts = (
@@ -159,6 +187,33 @@ const handleSearchArrowNavigation = (
   handleSearchEnter(event);
 };
 
+const DIALOG_FOCUSABLES = "input:not([disabled]), button:not([disabled]), a[href]";
+
+/* aria-modal only tells assistive tech; sighted keyboard users also need Tab to wrap inside the
+   open dialog instead of walking into the page behind it (2.4.3) */
+const trapDialogFocus = (event: KeyboardEvent, dialog: HTMLElement): void => {
+  if (event.key !== "Tab") {
+    return;
+  }
+  const focusables = [...dialog.querySelectorAll<HTMLElement>(DIALOG_FOCUSABLES)].filter(
+    (element) => element.getAttribute("tabindex") !== "-1",
+  );
+  const first = focusables[0];
+  const last = focusables.at(-1);
+  if (first === undefined || last === undefined) {
+    return;
+  }
+  const active = document.activeElement;
+  const inside = active instanceof Node && dialog.contains(active);
+  if (event.shiftKey && (active === first || !inside)) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && (active === last || !inside)) {
+    event.preventDefault();
+    first.focus();
+  }
+};
+
 const handleSearchKeyNavigation = (options: SearchKeyNavOptions): void => {
   handleSearchShortcuts(
     options.event,
@@ -169,6 +224,7 @@ const handleSearchKeyNavigation = (options: SearchKeyNavOptions): void => {
   if (!options.searchOverlay.classList.contains("search-overlay--open")) {
     return;
   }
+  trapDialogFocus(options.event, options.searchOverlay);
   handleSearchArrowNavigation(
     options.event,
     options.searchResults.querySelectorAll(".search-result"),
@@ -231,11 +287,14 @@ const searchHelpers = {
   SEARCH_DEBOUNCE_MS,
   SEARCH_FOCUS_DELAY_MS,
   createSearchResultItem,
+  describeSearchResults,
+  ensureSearchStatus,
   handleSearchKeyNavigation,
   isBlogPostArray,
   noopFn,
   renderNoResults,
   showEmptyState,
+  trapDialogFocus,
 };
 
 export default searchHelpers;

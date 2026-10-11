@@ -57,9 +57,11 @@ const performSearchQuery = (
   query: string,
   blogPosts: BlogPost[],
   searchResults: HTMLElement,
+  searchStatus: HTMLElement,
 ): void => {
   if (!query.trim()) {
     helpers.showEmptyState(searchResults);
+    searchStatus.textContent = "";
     return;
   }
   const lowerQuery = query.toLowerCase();
@@ -71,13 +73,16 @@ const performSearchQuery = (
         post.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery)) === true,
     )
     .slice(0, helpers.MAX_SEARCH_RESULTS);
+  searchStatus.textContent = helpers.describeSearchResults(results.length, query);
   if (results.length === 0) {
     helpers.renderNoResults(query, searchResults);
     return;
   }
   const listElement = document.createElement("ul");
   listElement.className = "search-results-content";
-  listElement.setAttribute("role", "listbox");
+  // list-style: none drops list semantics in Safari; the explicit role keeps "list, N items"
+  listElement.setAttribute("role", "list");
+  listElement.setAttribute("aria-label", "Search results");
   for (const post of results) {
     listElement.append(helpers.createSearchResultItem(post));
   }
@@ -85,6 +90,26 @@ const performSearchQuery = (
 };
 
 /* ── Search overlay ── */
+
+// The on-screen keyboard shrinks the visual viewport, not the layout one (iOS Safari): track it
+// so the results list ends above the keyboard instead of running underneath it
+let releaseViewport: () => void = () => {};
+
+const trackVisualViewport = (overlay: HTMLElement): (() => void) => {
+  const viewport = globalThis.visualViewport;
+  if (viewport === null || viewport === undefined) {
+    return () => {};
+  }
+  const update = (): void => {
+    overlay.style.setProperty("--search-viewport-height", `${Math.round(viewport.height)}px`);
+  };
+  update();
+  viewport.addEventListener("resize", update);
+  return () => {
+    viewport.removeEventListener("resize", update);
+    overlay.style.removeProperty("--search-viewport-height");
+  };
+};
 
 const openSearchOverlay = (elems: SearchElements): void => {
   if (document.activeElement instanceof HTMLElement) {
@@ -104,6 +129,8 @@ const openSearchOverlay = (elems: SearchElements): void => {
     element.removeAttribute("tabindex");
   }
   document.body.classList.add("search-open");
+  releaseViewport();
+  releaseViewport = trackVisualViewport(elems.searchOverlay);
   setTimeout(() => {
     elems.searchInput.focus();
   }, helpers.SEARCH_FOCUS_DELAY_MS);
@@ -130,8 +157,14 @@ const closeSearchOverlay = (elems: SearchElements): void => {
     element.setAttribute("tabindex", "-1");
   }
   document.body.classList.remove("search-open");
+  releaseViewport();
+  releaseViewport = () => {};
   elems.searchInput.value = "";
   helpers.showEmptyState(elems.searchResults);
+  const status = elems.searchOverlay.querySelector("[role='status']");
+  if (status !== null) {
+    status.textContent = "";
+  }
   const opener = elems.lastOpener.current;
   if (opener !== null && document.contains(opener)) {
     opener.focus();
@@ -206,6 +239,7 @@ const initializeSearch = (): void => {
     searchToggles: searchToggleEls,
   };
   let blogPosts: BlogPost[] = [];
+  const searchStatus = helpers.ensureSearchStatus(searchOverlay);
   const openSearch = () => {
     openSearchOverlay(elems);
   };
@@ -213,7 +247,7 @@ const initializeSearch = (): void => {
     closeSearchOverlay(elems);
   };
   const performSearch = (query: string) => {
-    performSearchQuery(query, blogPosts, searchResults);
+    performSearchQuery(query, blogPosts, searchResults, searchStatus);
   };
   bindSearchEvents({
     closeSearch,
