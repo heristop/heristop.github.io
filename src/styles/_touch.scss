@@ -181,6 +181,12 @@
     margin: -0.65rem -0.5rem;
   }
 
+  /* A link wrapping across lines gets a box spanning both lines, over the RSS button: keep the
+     link whole so it drops to the next line instead */
+  .blog-archive__tags-link {
+    white-space: nowrap;
+  }
+
   .social-share__link--minimal {
     min-width: 2.75rem;
     min-height: 2.75rem;

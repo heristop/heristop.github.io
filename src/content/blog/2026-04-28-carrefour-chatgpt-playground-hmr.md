@@ -61,7 +61,7 @@ The principle: components are developed in the playground with Hot Module Replac
 
 <div class="img-container">
   <figure class="img-figure" style="width: 100%; max-width: 48rem;">
-    <video controls loop playsinline style="width: 100%; border-radius: 0.5rem; border: 2px solid var(--border-image);">
+    <video controls loop playsinline aria-label="ChatGPT app playground walkthrough" style="width: 100%; border-radius: 0.5rem; border: 2px solid var(--border-image);">
       <source src="/videos/2026-04-28-carrefour-chatgpt-playground-hmr/playground-hmr-demo.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>

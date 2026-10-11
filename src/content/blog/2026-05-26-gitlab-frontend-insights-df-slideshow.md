@@ -141,7 +141,7 @@ The video below goes through the Software Factory deck from start to finish — 
 
 <div class="img-container">
   <figure class="img-figure" style="width: 100%; max-width: 48rem;">
-    <video controls loop playsinline style="width: 100%; border-radius: 0.5rem; border: 2px solid var(--border-image);">
+    <video controls loop playsinline aria-label="Software Factory deck demo" style="width: 100%; border-radius: 0.5rem; border: 2px solid var(--border-image);">
       <source src="/videos/2026-05-26-gitlab-frontend-insights-df-slideshow/demo.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>

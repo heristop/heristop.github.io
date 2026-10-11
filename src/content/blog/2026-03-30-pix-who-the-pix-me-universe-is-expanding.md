@@ -18,7 +18,7 @@ So I had to get serious. Load the right skills, use the right APIs, plan things 
 
 24 suspects with degraded photos. Yes/no questions to eliminate. Sprays to earn to restore pixelated faces and reveal clues. 7 questions max. 2 wrong guesses and you're done. A daily challenge. Free. No signup.
 
-<video controls muted loop playsinline style="width:100%; border-radius:8px;">
+<video controls muted loop playsinline aria-label="Pix Who? gameplay demo" style="width:100%; border-radius:8px;">
   <source src="/videos/pix-who.mp4" type="video/mp4" />
 </video>
 

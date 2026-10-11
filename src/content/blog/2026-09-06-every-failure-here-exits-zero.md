@@ -29,7 +29,7 @@ Here is a real example. The ticket concerned a payment-transfer action that stay
 
 <div class="img-container">
   <figure class="img-figure" style="width: 100%; max-width: 48rem;">
-    <video controls loop playsinline preload="metadata"
+    <video controls loop playsinline preload="metadata" aria-label="Before-and-after evidence clip for a merge request"
       poster="/images/posts/2026-09-06-every-failure-here-exits-zero/title-card.webp"
       style="width: 100%; border-radius: 0.5rem; border: 2px solid var(--border-image);">
       <source src="/videos/2026-09-06-every-failure-here-exits-zero/spos3-1965-evidence.mp4" type="video/mp4" />
