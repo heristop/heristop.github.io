@@ -243,7 +243,7 @@
     padding: var(--space-xs);
     border-radius: var(--radius-md);
     transition:
-      background-color var(--motion-page) var(--motion-ease-out),
+      background-color var(--motion-micro) var(--motion-ease-out),
       transform var(--motion-small) var(--motion-ease-out);
     gap: 4px;
     position: relative;
@@ -251,7 +251,13 @@
 
     &:hover {
       background: color-mix(in oklch, var(--link-color-secondary) 12%, transparent);
-      transform: scale(1.05);
+    }
+
+    /* A tap leaves :hover stuck on touch screens; only a real pointer swells the button */
+    @media (hover: hover) {
+      &:hover {
+        transform: scale(1.05);
+      }
     }
 
     &:active {
@@ -358,9 +364,12 @@
       border-color: color-mix(in oklch, var(--primary-color) 38%, transparent);
       color: var(--primary-color);
       font-weight: 700;
-      box-shadow:
-        inset 3px 0 0 var(--primary-color),
-        0 6px 18px -14px color-mix(in oklch, var(--primary-color) 55%, transparent);
+      box-shadow: 0 6px 18px -14px color-mix(in oklch, var(--primary-color) 55%, transparent);
+
+      /* The tinted row already says "you are here"; the desktop dot would sit on its border */
+      &::after {
+        content: none;
+      }
     }
   }
 }
@@ -380,14 +389,15 @@
     color: inherit;
     position: relative;
     display: inline-block;
+
+    /* No tracking change on hover: animating letter-spacing re-lays out the wordmark every frame
+       and widens it, nudging the centred title sideways */
     transition:
-      color var(--motion-page) var(--motion-ease-out),
-      letter-spacing var(--motion-page) var(--motion-ease-out),
-      transform var(--motion-page) var(--motion-ease-out);
+      color var(--motion-micro) var(--motion-ease-out),
+      transform var(--motion-small) var(--motion-ease-out);
 
     &:hover {
       color: var(--link-color-secondary-hover);
-      letter-spacing: 0.02em;
       transform: translateY(-1px);
     }
 
@@ -502,9 +512,9 @@ body.mobile-menu-open {
   color: var(--link-color-secondary);
   position: relative;
   transition:
-    background-color var(--motion-page) var(--motion-ease-out),
+    background-color var(--motion-micro) var(--motion-ease-out),
     transform var(--motion-small) var(--motion-ease-out),
-    color var(--motion-small) ease;
+    color var(--motion-micro) var(--motion-ease-out);
 
   /* First-visit hint, desktop only: on the compact mobile bar the ring touches the top edge */
   @media (width >= 48rem) and (prefers-reduced-motion: no-preference) {
@@ -538,8 +548,13 @@ body.mobile-menu-open {
 
   &:hover {
     background: color-mix(in oklch, var(--link-color-secondary) 12%, transparent);
-    transform: scale(1.05);
     color: var(--link-color-secondary-hover);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      transform: scale(1.05);
+    }
   }
 
   &:active {
@@ -573,8 +588,15 @@ body.mobile-menu-open {
 }
 
 .site-header__banner {
+  /* A paper mat around the painting, like a framed print; the inner radius follows the outer one */
+  --banner-mat: clamp(0.375rem, 0.8vw, 0.625rem);
+  --banner-inner-radius: max(0px, calc(var(--radius-lg) - var(--banner-mat)));
+
   position: relative;
+  box-sizing: border-box;
   margin: 0 auto;
+  padding: var(--banner-mat);
+  background: var(--surface-card-solid);
 
   /* 85% of the header container: the same edges as the page frame (--measure-frame) below it */
   width: 85%;
@@ -640,7 +662,7 @@ body.mobile-menu-open {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-radius: var(--radius-lg);
+  border-radius: var(--banner-inner-radius);
   background-color: var(--primary-bg-color);
 }
 
@@ -663,17 +685,19 @@ body.mobile-menu-open {
   height: 120%;
   object-fit: cover;
   object-position: center;
-  border-radius: var(--radius-lg);
+  border-radius: var(--banner-inner-radius);
 
-  /* --scroll-y set by JS each frame; a transition here would make it trail the scroll */
-  transform: translateY(calc(var(--scroll-y, 0px) * -0.1)) scale(1);
+  /* --scroll-y set by JS each frame; a transition here would make it trail the scroll. The hover
+     zoom rides the separate `scale` property so it can ease in without the parallax lagging. */
+  transform: translateY(calc(var(--scroll-y, 0px) * -0.1));
+  transition: scale 600ms var(--motion-ease-out);
   will-change: transform;
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 
   @media (prefers-reduced-motion: no-preference) {
     .site-header__banner:hover & {
-      transform: translateY(calc(var(--scroll-y, 0px) * -0.1)) scale(1.03);
+      scale: 1.03;
     }
   }
 
@@ -696,7 +720,7 @@ body.mobile-menu-open {
     oklch(30% 0.08 355deg / 15%) 100%
   );
   pointer-events: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--banner-inner-radius);
   opacity: 0.9;
   transition: opacity 600ms var(--zen-ease-out);
 
@@ -716,13 +740,10 @@ body.mobile-menu-open {
       oklch(0% 0 0deg / 4%) 70%,
       oklch(0% 0 0deg / 8%) 100%
     );
-    border-radius: var(--radius-lg);
+    border-radius: var(--banner-inner-radius);
   }
 }
 
-/* A post's own banner often carries its title or a diagram: shown whole at its natural ratio
-   (width and height come from the file, so nothing shifts), on the same column as the title.
-   No crop, no parallax overscan and no hover zoom, which would all clip its edges. */
 @media (prefers-reduced-motion: no-preference) {
   .site-header__banner-image {
     transform-origin: center bottom;
