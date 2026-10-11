@@ -1,23 +1,5 @@
 @use 'scheme';
 
-.latest-posts__link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.latest-posts__date {
-  flex-shrink: 0;
-}
-
-.latest-posts__title {
-  flex: 1;
-}
-
-.latest-posts__link-icon {
-  flex-shrink: 0;
-}
-
 .about-info {
   text-align: center;
   color: var(--text-on-surface);
@@ -145,31 +127,182 @@
 }
 
 
+/* ── Latest Reflections: one path through the garden ─────────────────────────────────────────
+   The newest post is the only raised surface; the older ones are stones on a hairline path that
+   starts under the heading's book icon. Every dot sits on its title's first line, so the path
+   reads as a sequence of titles rather than of boxes. The dots and the segments between them are
+   computed from the same numbers as the rows, so they stay aligned at any width. */
+
 .latest-posts {
+  /* The path: its x is the heading icon's centre (24px icon), the gutter clears the lead dot */
+  --path-x: 0.75rem;
+  --path-gutter: 2.125rem;
+  --path-hair: color-mix(in oklch, var(--text-secondary) 26%, transparent);
+  --path-tint: color-mix(in oklch, var(--primary-color) 6%, transparent);
+  --dot-halo: 2.5px;
+
+  /* Rows: caption over title; the dot centres on the title's first line */
+  --row-pad-y: 0.75rem;
+  --caption-lh: 1.125rem;
+  --caption-gap: 0.125rem;
+  --title-lh: 1.45rem;
+  --row-dot-y: calc(var(--row-pad-y) + var(--caption-lh) + var(--caption-gap) + var(--title-lh) / 2);
+  --row-radius: 0.625rem;
+
+  /* Lead card */
+  --lead-pad: 1.25rem;
+  --lead-radius: 1rem;
+  --eyebrow-lh: 1rem;
+  --lead-title-gap: 0.4rem;
+  --lead-title-size: clamp(1.2rem, 1rem + 0.8vw, 1.5rem);
+  --lead-title-lh: calc(var(--lead-title-size) * 1.25);
+  --lead-surface: var(--surface-card);
+  --thumb-w: clamp(13rem, 6rem + 14vw, 19rem);
+  --lead-dot-y: calc(1px + var(--lead-pad) + var(--eyebrow-lh) + var(--lead-title-gap) + var(--lead-title-lh) / 2);
+
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
 
-  &__panel {
+  @media (width < 40rem) {
+    --path-gutter: 1.875rem;
+    --lead-pad: 1rem;
+  }
+
+  &__path {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0 0 0 var(--path-gutter);
+    list-style: none;
+  }
+
+  /* One stop on the path: its dot, and the hairline down to the next dot. Both hang off the <li>
+     rather than the link, so a pressed (scaled) or lifted card never drags the path with it. */
+  &__stop {
+    --dot-r: 4px;
+    --dot-y: var(--row-dot-y);
+    --next-dot-r: 4px;
+    --next-dot-y: var(--row-dot-y);
+    --gap-after: 0.125rem;
+
+    position: relative;
+    margin: 0 0 var(--gap-after);
+    padding: 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      left: calc(var(--path-x) - var(--path-gutter) - var(--dot-r));
+      top: calc(var(--dot-y) - var(--dot-r));
+      width: calc(var(--dot-r) * 2);
+      height: calc(var(--dot-r) * 2);
+      box-sizing: border-box;
+      border: 1.5px solid var(--primary-color);
+      border-radius: 50%;
+      background-color: transparent;
+      transition:
+        background-color var(--motion-micro) var(--motion-ease-out),
+        scale var(--motion-small) var(--motion-ease-out);
+      pointer-events: none;
+    }
+
+    /* The segment stops a halo short of both dots, so the page itself is the gap */
+    &::after {
+      content: "";
+      position: absolute;
+      left: calc(var(--path-x) - var(--path-gutter) - 0.5px);
+      top: calc(var(--dot-y) + var(--dot-r) + var(--dot-halo));
+      bottom: calc(var(--next-dot-r) + var(--dot-halo) - var(--gap-after) - var(--next-dot-y));
+      width: 1px;
+      background: var(--path-hair);
+      transform-origin: top;
+      pointer-events: none;
+    }
+
+    /* After the last stone the path thins out and hands over to the link below */
+    &:last-child::after {
+      bottom: auto;
+      height: 2.25rem;
+      background: linear-gradient(
+        var(--path-hair),
+        color-mix(in oklch, var(--path-hair) 45%, transparent) 55%,
+        transparent
+      );
+    }
+
+    /* The stone you are on fills with ink, and swells a touch */
+    &:has(> .latest-posts__row:is(:hover, :focus-visible, :active))::before {
+      background-color: var(--primary-color);
+      scale: 1.15;
+    }
+
+    &--lead {
+      --dot-r: 5px;
+      --dot-y: var(--lead-dot-y);
+      --gap-after: 1rem;
+
+      /* Lets the stacked phone layout place the dot below the thumbnail (cqw) */
+      container-type: inline-size;
+
+      &::before {
+        border: 0;
+        background-color: var(--primary-color);
+      }
+    }
+  }
+
+  /* Entrance: the stops rise one after another, behind the heading; each segment then draws down
+     toward the next stone, like ink following the brush */
+  &__path.zen-stagger > &__stop {
+    animation-delay: calc(240ms + var(--stop, 0) * 50ms);
+
+    &::before {
+      animation: latest-dot-in var(--motion-page) var(--motion-ease-out) both;
+      animation-delay: calc(320ms + var(--stop, 0) * 50ms);
+    }
+
+    &::after {
+      animation: latest-path-draw 480ms var(--motion-ease-out) both;
+      animation-delay: calc(380ms + var(--stop, 0) * 50ms);
+    }
+  }
+
+  /* ── Lead card ── */
+  &__lead {
     --glow-x: 50%;
     --glow-y: 50%;
 
     position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: clamp(0.6rem, 1.8vw, 1.1rem);
-    padding: clamp(1rem, 2.5vw, 1.5rem) clamp(1.1rem, 3vw, 1.65rem) clamp(1.1rem, 3vw, 1.65rem);
-    border-radius: calc(var(--radius-md) + 0.125rem);
-    background: var(--surface-card);
-    border: 1px solid var(--border-glass);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--thumb-w);
+    gap: 1.25rem;
+    align-items: center;
+    padding: var(--lead-pad);
+
+    /* Glass edge with a breath of rose, as the old panel's inner ring */
+    border: 1px solid color-mix(in oklch, var(--primary-color) 10%, var(--border-glass));
+    border-radius: var(--lead-radius);
+    background: var(--lead-surface);
     box-shadow:
       var(--home-card-shadow),
       0 1px 0 var(--surface-glass-strong),
       inset 0 1px 0 var(--border-glass);
+    color: var(--heading-color);
+    text-decoration: none;
+    transition:
+      transform var(--motion-small) var(--motion-ease-out),
+      box-shadow var(--motion-small) var(--motion-ease-out),
+      scale var(--motion-micro) var(--motion-ease-out);
 
-    /* Cursor-following radial glow */
+    /* The old panel's light that follows the cursor (pointer from index.astro) */
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       inset: 0;
       border-radius: inherit;
@@ -179,184 +312,96 @@
         transparent 65%
       );
       opacity: 0;
-      transition: opacity 500ms var(--zen-ease-gentle);
+      transition: opacity 500ms var(--motion-ease-out);
       pointer-events: none;
-      z-index: 1;
+    }
+
+    &:hover,
+    &:focus-visible {
+      color: var(--heading-color);
+      transform: translateY(-2px);
+      box-shadow:
+        var(--home-card-shadow-hover),
+        0 1px 0 var(--surface-glass-strong),
+        inset 0 1px 0 var(--border-glass);
     }
 
     &:hover::before {
       opacity: 1;
     }
 
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      border: 1px solid color-mix(in oklch, var(--primary-color) 10%, transparent);
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      &::before {
-        display: none;
-      }
-    }
-
-    /* On phones the rows are already cards; a second frame around them only costs title width */
-    @media (width < 48rem) {
-      padding: 0;
-      background: none;
-      border: 0;
-      box-shadow: none;
-
-      &::before,
-      &::after {
-        display: none;
-      }
-    }
-  }
-
-  &__list {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(0.45rem, 1.4vw, 0.9rem);
-    margin: 0;
-  }
-
-  &__item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: clamp(0.6rem, 2vw, 1rem);
-    margin: 0;
-    padding: 0;
-    border-radius: calc(var(--radius-md) + 0.1rem);
-    background: var(--surface-glass);
-    border: 1px solid var(--border-glass);
-    box-shadow:
-      var(--home-card-shadow-soft),
-      0 1px 0 var(--border-image);
-    transition:
-      transform var(--motion-page) var(--zen-ease-elegant),
-      box-shadow var(--motion-page) var(--zen-ease-elegant),
-      border-color var(--motion-small) var(--zen-ease-out),
-      background var(--motion-small) var(--zen-ease-out);
-
-    &::before {
-      content: "";
-      position: absolute;
-      left: 0.6rem;
-      top: 0.85rem;
-      bottom: 0.85rem;
-      width: 3px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, color-mix(in oklch, var(--primary-color) 65%, transparent), color-mix(in oklch, var(--primary-color) 0%, transparent));
-      opacity: 0;
-      transition: opacity var(--motion-page) var(--zen-ease-elegant);
-    }
-
-    &:hover,
-    &:focus-within {
-      transform: translateY(-2px) scale(1.005);
-      background: var(--surface-glass-hover);
-      border-color: color-mix(in oklch, var(--primary-color) 24%, transparent);
-      box-shadow:
-        var(--home-card-shadow-hover),
-        0 1px 0 var(--border-glass),
-        0 0 0 1px color-mix(in oklch, var(--primary-color) 8%, transparent);
-
-      &::before {
-        opacity: 1;
-      }
-
-      .latest-posts__link-icon {
-        transform: translateX(5px) rotate(5deg);
-        opacity: 1;
-      }
-
-      .latest-posts__title {
-        color: var(--link-color-secondary);
-      }
-
-      .latest-posts__date {
-        color: var(--link-color-secondary);
-      }
-
-      .latest-posts__date-pill {
-        background: color-mix(in oklch, var(--primary-color) 8%, transparent);
-      }
-
-      .latest-posts__tag {
-        background: color-mix(in oklch, var(--primary-color) 12%, transparent);
-        border-color: color-mix(in oklch, var(--primary-color) 28%, transparent);
-        color: var(--primary-color);
-      }
-    }
-
-    &:active {
-      transform: scale(0.985);
-      box-shadow:
-        var(--home-card-shadow-soft),
-        inset 0 1px 3px oklch(0% 0 0deg / 4%);
-      transition: transform var(--motion-micro), box-shadow var(--motion-micro);
+    /* Feedback is colour, not underline: the title takes the accent, like a row's */
+    &:is(:hover, :focus-visible) .latest-posts__title {
+      color: var(--link-color-secondary);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--primary-color);
-      outline-offset: 2px;
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 3px;
     }
   }
 
-  &__date {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-secondary);
-    min-width: 4.25rem;
-    width: auto;
-    text-align: left;
-  }
-
-  &__date-pill {
-    display: inline-block;
-    padding: 0.15rem 0.45rem;
-    border-radius: 999px;
-    transition: background var(--motion-page) var(--zen-ease-elegant);
-  }
-
-  &__link {
-    flex: 1;
+  /* Top-anchored so the dot's arithmetic holds when a tall banner sets the card's height */
+  &__lead-body {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.85rem 1rem 0.85rem 1.35rem;
-    text-decoration: none;
-    color: var(--heading-color);
+    flex-direction: column;
+    align-self: start;
+    min-width: 0;
+  }
 
-    /* Date gets its own line so the title keeps the full row width */
-    @media (width < 48rem) {
-      flex-wrap: wrap;
-      row-gap: 0.2rem;
+  /* Stamps (eyebrow, captions): the mono label voice, tabular so dates and minutes sit still */
+  &__eyebrow,
+  &__caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.5em;
+    align-items: baseline;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
 
-      .latest-posts__date {
-        flex-basis: 100%;
-      }
+  &__eyebrow {
+    line-height: var(--eyebrow-lh);
+    color: var(--primary-color);
+  }
 
-      .latest-posts__title {
-        flex: 1;
-        min-width: 0;
-      }
-    }
+  &__caption {
+    grid-area: caption;
+    line-height: var(--caption-lh);
+    color: var(--text-secondary);
+  }
+
+  &__title-slot {
+    display: block;
+    grid-area: title;
+    min-width: 0;
+  }
+
+  &__row &__tags {
+    grid-area: tags;
+    flex-wrap: nowrap;
+    min-width: 0;
+    height: var(--caption-lh);
+    overflow: hidden;
+  }
+
+  &__lead &__tags {
+    margin-top: 0.1rem;
   }
 
   &__title {
-    font-size: inherit;
+    display: block;
+    font-size: 1rem;
     font-weight: 600;
-    line-height: 1.45;
+    line-height: var(--title-lh);
     text-align: left;
+    text-wrap: balance;
+    transition: color var(--motion-micro) var(--motion-ease-out);
 
     /* Hidden before first paint only when its once-per-session reveal will play (see index.astro);
        the failsafe shows it anyway if the island never hydrates */
@@ -368,182 +413,297 @@
     &[data-reveal="loading"] {
       opacity: 0;
     }
-  }
 
-  &__link-icon {
-    color: var(--link-color-secondary);
-    transition: transform var(--zen-duration-normal) var(--zen-ease-elegant);
-    opacity: 0.6;
-  }
-
-  &__tags {
-    display: none;
-    flex-shrink: 0;
-    gap: 0.3rem;
-
-    @media screen and (width >= 48rem) {
-      display: inline-flex;
-      align-items: center;
+    &--lead {
+      margin: var(--lead-title-gap) 0 0.35rem;
+      font-size: var(--lead-title-size);
+      line-height: var(--lead-title-lh);
+      letter-spacing: -0.01em;
     }
   }
 
+  &__excerpt {
+    display: -webkit-box;
+    max-width: 55ch;
+    margin-bottom: 0.6rem;
+    overflow: hidden;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    align-items: center;
+  }
+
+  /* The pills from the old rows, as they were */
   &__tag {
+    padding: 0.16rem 0.55rem;
+    border: 1px solid color-mix(in oklch, var(--primary-color) 18%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--primary-color) 6%, transparent);
+    color: var(--link-color-secondary);
     font-size: 0.65rem;
     font-weight: 500;
     line-height: 1;
-    padding: 0.22rem 0.55rem;
-    border-radius: 999px;
-    background: color-mix(in oklch, var(--primary-color) 6%, transparent);
-    border: 1px solid color-mix(in oklch, var(--primary-color) 18%, transparent);
-    color: var(--link-color-secondary);
-    text-transform: lowercase;
     letter-spacing: 0.03em;
+    text-transform: lowercase;
     white-space: nowrap;
     transition:
-      background var(--zen-duration-normal) var(--zen-ease-elegant),
-      border-color var(--zen-duration-normal) var(--zen-ease-elegant),
-      color var(--zen-duration-normal) var(--zen-ease-elegant);
+      background-color var(--motion-small) var(--motion-ease-out),
+      border-color var(--motion-small) var(--motion-ease-out),
+      color var(--motion-small) var(--motion-ease-out);
+  }
+
+  &__item:is(:hover, :focus-visible) &__tag {
+    border-color: color-mix(in oklch, var(--primary-color) 28%, transparent);
+    background: color-mix(in oklch, var(--primary-color) 12%, transparent);
+    color: var(--primary-color);
+  }
+
+  /* Whole image at its own aspect: banners often carry their title, so nothing is cropped */
+  &__thumb {
+    display: block;
+    justify-self: end;
+
+    /* Near-square banners are capped at 11rem tall instead of towering over the text */
+    width: min(100%, 11rem * var(--thumb-ratio, 1.6));
+    height: auto;
+    aspect-ratio: var(--thumb-ratio, 16 / 10);
+    object-fit: cover;
+    border-radius: var(--row-radius);
+    outline: 1px solid color-mix(in oklch, var(--heading-color) 8%, transparent);
+    outline-offset: -1px;
+  }
+
+  /* ── Rows ──
+     Caption and pills share the first line (pills never squeeze the title), title and arrow the
+     second; on phones the pills drop under the title */
+  &__row {
+    display: grid;
+    grid-template-areas:
+      "caption tags ."
+      "title title arrow";
+    grid-template-columns: max-content minmax(0, 1fr) 1rem;
+    gap: var(--caption-gap) 0.75rem;
+
+    /* Inset by the lead's padding and border, so every text column starts on one line */
+    padding: var(--row-pad-y) calc(var(--lead-pad) + 1px);
+    border-radius: var(--row-radius);
+    color: var(--heading-color);
+    text-decoration: none;
+    transition:
+      color var(--motion-micro) var(--motion-ease-out),
+      background-color var(--motion-micro) var(--motion-ease-out),
+      scale var(--motion-micro) var(--motion-ease-out);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--link-color-secondary);
+      background-color: var(--path-tint);
+
+      .latest-posts__arrow {
+        opacity: 1;
+        translate: 0;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+  }
+
+  /* Centred on the title's first line, not the row */
+  &__arrow {
+    grid-area: arrow;
+    align-self: start;
+    margin-top: calc((var(--title-lh) - 1rem) / 2);
+    color: var(--primary-color);
+    opacity: 0;
+    translate: -4px 0;
+    transition:
+      opacity var(--motion-micro) var(--motion-ease-out),
+      translate var(--motion-small) var(--motion-ease-out);
+  }
+
+  /* Pressed: the surface gives a little under the finger (touch adds an ink bloom, _touch.scss) */
+  &__item:active {
+    scale: 0.985;
+  }
+
+  /* ── All reflections ── */
+  &__more {
+    display: flex;
+    justify-content: flex-end;
   }
 
   &__cta {
     display: inline-flex;
+    gap: 0.4rem;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: var(--space-sm);
-    padding: 0.55rem 0.95rem;
+    min-height: 2.75rem;
+    padding: 0 0.9rem;
     border-radius: 999px;
-    border: 1px solid color-mix(in oklch, var(--primary-color) 40%, transparent);
-    background: color-mix(in oklch, var(--primary-color) 12%, transparent);
-    color: var(--link-color-secondary);
+    color: var(--link-color);
+    font-size: 0.95rem;
+    font-weight: 600;
     text-decoration: none;
-    align-self: flex-end;
-    position: relative;
-    overflow: hidden;
     transition:
-      transform var(--motion-page) var(--zen-ease-elegant),
-      box-shadow var(--motion-page) var(--zen-ease-elegant),
-      background-color var(--motion-small) var(--zen-ease-out);
+      background-color var(--motion-micro) var(--motion-ease-out),
+      scale var(--motion-micro) var(--motion-ease-out);
 
-    &::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--primary-color) 8%, transparent), transparent);
-      transform: translateX(-100%);
-      transition: transform 500ms var(--zen-ease-elegant);
-      pointer-events: none;
+    .icon {
+      transition: translate var(--motion-small) var(--motion-ease-out);
     }
 
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow:
-        var(--home-card-shadow-soft),
-        0 4px 12px color-mix(in oklch, var(--primary-color) 12%, transparent);
-      background: color-mix(in oklch, var(--primary-color) 18%, transparent);
+    &:hover,
+    &:focus-visible {
+      background-color: var(--path-tint);
 
-      &::before {
-        transform: translateX(100%);
+      .icon {
+        translate: 3px 0;
       }
+    }
 
-      .icon:last-child {
-        transform: translateX(3px);
-      }
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
     }
 
     &:active {
-      transform: scale(0.97);
-      transition: transform 80ms;
+      scale: 0.97;
+    }
+  }
+
+  /* Phones: the thumbnail leads the card; the dot moves down to the title under it */
+  @media (width < 40rem) {
+    &__lead {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.875rem;
     }
 
-    .icon {
-      color: inherit;
-      transition: transform var(--motion-page) var(--zen-ease-elegant);
+    &__thumb {
+      order: -1;
+      width: 100%;
+    }
+
+    &__stop--thumb {
+      --dot-y: calc(var(--lead-dot-y) + (100cqw - 2 * var(--lead-pad) - 2px) / var(--thumb-ratio) + 0.875rem);
+    }
+
+    &__row {
+      grid-template-areas:
+        "caption ."
+        "title arrow"
+        "tags .";
+      grid-template-columns: minmax(0, 1fr) 1rem;
+    }
+
+    &__row &__tags {
+      height: auto;
+      margin-top: 0.3rem;
+    }
+  }
+
+  /* No hover on touch screens: the arrow is simply there */
+  @media (hover: none) {
+    &__arrow {
+      opacity: 1;
+      translate: 0;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    &__item:hover,
-    &__item:focus-within {
+    &__lead:is(:hover, :focus-visible) {
       transform: none;
     }
 
-    &__item:active {
-      transform: none;
-      box-shadow: var(--home-card-shadow-soft);
-    }
-
-    &__cta::before {
+    &__lead::before {
       display: none;
     }
 
-    &__cta:hover {
-      transform: none;
-    }
-
+    &__item:active,
     &__cta:active {
-      transform: none;
-    }
-  }
-
-  @media (hover: none) and (pointer: coarse) {
-    &__item:hover {
-      transform: none;
-      background: var(--surface-glass);
-      border-color: var(--border-glass);
-      box-shadow: var(--home-card-shadow-soft), 0 1px 0 var(--border-image);
+      scale: none;
     }
 
-    &__item:active {
-      transform: scale(0.985);
-      background: var(--surface-glass-hover);
+    &__arrow,
+    &__cta .icon {
+      translate: 0 !important;
     }
 
-    &__cta:hover {
-      transform: none;
+    &__path.zen-stagger > &__stop::before,
+    &__path.zen-stagger > &__stop::after {
+      animation: none;
+    }
+
+    &__stop::before {
+      scale: none !important;
     }
   }
 }
 
+/* Heading tracking suits small labels; at heading size it only loosens the words */
+.site-layout__content--home .section-heading {
+  letter-spacing: 0;
+}
 
+/* Already drawn when the page arrives by a view transition or comes back from the garden */
+html:is([data-page-arrived], [data-garden-return]) .latest-posts__stop::before,
+html:is([data-page-arrived], [data-garden-return]) .latest-posts__stop::after {
+  animation: none;
+}
+
+@keyframes latest-dot-in {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+}
+
+@keyframes latest-path-draw {
+  from {
+    scale: 1 0;
+  }
+}
+
+
+/* Daily Haiku: the card is the one raised object; the reading is a margin note beside a hairline.
+   The section has no surface of its own, only the pointer's faint wash over the dissolving text. */
 .haiku-card-section {
   margin-top: var(--space-lg);
+}
+
+@property --haiku-fade {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
 }
 
 .haiku-card {
   --mouse-x: 50%;
   --mouse-y: 50%;
+  --haiku-lift:
+    0 1px 2px oklch(30% 0.05 350deg / 8%),
+    0 22px 40px -18px oklch(30% 0.05 350deg / 35%);
+  --haiku-lift-hover:
+    0 2px 4px oklch(30% 0.05 350deg / 8%),
+    0 30px 48px -20px oklch(30% 0.05 350deg / 40%);
 
   position: relative;
-  border-radius: calc(var(--radius-md) + 0.125rem);
-  padding: clamp(1rem, 2.5vw, 1.5rem) clamp(1.1rem, 3vw, 1.65rem)
-    clamp(1.1rem, 3vw, 1.65rem);
-  background: var(--surface-haiku);
-  border: 1px solid var(--border-glass-strong);
-  box-shadow:
-    var(--home-card-shadow),
-    0 1px 0 var(--surface-glass-strong);
-  overflow: hidden;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: -40%;
-    left: -10%;
-    width: 20rem;
-    height: 20rem;
-    background: radial-gradient(circle, oklch(78% 0.06 350deg / 45%), transparent 60%);
-    opacity: 0.5;
-    pointer-events: none;
-    transform: rotate(12deg);
-  }
 
   &::after {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
+    border-radius: var(--radius-lg);
     background: radial-gradient(
       circle 180px at var(--mouse-x) var(--mouse-y),
       color-mix(in oklch, var(--primary-color) 8%, transparent),
@@ -552,99 +712,55 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 400ms var(--zen-ease-out);
-    z-index: 1;
   }
 
   &--hover::after {
     opacity: 1;
   }
 
-  &__frame {
+  &__grid {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: clamp(1rem, 2.5vw, 1.5rem);
     z-index: 1;
+    display: grid;
+    gap: var(--space-lg);
+
+    @media screen and (width >= 48rem) {
+      grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+      gap: clamp(1.5rem, 4vw, 3.5rem);
+      align-items: start;
+    }
   }
 
-  &__meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-sm);
-  }
+  /* ── The card, with its seal ── */
+  &__visual {
+    position: relative;
+    inline-size: min(15rem, 80%);
+    margin: 0.85rem auto 0;
+    transition: transform var(--motion-page) var(--zen-ease-out);
 
-  &__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.35rem 0.75rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--primary-color);
-  }
-
-  &__meta-note {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-  }
-
-  &__meta-link {
-    color: var(--link-color-secondary);
-    text-decoration: none;
-    border-bottom: 1px dotted color-mix(in oklch, var(--primary-color) 45%, transparent);
-    transition: color var(--motion-small) ease;
+    @media screen and (width >= 48rem) {
+      inline-size: auto;
+      margin: 0.85rem 0 0;
+    }
 
     &:hover {
-      color: var(--link-color-secondary-hover);
+      transform: translateY(-3px) rotate(-0.4deg);
     }
-  }
 
-  &__grid {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(0.75rem, 2.5vw, 1.5rem);
-
-    @media screen and (width >= 48rem) {
-      flex-direction: row;
-      align-items: stretch;
-    }
-  }
-
-  &__visual {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    align-items: center;
-
-    @media screen and (width >= 48rem) {
-      flex: 0 0 clamp(18rem, 24vw, 22rem);
+    &:hover .haiku-card__visual-frame {
+      box-shadow: var(--haiku-lift-hover);
     }
   }
 
   &__visual-frame {
     position: relative;
-    width: min(18rem, 100%);
+    inline-size: 100%;
     aspect-ratio: 4 / 5;
-    margin-top: 0.5rem;
-    border-radius: calc(var(--radius-md) + 0.25rem);
+    border-radius: calc(var(--radius-md) + 0.125rem);
     overflow: hidden;
-    box-shadow:
-      0 2px 4px oklch(0% 0 0deg / 5%),
-      0 8px 24px oklch(0% 0 0deg / 8%),
-      0 1px 0 var(--border-image);
     background: var(--primary-bg-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    box-shadow: var(--haiku-lift);
+    transition: box-shadow var(--motion-page) var(--zen-ease-out);
 
     &::after {
       content: "";
@@ -652,91 +768,331 @@
       inset: 0;
       border-radius: inherit;
       border: 1px solid var(--border-image);
-      box-shadow: inset 0 0 0 1px oklch(0% 0 0deg / 4%);
       pointer-events: none;
     }
   }
 
   &__image {
-    width: 100%;
-    height: 100%;
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
     object-fit: cover;
-    display: block;
+    border-radius: 0;
   }
 
-  /* A caption under the card: as wide as the card it captions, centred on it, set as a sentence
-     (label tracking is for uppercase labels, not running text) */
-  &__credit {
-    display: block;
-    width: min(18rem, 100%);
-    font-size: 0.8rem;
-    line-height: 1.5;
-    color: var(--text-secondary);
-    letter-spacing: 0.01em;
-    text-align: center;
-    text-wrap: balance;
-    margin-top: 0.5rem;
-
-    a {
-      color: inherit;
-      text-decoration: underline;
-      text-decoration-style: dotted;
-    }
-
-    .icon {
-      color: var(--link-color-secondary);
-    }
+  /* A hanko pressed on the corner: rose ink, a double ring, set a little askew */
+  &__seal {
+    position: absolute;
+    inset-block-start: -0.85rem;
+    inset-inline-end: -0.85rem;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.1rem;
+    inline-size: 3.5rem;
+    block-size: 3.5rem;
+    border: 1.5px solid currentcolor;
+    border-radius: 50%;
+    outline: 1px solid color-mix(in oklch, currentcolor 45%, transparent);
+    outline-offset: -5px;
+    color: var(--primary-color);
+    background: var(--surface-card-solid);
+    box-shadow:
+      0 0 0 3px var(--surface-card-solid),
+      0 6px 14px -8px oklch(30% 0.05 350deg / 35%);
+    rotate: 8deg;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+    pointer-events: none;
   }
 
-  &__credit-icon {
-    color: var(--link-color-secondary);
+  &__seal-day {
+    font-family: Comfortaa, sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: 0;
   }
 
+  /* ── The margin note ── */
   &__content {
-    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.65rem;
-    background: var(--surface-card-content);
-    border-radius: calc(var(--radius-md) + 0.125rem);
-    border: 1px solid var(--border-glass);
-    box-shadow:
-      0 2px 4px oklch(0% 0 0deg / 4%),
-      0 6px 16px oklch(0% 0 0deg / 5%),
-      inset 0 1px 0 var(--border-image);
-    padding: clamp(0.9rem, 2.4vw, 1.35rem) clamp(1.15rem, 3vw, 1.8rem);
+    align-items: flex-start;
+    min-inline-size: 0;
 
+    /* Centred on the card while it is the shorter of the two; an opened reading grows downward
+       and the card stays where it was */
     @media screen and (width >= 48rem) {
-      gap: 1rem;
-      padding: clamp(1.5rem, 3vw, 2.25rem);
+      align-self: center;
+      padding-block: 0.25rem;
+      padding-inline-start: clamp(1.25rem, 3vw, 2rem);
+      border-inline-start: 1px solid var(--border-subtle);
+    }
+  }
+
+  &__eyebrow {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: var(--primary-color);
+  }
+
+  &__lead {
+    max-inline-size: 36ch;
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.05rem, 1rem + 0.3vw, 1.18rem);
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--heading-color);
+    text-wrap: balance;
+    animation: zen-fade-in var(--motion-page) var(--zen-ease-out) both;
+  }
+
+  &__lead-skeleton {
+    inline-size: 55%;
+    block-size: 1.1rem;
+    margin-block-end: 1rem;
+  }
+
+  &__reading {
+    inline-size: 100%;
+    max-inline-size: 62ch;
+  }
+
+  /* Five lines at rest, fading out; open, the measured height of the whole reading */
+  &__clamp {
+    --haiku-lines: 5;
+
+    max-block-size: calc(var(--haiku-lines) * 1.65 * 0.95rem);
+    overflow: hidden;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    transition:
+      max-block-size var(--motion-page) var(--zen-ease-out),
+      --haiku-fade var(--motion-page) var(--zen-ease-out);
+
+    &[data-overflows="true"] {
+      --haiku-fade: 3.2em;
+
+      mask-image: linear-gradient(to bottom, black calc(100% - var(--haiku-fade)), transparent);
+    }
+
+    &[data-open="true"] {
+      --haiku-fade: 0;
+
+      max-block-size: var(--haiku-full);
     }
   }
 
   &__quote {
     margin: 0;
-    font-size: 0.92rem;
-    line-height: 1.65;
-    font-weight: 500;
-    color: var(--heading-color);
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: 400;
+    color: var(--text-color);
     white-space: normal;
     overflow-wrap: break-word;
     text-align: left;
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23570231' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z'/%3E%3Cpath d='M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12'/%3E%3C/svg%3E") 4 4, default;
   }
 
-  &__divider {
-    height: 1px;
-    width: 100%;
-    background: linear-gradient(90deg, color-mix(in oklch, var(--primary-color) 60%, transparent), transparent);
-    border-radius: 999px;
+  /* Text buttons in the note's own ink */
+  &__more,
+  &__trace {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-weight: 700;
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: color var(--motion-small) var(--zen-ease-out);
+
+    &:hover {
+      color: var(--heading-color);
+    }
   }
 
-  &__hint {
-    font-size: 0.82rem;
+  &__more {
+    margin-block-start: 0.35rem;
+    font-size: 0.85rem;
+  }
+
+  &__chevron {
+    flex: none;
+    transition: rotate var(--motion-small) var(--zen-ease-out);
+  }
+
+  &__more[aria-expanded="true"] &__chevron {
+    rotate: 180deg;
+  }
+
+  &__trace &__chevron {
+    rotate: -90deg;
+  }
+
+  &__trace[aria-expanded="true"] &__chevron {
+    rotate: 0deg;
+  }
+
+  /* The article's pause, left-aligned under the note */
+  &__rule {
+    margin: var(--space-md) 0 var(--space-sm);
+  }
+
+  /* ── The day's footer: ring and countdown, the source, the link ── */
+  &__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 1.25rem;
+    font-size: 0.8rem;
     color: var(--text-secondary);
-    text-align: left;
-    letter-spacing: 0.015em;
-    margin-top: auto;
+
+    @media screen and (width >= 48rem) {
+      column-gap: 0.85rem;
+    }
+  }
+
+  &__next {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding-block: 0.25rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  &__ring {
+    flex: none;
+    inline-size: 1rem;
+    block-size: 1rem;
+    border-radius: 50%;
+    background: conic-gradient(
+      var(--primary-color) calc(var(--haiku-day, 0) * 1turn),
+      color-mix(in oklch, var(--primary-color) 18%, transparent) 0
+    );
+    mask: radial-gradient(closest-side, transparent 58%, black 62%);
+
+    @media (forced-colors: active) {
+      border: 1px solid CanvasText;
+      background: none;
+      mask: none;
+    }
+  }
+
+  /* Stacked on a phone the row wraps: a dot would dangle at a line end, so the gap alone parts it */
+  &__sep {
+    display: none;
+    flex: none;
+    inline-size: 3px;
+    block-size: 3px;
+    border-radius: 50%;
+    background: color-mix(in oklch, var(--text-secondary) 45%, transparent);
+
+    @media screen and (width >= 48rem) {
+      display: block;
+    }
+  }
+
+  &__trace {
+    font-size: 0.8rem;
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding-block: 0.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color var(--motion-small) var(--zen-ease-out);
+
+    &:hover {
+      color: var(--heading-color);
+    }
+  }
+
+  /* The answer opens as its own row under the footer, so nothing beside the toggle moves */
+  &__answer {
+    order: 10;
+    flex-basis: 100%;
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition:
+      grid-template-rows var(--motion-small) var(--zen-ease-out),
+      visibility 0s linear var(--motion-small);
+
+    &[data-open="true"] {
+      grid-template-rows: 1fr;
+      visibility: visible;
+      transition-delay: 0s;
+    }
+  }
+
+  &__answer-inner {
+    min-block-size: 0;
+    overflow: hidden;
+
+    p {
+      max-inline-size: 46ch;
+      margin: 0.35rem 0 0;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      text-wrap: pretty;
+    }
+
+    cite {
+      font-style: normal;
+      font-weight: 700;
+      color: var(--heading-color);
+    }
+  }
+
+  &__bookmoji {
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  &__riddle {
+    max-inline-size: 46ch;
+    margin: 0.35rem 0 0;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__visual,
+    &__visual:hover {
+      transform: none;
+    }
+
+    &__clamp,
+    &__answer,
+    &__chevron {
+      transition: none;
+    }
+
+    &__lead {
+      animation: none;
+    }
   }
 }
 
@@ -751,40 +1107,41 @@
     0 0 0 1px color-mix(in oklch, var(--primary-color) 8%, transparent),
     inset 0 1px 0 oklch(100% 0 0deg / 8%);
 
-  .latest-posts__panel,
+  /* The haiku card sinks into a darker shadow; the seal keeps a paper disc under its ink */
   .haiku-card {
-    background: var(--surface-card-solid);
+    --haiku-lift:
+      0 24px 44px -18px oklch(0% 0 0deg / 75%),
+      0 0 0 1px oklch(100% 0 0deg / 5%);
+    --haiku-lift-hover:
+      0 30px 52px -18px oklch(0% 0 0deg / 80%),
+      0 0 0 1px oklch(100% 0 0deg / 7%);
+  }
+
+  /* The lead card is paper raised off the path, with the lit rim; the path's tint warms a little
+     so a hovered row still reads against the darker page */
+  .latest-posts {
+    --path-tint: color-mix(in oklch, var(--primary-color) 9%, transparent);
+    --lead-surface: linear-gradient(var(--night-card-raised), var(--night-card-raised));
+  }
+
+  .latest-posts__lead {
     box-shadow:
       var(--home-card-shadow),
       var(--night-card-rim);
   }
 
-  .latest-posts__item,
-  .haiku-card__content {
-    background: var(--night-card-raised);
-    box-shadow:
-      var(--home-card-shadow-soft),
-      var(--night-card-rim);
-  }
+  /* A lifted card catches a little more light; touch screens only see it while pressed */
+  .latest-posts__lead:is(:focus-visible, :active) {
+    --lead-surface: linear-gradient(var(--night-card-lifted), var(--night-card-lifted));
 
-  /* A lifted row catches a little more light; touch screens only see it while pressed */
-  .latest-posts__item:is(:focus-within, :active) {
-    background: var(--night-card-lifted);
     box-shadow: var(--night-card-lifted-shadow);
   }
 
   @media (hover: hover) {
-    .latest-posts__item:hover {
-      background: var(--night-card-lifted);
-      box-shadow: var(--night-card-lifted-shadow);
-    }
-  }
+    .latest-posts__lead:hover {
+      --lead-surface: linear-gradient(var(--night-card-lifted), var(--night-card-lifted));
 
-  /* Phones: the rows are the cards (see .latest-posts__panel above), so the frame stays off */
-  @media (width < 48rem) {
-    .latest-posts__panel {
-      background: none;
-      box-shadow: none;
+      box-shadow: var(--night-card-lifted-shadow);
     }
   }
 }

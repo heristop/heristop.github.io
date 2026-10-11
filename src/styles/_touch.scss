@@ -53,7 +53,9 @@
   }
 
   /* Inline text links cannot scale (transforms skip inline boxes): they dim, like iOS text buttons */
-  .haiku-card__meta-link,
+  .haiku-card__link,
+  .haiku-card__more,
+  .haiku-card__trace,
   .blog-archive__rss-copy,
   .blog-archive__tags-link,
   .tag-archive__back {
@@ -80,7 +82,8 @@
       scale var(--motion-micro) var(--zen-ease-out);
   }
 
-  /* .latest-posts__item already presses to 0.985 in _home.scss; it only takes the bloom */
+  /* .latest-posts__item (the lead card and the path rows) already presses to 0.985 in
+     _home.scss; it only takes the bloom */
   .zen-card--visible:active {
     scale: 0.985;
   }
@@ -93,6 +96,18 @@
       color-mix(in oklch, var(--primary-color) 4%, transparent) 38%,
       transparent 70%
     );
+  }
+
+  /* The lead card's paper stays under its bloom */
+  .latest-posts__lead:active {
+    background-image:
+      radial-gradient(
+        circle at var(--press-x, 50%) var(--press-y, 50%),
+        color-mix(in oklch, var(--primary-color) 11%, transparent) 0%,
+        color-mix(in oklch, var(--primary-color) 4%, transparent) 38%,
+        transparent 70%
+      ),
+      var(--lead-surface);
   }
 
   .zen-card--visible:active {
@@ -116,7 +131,7 @@
   :root .tag-archive__back.tag-archive__back::after,
   .site-header-nav .header__brand-link::after,
   .site-header__title.title a::after,
-  .haiku-card__meta-link::after {
+  .haiku-card__link::after {
     content: "";
     position: absolute;
     width: auto;
@@ -171,8 +186,24 @@
     z-index: auto;
   }
 
-  .haiku-card__meta-link::after {
-    inset: -11px -4px;
+  /* The GutenKu link (a 26px row): its halo reaches 44 without moving the footer */
+  .haiku-card__link {
+    position: relative;
+  }
+
+  .haiku-card__link::after {
+    inset: -9px -6px;
+  }
+
+  /* The note's text buttons: grow the box, give the space back */
+  .haiku-card__more,
+  .haiku-card__trace {
+    padding-block: 0.75rem;
+    margin-block: -0.5rem;
+  }
+
+  .haiku-card__more {
+    margin-block-start: -0.15rem;
   }
 
   /* Inline button in running text: grow the box, give the space back with negative margins */

@@ -1,19 +1,23 @@
 ---
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ClientRouter } from "astro:transitions";
 import { Image } from "astro:assets";
+import { imageMetadata } from "astro/assets/utils";
 import {
   SITE_DESCRIPTION,
   SITE_TITLE,
 } from "../consts";
 import { person, website } from "../structured-data";
 import { getPublishedPosts } from "../utils/posts";
+import { countWords, readingMinutes } from "../utils/reading-time";
 import BaseHead from "../components/BaseHead.astro";
 import Footer from "../components/Footer.astro";
-import FormattedDate from "../components/FormattedDate.astro";
 import Header from "../components/Header.astro";
 import Icon from "../components/Icon.astro";
 import ZenFade from "../components/zen/ZenFade.astro";
 import ZenHaikuReveal from "../components/client/zen-haiku-reveal";
+import haikuDaily from "../components/client/haiku-daily";
 import ZenSlide from "../components/zen/ZenSlide.astro";
 import SakuraPetals from "../components/SakuraPetals.astro";
 import ZenTextReveal from "@zazencode/ui/text-reveal";
@@ -36,12 +40,54 @@ const posts = allBlogPosts.toSorted(
 );
 
 const LATEST_POSTS_COUNT = 5;
-const latestPosts = posts.slice(0, LATEST_POSTS_COUNT);
+const [leadPost, ...pathPosts] = posts.slice(0, LATEST_POSTS_COUNT);
+
+// Dates read as stamps: "6 Sep", the year only once it is not this year's. Built from a fixed
+// table because en-GB short months say "Sept"; UTC because front-matter dates are UTC midnights.
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const builtAt = new Date();
+const stampDate = (date: Date): string => {
+  const dayMonth = `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]}`;
+  return date.getUTCFullYear() === builtAt.getUTCFullYear()
+    ? dayMonth
+    : `${dayMonth} ${date.getUTCFullYear()}`;
+};
+
+// "New" only while it is: past a month the lead post is simply the latest one
+const FRESH_DAYS = 30;
+const DAY_MS = 86_400_000;
+const isFresh = (date?: Date): boolean =>
+  date !== undefined && builtAt.valueOf() - date.valueOf() < FRESH_DAYS * DAY_MS;
+
+const minutesFor = (post: (typeof posts)[number]): number =>
+  readingMinutes(countWords(post.body ?? ""));
+
+// Post banners live in public/: no pipeline to resize them, so read their intrinsic size for the
+// width/height attributes (no layout shift) and let the browser downscale the lazy thumbnail
+const readPublicImageSize = async (src: string): Promise<{ width?: number; height?: number }> => {
+  if (!src.startsWith("/")) {
+    return {};
+  }
+  try {
+    const { width, height } = await imageMetadata(await readFile(join(process.cwd(), "public", src)), src);
+    return { width, height };
+  } catch {
+    return {};
+  }
+};
+const leadThumb = leadPost?.data.image
+  ? { src: leadPost.data.image, ...(await readPublicImageSize(leadPost.data.image)) }
+  : undefined;
+// Banners often carry their own title: the thumbnail keeps the whole image at its own aspect
+const leadThumbRatio =
+  leadThumb?.width && leadThumb.height ? +(leadThumb.width / leadThumb.height).toFixed(4) : undefined;
 
 const timestamp = Date.now();
 const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/assets/img/daily_haiku_card.jpg?t=${timestamp}`;
 
 const haikuDescriptionUrl = "https://raw.githubusercontent.com/heristop/gutenku/main/assets/description.txt";
+const haikuSourceUrl = "https://raw.githubusercontent.com/heristop/gutenku/main/assets/social-preview-description.txt";
+const buildDay = haikuDaily.haikuDay(new Date());
 
 // The site and its author as linked entities: posts reference both by @id
 const websiteSchema = {
@@ -88,86 +134,147 @@ const websiteSchema = {
             </h2>
           </ZenSlide>
 
-          <div class="latest-posts__panel">
-            <ZenSlide direction="up" delay={400}>
-              <ul class="post-list latest-posts__list">
-                {
-                  latestPosts.map((post, index) => (
-                    <li class="post-list__item latest-posts__item">
-                      <a class="latest-posts__link zen-hover-lift" href={`/blog/${post.id}/`}>
-                        {post.data.pubDate && (
-                          <span class="post-list__date latest-posts__date">
-                            <span
-                              class="latest-posts__date-pill"
-                              transition:name={`post-date-${post.id}`}
-                            >
-                              <FormattedDate date={post.data.pubDate} />
-                            </span>
+          <!-- The newest post leads; the older ones are stones on one path. Each title, date and tag
+               line carries the article's shared name, so a click morphs it into the page heading. -->
+          <ol class="latest-posts__path zen-stagger">
+            {leadPost && (
+              <li
+                class:list={["latest-posts__stop latest-posts__stop--lead", { "latest-posts__stop--thumb": leadThumbRatio }]}
+                style={`--stop: 0${leadThumbRatio ? `; --thumb-ratio: ${leadThumbRatio}` : ""}`}
+              >
+                <a
+                  class="latest-posts__lead latest-posts__item"
+                  href={`/blog/${leadPost.id}/`}
+                  aria-labelledby={`latest-title-${leadPost.id} latest-date-${leadPost.id}`}
+                  aria-describedby={`latest-excerpt-${leadPost.id}`}
+                >
+                  <span class="latest-posts__lead-body">
+                    <span class="latest-posts__eyebrow" id={`latest-date-${leadPost.id}`}>
+                      {isFresh(leadPost.data.pubDate) ? "New" : "Latest"}
+                      {leadPost.data.pubDate && (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span class="latest-posts__date" transition:name={`post-date-${leadPost.id}`}>
+                            <time datetime={leadPost.data.pubDate.toISOString()}>{stampDate(leadPost.data.pubDate)}</time>
                           </span>
-                        )}
-                        <ZenTextReveal
-                          client:visible
-                          text={post.data.title}
-                          className="latest-posts__title"
-                          mobileStrategy="text"
-                          revealOnce={TITLE_REVEAL_SESSION_KEY}
-                          startDelayMs={index * TITLE_REVEAL_TIMING.rowStaggerMs}
-                          viewTransitionName={titleTransitionName(post.data.title)}
-                        />
-                        {post.data.tags && post.data.tags.length > 0 && (
-                          <div
-                            class="latest-posts__tags"
-                            transition:name={`post-tags-${post.id}`}
-                          >
-                            {post.data.tags.slice(0, 2).map((tag: string) => (
-                              <span class="latest-posts__tag">{tag}</span>
-                            ))}
-                          </div>
-                        )}
-                        <Icon
-                          name="arrow-right"
-                          size={18}
-                          aria-hidden={true}
-                          class="latest-posts__link-icon"
-                        />
-                      </a>
-                    </li>
-                  ))
-                }
-              </ul>
-            </ZenSlide>
+                        </>
+                      )}
+                      <span aria-hidden="true">·</span>
+                      <span>{minutesFor(leadPost)} min</span>
+                    </span>
+                    <span class="latest-posts__title-slot" id={`latest-title-${leadPost.id}`}>
+                      <ZenTextReveal
+                        client:visible
+                        text={leadPost.data.title}
+                        className="latest-posts__title latest-posts__title--lead"
+                        measureFont
+                        lineDisplay="block"
+                        mobileStrategy="text"
+                        revealOnce={TITLE_REVEAL_SESSION_KEY}
+                        viewTransitionName={titleTransitionName(leadPost.data.title)}
+                      />
+                    </span>
+                    <span class="latest-posts__excerpt" id={`latest-excerpt-${leadPost.id}`}>
+                      {leadPost.data.description}
+                    </span>
+                    {leadPost.data.tags.length > 0 && (
+                      <span class="latest-posts__tags" transition:name={`post-tags-${leadPost.id}`}>
+                        {leadPost.data.tags.slice(0, 2).map((tag: string) => (
+                          <span class="latest-posts__tag">{tag}</span>
+                        ))}
+                      </span>
+                    )}
+                  </span>
+                  {leadThumb && (
+                    <img
+                      class="latest-posts__thumb"
+                      src={leadThumb.src}
+                      alt=""
+                      width={leadThumb.width}
+                      height={leadThumb.height}
+                      loading="lazy"
+                      decoding="async"
+                      style={leadPost.data.bannerPosition ? `object-position: ${leadPost.data.bannerPosition}` : undefined}
+                    />
+                  )}
+                </a>
+              </li>
+            )}
+            {pathPosts.map((post, index) => (
+              <li class="latest-posts__stop" style={`--stop: ${index + 1}`}>
+                <a
+                  class="latest-posts__row latest-posts__item"
+                  href={`/blog/${post.id}/`}
+                  aria-labelledby={`latest-title-${post.id} latest-date-${post.id}`}
+                >
+                  <span class="latest-posts__caption" id={`latest-date-${post.id}`}>
+                    {post.data.pubDate && (
+                      <>
+                        <span class="latest-posts__date" transition:name={`post-date-${post.id}`}>
+                          <time datetime={post.data.pubDate.toISOString()}>{stampDate(post.data.pubDate)}</time>
+                        </span>
+                        <span aria-hidden="true">·</span>
+                      </>
+                    )}
+                    <span>{minutesFor(post)} min</span>
+                  </span>
+                  <span class="latest-posts__title-slot" id={`latest-title-${post.id}`}>
+                    <ZenTextReveal
+                      client:visible
+                      text={post.data.title}
+                      className="latest-posts__title"
+                      measureFont
+                      lineDisplay="block"
+                      mobileStrategy="text"
+                      revealOnce={TITLE_REVEAL_SESSION_KEY}
+                      startDelayMs={(index + 1) * TITLE_REVEAL_TIMING.rowStaggerMs}
+                      viewTransitionName={titleTransitionName(post.data.title)}
+                    />
+                  </span>
+                  {post.data.tags.length > 0 && (
+                    <span class="latest-posts__tags" transition:name={`post-tags-${post.id}`}>
+                      {post.data.tags.slice(0, 2).map((tag: string) => (
+                        <span class="latest-posts__tag">{tag}</span>
+                      ))}
+                    </span>
+                  )}
+                  <Icon name="arrow-right" size={16} aria-hidden={true} class="latest-posts__arrow" />
+                </a>
+              </li>
+            ))}
+          </ol>
 
-            <ZenSlide direction="up" delay={500}>
-              <a class="latest-posts__cta zen-hover-scale" href="/blog/">
-                Read all reflections
-                <Icon name="arrow-up-right" size={16} aria-hidden={true} />
-              </a>
-            </ZenSlide>
-          </div>
+          <ZenSlide direction="up" delay={900} className="latest-posts__more">
+            <a class="latest-posts__cta" href="/blog/">
+              All {allBlogPosts.length} reflections
+              <Icon name="arrow-right" size={16} aria-hidden={true} />
+            </a>
+          </ZenSlide>
 
           <script type="module" is:inline>
-            const initPanelGlow = () => {
-              const panel = document.querySelector('.latest-posts__panel');
-              // Runs on load and again on astro:page-load; bind once per panel element
-              if (!panel || panel.dataset.glowBound) {return;}
-              panel.dataset.glowBound = 'true';
+            // The lead card keeps the old panel's soft light that follows the cursor
+            const initLeadGlow = () => {
+              const lead = document.querySelector('.latest-posts__lead');
+              // Runs on load and again on astro:page-load; bind once per card element
+              if (!lead || lead.dataset.glowBound) {return;}
+              lead.dataset.glowBound = 'true';
               let frame = 0;
               let pointerX = 0;
               let pointerY = 0;
               const paint = () => {
                 frame = 0;
-                const rect = panel.getBoundingClientRect();
-                panel.style.setProperty('--glow-x', `${pointerX - rect.left}px`);
-                panel.style.setProperty('--glow-y', `${pointerY - rect.top}px`);
+                const rect = lead.getBoundingClientRect();
+                lead.style.setProperty('--glow-x', `${pointerX - rect.left}px`);
+                lead.style.setProperty('--glow-y', `${pointerY - rect.top}px`);
               };
-              panel.addEventListener('mousemove', (e) => {
+              lead.addEventListener('mousemove', (e) => {
                 pointerX = e.clientX;
                 pointerY = e.clientY;
                 frame ||= requestAnimationFrame(paint);
               });
             };
-            initPanelGlow();
-            document.addEventListener('astro:page-load', initPanelGlow);
+            initLeadGlow();
+            document.addEventListener('astro:page-load', initLeadGlow);
           </script>
           <!-- A row title clicked here morphs into the article heading: see PageMotion.astro -->
         </section>
@@ -176,53 +283,53 @@ const websiteSchema = {
           <ZenSlide direction="up" delay={600}>
             <h2 id="haiku-heading" class="section-heading">
               <Icon name="feather" size={24} class="section-heading__icon" aria-hidden={true} />
-              Daily Haiku Card
+              Daily Haiku
             </h2>
           </ZenSlide>
 
           <ZenFade delay={800}>
             <div class="haiku-card">
-              <div class="haiku-card__frame">
-                <div class="haiku-card__meta">
-                  <span class="haiku-card__badge">
-                    <Icon name="sunrise" size={16} aria-hidden={true} /> Zen Daily
-                  </span>
-                  <span class="haiku-card__meta-note">
-                    <a class="haiku-card__meta-link" href="https://gutenku.xyz" target="_blank" rel="noopener noreferrer">Powered by GutenKu <Icon name="external-link" size={12} aria-hidden={true} /></a>
-                  </span>
-                </div>
-
-                <div class="haiku-card__grid">
-                  <figure class="haiku-card__visual">
-                    <div class="haiku-card__visual-frame">
-                      <Image
-                        width="216"
-                        height="270"
-                        class="haiku-card__image"
-                        src={haikuCard}
-                        alt="Daily generated haiku card with artistic image"
-                        loading="lazy"
-                      />
-                    </div>
-
-                    <figcaption class="haiku-card__credit">
-                      This composition borrows its spark from literature. Can you trace it back?
-                    </figcaption>
-                  </figure>
-
-                  <div class="haiku-card__content">
-                    <ZenHaikuReveal client:visible url={haikuDescriptionUrl} />
-
-                    <div class="haiku-card__divider" aria-hidden={true}></div>
-
-                    <p class="haiku-card__hint">
-                      Breathe in, read slowly, and check back tomorrow to welcome the next verse.
-                    </p>
+              <div class="haiku-card__grid">
+                <figure class="haiku-card__visual">
+                  <div class="haiku-card__visual-frame">
+                    <Image
+                      width="216"
+                      height="270"
+                      class="haiku-card__image"
+                      src={haikuCard}
+                      alt="Today’s haiku card from GutenKu: three verses set over an ink painting"
+                      loading="lazy"
+                    />
                   </div>
+                  <!-- An ink seal with the day: the build date first, today's once the page runs -->
+                  <span class="haiku-card__seal" role="img" aria-label={buildDay.fullDate} data-haiku-seal>
+                    <span class="haiku-card__seal-month">{buildDay.month}</span>
+                    <span class="haiku-card__seal-day">{buildDay.day}</span>
+                  </span>
+                </figure>
+
+                <div class="haiku-card__content">
+                  <ZenHaikuReveal client:visible url={haikuDescriptionUrl} sourceUrl={haikuSourceUrl} />
                 </div>
               </div>
             </div>
           </ZenFade>
+          <script>
+            import daily from "../components/client/haiku-daily";
+
+            const stampSeal = () => {
+              const day = daily.haikuDay(new Date());
+              for (const seal of document.querySelectorAll<HTMLElement>("[data-haiku-seal]")) {
+                seal.setAttribute("aria-label", day.fullDate);
+                const month = seal.querySelector(".haiku-card__seal-month");
+                const date = seal.querySelector(".haiku-card__seal-day");
+                if (month) { month.textContent = day.month; }
+                if (date) { date.textContent = day.day; }
+              }
+            };
+            stampSeal();
+            document.addEventListener("astro:page-load", stampSeal);
+          </script>
         </section>
       </main>
 

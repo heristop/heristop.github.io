@@ -142,7 +142,7 @@ html[data-nav-direction="prev"]::view-transition-new(.post-morph):only-child {
 /* ── Shared elements: a post's title, date and tags travel between its row or card and the
    article. Names come from `transition:name` (date, tags) and PageMotion (titles). ── */
 
-.latest-posts__date-pill,
+.latest-posts__date,
 .latest-posts__tags,
 .latest-posts__title,
 .blog-card__date-text,
@@ -154,7 +154,7 @@ html[data-nav-direction="prev"]::view-transition-new(.post-morph):only-child {
 }
 
 /* Between two lists nothing travels: rows and cards simply go with the body */
-html:not([data-post-morph]) :is(.latest-posts__date-pill, .latest-posts__tags, .blog-card__date-text, .blog-card__tags) {
+html:not([data-post-morph]) :is(.latest-posts__date, .latest-posts__tags, .blog-card__date-text, .blog-card__tags) {
   view-transition-name: none !important;
 }
 

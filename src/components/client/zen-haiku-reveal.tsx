@@ -5,12 +5,28 @@ import useHaikuAnimation from "./use-haiku-animation";
 import { usesCoarsePointer } from "@zazencode/ui/pretext-loader";
 import type { CharDrift } from "@zazencode/ui/text-reveal-motion";
 import type { CharCacheEntry } from "./haiku-dissolve";
+import daily from "./haiku-daily";
+import type { HaikuSource } from "./haiku-daily";
+import { HaikuEyebrow, HaikuFoot, HaikuReading, useNow } from "./haiku-note";
 
 const { getSmokeStyle, useReducedMotion } = textReveal;
 const { DISSOLVE_IDLE_MS, DISSOLVE_RADIUS, processCharEntry, resetElement } = dissolve;
+const { parseHaikuSource, splitLead } = daily;
 
 interface Props {
+  /** GutenKu's social post: title, riddle hints, source book and verses */
+  sourceUrl?: string;
   url: string;
+}
+
+interface RevealProps {
+  text: string | undefined;
+}
+
+interface HaikuData {
+  lead?: string;
+  source?: HaikuSource;
+  text: string;
 }
 
 // Same two-frame beat as the full reveal (use-haiku-animation.ts)
@@ -68,26 +84,47 @@ const WordSpan = React.memo(({ word, chars, charClass, reducedMotion, onRef }: {
   );
 });
 
-const useHaikuFetch = (url: string) => {
-  const [text, setText] = useState<string | undefined>();
+const FALLBACK_TEXT = "A fresh haiku will be shared here soon.";
+
+const fetchText = async (url: string) => {
+  const res = await fetch(`${url}?t=${Date.now()}`, {
+    signal: AbortSignal.timeout(HAIKU_FETCH_TIMEOUT_MS),
+  });
+  if (!res.ok) { throw new Error("Failed to fetch haiku"); }
+  return (await res.text()).trim();
+};
+
+/* Both texts settle together, so the lead, the reading and the source arrive in one reveal. The
+   lead is the haiku's title; without one it is the reading's first sentence, lifted out of it. */
+const toHaikuData = (reading: PromiseSettledResult<string>, social: PromiseSettledResult<string> | undefined): HaikuData => {
+  const source = social?.status === "fulfilled" ? parseHaikuSource(social.value) : undefined;
+  if (reading.status !== "fulfilled" || reading.value === "") {
+    return { lead: source?.title, source, text: FALLBACK_TEXT };
+  }
+  if (source?.title) {
+    return { lead: source.title, source, text: reading.value };
+  }
+  const { body, lead } = splitLead(reading.value);
+  return { lead, source, text: body };
+};
+
+const useHaikuFetch = (url: string, sourceUrl: string | undefined) => {
+  const [data, setData] = useState<HaikuData | undefined>();
 
   useEffect(() => {
-    const fetchHaiku = async () => {
-      try {
-        const res = await fetch(`${url}?t=${Date.now()}`, {
-          signal: AbortSignal.timeout(HAIKU_FETCH_TIMEOUT_MS),
-        });
-        if (!res.ok) { throw new Error("Failed to fetch haiku"); }
-        const value = await res.text();
-        setText(value.trim());
-      } catch {
-        setText("A fresh haiku will be shared here soon.");
-      }
+    let live = true;
+    const load = async () => {
+      const [reading, social] = await Promise.allSettled([
+        fetchText(url),
+        ...(sourceUrl ? [fetchText(sourceUrl)] : []),
+      ]);
+      if (live && reading) { setData(toHaikuData(reading, social)); }
     };
-    void fetchHaiku();
-  }, [url]);
+    void load();
+    return () => { live = false; };
+  }, [url, sourceUrl]);
 
-  return text;
+  return data;
 };
 
 interface CachedChar {
@@ -331,8 +368,7 @@ const HaikuSpokenText = ({ text }: { text: string | undefined }) => (
   <span className="sr-only">{text ?? "Loading today’s verse…"}</span>
 );
 
-const SimpleHaikuReveal = ({ url }: Props) => {
-  const text = useHaikuFetch(url);
+const SimpleHaikuReveal = ({ text }: RevealProps) => {
   const reducedMotion = useReducedMotion();
   const [appeared, setAppeared] = useState(false);
 
@@ -363,10 +399,9 @@ const SimpleHaikuReveal = ({ url }: Props) => {
   );
 };
 
-const FullHaikuReveal = ({ url }: Props) => {
+const FullHaikuReveal = ({ text }: RevealProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const charElsRef = useRef<Map<string, HTMLSpanElement>>(new Map());
-  const text = useHaikuFetch(url);
   const { appeared, autoSettled, charClass, reducedMotion, words } = useHaikuAnimation(text);
   const { apply, reset } = useProximityDissolve(charElsRef);
   const { onLeave, onMouseMove } = useCardPointer({ appeared, apply, containerRef, reducedMotion, reset });
@@ -402,11 +437,32 @@ const FullHaikuReveal = ({ url }: Props) => {
   );
 };
 
-const ZenHaikuReveal = ({ url }: Props) => {
-  if (usesCoarsePointer()) {
-    return <SimpleHaikuReveal url={url} />;
+const HaikuLead = ({ lead }: { lead: string | undefined }) => {
+  if (lead === undefined) {
+    return <span className="haiku-skeleton__line haiku-card__lead-skeleton" aria-hidden="true" />;
   }
-  return <FullHaikuReveal url={url} />;
+  return <p className="haiku-card__lead">{lead}</p>;
+};
+
+/* The margin note beside the card: date, lead, the revealed reading, then the day's footer */
+const ZenHaikuReveal = ({ sourceUrl, url }: Props) => {
+  const data = useHaikuFetch(url, sourceUrl);
+  const now = useNow();
+  const text = data?.text;
+  const verses = data?.source?.verses ?? [];
+
+  return (
+    <>
+      <HaikuEyebrow now={now} />
+      {(data === undefined || data.lead !== undefined) && <HaikuLead lead={data?.lead} />}
+      {verses.length > 0 && <p className="sr-only">Today’s haiku: {verses.join(" / ")}</p>}
+      <HaikuReading text={text}>
+        {usesCoarsePointer() ? <SimpleHaikuReveal text={text} /> : <FullHaikuReveal text={text} />}
+      </HaikuReading>
+      <hr className="haiku-card__rule" />
+      <HaikuFoot now={now} source={data?.source} />
+    </>
+  );
 };
 
 export default ZenHaikuReveal;
