@@ -169,47 +169,9 @@ a {
   position: relative;
   transition: color var(--motion-page) var(--zen-ease-out);
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background: var(--link-hover-color);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--motion-page) var(--zen-ease-out);
-  }
-
-  /* Suppress underline on button-styled and icon links */
-  &.latest-posts__link::after,
-  &.latest-posts__cta::after,
-  &.site-footer__social-link::after,
-  &.site-footer__nav-link::after,
-  &.site-footer__link::after,
-  &.social-share__link::after,
-  &.post-nav-indicator::after,
-  &.header__link::after,
-  &.header__brand-link::after,
-  &.social-network__link::after,
-  &.qr-code::after,
-  &.post-page__tag::after,
-  &.tags-page__pill::after,
-  &.blog-archive__tags-link::after,
-  &.blog-card__tag::after,
-  &.not-found__link::after,
-  &.path-stones__finale-return::after {
-    content: none;
-  }
-
   @media (prefers-reduced-motion: no-preference) {
     &:hover {
       color: var(--link-hover-color);
-
-      &::after {
-        transform: scaleX(1);
-      }
     }
   }
 
@@ -269,14 +231,46 @@ h1[tabindex="-1"]:focus {
   outline: none;
 }
 
+/* A pause, not a wall: a short hairline that fades in from both ends and parts around a single
+   ensō dot, centred in the column. Drawn with backgrounds, so the element stays an empty <hr>
+   with its separator role. Colour follows --hr-color, so the night garden needs no extra rule. */
 hr {
-  width: 100%;
-  opacity: 0.32;
+  --hr-dot: 5px;
+  --hr-gap: 6px;
+
+  box-sizing: content-box;
+  inline-size: 6rem;
+  max-inline-size: 100%;
+  block-size: var(--hr-dot);
   padding: 0;
-  color: var(--hr-color);
-  text-align: center;
-  border: var(--space-xs) solid;
-  margin: var(--space-ml) 0;
+  border: 0;
+  margin: var(--space-xl) auto;
+  color: color-mix(in oklch, var(--hr-color) 70%, transparent);
+  background:
+    radial-gradient(circle closest-side, currentcolor calc(100% - 0.75px), transparent)
+      center / var(--hr-dot) var(--hr-dot) no-repeat,
+    linear-gradient(
+        90deg,
+        transparent,
+        currentcolor 42%,
+        transparent calc(50% - var(--hr-gap)) calc(50% + var(--hr-gap)),
+        currentcolor 58%,
+        transparent
+      )
+      center / 100% 1px no-repeat;
+
+  @media (forced-colors: active) {
+    block-size: 0;
+    background: none;
+    border-block-start: 1px solid CanvasText;
+  }
+
+  @media print {
+    inline-size: 4rem;
+    block-size: 0;
+    background: none;
+    border-block-start: 0.5pt solid oklch(70% 0.02 10deg);
+  }
 }
 
 .u-text-muted {

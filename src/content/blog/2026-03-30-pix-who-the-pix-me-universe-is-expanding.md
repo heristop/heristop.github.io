@@ -32,4 +32,6 @@ AIs playing a game made by an AI... piloted by a human watching the results.
 
 When you think about it... maybe they're the real audience. And I'm just here to entertain them. 🙈
 
+---
+
 👉 **[Try Pix Who!](https://pix-me.studio/who)**

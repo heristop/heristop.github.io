@@ -173,26 +173,6 @@ const tagItems = sortedEntries.map(([tag, count]) => ({
     white-space: nowrap;
   }
 
-  .tags-page :global(.tags-page__pill-name::after) {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -3px;
-    height: 1px;
-    width: var(--tag-text-width, 100%);
-    background: currentColor;
-    opacity: 0.75;
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 420ms var(--zen-ease-elegant);
-    pointer-events: none;
-  }
-
-  .tags-page :global(.tags-page__pill:hover .tags-page__pill-name::after),
-  .tags-page :global(.tags-page__pill:focus-visible .tags-page__pill-name::after) {
-    transform: scaleX(1);
-  }
-
   .tags-page :global(.tags-page__pill-count) {
     font-size: 0.75rem;
     font-variant-numeric: tabular-nums;
@@ -220,10 +200,6 @@ const tagItems = sortedEntries.map(([tag, count]) => ({
       animation: none;
       transition: none;
       transform: none;
-    }
-
-    .tags-page :global(.tags-page__pill-name::after) {
-      transition: none;
     }
   }
 </style>

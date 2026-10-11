@@ -396,4 +396,6 @@ By following these steps, you have set up a robust commit message enforcement sy
 
 For those looking to take commit message standardization even further, consider exploring Commitizen. This tool provides an interactive command line interface that guides developers through the process of creating properly formatted commit messages. It can work alongside the setup described in this article, offering an additional layer of guidance and control over your commit messages.
 
+---
+
 > 🎭 **Anecdote:** Speaking of "last commits", I once knew a developer who committed about a dozen times with the message "last commit" on a single Merge Request. Perhaps we should consider adding a "no, really, this is the last commit" type to our conventional commits list... 😉

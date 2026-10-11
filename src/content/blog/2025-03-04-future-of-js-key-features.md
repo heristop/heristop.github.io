@@ -95,4 +95,6 @@ These 2025 JavaScript features address common development challenges with soluti
 2. [MDN Web Docs - Temporal API](https://developer.mozilla.org/en-US/blog/javascript-temporal-is-coming/?ref=heristop.github.io)
 3. [Thomas Dupont - JavaScript: Nouvelles fonctionnalités pour 2025](https://thomas-dupont.io/blog/javascript-nouveautes-2025?ref=heristop.github.io)
 
+---
+
 Which of these features will you use first?

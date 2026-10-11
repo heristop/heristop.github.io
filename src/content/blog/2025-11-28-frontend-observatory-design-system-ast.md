@@ -199,4 +199,6 @@ We're now looking at how to expand the system. AI-powered recommendations could 
 
 The goal remains the same: replace assumptions with data, and turn that data into action.
 
+---
+
 *Interested in building something similar? Feel free to reach out—happy to share more details about our approach.*
