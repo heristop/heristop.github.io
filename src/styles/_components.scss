@@ -57,11 +57,17 @@
     backdrop-filter: blur(4px);
   }
 
+  /* The arrow is a border triangle. On links it shares ::after with the hover underline in
+     _reset.scss, so the underline's background, inset and origin are reset here: its background
+     showed through the transparent sides as a rose box around the arrow. Its base sits 1px inside
+     the bubble (bubble gap 0.75rem − 5px arrow + 1px border) so the two read as one shape. */
   &::after {
     content: "";
-    bottom: calc(100% + 0.25rem);
+    inset: auto auto calc(100% + 0.75rem - 4px) 50%;
     width: 0;
     height: 0;
+    background: none;
+    transform-origin: center;
     border-width: 5px 5px 0;
     border-style: solid;
     border-color: var(--code-bg-color) transparent transparent;
@@ -87,7 +93,7 @@
 
   &::after {
     bottom: auto;
-    top: calc(100% + 0.25rem);
+    top: calc(100% + 0.75rem - 4px);
     border-width: 0 5px 5px;
     border-color: transparent transparent var(--code-bg-color);
     transform: translate(-50%, -6px);
@@ -108,7 +114,7 @@
   }
 
   &::after {
-    inset: 50% calc(100% + 0.25rem) auto auto;
+    inset: 50% calc(100% + 0.75rem - 4px) auto auto;
     border-width: 5px 0 5px 5px;
     border-color: transparent transparent transparent var(--code-bg-color);
     transform: translate(6px, -50%);
@@ -133,7 +139,7 @@
 
   &::after {
     bottom: auto;
-    left: calc(100% + 0.25rem);
+    left: calc(100% + 0.75rem - 4px);
     top: 50%;
     border-width: 5px 5px 5px 0;
     border-color: transparent var(--code-bg-color) transparent transparent;

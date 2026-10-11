@@ -205,7 +205,9 @@
   &:hover,
   &:focus-visible {
     background: color-mix(in oklch, var(--link-color-secondary) 9%, transparent);
-    color: var(--link-color-secondary-hover);
+
+    /* The lighter hover ink is 3.1:1 on the menu paper; rows deepen to the accent (AA in both themes) */
+    color: var(--primary-color);
   }
 
   &:focus-visible {
@@ -275,7 +277,9 @@
   &:hover,
   &:focus-visible {
     background: color-mix(in oklch, var(--link-color-secondary) 9%, transparent);
-    color: var(--link-color-secondary-hover);
+
+    /* The lighter hover ink is 3.1:1 on the menu paper; rows deepen to the accent (AA in both themes) */
+    color: var(--primary-color);
   }
 }
 
