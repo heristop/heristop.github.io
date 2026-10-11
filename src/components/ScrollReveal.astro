@@ -1,0 +1,20 @@
+<!--
+  Scroll reveal (client/scroll-reveal.ts, _scroll-reveal.scss): items marked `data-scroll-reveal`
+  (or children of `data-scroll-reveal-group`) settle into place as they scroll in, once. Mounted on
+  every page load, torn down before each client-side swap.
+-->
+<script>
+  import { mountScrollReveal } from "./client/scroll-reveal";
+
+  let teardown: (() => void) | undefined;
+
+  document.addEventListener("astro:page-load", () => {
+    teardown?.();
+    teardown = mountScrollReveal();
+  });
+
+  document.addEventListener("astro:before-swap", () => {
+    teardown?.();
+    teardown = undefined;
+  });
+</script>

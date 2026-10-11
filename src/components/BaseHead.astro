@@ -15,6 +15,7 @@ import '../styles/global.scss';
 import GardenTransition from './GardenTransition.astro';
 import PageMotion from './PageMotion.astro';
 import InkReveal from './InkReveal.astro';
+import ScrollReveal from './ScrollReveal.astro';
 import { cloudflareToken } from '../analytics';
 import { THEME_STORAGE_KEY } from './client/theme-preference';
 import { READER_FONT_KEY, READER_SIZES, READER_SIZE_KEY } from './client/reader-preference';
@@ -77,6 +78,7 @@ const imageAlt = isArticle ? `Cover image for “${title}”` : `${SITE_TITLE}, 
 <GardenTransition />
 <PageMotion />
 <InkReveal />
+<ScrollReveal />
 <!-- Light paper by default; the theme boot below switches both when Dark or System is chosen -->
 <meta name="color-scheme" content="light" />
 <!-- Night garden: browser chrome takes the sticky bar's ink instead of a default grey -->

@@ -1,0 +1,72 @@
+/* ── Scroll reveal (client/scroll-reveal.ts) ─────────────────────────────────────────────────
+   Content below the fold settles into place as it scrolls in: a fade and a few pixels of rise on
+   the garden's long, soft ease-out, once. The hidden state only exists while the script holds
+   `data-scroll-reveal-state="pending"`, so without scripts everything is simply there. Once at
+   rest the item keeps `shown`, which carries no style of its own.
+
+   Variants (on the item, or on its `data-scroll-reveal-group` parent):
+     (default)  rise    opacity + 10px of travel
+     fade               opacity only: rules and anything that should not move
+     settle             opacity + a breath of scale: cards, players, diagrams
+   ──────────────────────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* A touch longer than a page arrival: content met while reading arrives unhurried */
+  --motion-reveal: 420ms;
+  --scroll-reveal-travel: 0.625rem;
+  --scroll-reveal-scale: 0.98;
+}
+
+[data-scroll-reveal-state="pending"] {
+  opacity: 0;
+  transform: translate3d(0, var(--scroll-reveal-travel), 0);
+}
+
+:is([data-scroll-reveal="fade"], [data-scroll-reveal-group="fade"] > *)[data-scroll-reveal-state="pending"] {
+  transform: none;
+}
+
+:is([data-scroll-reveal="settle"], [data-scroll-reveal-group="settle"] > *)[data-scroll-reveal-state="pending"] {
+  transform: scale(var(--scroll-reveal-scale));
+}
+
+/* Plays back to the element's own opacity and transform; will-change only while it plays */
+[data-scroll-reveal-state="entering"] {
+  transition:
+    opacity var(--motion-reveal) var(--motion-ease-out) var(--scroll-reveal-delay, 0ms),
+    transform var(--motion-reveal) var(--motion-ease-out) var(--scroll-reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+/* Lists that also have a first-paint entrance (zen-stagger rows, the /tags/ rows): an item that
+   starts below the fold hands its entrance to the scroll reveal. Its keyframes are cancelled for
+   good (the state stays `shown`), so they never replay behind it. */
+:is(.zen-stagger > *, .tag-index__item)[data-scroll-reveal-state] {
+  animation: none;
+}
+
+.zen-stagger > :is([data-scroll-reveal-state="entering"], [data-scroll-reveal-state="shown"]) {
+  opacity: 1;
+  transform: none;
+}
+
+/* A section heading's ink stroke waits for its heading, then is drawn as it arrives */
+.section-heading[data-scroll-reveal-state="pending"]::after {
+  transform: scaleX(0);
+}
+
+/* Reduced motion (also checked by the script) and paper: nothing waits, nothing travels */
+@media (prefers-reduced-motion: reduce) {
+  :is([data-scroll-reveal-state="pending"], [data-scroll-reveal-state="entering"]) {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+@media print {
+  :is([data-scroll-reveal-state="pending"], [data-scroll-reveal-state="entering"]) {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

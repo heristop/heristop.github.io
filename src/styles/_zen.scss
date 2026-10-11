@@ -210,19 +210,6 @@
 .zen-stagger > *:nth-child(9) { animation-delay: 400ms; }
 .zen-stagger > *:nth-child(10) { animation-delay: 450ms; }
 
-.zen-observe {
-  opacity: 0;
-  transform: translateY(var(--zen-distance-md));
-  transition:
-    opacity var(--zen-duration-normal) var(--zen-ease-out),
-    transform var(--zen-duration-normal) var(--zen-ease-out);
-}
-
-.zen-observe.zen-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .zen-fade,
   .zen-slide-up,
@@ -231,8 +218,7 @@
   .zen-slide-right,
   .zen-scale,
   .zen-breathe,
-  .zen-stagger > *,
-  .zen-observe {
+  .zen-stagger > * {
     animation: none !important;
     transform: none !important;
     opacity: 1 !important;

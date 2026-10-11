@@ -14,6 +14,7 @@ import { mermaidA11y } from "./src/plugins/mermaid-a11y";
 import { hoverMedia } from "./src/plugins/hover-media";
 import { isIndexablePage, readPostDates, sitemapLastmod } from "./src/plugins/sitemap-lastmod";
 import { imageDimensions } from "./src/plugins/image-dimensions";
+import { scrollReveal } from "./src/plugins/scroll-reveal";
 import react from "@astrojs/react";
 import icon from "astro-icon";
 
@@ -153,6 +154,8 @@ export default defineConfig({
             },
           },
         ],
+        // Last: marks the finished top-level blocks for the scroll reveal (client/scroll-reveal.ts)
+        scrollReveal,
       ],
     }),
   },

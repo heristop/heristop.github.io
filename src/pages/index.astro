@@ -281,7 +281,7 @@ const websiteSchema = {
 
         <section class="haiku-card-section" aria-labelledby="haiku-heading">
           <ZenSlide direction="up" delay={600}>
-            <h2 id="haiku-heading" class="section-heading">
+            <h2 id="haiku-heading" class="section-heading" data-scroll-reveal>
               <Icon name="feather" size={24} class="section-heading__icon" aria-hidden={true} />
               Daily Haiku
             </h2>
@@ -290,7 +290,7 @@ const websiteSchema = {
           <ZenFade delay={800}>
             <div class="haiku-card">
               <div class="haiku-card__grid">
-                <figure class="haiku-card__visual">
+                <figure class="haiku-card__visual" data-scroll-reveal="settle">
                   <div class="haiku-card__visual-frame">
                     <Image
                       width="216"
