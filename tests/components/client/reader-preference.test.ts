@@ -163,7 +163,7 @@ describe("applyReaderPreferences", () => {
 describe("the BaseHead reader boot script", () => {
   const source = readFileSync("src/components/BaseHead.astro", "utf8");
   const script =
-    /<script is:inline define:vars=\{\{ sizeKey: READER_SIZE_KEY, fontKey: READER_FONT_KEY, sizes: READER_SIZES \}\}>([\s\S]*?)<\/script>/.exec(
+    /<script is:inline define:vars=\{\{ sizeKey: READER_SIZE_KEY, fontKey: READER_FONT_KEY, readerSizes: READER_SIZES \}\}>([\s\S]*?)<\/script>/.exec(
       source,
     )?.[1];
 
@@ -173,7 +173,7 @@ describe("the BaseHead reader boot script", () => {
     doc: Document = document,
   ) => {
     // Runs the repository's own inline source, as the browser would
-    new Function("sizeKey", "fontKey", "sizes", "window", "document", "localStorage", script ?? "")(
+    new Function("sizeKey", "fontKey", "readerSizes", "window", "document", "localStorage", script ?? "")(
       READER_SIZE_KEY,
       READER_FONT_KEY,
       [...READER_SIZES],

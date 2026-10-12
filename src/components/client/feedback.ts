@@ -62,7 +62,8 @@ const copyWithSelection = (text: string, doc: Document): boolean => {
   field.select();
   let copied = false;
   try {
-    copied = doc.execCommand("copy");
+    // Deprecated, but still the only synchronous copy where the Clipboard API is missing
+    copied = (doc as { execCommand: (command: string) => boolean }).execCommand("copy");
   } catch {
     copied = false;
   }

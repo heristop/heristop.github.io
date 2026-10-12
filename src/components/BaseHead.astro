@@ -129,14 +129,14 @@ const imageAlt = isArticle ? `Cover image for “${title}”` : `${SITE_TITLE}, 
   the prose never reflows once it shows. Mirrors readReaderPreferences + applyReaderPreferences in
   client/reader-preference.ts; only `.post-page` reads the attributes, so other pages ignore them.
 -->
-<script is:inline define:vars={{ sizeKey: READER_SIZE_KEY, fontKey: READER_FONT_KEY, sizes: READER_SIZES }}>
+<script is:inline define:vars={{ sizeKey: READER_SIZE_KEY, fontKey: READER_FONT_KEY, readerSizes: READER_SIZES }}>
   (function () {
     var apply = function (doc) {
       var size = "";
       var font = "";
       try {
         var stored = Number(localStorage.getItem(sizeKey));
-        if (stored !== 100 && sizes.indexOf(stored) !== -1) size = String(stored);
+        if (stored !== 100 && readerSizes.indexOf(stored) !== -1) size = String(stored);
         if (localStorage.getItem(fontKey) === "legible") font = "legible";
       } catch (e) {
         /* storage blocked: the defaults */
