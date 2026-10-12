@@ -4,7 +4,6 @@ metaTitle: "Deterministic Engineering: Constrain Code, Free the Agents"
 description: "The more probabilistic code generation becomes, the more deterministic its environment must be. Lessons from Carrefour on codebases, feedback loops and agents."
 image: "/images/posts/2026-10-12-deterministic-engineering/sunset-zazen.webp"
 pubDate: "2026-10-12"
-draft: true
 conclusion: "The more freedom we want to give agents, the more control we need over the system in which they operate — without confusing a shared framework with a single prescribed method."
 tags: ["ai", "ai-agents", "developer-experience", "carrefour", "opinion"]
 ---
