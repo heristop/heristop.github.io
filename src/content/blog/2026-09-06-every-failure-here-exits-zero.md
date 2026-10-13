@@ -25,18 +25,18 @@ The video answers a straightforward question: does the application now do what t
 
 It shows the ticket, the relevant flow before the change, then the same flow after it. Usually in under a minute. Enough to see the action and its result, without opening a local environment or reconstructing the feature from the diff.
 
-Here is a real example. The ticket concerned a payment-transfer action that stayed greyed out when it should have been available. The clip shows the problem, then the corrected behaviour. It takes twenty-two seconds.
+Here is a real example. The ticket concerned the checkout's toast notifications, which drew a countdown bar that read like a loader, as if the cashier had something to wait for. The clip shows the problem, then the corrected behaviour. It takes under twenty seconds.
 
 <div class="img-container">
   <figure class="img-figure" style="width: 100%; max-width: 48rem;">
     <video controls loop playsinline preload="metadata" aria-label="Before-and-after evidence clip for a merge request"
       poster="/images/posts/2026-09-06-every-failure-here-exits-zero/title-card.webp"
       style="width: 100%; border-radius: 0.5rem; border: 2px solid var(--border-image);">
-      <source src="/videos/2026-09-06-every-failure-here-exits-zero/spos3-1965-evidence.mp4" type="video/mp4" />
+      <source src="/videos/2026-09-06-every-failure-here-exits-zero/spos3-3099-evidence.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
     <figcaption class="img-caption">
-      A before-and-after clip attached to a real merge request. Twenty-two seconds to show a payment-transfer action before and after the fix.
+      A before-and-after clip attached to a real merge request. Under twenty seconds to show the same toast before and after the fix: the countdown bar is gone, and the toast still closes after eight seconds.
     </figcaption>
   </figure>
 </div>
