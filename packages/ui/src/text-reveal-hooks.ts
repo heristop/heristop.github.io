@@ -53,6 +53,44 @@ const toLayoutLines = (texts: string[]): LayoutLine[] => {
   }));
 };
 
+// CSS text-wrap: balance can choose different breaks from Pretext's greedy layout. Measure the
+// browser's actual lines for headings so the animated characters replace the text in place.
+const measureBrowserLines = (element: HTMLElement, text: string, width: number): string[] => {
+  const copy = element.cloneNode(false) as HTMLElement;
+  copy.style.position = "fixed";
+  copy.style.top = "0";
+  copy.style.left = "0";
+  copy.style.width = `${width}px`;
+  copy.style.margin = "0";
+  copy.style.visibility = "hidden";
+  copy.style.viewTransitionName = "none";
+  copy.textContent = text;
+  element.parentElement?.appendChild(copy);
+
+  try {
+    const node = copy.firstChild;
+    if (!node) {
+      return [text];
+    }
+    const range = document.createRange();
+    const lines: string[] = [];
+    let lastTop: number | null = null;
+    for (const { segment, index } of new Intl.Segmenter().segment(text)) {
+      range.setStart(node, index);
+      range.setEnd(node, index + segment.length);
+      const top = range.getBoundingClientRect().top;
+      if (lastTop === null || Math.abs(top - lastTop) > 1) {
+        lines.push("");
+        lastTop = top;
+      }
+      lines[lines.length - 1] += segment;
+    }
+    return lines.length > 0 ? lines : [text];
+  } finally {
+    copy.remove();
+  }
+};
+
 const useReducedMotion = (): boolean => {
   const [reduced, setReduced] = useState(false);
 
@@ -76,6 +114,7 @@ interface ComputeLinesDeps {
   containerRef: RefObject<HTMLElement | null>;
   font: string;
   lineHeight: number;
+  measureBrowserLayout: boolean;
   layoutKeyRef: RefObject<string | null>;
   preparedRef: RefObject<PreparedText | null>;
   prevFontRef: RefObject<string | null>;
@@ -92,6 +131,7 @@ const useComputeLines = (deps: ComputeLinesDeps) => {
     font,
     layoutKeyRef,
     lineHeight,
+    measureBrowserLayout,
     preparedRef,
     prevFontRef,
     prevTextRef,
@@ -124,8 +164,18 @@ const useComputeLines = (deps: ComputeLinesDeps) => {
       return;
     }
 
-    const layoutKey = `pretext:${text}\u0000${font}\u0000${lineHeight}\u0000${width}`;
-    if (layoutKeyRef.current === layoutKey && preparedRef.current) {
+    const layoutKey = `${measureBrowserLayout ? "browser" : "pretext"}:${text}\u0000${font}\u0000${lineHeight}\u0000${width}`;
+    if (layoutKeyRef.current === layoutKey && (measureBrowserLayout || preparedRef.current)) {
+      return;
+    }
+
+    if (measureBrowserLayout) {
+      await waitForFont(font);
+      if (!activeRef.current || requestIdRef.current !== requestId || !containerRef.current) {
+        return;
+      }
+      layoutKeyRef.current = layoutKey;
+      setLines(toLayoutLines(measureBrowserLines(containerRef.current, text, width)));
       return;
     }
 
@@ -155,6 +205,7 @@ const useComputeLines = (deps: ComputeLinesDeps) => {
     font,
     layoutKeyRef,
     lineHeight,
+    measureBrowserLayout,
     preparedRef,
     prevFontRef,
     prevTextRef,
@@ -170,6 +221,7 @@ const useTextLayout = (
   lineHeight: number,
   containerRef: RefObject<HTMLElement | null>,
   enabled = true,
+  measureBrowserLayout = false,
 ) => {
   const [lines, setLines] = useState<LayoutLine[]>([]);
   const [revealed, setRevealed] = useState(false);
@@ -187,6 +239,7 @@ const useTextLayout = (
     font,
     layoutKeyRef,
     lineHeight,
+    measureBrowserLayout,
     preparedRef,
     prevFontRef,
     prevTextRef,

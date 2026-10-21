@@ -290,6 +290,7 @@ const CharacterTextReveal = ({
     measured?.lineHeight ?? lineHeight,
     containerRef,
     playing,
+    measureFont,
   );
 
   useEffect(() => {
@@ -359,7 +360,10 @@ const CharacterTextReveal = ({
           <span
             key={`line-${lineIndex}-${lines[lineIndex].text}`}
             aria-hidden="true"
-            style={{ display: lineDisplay }}
+            style={{
+              display: lineDisplay,
+              whiteSpace: lineDisplay === "block" ? "nowrap" : undefined,
+            }}
           >
             {lineChars.map((charDrift) => (
               <span
