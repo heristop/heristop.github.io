@@ -184,10 +184,250 @@
 }
 
 .post-page__share-bottom {
-  margin-top: 1.75rem;
-  padding-top: 1rem;
-  border-top: 1px solid
-    color-mix(in oklch, var(--primary-color) 12%, transparent);
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+/* Article endings use the frontmatter note, the site's ensō rule, and the blog index rows. */
+.post-page {
+  .post-page__closing-thought {
+    margin-block: 2rem 0;
+    color: var(--heading-color);
+    font-size: 1.04em;
+    font-weight: 500;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .post-page__share-links--compact {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 0.4rem;
+
+    .social-share__link--full {
+      min-height: 2.75rem;
+      padding: 0.65rem 0.8rem;
+      font-size: var(--font-size-label);
+    }
+
+    .social-share__link--support {
+      overflow: hidden;
+    }
+
+    .social-share__icon--with-text {
+      margin-right: 0.35rem;
+    }
+
+    .social-share__text-short {
+      display: none;
+    }
+
+    @media (width < 40rem) {
+      justify-content: space-between;
+      gap: 0.15rem;
+
+      .social-share__link--support {
+        padding-inline: 0.5rem;
+      }
+
+      .social-share__link--full:not(.social-share__link--support) {
+        flex: 0 0 2.75rem;
+        padding: 0;
+      }
+
+      .social-share__link--full:not(.social-share__link--support) .social-share__text,
+      .social-share__text-long {
+        display: none;
+      }
+
+      .social-share__text-short {
+        display: inline;
+      }
+
+      .social-share__icon--with-text {
+        margin-right: 0;
+      }
+
+      .social-share__link--support .social-share__icon--with-text {
+        margin-right: 0.35rem;
+      }
+    }
+  }
+
+  .recommended-posts {
+    width: 100%;
+    max-width: var(--article-measure, var(--prose-measure));
+    margin: clamp(2rem, 4vw, 3rem) auto 0;
+
+    .recommended-posts__divider {
+      inline-size: 9rem;
+      margin: 0 auto 1.25rem;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .recommended-posts__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .recommended-posts__heading {
+      margin: 0;
+      color: var(--heading-color);
+      font-size: 1em;
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.35;
+    }
+
+    .recommended-posts__all {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      min-height: 2.75rem;
+      color: var(--link-color-secondary);
+      font-size: var(--font-size-label);
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-color: transparent;
+      text-underline-offset: 0.25em;
+      white-space: nowrap;
+      transition: text-decoration-color var(--motion-micro) var(--motion-ease-out);
+
+      svg {
+        transition: transform var(--motion-micro) var(--motion-ease-out);
+      }
+
+      &:is(:hover, :focus-visible) {
+        text-decoration-color: currentcolor;
+
+        svg {
+          transform: translateX(2px);
+        }
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--focus-ring);
+        outline-offset: 3px;
+        border-radius: var(--radius-sm);
+      }
+    }
+
+    li.recommended-posts__item {
+      margin: 0;
+      padding: 0;
+
+      &::before {
+        content: none;
+      }
+
+      & + li {
+        border-top: 1px solid color-mix(in oklch, var(--heading-color) 12%, transparent);
+      }
+    }
+
+    .recommended-posts__link {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1.25rem;
+      align-items: center;
+      min-height: 5.5rem;
+      margin-inline: -0.625rem;
+      padding: 0.9rem 0.625rem;
+      border-radius: 0.625rem;
+      color: var(--heading-color);
+      text-decoration: none;
+      transition:
+        background-color var(--motion-micro) var(--motion-ease-out),
+        scale var(--motion-micro) var(--motion-ease-out);
+
+      &:hover,
+      &:focus-visible {
+        background-color: color-mix(in oklch, var(--primary-color) 6%, transparent);
+      }
+
+      &:is(:hover, :focus-visible) .recommended-posts__title {
+        color: var(--link-color-secondary);
+      }
+
+      &:is(:hover, :focus-visible) .recommended-posts__image {
+        transform: scale(1.04);
+      }
+
+      &:active {
+        scale: 0.985;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+      }
+
+      @media (width < 40rem) {
+        gap: 0.85rem;
+      }
+    }
+
+    .recommended-posts__text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      min-width: 0;
+    }
+
+    .recommended-posts__date {
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: var(--font-size-label);
+      font-weight: 400;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.3;
+    }
+
+    .recommended-posts__title {
+      color: var(--heading-color);
+      font-size: 0.9em;
+      font-weight: 600;
+      line-height: 1.4;
+      text-wrap: pretty;
+      transition: color var(--motion-micro) var(--motion-ease-out);
+    }
+
+    .recommended-posts__media {
+      display: block;
+      width: 6rem;
+      aspect-ratio: 3 / 2;
+      overflow: hidden;
+      border-radius: 0.4rem;
+
+      @media (width < 40rem) {
+        width: 5rem;
+      }
+    }
+
+    .recommended-posts__image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--motion-small) var(--motion-ease-out);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .recommended-posts__all svg,
+      .recommended-posts__image {
+        transform: none !important;
+        transition: none;
+      }
+    }
+  }
 }
 
 .post-list {
@@ -222,8 +462,8 @@
 /* ── Reader text size (ReaderSettings.astro): BaseHead stamps data-reader-size on <html> before
    first paint; only an article reads the scale. The prose and everything sized in em (headings,
    code) grow together, and the column grows with them so a line keeps its ≈68 characters, up to
-   the frame (_layout.scss), then wraps; the outline (inline and rail), the closing quote, Explore
-   More and the pager scale with it. The masthead (title, meta row, tags) keeps its size and its
+   the frame (_layout.scss), then wraps; the outline (inline and rail), the closing note, reading
+   list and the pager scale with it. The masthead (title, meta row, tags) keeps its size and its
    column, so the control being pressed never slides from under the pointer and the title's
    measured reveal is never asked to lay out again. One rule per step of READER_SIZES
    (client/reader-preference.ts); 100% is the default. ── */
@@ -370,17 +610,6 @@
     margin-block: 2.75em;
   }
 
-  blockquote.post-page__endquote {
-    margin-top: 2rem;
-    margin-bottom: 0;
-    border-left-width: 0.375rem;
-    background: color-mix(
-      in oklch,
-      var(--primary-color) 4%,
-      var(--surface-glass)
-    );
-    padding: 1.25rem 1.5rem;
-  }
 }
 
 .post-page ul,
@@ -745,142 +974,6 @@ tbody tr:hover {
   }
 }
 
-.recommended-posts {
-  margin: 1rem 0;
-
-  &__heading-icon {
-    color: var(--primary-color);
-    transform-origin: center;
-    transition:
-      transform 900ms var(--zen-ease-elegant),
-      color 400ms var(--zen-ease-out);
-    will-change: transform;
-  }
-
-  &:hover &__heading-icon {
-    transform: rotate(360deg);
-    color: color-mix(in oklch, var(--primary-color) 75%, var(--heading-color));
-  }
-
-  &__intro-icon {
-    color: var(--primary-color);
-    transform-origin: 70% 85%;
-    transition: transform 400ms var(--zen-ease-elegant);
-    will-change: transform;
-  }
-
-  &:hover &__intro-icon {
-    animation: feather-writing 1600ms var(--zen-ease-elegant) both;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    &__heading-icon,
-    &:hover &__heading-icon,
-    &__intro-icon,
-    &:hover &__intro-icon {
-      transform: none;
-      transition: none;
-      animation: none;
-    }
-  }
-
-  &__intro {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.75rem;
-    color: var(--heading-color);
-    font-size: calc(1.05rem * var(--reader-scale, 1));
-    line-height: 1.7;
-    letter-spacing: 0.01em;
-
-    .icon {
-      flex-shrink: 0;
-      margin-top: 0.2rem;
-    }
-  }
-
-  &__divider {
-    display: block;
-  }
-
-  &__heading {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    position: relative;
-    margin-bottom: 0.75rem;
-
-    &::after {
-      content: "";
-      flex: 1 1 auto;
-      height: 0.1rem;
-      margin-left: 0.75rem;
-      border-radius: 999px;
-      background: linear-gradient(
-        90deg,
-        color-mix(in oklch, var(--primary-color) 40%, transparent),
-        color-mix(in oklch, var(--primary-color) 0%, transparent)
-      );
-    }
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  li {
-    margin: 0.5rem 0;
-    margin-left: 2rem;
-
-    a {
-      transition: color var(--motion-page) var(--zen-ease-out);
-
-      &:hover {
-        color: var(--link-hover-color);
-      }
-    }
-  }
-}
-
-@keyframes feather-writing {
-  0% {
-    transform: translateX(0) rotate(0deg);
-  }
-
-  12% {
-    transform: translateX(-1.5px) rotate(-9deg);
-  }
-
-  26% {
-    transform: translateX(1.5px) rotate(7deg);
-  }
-
-  40% {
-    transform: translateX(-1px) rotate(-5deg);
-  }
-
-  54% {
-    transform: translateX(1px) rotate(4deg);
-  }
-
-  68% {
-    transform: translateX(-0.5px) rotate(-2deg);
-  }
-
-  82% {
-    transform: translateX(0.5px) rotate(1deg);
-  }
-
-  100% {
-    transform: translateX(0) rotate(0deg);
-  }
-}
 
 .post-page__header {
   display: flex;
@@ -1301,9 +1394,7 @@ svg.flowchart[id^="mermaid-"] {
   .post-page__share-bottom,
   .post-toc,
   .post-page__pager,
-  .recommended-posts__divider,
-  .recommended-posts__heading,
-  .recommended-posts > ul,
+  .recommended-posts,
   .site-footer {
     display: none !important;
   }
@@ -1355,10 +1446,6 @@ svg.flowchart[id^="mermaid-"] {
     overflow-wrap: anywhere;
   }
 
-  .post-page__endquote {
-    box-shadow: none;
-    background: none;
-  }
 }
 
 /* ── Blog index (/blog/) ─────────────────────────────────────────────────────────────────────
@@ -1388,6 +1475,14 @@ svg.flowchart[id^="mermaid-"] {
     --index-pad-x: 0.625rem;
 
     gap: 2rem;
+  }
+}
+
+.blog-index[data-blog-index] {
+  --index-thumb-w: 6rem;
+
+  @media (width < 40rem) {
+    --index-thumb-w: 5rem;
   }
 }
 

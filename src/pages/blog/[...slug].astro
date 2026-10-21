@@ -36,6 +36,8 @@ type Props = CollectionEntry<"blog">;
 const post = Astro.props;
 const { Content, headings } = await render(post);
 const {conclusion} = post.data;
+const plainBody = (post.body ?? '').replace(/<[^>]*>|[*_`]/g, '').replace(/\s+/g, ' ');
+const repeatedConclusion = Boolean(conclusion && plainBody.includes(conclusion.replace(/\s+/g, ' ')));
 // Only reachable in dev: production builds never emit an unpublished post
 const isUnpublished = !isPublished(post.data);
 
@@ -146,12 +148,19 @@ const breadcrumbItems = [
 
     <Content />
 
+    {conclusion && !repeatedConclusion && (
+      <p class="post-page__closing-thought" data-scroll-reveal="fade">
+        {conclusion.replace(/^\W+\s*/, '')}
+      </p>
+    )}
+
     <div class="post-page__share-bottom" data-scroll-reveal>
       <SocialShare
-        class="post-page__share-links"
+        class="post-page__share-links post-page__share-links--compact"
         title={post.data.title}
         slug={currentPostSlug}
         supportUrl={BUY_ME_COFFEE_URL}
+        compact
       />
     </div>
 
@@ -172,9 +181,10 @@ const breadcrumbItems = [
       </nav>
     )}
 
-    <blockquote class="post-page__endquote" data-scroll-reveal>
-      <RecommendedPosts {currentPostSlug} {conclusion} />
-    </blockquote>
+    <RecommendedPosts
+      {currentPostSlug}
+      excludeSlugs={[previousPost?.id, nextPost?.id].filter((id): id is string => Boolean(id))}
+    />
   </div>
 
   <VideoPlayerIcons />

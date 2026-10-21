@@ -4,6 +4,7 @@ interface Props {
   title: string;
   slug: string;
   minimal?: boolean;
+  compact?: boolean;
   class?: string;
   /** When provided, append a "Buy me a coffee" CTA after the share links. */
   supportUrl?: string;
@@ -13,6 +14,7 @@ const {
   title,
   slug,
   minimal = false,
+  compact = false,
   class: className = 'social-share--default',
   supportUrl,
 } = Astro.props;
@@ -49,7 +51,11 @@ const shareLinks = [
       <Icon name="coffee" size={20} color="currentColor" aria-hidden={true}
         class={`social-share__icon ${!minimal ? 'social-share__icon--with-text' : ''}`} />
       {!minimal && (
-        <span class="social-share__text">Buy me a coffee</span>
+        <span class="social-share__text">
+          {compact ? (
+            <><span class="social-share__text-long">Buy me a coffee</span><span class="social-share__text-short">Coffee</span></>
+          ) : 'Buy me a coffee'}
+        </span>
       )}
     </a>
   )}
@@ -63,8 +69,8 @@ const shareLinks = [
           'social-share__link',
           minimal ? 'social-share__link--minimal' : 'social-share__link--full',
         ]}
-        aria-label={minimal ? `Share on ${link.name}` : undefined}
-        data-tooltip={minimal ? `Share on ${link.name}` : "Opens in new tab"}
+        aria-label={minimal || compact ? `Share on ${link.name}` : undefined}
+        data-tooltip={minimal || compact ? `Share on ${link.name}` : "Opens in new tab"}
       >
         <img
           src={`/icons/${link.icon}.svg`}
@@ -77,7 +83,7 @@ const shareLinks = [
           ]}
         />
         {!minimal && (
-          <span class="social-share__text">Share on {link.name}</span>
+          <span class="social-share__text">{compact ? link.name : `Share on ${link.name}`}</span>
         )}
       </a>
     ))
@@ -91,7 +97,7 @@ const shareLinks = [
     ]}
     data-share-title={title}
     data-share-url={url}
-    aria-label={minimal ? 'Share' : undefined}
+    aria-label={minimal || compact ? 'Share' : undefined}
     data-tooltip={minimal ? 'Share' : 'Share via system dialog or copy link'}
     hidden
   >

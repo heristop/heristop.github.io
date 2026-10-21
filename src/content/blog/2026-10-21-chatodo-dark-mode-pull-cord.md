@@ -42,8 +42,6 @@ I’m no kitten when it comes to design, so the switch got the full catwalk trea
 
 Underneath all that theatre is one theme setting. **The chain makes me use it twice.** I call that a successful interface and absolutely refuse to calculate the engineering hours per pull.
 
-My users have ADHD. I may have given them a new task: **click, night; click, day; click, night.** The sound is half the trap. Product-market fit, apparently.
-
 Reasonable decisions can wait for a future stable release — if that day ever comes.
 
 **[Try it on ChaTodo](https://chatodo.app).** Pull the cord once to switch themes. Pull it six more times for quality assurance, obviously.

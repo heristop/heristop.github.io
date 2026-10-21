@@ -1,71 +1,52 @@
 ---
+import FormattedDate from './FormattedDate.astro';
 import Icon from './Icon.astro';
 import { getPublishedPosts } from '../utils/posts';
 
-const { currentPostSlug, conclusion } = Astro.props;
-
-export const getRecommendedPosts = async (slug: string) => {
-  const MAX_RECOMMENDED_POSTS = 3;
-  const RECENT_POSTS_COUNT = -3;
-  const posts = await getPublishedPosts();
-  const currentIndex = posts.findIndex(post => post.id === slug);
-
-  const previousPost = currentIndex > 0 ? posts[currentIndex - 1] : undefined;
-  const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : undefined;
-
-  let recommendedPosts = posts.filter(post => post.id !== slug);
-  recommendedPosts.sort((postA, postB) => {
-    if (postA.data.pubDate && postB.data.pubDate) {
-      return (
-        new Date(postA.data.pubDate).getTime() - new Date(postB.data.pubDate).getTime()
-      );
-    }
-      return 0;
-
-  });
-  recommendedPosts = recommendedPosts.slice(RECENT_POSTS_COUNT);
-
-  if (previousPost) {
-    recommendedPosts = [previousPost, ...recommendedPosts];
-  }
-
-  if (nextPost) {
-    recommendedPosts = [nextPost, ...recommendedPosts];
-  }
-
-  // Remove duplicates and limit to MAX_RECOMMENDED_POSTS
-  recommendedPosts = [...new Set(recommendedPosts)].slice(0, MAX_RECOMMENDED_POSTS);
-
-  return recommendedPosts;
-};
-
-const recommendedPosts = await getRecommendedPosts(currentPostSlug);
+const { currentPostSlug, excludeSlugs = [] } = Astro.props;
+const excludedIds = new Set([currentPostSlug, ...excludeSlugs]);
+const recommendedPosts = (await getPublishedPosts())
+  .filter(post => !excludedIds.has(post.id))
+  .sort((postA, postB) => (postB.data.pubDate?.valueOf() ?? 0) - (postA.data.pubDate?.valueOf() ?? 0))
+  .slice(0, 3);
 ---
 
-<section class="recommended-posts">
-  {
-    conclusion && (
-      <p class="recommended-posts__intro">
-        <Icon name="feather" size={18} aria-hidden={true} class="recommended-posts__intro-icon" />
-        <b>{conclusion.replace(/^\W+\s*/, '')}</b>
-      </p>
-    )
-  }
-
-  <div class="recommended-posts__divider"></div>
-
-  {/* Styled as an h3, but it closes the article rather than belonging to its last section */}
-  <h3 class="recommended-posts__heading" aria-level="2">
-    <Icon name="compass" size={18} aria-hidden={true} class="recommended-posts__heading-icon" /> Explore More
-  </h3>
-
-  <ul>
-    {
-      recommendedPosts.map(post => (
-        <li>
-          <a href={`/blog/${post.id}/`}>{post.data.title}</a>
-        </li>
-      ))
-    }
-  </ul>
-</section>
+{recommendedPosts.length > 0 && (
+  <section class="recommended-posts" data-scroll-reveal="fade">
+    <hr class="recommended-posts__divider" />
+    <nav aria-labelledby="recommended-posts-heading">
+      <div class="recommended-posts__header">
+        <h2 class="recommended-posts__heading" id="recommended-posts-heading">Keep reading</h2>
+        <a class="recommended-posts__all" href="/blog/">
+          All articles <Icon name="arrow-right" size={14} color="currentColor" aria-hidden={true} />
+        </a>
+      </div>
+      <ul>
+        {recommendedPosts.map(post => (
+          <li class="recommended-posts__item">
+            <a class="recommended-posts__link" href={`/blog/${post.id}/`}>
+              <span class="recommended-posts__text">
+                <span class="recommended-posts__title">{post.data.title}</span>
+                {post.data.pubDate && <span class="recommended-posts__date"><FormattedDate date={post.data.pubDate} showYear /></span>}
+              </span>
+              {post.data.image && (
+                <span class="recommended-posts__media">
+                  <img
+                    class="recommended-posts__image"
+                    src={post.data.image}
+                    alt=""
+                    width="96"
+                    height="64"
+                    loading="lazy"
+                    decoding="async"
+                    style={post.data.bannerPosition ? `object-position: ${post.data.bannerPosition}` : undefined}
+                  />
+                </span>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </section>
+)}
