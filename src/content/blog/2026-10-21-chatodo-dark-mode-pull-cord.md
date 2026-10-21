@@ -4,7 +4,7 @@ description: "A pull chain, a swinging bulb, an SVG paw mask, and a View Transit
 image: "/images/posts/2026-10-21-chatodo-dark-mode/banner.webp"
 pubDate: "2026-10-21"
 tags: ["chatodo", "design", "animation", "frontend"]
-conclusion: "One theme setting, one SVG chain, one paw mask, and six completely unnecessary pulls later: the dark mode switch works."
+conclusion: "My users have ADHD. I may have given them a new task: click, night; click, day; click, night. The sound is half the trap. Product-market fit, apparently."
 ---
 
 ChaTodo is my task app for ADHD brains. Its dark mode has a light bulb hanging from the header. To switch themes, **you pull the chain**. Yes, I gave a settings toggle a physics budget.
@@ -41,6 +41,8 @@ I’m no kitten when it comes to design, so the switch got the full catwalk trea
 ## Verdict
 
 Underneath all that theatre is one theme setting. **The chain makes me use it twice.** I call that a successful interface and absolutely refuse to calculate the engineering hours per pull.
+
+My users have ADHD. I may have given them a new task: **click, night; click, day; click, night.** The sound is half the trap. Product-market fit, apparently.
 
 Reasonable decisions can wait for a future stable release — if that day ever comes.
 
