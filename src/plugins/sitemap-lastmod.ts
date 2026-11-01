@@ -46,7 +46,8 @@ const readPostDates = (directory: string, now: Date = new Date()) => {
   return dates;
 };
 
-// A post page carries its own date; a listing (home, archive, tag) changes when its newest post does
+// Only full listings share the newest post date. Other pages and individual tags need their
+// own change history; omitting lastmod is better than claiming an unrelated article changed them.
 const sitemapLastmod = (dates: Map<string, Date>) => {
   const newest = [...dates.values()].reduce<Date | undefined>(
     (latest, date) => (!latest || date > latest ? date : latest),
@@ -54,8 +55,10 @@ const sitemapLastmod = (dates: Map<string, Date>) => {
   );
 
   return <Item extends SitemapItem>(item: Item): Item & { lastmod?: string } => {
-    const slug = new URL(item.url).pathname.match(/^\/blog\/([^/]+)\/?$/)?.[1];
-    const date = slug ? dates.get(slug) : newest;
+    const { pathname } = new URL(item.url);
+    const slug = pathname.match(/^\/blog\/([^/]+)\/?$/)?.[1];
+    const isFullListing = /^\/(?:blog\/?|tags\/?)?$/.test(pathname);
+    const date = slug ? dates.get(slug) : isFullListing ? newest : undefined;
     return date ? { ...item, lastmod: date.toISOString() } : item;
   };
 };

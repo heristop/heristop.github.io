@@ -32,10 +32,18 @@ describe("sitemapLastmod", () => {
     );
   });
 
-  it("dates a listing with the newest post", () => {
-    expect(serialize({ url: "https://example.dev/tags/ai/" }).lastmod).toBe(
-      "2026-01-01T00:00:00.000Z",
-    );
+  it("dates full listings with the newest post", () => {
+    for (const path of ["/", "/blog/", "/tags/"]) {
+      expect(serialize({ url: `https://example.dev${path}` }).lastmod).toBe(
+        "2026-01-01T00:00:00.000Z",
+      );
+    }
+  });
+
+  it("does not invent modification dates for unrelated pages or filtered listings", () => {
+    for (const path of ["/about/", "/projects/", "/path-of-stones/", "/tags/ai/"]) {
+      expect(serialize({ url: `https://example.dev${path}` }).lastmod).toBeUndefined();
+    }
   });
 });
 
