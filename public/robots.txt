@@ -19,3 +19,4 @@ User-agent: Applebot-Extended
 Allow: /
 
 Sitemap: https://heristop.github.io/sitemap-index.xml
+Sitemap: https://heristop.github.io/sitemap-0.xml
