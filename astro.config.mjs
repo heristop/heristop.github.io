@@ -7,6 +7,7 @@ import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeMermaid from "rehype-mermaid";
 import sitemap from "@astrojs/sitemap";
+import sitemapOutput from "./src/plugins/sitemap-output";
 import { externalLink } from "./src/plugins/external-link";
 import { codeRegion } from "./src/plugins/code-region";
 import { mermaidTokens } from "./src/plugins/mermaid-tokens";
@@ -27,6 +28,7 @@ export default defineConfig({
       filter: isIndexablePage,
       serialize: sitemapLastmod(readPostDates("./src/content/blog")),
     }),
+    sitemapOutput(),
     react(),
     icon(),
   ],
