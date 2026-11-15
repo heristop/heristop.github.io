@@ -1460,7 +1460,6 @@ svg.flowchart[id^="mermaid-"] {
   --index-date-w: 4.25rem;
   --index-gap: 1rem;
   --index-pad-x: 0.75rem;
-  --index-thumb-w: 4.5rem;
   --index-sticky-top: 5rem;
   --index-hair: color-mix(in oklch, var(--text-secondary) 16%, transparent);
   --index-tint: color-mix(in oklch, var(--primary-color) 6%, transparent);
@@ -1471,18 +1470,9 @@ svg.flowchart[id^="mermaid-"] {
   gap: clamp(2rem, 4vw, 2.75rem);
 
   @media (width < 40rem) {
-    --index-thumb-w: 4rem;
     --index-pad-x: 0.625rem;
 
     gap: 2rem;
-  }
-}
-
-.blog-index[data-blog-index] {
-  --index-thumb-w: 6rem;
-
-  @media (width < 40rem) {
-    --index-thumb-w: 5rem;
   }
 }
 
@@ -1856,23 +1846,9 @@ svg.flowchart[id^="mermaid-"] {
   color: var(--primary-color);
 }
 
-/* The cover as itself, no veil: a small window, cropped to one shape so the column stays even */
+/* The cover itself is PostCover's row variant (_post-cover.scss): it keeps the right edge */
 .blog-index__thumb {
-  display: block;
   grid-area: media;
-  width: var(--index-thumb-w);
-  height: auto;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
-  border-radius: 0.375rem;
-  background: color-mix(in oklch, var(--text-secondary) 10%, transparent);
-  outline: 1px solid color-mix(in oklch, var(--heading-color) 8%, transparent);
-  outline-offset: -1px;
-  transition: scale var(--motion-small) var(--motion-ease-out);
-
-  .blog-index__row:hover & {
-    scale: 1.04;
-  }
 }
 
 /* ── A year's digests, folded ── */
@@ -2025,8 +2001,7 @@ svg.flowchart[id^="mermaid-"] {
 
   .blog-index__row:active,
   .index-seg__option:active,
-  .blog-index__issue:active,
-  .blog-index__row:hover .blog-index__thumb {
+  .blog-index__issue:active {
     scale: none;
   }
 

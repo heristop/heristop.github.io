@@ -157,7 +157,7 @@
   --lead-title-size: clamp(1.2rem, 1rem + 0.8vw, 1.5rem);
   --lead-title-lh: calc(var(--lead-title-size) * 1.25);
   --lead-surface: var(--surface-card);
-  --thumb-w: clamp(13rem, 6rem + 14vw, 19rem);
+  --thumb-w: clamp(11rem, 5rem + 11vw, 15rem);
   --lead-dot-y: calc(1px + var(--lead-pad) + var(--eyebrow-lh) + var(--lead-title-gap) + var(--lead-title-lh) / 2);
 
   display: flex;
@@ -467,19 +467,9 @@
     color: var(--primary-color);
   }
 
-  /* Whole image at its own aspect: banners often carry their title, so nothing is cropped */
+  /* The cover itself is PostCover's feature variant (_post-cover.scss) */
   &__thumb {
-    display: block;
     justify-self: end;
-
-    /* Near-square banners are capped at 11rem tall instead of towering over the text */
-    width: min(100%, 11rem * var(--thumb-ratio, 1.6));
-    height: auto;
-    aspect-ratio: var(--thumb-ratio, 16 / 10);
-    object-fit: cover;
-    border-radius: var(--row-radius);
-    outline: 1px solid color-mix(in oklch, var(--heading-color) 8%, transparent);
-    outline-offset: -1px;
   }
 
   /* ── Rows ──
@@ -590,12 +580,13 @@
     }
 
     &__thumb {
+      --cover-w: 100%;
+
       order: -1;
-      width: 100%;
     }
 
     &__stop--thumb {
-      --dot-y: calc(var(--lead-dot-y) + (100cqw - 2 * var(--lead-pad) - 2px) / var(--thumb-ratio) + 0.875rem);
+      --dot-y: calc(var(--lead-dot-y) + (100cqw - 2 * var(--lead-pad) - 2px) * 3 / 8 + 0.875rem);
     }
 
     &__row {

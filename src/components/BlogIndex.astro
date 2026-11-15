@@ -6,6 +6,7 @@
 import type { CollectionEntry } from "astro:content";
 import { buildBlogIndex, rowDate } from "../utils/blog-index";
 import { publicImage } from "../utils/public-image";
+import PostCover from "./PostCover.astro";
 
 interface Props {
   posts: CollectionEntry<"blog">[];
@@ -113,15 +114,11 @@ const thumbs = new Map(
                   )}
                 </span>
                 {thumb && (
-                  <img
+                  <PostCover
                     class="blog-index__thumb"
-                    src={thumb.src}
-                    alt=""
-                    width={thumb.width}
-                    height={thumb.height}
-                    loading="lazy"
-                    decoding="async"
-                    style={post.data.bannerPosition ? `object-position: ${post.data.bannerPosition}` : undefined}
+                    image={thumb}
+                    variant="row"
+                    position={post.data.bannerPosition}
                   />
                 )}
               </a>

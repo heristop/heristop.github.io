@@ -1,9 +1,6 @@
 ---
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import { ClientRouter } from "astro:transitions";
 import { Image, getImage } from "astro:assets";
-import { imageMetadata } from "astro/assets/utils";
 import {
   SITE_DESCRIPTION,
   SITE_TITLE,
@@ -15,6 +12,8 @@ import BaseHead from "../components/BaseHead.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import Icon from "../components/Icon.astro";
+import PostCover from "../components/PostCover.astro";
+import { publicImage } from "../utils/public-image";
 import ZenFade from "../components/zen/ZenFade.astro";
 import ZenHaikuReveal from "../components/client/zen-haiku-reveal";
 import haikuDaily from "../components/client/haiku-daily";
@@ -65,25 +64,7 @@ const isFresh = (date?: Date): boolean =>
 const minutesFor = (post: (typeof posts)[number]): number =>
   readingMinutes(countWords(post.body ?? ""));
 
-// Post banners live in public/: no pipeline to resize them, so read their intrinsic size for the
-// width/height attributes (no layout shift) and let the browser downscale the lazy thumbnail
-const readPublicImageSize = async (src: string): Promise<{ width?: number; height?: number }> => {
-  if (!src.startsWith("/")) {
-    return {};
-  }
-  try {
-    const { width, height } = await imageMetadata(await readFile(join(process.cwd(), "public", src)), src);
-    return { width, height };
-  } catch {
-    return {};
-  }
-};
-const leadThumb = leadPost?.data.image
-  ? { src: leadPost.data.image, ...(await readPublicImageSize(leadPost.data.image)) }
-  : undefined;
-// Banners often carry their own title: the thumbnail keeps the whole image at its own aspect
-const leadThumbRatio =
-  leadThumb?.width && leadThumb.height ? +(leadThumb.width / leadThumb.height).toFixed(4) : undefined;
+const leadThumb = leadPost?.data.image ? await publicImage(leadPost.data.image) : undefined;
 
 // Today's garden, dressed from the same snapshot the game ships, so the card and the game agree.
 const gardenLook = todaysGarden(parseGardenSeed(gardenData));
@@ -163,8 +144,8 @@ const websiteSchema = {
           <ol class="latest-posts__path zen-stagger">
             {leadPost && (
               <li
-                class:list={["latest-posts__stop latest-posts__stop--lead", { "latest-posts__stop--thumb": leadThumbRatio }]}
-                style={`--stop: 0${leadThumbRatio ? `; --thumb-ratio: ${leadThumbRatio}` : ""}`}
+                class:list={["latest-posts__stop latest-posts__stop--lead", { "latest-posts__stop--thumb": leadThumb }]}
+                style="--stop: 0"
               >
                 <a
                   class="latest-posts__lead latest-posts__item"
@@ -210,15 +191,11 @@ const websiteSchema = {
                     )}
                   </span>
                   {leadThumb && (
-                    <img
+                    <PostCover
                       class="latest-posts__thumb"
-                      src={leadThumb.src}
-                      alt=""
-                      width={leadThumb.width}
-                      height={leadThumb.height}
-                      loading="lazy"
-                      decoding="async"
-                      style={leadPost.data.bannerPosition ? `object-position: ${leadPost.data.bannerPosition}` : undefined}
+                      image={leadThumb}
+                      variant="feature"
+                      position={leadPost.data.bannerPosition}
                     />
                   )}
                 </a>

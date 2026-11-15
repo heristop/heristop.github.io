@@ -1,0 +1,23 @@
+---
+import type { PublicImage } from "../utils/public-image";
+
+interface Props {
+  image: PublicImage;
+  variant: "feature" | "row";
+  position?: string;
+  class?: string;
+}
+
+const { image, variant, position, class: className } = Astro.props;
+---
+
+<img
+  class:list={["post-cover", `post-cover--${variant}`, className]}
+  src={image.src}
+  alt=""
+  width={image.width}
+  height={image.height}
+  loading="lazy"
+  decoding="async"
+  style={position ? `object-position: ${position}` : undefined}
+/>

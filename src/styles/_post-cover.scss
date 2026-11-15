@@ -1,0 +1,47 @@
+/* ── Post cover (PostCover.astro) ──
+   One banner, two sizes: the home's lead card (feature) and the archive rows (row). Every cover
+   shares one wide frame, so widths and heights match from row to row; a banner's centre (where
+   its title sits) stays in view, and bannerPosition moves the crop when it doesn't. */
+.post-cover {
+  --cover-aspect: 8 / 3;
+  --cover-w: 9rem;
+  --cover-radius: 0.5rem;
+
+  display: block;
+  flex-shrink: 0;
+  width: var(--cover-w);
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: var(--cover-aspect);
+  object-fit: cover;
+  border-radius: var(--cover-radius);
+  background: color-mix(in oklch, var(--text-secondary) 10%, transparent);
+  outline: 1px solid color-mix(in oklch, var(--heading-color) 8%, transparent);
+  outline-offset: -1px;
+  transition: scale var(--motion-small) var(--motion-ease-out);
+
+  a:is(:hover, :focus-visible) & {
+    scale: 1.03;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    a:is(:hover, :focus-visible) & {
+      scale: none;
+    }
+  }
+}
+
+.post-cover--feature {
+  --cover-w: clamp(11rem, 5rem + 11vw, 15rem);
+  --cover-radius: 0.625rem;
+}
+
+.post-cover--row {
+  --cover-w: 9rem;
+
+  @media (width < 40rem) {
+    --cover-w: 6.5rem;
+  }
+}
