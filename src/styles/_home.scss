@@ -1147,101 +1147,229 @@ html:is([data-page-arrived], [data-garden-return]) .latest-posts__stop::after {
 }
 
 
-/* Today's Garden: one quiet card linking to the game, with the day's look and the countdown. */
+/* Today's Garden: the lead card's paper, with a small window onto the day's garden. The sky takes
+   the hour, the planting takes the style and season, and the day's visitor idles on the stone. */
 .today-garden-section {
   margin-top: var(--space-lg);
 }
 
 .today-garden {
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 1.75rem);
   align-items: center;
-  gap: var(--space-md, 1.5rem);
-  padding: 1.25rem 1.5rem;
-  border: 1px solid color-mix(in oklch, var(--primary-color) 18%, transparent);
-  border-radius: var(--radius-lg);
-  color: inherit;
+  padding: 1rem;
+  border: 1px solid color-mix(in oklch, var(--primary-color) 10%, var(--border-glass));
+  border-radius: 1rem;
+  background: var(--surface-card);
+  box-shadow:
+    var(--home-card-shadow),
+    0 1px 0 var(--surface-glass-strong),
+    inset 0 1px 0 var(--border-glass);
+  color: var(--heading-color);
   text-decoration: none;
   transition:
-    border-color 200ms var(--zen-ease-out),
-    translate 200ms var(--zen-ease-out);
+    transform var(--motion-small) var(--motion-ease-out),
+    box-shadow var(--motion-small) var(--motion-ease-out);
 
-  &:hover {
-    border-color: color-mix(in oklch, var(--primary-color) 40%, transparent);
-    translate: 0 -2px;
+  &:is(:hover, :focus-visible) {
+    color: var(--heading-color);
+    transform: translateY(-2px);
+    box-shadow:
+      var(--home-card-shadow-hover),
+      0 1px 0 var(--surface-glass-strong),
+      inset 0 1px 0 var(--border-glass);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 4px;
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    &:hover { translate: none; }
+    &:is(:hover, :focus-visible) {
+      transform: none;
+    }
   }
 
-  @media (width <= 520px) {
-    align-items: flex-start;
+  @media (width < 34rem) {
+    grid-template-columns: minmax(0, 1fr);
     gap: 1rem;
-    padding: 1rem;
   }
 }
 
-.today-garden__scene {
+/* The window: the game's painted sky for the hour and season, cropped so its mountains sit above
+   the dark ground the board stands on. A stepping stone, the style's planting, and the day's
+   visitor stand on that ground. Every sprite is drawn at exactly half its source size. */
+.today-garden__window {
   position: relative;
-  flex: 0 0 88px;
-  height: 80px;
+  isolation: isolate;
+  inline-size: 13rem;
+  block-size: 9rem;
+  overflow: hidden;
+  border-radius: 0.625rem;
+  background: oklch(27% 0.04 260deg);
+  box-shadow:
+    inset 0 0 0 1px oklch(20% 0.03 350deg / 12%),
+    0 10px 20px -14px oklch(20% 0.04 350deg / 45%);
 
-  img {
+  /* The sky is its own layer, so it can drift closer on hover without moving the sprites */
+  &::before {
+    content: "";
     position: absolute;
-    image-rendering: pixelated;
+    z-index: -1;
+    inset: 0;
+    background: var(--sky, linear-gradient(oklch(62% 0.08 300deg), oklch(82% 0.09 45deg))) center 30% / auto 160%
+      no-repeat;
+    transition: scale 900ms var(--motion-ease-out);
   }
 
-}
-
-.today-garden__tile {
-  bottom: 0;
-  left: 12px;
-
-  &--back {
-    bottom: 16px;
-    left: 24px;
-    opacity: 0.8;
+  .today-garden:is(:hover, :focus-visible) &::before {
+    scale: 1.05;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    &::before {
+      transition: none;
+    }
+
+    .today-garden:is(:hover, :focus-visible) &::before {
+      scale: none;
+    }
+  }
+
+  @media (width < 34rem) {
+    inline-size: 100%;
+
+    &::before {
+      background-size: 100% auto;
+    }
+  }
 }
 
+.today-garden__stone,
+.today-garden__tree,
 .today-garden__creature {
-  bottom: 22px;
-  left: 30px;
+  position: absolute;
+}
+
+.today-garden__stone {
+  left: calc(50% - 3rem);
+  bottom: 0.5rem;
+  inline-size: 8rem;
+  block-size: 4rem;
+}
+
+.today-garden__tree {
+  left: calc(50% - 6.25rem);
+  bottom: 0.75rem;
+  inline-size: 4rem;
+  block-size: 8rem;
+}
+
+/* One frame of the visitor's six-frame strip at a time, stepped through slowly */
+.today-garden__creature {
+  left: calc(50% - 1rem);
+  bottom: 1.6rem;
+  inline-size: 4rem;
+  block-size: 4rem;
+  background: var(--sprite) 0 0 / 24rem 4rem no-repeat;
+  animation: today-garden-idle 1.8s steps(6) infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes today-garden-idle {
+  to {
+    background-position-x: -24rem;
+  }
 }
 
 .today-garden__body {
-  display: grid;
-  gap: 0.25rem;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
 }
 
-.today-garden__look {
-  color: var(--text-secondary);
-  font-size: 0.8125rem;
-  letter-spacing: 0.02em;
+.today-garden__title {
+  font-size: clamp(1.2rem, 1rem + 0.8vw, 1.5rem);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--heading-color);
+  transition: color var(--motion-micro) var(--motion-ease-out);
+
+  .today-garden:is(:hover, :focus-visible) & {
+    color: var(--link-color-secondary);
+  }
 }
 
-.today-garden__title {
-  font-family: Georgia, serif;
-  font-size: 1.25rem;
-  font-weight: 400;
+/* The day's dress, in the stamp voice the lead card uses for its captions */
+.today-garden__look {
+  margin-top: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
 .today-garden__text {
+  margin-top: 0.6rem;
+  max-inline-size: 60ch;
   line-height: 1.55;
 }
 
+.today-garden__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.9rem;
+}
+
+.today-garden__walk {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.today-garden__arrow {
+  transition: translate var(--motion-small) var(--motion-ease-out);
+
+  .today-garden:is(:hover, :focus-visible) & {
+    translate: 3px 0;
+  }
+}
+
 .today-garden__next {
+  font-size: 0.8125rem;
   color: var(--text-secondary);
-  font-size: 0.875rem;
 }
 
 .today-garden__timer {
   font-variant-numeric: tabular-nums;
+  color: var(--heading-color);
+}
+
+/* At night the card is the raised paper of the lead card */
+@include scheme.night {
+  .today-garden {
+    background: var(--night-card-raised);
+    box-shadow:
+      var(--home-card-shadow),
+      var(--night-card-rim);
+
+    &:is(:hover, :focus-visible) {
+      background: var(--night-card-lifted);
+      box-shadow: var(--night-card-lifted-shadow);
+    }
+  }
 }

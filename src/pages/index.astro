@@ -2,7 +2,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ClientRouter } from "astro:transitions";
-import { Image } from "astro:assets";
+import { Image, getImage } from "astro:assets";
 import { imageMetadata } from "astro/assets/utils";
 import {
   SITE_DESCRIPTION,
@@ -85,11 +85,27 @@ const leadThumb = leadPost?.data.image
 const leadThumbRatio =
   leadThumb?.width && leadThumb.height ? +(leadThumb.width / leadThumb.height).toFixed(4) : undefined;
 
-// The raw GitHub files are the fallback: the island reads GutenKu's API (PUBLIC_GUTENKU_API) at
-// runtime and swaps in its card, so the static build never waits on, nor breaks with, the API
 // Today's garden, dressed from the same snapshot the game ships, so the card and the game agree.
 const gardenLook = todaysGarden(parseGardenSeed(gardenData));
+// The planting that names the style, in the season's colours (the dry garden's rocks have none).
+const gardenTree = {
+  orchard: "sakura", pine: "pine", bamboo: "bamboo-a", moss: "maple", dry: "rock-mound",
+}[gardenLook.style];
+const gardenTreeFile =
+  gardenTree !== "rock-mound" && (gardenLook.season === "autumn" || gardenLook.season === "winter")
+    ? `${gardenTree}-${gardenLook.season}`
+    : gardenTree;
+// The game's own painted sky for the hour and season (summer is the plain file), cut down for a card.
+const sanctuaries = import.meta.glob<{ default: ImageMetadata }>(
+  "../../packages/path-of-stones/assets/images/sanctuary-*.webp",
+  { eager: true },
+);
+const sanctuaryName = `sanctuary-${gardenLook.time}${gardenLook.season === "summer" ? "" : `-${gardenLook.season}`}`;
+const sanctuary = Object.entries(sanctuaries).find(([path]) => path.endsWith(`/${sanctuaryName}.webp`))?.[1].default;
+const gardenSky = sanctuary ? await getImage({ src: sanctuary, width: 720, format: "webp" }) : undefined;
 
+// The raw GitHub files are the fallback: the island reads GutenKu's API (PUBLIC_GUTENKU_API) at
+// runtime and swaps in its card, so the static build never waits on, nor breaks with, the API
 const timestamp = Date.now();
 const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/assets/img/daily_haiku_card.jpg?t=${timestamp}`;
 
@@ -348,20 +364,33 @@ const websiteSchema = {
             Today’s Garden
           </h2>
           <a class="today-garden" href="/path-of-stones/" data-scroll-reveal="settle">
-            <span class="today-garden__scene" aria-hidden="true">
-              <img class="today-garden__tile today-garden__tile--back" src={assetUrl("images/ground/moss-mid.png")} alt="" width="64" height="64" />
-              <img class="today-garden__tile" src={assetUrl("images/ground/stone-slab.png")} alt="" width="64" height="64" />
-              <img class="today-garden__creature" src={assetUrl(`images/hd/creatures/${gardenLook.creature}.png`)} alt="" width="40" height="40" />
+            <span
+              class="today-garden__window"
+              style={gardenSky && `--sky: url("${gardenSky.src}")`}
+              aria-hidden="true"
+            >
+              <img class="today-garden__tree" src={assetUrl(`images/hd/scenery/${gardenTreeFile}.png`)} alt="" width="64" height="128" loading="lazy" decoding="async" />
+              <img class="today-garden__stone" src={assetUrl("images/hd/board/stone.png")} alt="" width="128" height="64" loading="lazy" decoding="async" />
+              <span
+                class="today-garden__creature"
+                style={`--sprite: url("${assetUrl(`images/hd/creatures/${gardenLook.creature}.png`)}")`}
+              ></span>
             </span>
             <span class="today-garden__body">
-              <span class="today-garden__look">{gardenLook.heading}</span>
               <strong class="today-garden__title">Path of Stones</strong>
+              <span class="today-garden__look">{gardenLook.heading}</span>
               <span class="today-garden__text">
                 A small garden grown from a fortnight of my GitHub activity. {gardenLook.visitor}
                 {gardenLook.rare && ` ${gardenLook.rare}`}
               </span>
-              <span class="today-garden__next">
-                Next garden in <span class="today-garden__timer" data-garden-countdown></span>
+              <span class="today-garden__foot">
+                <span class="today-garden__walk">
+                  Walk today’s path
+                  <Icon name="arrow-right" size={16} class="today-garden__arrow" aria-hidden={true} />
+                </span>
+                <span class="today-garden__next">
+                  Next garden in <span class="today-garden__timer" data-garden-countdown></span>
+                </span>
               </span>
             </span>
           </a>

@@ -75,8 +75,10 @@ export const startGardenCountdown = (doc: Document = document): (() => void) => 
       }
       if (hm.textContent !== main) hm.textContent = main;
       ss.textContent = seconds;
-      // The tag itself is decorative (aria-hidden, no pointer events); the link carries the
-      // sentence, changed only when the wording does.
+      // The header's tag is decorative (aria-hidden, no pointer events), so its link carries the
+      // sentence, changed only when the wording does. A timer shown in the page's own text needs
+      // no tooltip repeating it.
+      if (target.getAttribute("aria-hidden") !== "true") continue;
       const link = target.closest("a");
       if (link && link.title !== label) link.title = label;
     }

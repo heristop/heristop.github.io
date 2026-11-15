@@ -41,7 +41,7 @@ describe("garden countdown", () => {
 
   it("ticks every second and stops when asked", () => {
     vi.setSystemTime(new Date("2026-11-13T13:59:58Z"));
-    document.body.innerHTML = '<a href="/path-of-stones/"><span data-garden-countdown></span></a>';
+    document.body.innerHTML = '<a href="/path-of-stones/"><span aria-hidden="true" data-garden-countdown></span></a>';
     const badge = document.querySelector<HTMLElement>("[data-garden-countdown]")!;
     const stop = startGardenCountdown();
     expect(badge.textContent).toBe("2s");
@@ -55,5 +55,15 @@ describe("garden countdown", () => {
     stop();
     vi.advanceTimersByTime(5000);
     expect(badge.textContent).toBe("24h 00m\u200900s");
+  });
+
+  it("leaves a timer shown in the text without a tooltip", () => {
+    vi.setSystemTime(new Date("2026-11-13T13:00:00Z"));
+    document.body.innerHTML =
+      '<a href="/path-of-stones/">Next garden in <span data-garden-countdown></span></a>';
+    const stop = startGardenCountdown();
+    expect(document.querySelector("[data-garden-countdown]")!.textContent).toBe("1h 00m\u200900s");
+    expect(document.querySelector("a")!.title).toBe("");
+    stop();
   });
 });
