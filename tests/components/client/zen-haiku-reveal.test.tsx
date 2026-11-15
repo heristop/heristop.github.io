@@ -22,28 +22,49 @@ The trees were buzzing
 ~~~
 `;
 
+const API_URL = "https://gutenku.test/api/daily-haiku";
+
+const DAILY = {
+  book: { author: "Friedrich Wilhelm Nietzsche", emoticons: "📜🧔‍♂️🏔️", title: "Thus Spake Zarathustra" },
+  cardUrl: "https://gutenku.test/api/daily-haiku/card.jpg?d=2026-10-23&v=1",
+  date: "2026-10-23",
+  nextRolloverAt: "2026-10-24T10:00:00.000Z",
+  publishedAt: "2026-10-23T10:00:00.000Z",
+  reading: "Radiance tips into longing.",
+  title: "Gilded Joy, Sudden Cry",
+  verses: ["the golden marvel", "longeth thy smiling for tears", "the spontaneous bark"],
+};
+
 const respond = (body: string) => ({ ok: true, text: async () => body });
+const respondJson = (body: unknown) => ({ json: async () => body, ok: true, status: 200 });
+const notFound = { json: async () => ({ error: "not_found" }), ok: false, status: 404 };
+
+/* The API misses (404, as before the first publication); every other URL answers with `text` */
+const fallbackFetch = (text: (input: string) => string) =>
+  vi.fn((input: string) =>
+    Promise.resolve(input.startsWith(API_URL) ? notFound : respond(text(input))),
+  ) as unknown as typeof fetch;
 
 beforeEach(() => {
-  globalThis.fetch = vi.fn().mockResolvedValue(
-    respond("old pond / a frog jumps in / sound of water"),
-  ) as unknown as typeof fetch;
+  globalThis.fetch = fallbackFetch(() => "old pond / a frog jumps in / sound of water");
 });
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
 describe("<ZenHaikuReveal />", () => {
   it("renders the haiku container while loading", () => {
-    const { container } = render(<ZenHaikuReveal url="/api/haiku" />);
+    const { container } = render(<ZenHaikuReveal apiUrl={API_URL} url="/api/haiku" />);
     expect(container.querySelector(".haiku-card__quote")).toBeTruthy();
     expect(container.querySelector(".haiku-skeleton")).toBeTruthy();
   });
 
   it("exposes the fetched haiku once as visually hidden text", async () => {
-    const { container } = render(<ZenHaikuReveal url="/api/haiku" />);
+    const { container } = render(<ZenHaikuReveal apiUrl={API_URL} url="/api/haiku" />);
     await waitFor(() => {
       const node = container.querySelector(".haiku-card__quote");
       expect(node?.hasAttribute("aria-label")).toBe(false);
@@ -55,7 +76,7 @@ describe("<ZenHaikuReveal />", () => {
 
   it("falls back to default message when fetch fails", async () => {
     globalThis.fetch = vi.fn().mockRejectedValue(new Error("nope")) as unknown as typeof fetch;
-    const { container } = render(<ZenHaikuReveal url="/api/haiku" sourceUrl="/api/social" />);
+    const { container } = render(<ZenHaikuReveal apiUrl={API_URL} url="/api/haiku" sourceUrl="/api/social" />);
     await waitFor(() => {
       const node = container.querySelector(".haiku-card__quote .sr-only");
       expect(node?.textContent).toContain("A fresh haiku");
@@ -65,7 +86,7 @@ describe("<ZenHaikuReveal />", () => {
   });
 
   it("dates the note and counts down to the next verse once mounted", async () => {
-    const { container } = render(<ZenHaikuReveal url="/api/haiku" />);
+    const { container } = render(<ZenHaikuReveal apiUrl={API_URL} url="/api/haiku" />);
     await waitFor(() => {
       expect(container.querySelector(".haiku-card__eyebrow time")?.getAttribute("dateTime")).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(container.querySelector(".haiku-card__next")?.textContent).toMatch(/Next verse in \d+ (h|min)/);
@@ -73,10 +94,8 @@ describe("<ZenHaikuReveal />", () => {
   });
 
   it("leads with the first sentence and keeps it out of the reading", async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue(
-      respond("A quiet meal by the water. The forest hums back."),
-    ) as unknown as typeof fetch;
-    const { container } = render(<ZenHaikuReveal url="/api/haiku" />);
+    globalThis.fetch = fallbackFetch(() => "A quiet meal by the water. The forest hums back.");
+    const { container } = render(<ZenHaikuReveal apiUrl={API_URL} url="/api/haiku" />);
     await waitFor(() => {
       expect(container.querySelector(".haiku-card__lead")?.textContent).toBe("A quiet meal by the water.");
     });
@@ -84,10 +103,10 @@ describe("<ZenHaikuReveal />", () => {
   });
 
   it("titles the note and traces the source from GutenKu's post", async () => {
-    globalThis.fetch = vi.fn((input: string) =>
-      Promise.resolve(respond(input.startsWith("/api/social") ? SOCIAL : "The reading. More reading.")),
-    ) as unknown as typeof fetch;
-    const { container } = render(<ZenHaikuReveal url="/api/haiku" sourceUrl="/api/social" />);
+    globalThis.fetch = fallbackFetch((input) =>
+      input.startsWith("/api/social") ? SOCIAL : "The reading. More reading.",
+    );
+    const { container } = render(<ZenHaikuReveal apiUrl={API_URL} url="/api/haiku" sourceUrl="/api/social" />);
     const trace = await screen.findByRole("button", { name: /trace the source/i });
     expect(container.querySelector(".haiku-card__lead")?.textContent).toBe("Whispers in the Grove");
     expect(container.querySelector(".haiku-card__quote .sr-only")?.textContent).toBe("The reading. More reading.");
@@ -101,6 +120,77 @@ describe("<ZenHaikuReveal />", () => {
     expect(container.querySelector(".haiku-card__riddle")).toBeNull();
   });
 
+  it("reads the day from GutenKu's API without touching the raw files", async () => {
+    const fetchMock = vi.fn((input: string) =>
+      Promise.resolve(input === API_URL ? respondJson(DAILY) : respond("raw")),
+    );
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    const { container } = render(<ZenHaikuReveal apiUrl={API_URL} url="/api/haiku" sourceUrl="/api/social" />);
+    const trace = await screen.findByRole("button", { name: /trace the source/i });
+    expect(container.querySelector(".haiku-card__lead")?.textContent).toBe("Gilded Joy, Sudden Cry");
+    expect(container.querySelector(".haiku-card__quote .sr-only")?.textContent).toBe("Radiance tips into longing.");
+    expect(screen.getByText(/Today’s haiku: the golden marvel \/ longeth/)).toBeTruthy();
+    const panel = document.getElementById(trace.getAttribute("aria-controls") ?? "");
+    expect(panel?.querySelector("cite")?.textContent).toBe("Thus Spake Zarathustra");
+    expect(panel?.textContent).toContain("Friedrich Wilhelm Nietzsche");
+    expect(panel?.querySelector(".haiku-card__bookmoji")?.textContent).toBe("📜🧔‍♂️🏔️");
+    expect(fetchMock.mock.calls.map(([input]) => input)).toEqual([API_URL]);
+  });
+
+  it("counts down to the API's announced rollover", async () => {
+    vi.useFakeTimers({ now: new Date("2026-10-24T07:30:00Z"), toFake: ["Date"] });
+    globalThis.fetch = vi.fn(() =>
+      Promise.resolve(respondJson({ ...DAILY, nextRolloverAt: "2026-10-24T12:00:00.000Z" })),
+    ) as unknown as typeof fetch;
+    const { container } = render(<ZenHaikuReveal apiUrl={API_URL} url="/api/haiku" />);
+    await waitFor(() => {
+      expect(container.querySelector(".haiku-card__lead")?.textContent).toBe("Gilded Joy, Sudden Cry");
+    });
+    expect(container.querySelector(".haiku-card__next")?.textContent).toBe("Next verse in 4 h");
+  });
+
+  it("swaps the API's card into the page once it has loaded", async () => {
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      '<img data-haiku-card-image src="https://raw.githubusercontent.com/card.jpg" alt="">',
+    );
+    const image = document.querySelector<HTMLImageElement>("[data-haiku-card-image]");
+    const loads: HTMLImageElement[] = [];
+    const { Image: NativeImage } = globalThis;
+    vi.stubGlobal(
+      "Image",
+      class extends NativeImage {
+        constructor() {
+          super();
+          loads.push(this);
+        }
+      },
+    );
+    globalThis.fetch = vi.fn(() => Promise.resolve(respondJson(DAILY))) as unknown as typeof fetch;
+    render(<ZenHaikuReveal apiUrl={API_URL} url="/api/haiku" />);
+    await waitFor(() => {
+      expect(loads[0]?.src).toBe(DAILY.cardUrl);
+    });
+    expect(image?.src).toBe("https://raw.githubusercontent.com/card.jpg");
+    loads[0]?.dispatchEvent(new Event("load"));
+    expect(image?.src).toBe(DAILY.cardUrl);
+    image?.remove();
+  });
+
+  it("keeps the raw card when the API misses", async () => {
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      '<img data-haiku-card-image src="https://raw.githubusercontent.com/card.jpg" alt="">',
+    );
+    const image = document.querySelector<HTMLImageElement>("[data-haiku-card-image]");
+    const { container } = render(<ZenHaikuReveal apiUrl={API_URL} url="/api/haiku" />);
+    await waitFor(() => {
+      expect(container.querySelector(".haiku-card__quote .sr-only")?.textContent).toContain("old pond");
+    });
+    expect(image?.src).toBe("https://raw.githubusercontent.com/card.jpg");
+    image?.remove();
+  });
+
   it("offers the whole reading only when it overflows the clamp", async () => {
     const offset = vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(400);
     const style = globalThis.getComputedStyle;
@@ -112,7 +202,7 @@ describe("<ZenHaikuReveal />", () => {
         lineHeight: "24px",
       } as CSSStyleDeclaration;
     });
-    render(<ZenHaikuReveal url="/api/haiku" />);
+    render(<ZenHaikuReveal apiUrl={API_URL} url="/api/haiku" />);
     const more = await screen.findByRole("button", { name: /read the whole reading/i });
     const clamp = document.getElementById(more.getAttribute("aria-controls") ?? "");
     expect(clamp?.classList.contains("haiku-card__clamp")).toBe(true);

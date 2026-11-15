@@ -148,9 +148,16 @@ const HaikuTrace = ({ source }: { source: HaikuSource }) => {
   );
 };
 
+interface HaikuFootProps {
+  now: Date | undefined;
+  /** The API's nextRolloverAt; without it the 10:00 UTC rule applies */
+  rolloverAt?: Date;
+  source: HaikuSource | undefined;
+}
+
 /* The day's ring fills from one GutenKu rollover to the next */
-const HaikuFoot = ({ now, source }: { now: Date | undefined; source: HaikuSource | undefined }) => {
-  const next = now ? nextVerse(now) : undefined;
+const HaikuFoot = ({ now, rolloverAt, source }: HaikuFootProps) => {
+  const next = now ? nextVerse(now, rolloverAt) : undefined;
   return (
     <>
       <div className="haiku-card__foot">

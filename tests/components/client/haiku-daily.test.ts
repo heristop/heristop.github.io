@@ -58,6 +58,23 @@ describe("nextVerse", () => {
   it("switches to minutes in the last hour", () => {
     expect(nextVerse(new Date("2026-10-11T09:35:10Z")).label).toBe("Next verse in 25 min");
   });
+
+  it("follows the rollover the API announces while it lies ahead", () => {
+    const verse = nextVerse(new Date("2026-10-11T01:00:00Z"), new Date("2026-10-11T13:00:00Z"));
+    expect(verse.label).toBe("Next verse in 12 h");
+    expect(verse.progress).toBeCloseTo(12 / 24);
+  });
+
+  it("falls back to 10:00 UTC once the announced rollover has passed", () => {
+    const verse = nextVerse(new Date("2026-10-11T11:00:00Z"), new Date("2026-10-11T10:00:00Z"));
+    expect(verse.label).toBe("Next verse in 23 h");
+  });
+
+  it("keeps the ring within a day for a far-off rollover", () => {
+    const verse = nextVerse(new Date("2026-10-11T01:00:00Z"), new Date("2026-10-13T10:00:00Z"));
+    expect(verse.label).toBe("Next verse in 57 h");
+    expect(verse.progress).toBe(0);
+  });
 });
 
 describe("parseHaikuSource", () => {

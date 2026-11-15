@@ -43,20 +43,28 @@ const haikuDay = (now: Date): HaikuDay => {
   };
 };
 
-/** Time left before the next rollover, and how much of the verse's day has passed (0–1) */
-const nextVerse = (now: Date): NextVerse => {
+const localRollover = (now: Date) => {
   const next = new Date(now);
   next.setUTCHours(ROLLOVER_UTC_HOUR, 0, 0, 0);
   if (next.getTime() <= now.getTime()) {
     next.setTime(next.getTime() + DAY_MS);
   }
+  return next;
+};
+
+/**
+ * Time left before the next rollover, and how much of the verse's day has passed (0–1). The
+ * server's announced rollover wins while it lies ahead; otherwise the 10:00 UTC rule applies.
+ */
+const nextVerse = (now: Date, rolloverAt?: Date): NextVerse => {
+  const next = rolloverAt && rolloverAt.getTime() > now.getTime() ? rolloverAt : localRollover(now);
   const left = next.getTime() - now.getTime();
   const hours = Math.floor(left / HOUR_MS);
   const label =
     hours >= 1
       ? `Next verse in ${hours} h`
       : `Next verse in ${Math.max(1, Math.ceil(left / MINUTE_MS))} min`;
-  return { label, progress: 1 - left / DAY_MS };
+  return { label, progress: Math.min(1, Math.max(0, 1 - left / DAY_MS)) };
 };
 
 const SMALL_WORDS = new Set([

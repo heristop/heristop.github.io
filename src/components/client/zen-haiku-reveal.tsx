@@ -6,6 +6,8 @@ import { usesCoarsePointer } from "@zazencode/ui/pretext-loader";
 import type { CharDrift } from "@zazencode/ui/text-reveal-motion";
 import type { CharCacheEntry } from "./haiku-dissolve";
 import daily from "./haiku-daily";
+import gutenku from "./gutenku-daily-api";
+import type { DailyHaiku } from "./gutenku-daily-api";
 import type { HaikuSource } from "./haiku-daily";
 import { HaikuEyebrow, HaikuFoot, HaikuReading, useNow } from "./haiku-note";
 
@@ -14,8 +16,11 @@ const { DISSOLVE_IDLE_MS, DISSOLVE_RADIUS, processCharEntry, resetElement } = di
 const { parseHaikuSource, splitLead } = daily;
 
 interface Props {
-  /** GutenKu's social post: title, riddle hints, source book and verses */
+  /** GutenKu's daily haiku endpoint; defaults to PUBLIC_GUTENKU_API (or gutenku.xyz) */
+  apiUrl?: string;
+  /** Fallback: GutenKu's social post (title, riddle hints, source book and verses) */
   sourceUrl?: string;
+  /** Fallback: the reading as raw text, used when the API misses */
   url: string;
 }
 
@@ -24,7 +29,10 @@ interface RevealProps {
 }
 
 interface HaikuData {
+  /** The API's versioned card, swapped into the page's card image once it has loaded */
+  cardUrl?: string;
   lead?: string;
+  rolloverAt?: Date;
   source?: HaikuSource;
   text: string;
 }
@@ -108,23 +116,61 @@ const toHaikuData = (reading: PromiseSettledResult<string>, social: PromiseSettl
   return { lead, source, text: body };
 };
 
-const useHaikuFetch = (url: string, sourceUrl: string | undefined) => {
+/* The API hands over every piece already split: the title leads, the reading follows */
+const fromDailyHaiku = (haiku: DailyHaiku): HaikuData => {
+  const source = gutenku.toHaikuSource(haiku);
+  const base = { cardUrl: haiku.cardUrl, rolloverAt: haiku.nextRolloverAt, source };
+  if (source.title) {
+    return { ...base, lead: source.title, text: haiku.reading };
+  }
+  const { body, lead } = splitLead(haiku.reading);
+  return { ...base, lead, text: body };
+};
+
+const fetchFallback = async (url: string, sourceUrl: string | undefined) => {
+  const [reading, social] = await Promise.allSettled([
+    fetchText(url),
+    ...(sourceUrl ? [fetchText(sourceUrl)] : []),
+  ]);
+  return reading ? toHaikuData(reading, social) : undefined;
+};
+
+const useHaikuFetch = (apiUrl: string, url: string, sourceUrl: string | undefined) => {
   const [data, setData] = useState<HaikuData | undefined>();
 
   useEffect(() => {
     let live = true;
     const load = async () => {
-      const [reading, social] = await Promise.allSettled([
-        fetchText(url),
-        ...(sourceUrl ? [fetchText(sourceUrl)] : []),
-      ]);
-      if (live && reading) { setData(toHaikuData(reading, social)); }
+      const haiku = await gutenku.fetchDailyHaiku(apiUrl);
+      const next = haiku ? fromDailyHaiku(haiku) : await fetchFallback(url, sourceUrl);
+      if (live && next) { setData(next); }
     };
     void load();
     return () => { live = false; };
-  }, [url, sourceUrl]);
+  }, [apiUrl, url, sourceUrl]);
 
   return data;
+};
+
+/* The page renders the raw GitHub card; the API's card replaces it only once it has loaded, so
+   a broken or slow image never blanks the frame */
+const useCardImage = (cardUrl: string | undefined) => {
+  useEffect(() => {
+    if (!cardUrl) { return; }
+    const images = document.querySelectorAll<HTMLImageElement>("[data-haiku-card-image]");
+    if (images.length === 0) { return; }
+    let live = true;
+    const preload = new Image();
+    preload.addEventListener("load", () => {
+      if (!live) { return; }
+      for (const image of images) {
+        image.removeAttribute("srcset");
+        image.src = cardUrl;
+      }
+    });
+    preload.src = cardUrl;
+    return () => { live = false; };
+  }, [cardUrl]);
 };
 
 interface CachedChar {
@@ -445,9 +491,10 @@ const HaikuLead = ({ lead }: { lead: string | undefined }) => {
 };
 
 /* The margin note beside the card: date, lead, the revealed reading, then the day's footer */
-const ZenHaikuReveal = ({ sourceUrl, url }: Props) => {
-  const data = useHaikuFetch(url, sourceUrl);
+const ZenHaikuReveal = ({ apiUrl = gutenku.dailyHaikuUrl(), sourceUrl, url }: Props) => {
+  const data = useHaikuFetch(apiUrl, url, sourceUrl);
   const now = useNow();
+  useCardImage(data?.cardUrl);
   const text = data?.text;
   const verses = data?.source?.verses ?? [];
 
@@ -460,7 +507,7 @@ const ZenHaikuReveal = ({ sourceUrl, url }: Props) => {
         {usesCoarsePointer() ? <SimpleHaikuReveal text={text} /> : <FullHaikuReveal text={text} />}
       </HaikuReading>
       <hr className="haiku-card__rule" />
-      <HaikuFoot now={now} source={data?.source} />
+      <HaikuFoot now={now} rolloverAt={data?.rolloverAt} source={data?.source} />
     </>
   );
 };

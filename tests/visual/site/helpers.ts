@@ -36,7 +36,7 @@ const BLANK_PNG = Buffer.from(
 
 /**
  * Fixes everything a run would otherwise vary: the clock, Math.random, the stored theme and
- * the daily haiku fetched from GitHub. Call before the first navigation.
+ * the daily haiku (GutenKu's API misses, GitHub's raw files answer). Call before the first navigation.
  */
 export async function preparePage(page: Page, theme: Theme): Promise<void> {
   await page.clock.setFixedTime(new Date(FROZEN_NOW));
@@ -62,6 +62,10 @@ export async function preparePage(page: Page, theme: Theme): Promise<void> {
       };
     },
     { key: THEME_STORAGE_KEY, value: theme },
+  );
+  // GutenKu's API answers 404 (nothing published), so the card renders from the fixed raw files
+  await page.route(/\/api\/daily-haiku(?:[/?]|$)/, (route) =>
+    route.fulfill({ status: 404, contentType: "application/json", body: '{"error":"not_found"}' }),
   );
   await page.route(/raw\.githubusercontent\.com\/heristop\/gutenku\//, (route) => {
     const url = route.request().url();
