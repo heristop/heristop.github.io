@@ -3,6 +3,9 @@ pnpm build
 # Run unit tests
 pnpm test
 
+# Check the garden's coverage thresholds, as CI does
+pnpm test:garden:coverage
+
 # Format the code
 pnpm format
 
