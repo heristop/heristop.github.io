@@ -1254,31 +1254,54 @@ html:is([data-page-arrived], [data-garden-return]) .latest-posts__stop::after {
   position: absolute;
 }
 
+/* The tree's drawing fills its box and the stone's is 72px wide in the middle of its 128px box.
+   The tree stands a little apart, left of the stone, and the pair (about 142px) is centred. */
 .today-garden__stone {
-  left: calc(50% - 3rem);
+  left: calc(50% - 1.8125rem);
   bottom: 0.5rem;
   inline-size: 8rem;
   block-size: 4rem;
 }
 
 .today-garden__tree {
-  left: calc(50% - 6.25rem);
+  left: calc(50% - 4.625rem);
   bottom: 0.75rem;
   inline-size: 4rem;
   block-size: 8rem;
 }
 
-/* One frame of the visitor's six-frame strip at a time, stepped through slowly */
+/* One frame of the visitor's six-frame strip at a time, stepped through slowly. Every frame is
+   centred with its feet on the bottom row, so the box sits on the stone's centre line
+   (50% + 2.1875rem) with the feet just in front of the middle of its top face (2.5rem up). */
 .today-garden__creature {
-  left: calc(50% - 1rem);
-  bottom: 1.6rem;
+  left: calc(50% + 0.1875rem);
+  bottom: 2.25rem;
   inline-size: 4rem;
   block-size: 4rem;
-  background: var(--sprite) 0 0 / 24rem 4rem no-repeat;
-  animation: today-garden-idle 1.8s steps(6) infinite;
 
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
+  /* A soft contact shadow under the feet, so the visitor stands on the stone */
+  &::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -0.2rem;
+    inline-size: 2.25rem;
+    block-size: 0.5rem;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, oklch(20% 0.03 60deg / 40%), transparent);
+    translate: -50% 0;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--sprite) 0 0 / 24rem 4rem no-repeat;
+    animation: today-garden-idle 1.8s steps(6) infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
   }
 }
 
