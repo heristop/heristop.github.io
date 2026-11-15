@@ -48,7 +48,34 @@ import {
   X,
   // About page: the QR disclosure
   QrCode,
+  createLucideIcon,
 } from "lucide-react";
+
+// Lucide has no stepping or balanced stones; a cairn of three, drawn on its 24px grid and stroke,
+// marks the garden (Path of Stones) sections.
+const Cairn = createLucideIcon("cairn", [
+  [
+    "path",
+    {
+      d: "M3.5 18.25c0-1.9 3.8-3.25 8.5-3.25s8.5 1.35 8.5 3.25S16.7 21 12 21s-8.5-.85-8.5-2.75z",
+      key: "base",
+    },
+  ],
+  [
+    "path",
+    {
+      d: "M6.5 12.25c0-1.6 2.5-2.75 5.75-2.75S18 10.65 18 12.25 15.5 15 12.25 15 6.5 13.85 6.5 12.25z",
+      key: "middle",
+    },
+  ],
+  [
+    "path",
+    {
+      d: "M9 6.25C9 4.9 10.4 3.5 12.25 3.5s3.25 1.4 3.25 2.75-1.4 3.25-3.25 3.25S9 7.6 9 6.25z",
+      key: "top",
+    },
+  ],
+]);
 
 // Explicit imports keep the full Lucide catalogue out of the client bundle.
 export const icons = {
@@ -65,6 +92,7 @@ export const icons = {
   book: Book,
   "book-open": BookOpen,
   briefcase: Briefcase,
+  cairn: Cairn,
   calendar: Calendar,
   check: Check,
   coffee: Coffee,

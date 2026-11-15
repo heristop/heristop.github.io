@@ -359,10 +359,12 @@ const websiteSchema = {
 
         <!-- The game changes every day; the home page says so, and when the next garden comes. -->
         <section class="today-garden-section" aria-labelledby="garden-heading">
-          <h2 id="garden-heading" class="section-heading" data-scroll-reveal>
-            <Icon name="compass" size={24} class="section-heading__icon" aria-hidden={true} />
-            Today’s Garden
-          </h2>
+          <ZenSlide direction="up" delay={600}>
+            <h2 id="garden-heading" class="section-heading" data-scroll-reveal>
+              <Icon name="cairn" size={24} class="section-heading__icon" aria-hidden={true} />
+              Today’s Garden
+            </h2>
+          </ZenSlide>
           <a class="today-garden" href="/path-of-stones/" data-scroll-reveal="settle">
             <span
               class="today-garden__window"
