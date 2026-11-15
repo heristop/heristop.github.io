@@ -148,6 +148,8 @@ describe("the game workspace boundaries", () => {
       "WINDOW_DAYS",
       "ZazenWorld",
       "parseGardenSeed",
+      // The home page's "Today's Garden" card: the day's look in words, never game state.
+      "todaysGarden",
     ]);
   });
 });

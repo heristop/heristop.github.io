@@ -22,6 +22,9 @@ import ZenSlide from "../components/zen/ZenSlide.astro";
 import SakuraPetals from "../components/SakuraPetals.astro";
 import ZenTextReveal from "@zazencode/ui/text-reveal";
 import textReveal from "@zazencode/ui/text-reveal-motion";
+import { parseGardenSeed, todaysGarden } from "@zazencode/path-of-stones";
+import { assetUrl } from "@zazencode/path-of-stones/assets";
+import gardenData from "@zazencode/path-of-stones/snapshot";
 
 const { TITLE_REVEAL_TIMING, titleTransitionName } = textReveal;
 const TITLE_REVEAL_SESSION_KEY = "zen:home-title-reveal";
@@ -81,6 +84,11 @@ const leadThumb = leadPost?.data.image
 // Banners often carry their own title: the thumbnail keeps the whole image at its own aspect
 const leadThumbRatio =
   leadThumb?.width && leadThumb.height ? +(leadThumb.width / leadThumb.height).toFixed(4) : undefined;
+
+// The raw GitHub files are the fallback: the island reads GutenKu's API (PUBLIC_GUTENKU_API) at
+// runtime and swaps in its card, so the static build never waits on, nor breaks with, the API
+// Today's garden, dressed from the same snapshot the game ships, so the card and the game agree.
+const gardenLook = todaysGarden(parseGardenSeed(gardenData));
 
 const timestamp = Date.now();
 const haikuCard = `https://raw.githubusercontent.com/heristop/gutenku/main/assets/img/daily_haiku_card.jpg?t=${timestamp}`;
@@ -296,6 +304,7 @@ const websiteSchema = {
                       width="216"
                       height="270"
                       class="haiku-card__image"
+                      data-haiku-card-image
                       src={haikuCard}
                       alt="Today’s haiku card from GutenKu: three verses set over an ink painting"
                       loading="lazy"
@@ -330,6 +339,32 @@ const websiteSchema = {
             stampSeal();
             document.addEventListener("astro:page-load", stampSeal);
           </script>
+        </section>
+
+        <!-- The game changes every day; the home page says so, and when the next garden comes. -->
+        <section class="today-garden-section" aria-labelledby="garden-heading">
+          <h2 id="garden-heading" class="section-heading" data-scroll-reveal>
+            <Icon name="compass" size={24} class="section-heading__icon" aria-hidden={true} />
+            Today’s Garden
+          </h2>
+          <a class="today-garden" href="/path-of-stones/" data-scroll-reveal="settle">
+            <span class="today-garden__scene" aria-hidden="true">
+              <img class="today-garden__tile today-garden__tile--back" src={assetUrl("images/ground/moss-mid.png")} alt="" width="64" height="64" />
+              <img class="today-garden__tile" src={assetUrl("images/ground/stone-slab.png")} alt="" width="64" height="64" />
+              <img class="today-garden__creature" src={assetUrl(`images/hd/creatures/${gardenLook.creature}.png`)} alt="" width="40" height="40" />
+            </span>
+            <span class="today-garden__body">
+              <span class="today-garden__look">{gardenLook.heading}</span>
+              <strong class="today-garden__title">Path of Stones</strong>
+              <span class="today-garden__text">
+                A small garden grown from a fortnight of my GitHub activity. {gardenLook.visitor}
+                {gardenLook.rare && ` ${gardenLook.rare}`}
+              </span>
+              <span class="today-garden__next">
+                Next garden in <span class="today-garden__timer" data-garden-countdown></span>
+              </span>
+            </span>
+          </a>
         </section>
       </main>
 
