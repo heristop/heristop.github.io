@@ -24,5 +24,5 @@ const canonicalHref = /^\/(?:[^#?]*\/)?[^/#?.]+$/.test(normalizedHref) ? `${norm
 ---
 
 <a href={canonicalHref} class:list={[className, { active: isActive }]} aria-current={currentState} {...props}
-  ><slot />{normalizedHref === "/path-of-stones" && <span class="header__new-badge" aria-hidden="true">New</span>}</a
+  ><slot />{normalizedHref === "/path-of-stones" && <span class="header__new-badge header__new-badge--timer" aria-hidden="true" data-garden-countdown></span>}</a
 >

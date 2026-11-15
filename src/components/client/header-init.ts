@@ -1,6 +1,7 @@
 import initializeSearch from "./header-search";
 import initializeTouchPress from "./touch-press";
 import { describeNewTabLinks } from "./new-tab-links";
+import { startGardenCountdown } from "./garden-countdown";
 import {
   DRAG_SLOP_PX,
   SHEET_QUERY,
@@ -590,6 +591,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeHeader();
   initializeParallax();
   describeNewTabLinks();
+  startGardenCountdown();
 });
 // A client-side swap leaves focus on the old link; move it to the new page's heading
 const focusPageHeading = (): void => {
@@ -606,4 +608,5 @@ document.addEventListener("astro:after-swap", () => {
   initializeParallax();
   focusPageHeading();
   describeNewTabLinks();
+  startGardenCountdown();
 });
